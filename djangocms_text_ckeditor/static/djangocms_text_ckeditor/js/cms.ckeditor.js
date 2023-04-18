@@ -85,6 +85,8 @@
             // add additional plugins (autoloads plugins.js)
             CKEDITOR.skin.addIcon('cmsplugins', settings.static_url +
                 '/ckeditor_plugins/cmsplugins/icons/cmsplugins.svg');
+            CKEDITOR.dtd.$removeEmpty.span = 0;  // allow empty spans for icons
+            CKEDITOR.dtd.$removeEmpty.i = 0;  // allow empty i for icons
 
             var editor;
             if (mode === 'admin') {

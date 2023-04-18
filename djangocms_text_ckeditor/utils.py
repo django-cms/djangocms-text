@@ -130,7 +130,10 @@ def plugin_tags_to_user_html(text, context):
 
 def plugin_tags_to_admin_html(text, context):
     def _render_plugin(obj, match):
+        context.push()
+        context["render_text_admin"] = True
         plugin_content = _render_cms_plugin(obj, context)
+        context.pop()
         return plugin_to_tag(obj, content=plugin_content, admin=True)
 
     return _plugin_tags_to_html(text, output_func=_render_plugin)

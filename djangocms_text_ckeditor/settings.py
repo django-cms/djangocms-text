@@ -1,3 +1,5 @@
+from typing import Dict, List, Union
+
 from django.conf import settings
 from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
@@ -6,12 +8,13 @@ from django.utils.translation import gettext_lazy as _
 # See http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html
 # for all settings
 
-CKEDITOR_SETTINGS = {
+CKEDITOR_SETTINGS: Dict[str, Union[str, List]] = {
     'language': '{{ language }}',
     'toolbar': 'CMS',
     'skin': 'moono-lisa',
     'baseFloatZIndex': 10000000,
     'toolbarCanCollapse': False,
+    'removePlugins': ['flash'],
     **getattr(settings, 'CKEDITOR_SETTINGS', {}),
 }
 
@@ -38,5 +41,6 @@ TEXT_PLUGIN_MODULE_NAME = getattr(settings, 'TEXT_PLUGIN_MODULE_NAME', _('Generi
 
 ALLOW_TOKEN_PARSERS = (
     'djangocms_text_ckeditor.attribute_parsers.DataAttributeParser',
+    *getattr(settings, 'ALLOW_TOKEN_PARSERS', []),
 )
 TEXT_INLINE_EDITING = getattr(settings, 'TEXT_INLINE_EDITING', False)

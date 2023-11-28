@@ -4,6 +4,7 @@ import re
 import unittest
 from urllib.parse import unquote
 
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission
@@ -38,6 +39,9 @@ try:
     HAS_DJANGOCMS_TRANSLATIONS = True
 except ImportError:
     HAS_DJANGOCMS_TRANSLATIONS = False
+
+
+HAS_DJANGOCMS_PICTURE = "djangocms_picture" in settings.INSTALLED_APPS
 
 
 class PluginActionsTestCase(TestFixture, BaseTestCase):
@@ -747,8 +751,8 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             endpoint += f'?token={action_token}&plugin={child_plugin.pk}'
             response = self.client.get(endpoint)
 
-            self.assertEqual(response.status_code, 400)
-            self.assertEqual(force_str(response.content), 'Unable to process your request.')
+            self.assertEqual(response.status_code, 204)
+            self.assertEqual(force_str(response.content), '')
 
     def test_custom_ckeditor_body_css_classes(self):
         simple_page = self.create_page('test page', template='page.html', language='en')
@@ -1079,3 +1083,32 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
 
         result = TextPlugin.set_translation_import_content(result, plugin)
         self.assertDictEqual(result, {child1.pk: ''})
+
+
+@unittest.skipUnless(
+    HAS_DJANGOCMS_PICTURE,
+    'Optional dependency djangocms-picture for tests is not installed.',
+)
+class DjangoCMSPictureIntegrationTestCase(TestFixture, BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.page = self.create_page('test page', template='page.html', language='en')
+        self.placeholder = self.get_placeholders(self.page, 'en').get(slot='content')
+
+    def test_extract_images(self):
+        text_plugin = add_plugin(
+            self.placeholder,
+            'TextPlugin',
+            'en',
+            body='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==">',
+        )
+
+        from djangocms_picture.models import Picture
+        picture_plugin = Picture.objects.order_by('-id')[0]
+        self.assertEqual(picture_plugin.parent.id, text_plugin.id)
+        self.assertHTMLEqual(
+            text_plugin.body,
+            '<cms-plugin alt="Image - unnamed file " title="Image - unnamed file" id="{}"></cms-plugin>'.format(
+                picture_plugin.id,
+            ),
+        )

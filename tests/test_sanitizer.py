@@ -3,7 +3,7 @@ from django.test import TestCase
 import html5lib
 from html5lib import treebuilders
 
-from djangocms_text_ckeditor import attribute_parsers, html, sanitizer
+from djangocms_text import attribute_parsers, html, sanitizer
 
 
 class SanitizerTestCase(TestCase):

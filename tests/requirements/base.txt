@@ -8,7 +8,6 @@ html5lib>=0.999999999
 
 # other requirements
 coverage
-django-app-helper
 tox
 
 # IMPORTANT: latest easy-thumbnails causes error since it returns with

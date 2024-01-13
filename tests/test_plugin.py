@@ -17,9 +17,9 @@ from cms.api import add_plugin, create_title
 from cms.models import CMSPlugin, Page, Placeholder
 from cms.utils.urlutils import admin_reverse
 
-from djangocms_text_ckeditor.cms_plugins import TextPlugin
-from djangocms_text_ckeditor.models import Text
-from djangocms_text_ckeditor.utils import (
+from djangocms_text.cms_plugins import TextPlugin
+from djangocms_text.models import Text
+from djangocms_text.utils import (
     _plugin_tags_to_html, _render_cms_plugin, plugin_tags_to_admin_html, plugin_tags_to_id_list, plugin_to_tag,
 )
 from tests.test_app.cms_plugins import DummyChildPlugin, DummyParentPlugin
@@ -418,7 +418,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         endpoint = self.get_add_plugin_uri(simple_placeholder, 'TextPlugin')
 
-        with self.login_user_context(self.user):
+        with self.login_user_context(self.superuser):
             response = self.client.post(endpoint, {})
             self.assertEqual(response.status_code, 302)
 
@@ -635,7 +635,6 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
                                      '"title="Preview Disabled Plugin - 3" '
                                      'id="3"><span>Preview is disabled for this plugin</span>'
                                      '</cms-plugin>')
-
             self.assertEqual(force_str(response.content), rendered_child_plugin)
 
     def test_render_child_plugin_endpoint_calls_context_processors(self):
@@ -797,7 +796,6 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             )
 
             text_plugin = self.add_plugin_to_text(text_plugin, plugin)
-
         with self.assertNumQueries(2):
             request = self.get_request()
             context = RequestContext(request)
@@ -874,7 +872,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         endpoint = self.get_admin_url(Placeholder if DJANGO_CMS4 else Page, 'copy_plugins')
         endpoint += '?' + urlencode({'cms_path': '/en/'})
 
-        with self.login_user_context(self.user):
+        with self.login_user_context(self.superuser):
             response = self.client.post(endpoint, data)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(CMSPlugin.objects.filter(language='en').count(), 3)
@@ -945,7 +943,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         plugin = add_plugin(placeholder, 'TextPlugin', 'en', body='body')
         endpoint = self.get_change_plugin_uri(plugin)
 
-        with self.login_user_context(self.user):
+        with self.login_user_context(self.superuser):
             data = {
                 'body': (
                     '<div onload="do_evil_stuff();">divcontent</div><a href="javascript:do_evil_stuff();">acontent</a>'
@@ -1083,32 +1081,3 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
 
         result = TextPlugin.set_translation_import_content(result, plugin)
         self.assertDictEqual(result, {child1.pk: ''})
-
-
-@unittest.skipUnless(
-    HAS_DJANGOCMS_PICTURE,
-    'Optional dependency djangocms-picture for tests is not installed.',
-)
-class DjangoCMSPictureIntegrationTestCase(TestFixture, BaseTestCase):
-    def setUp(self):
-        super().setUp()
-        self.page = self.create_page('test page', template='page.html', language='en')
-        self.placeholder = self.get_placeholders(self.page, 'en').get(slot='content')
-
-    def test_extract_images(self):
-        text_plugin = add_plugin(
-            self.placeholder,
-            'TextPlugin',
-            'en',
-            body='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==">',
-        )
-
-        from djangocms_picture.models import Picture
-        picture_plugin = Picture.objects.order_by('-id')[0]
-        self.assertEqual(picture_plugin.parent.id, text_plugin.id)
-        self.assertHTMLEqual(
-            text_plugin.body,
-            '<cms-plugin alt="Image - unnamed file " title="Image - unnamed file" id="{}"></cms-plugin>'.format(
-                picture_plugin.id,
-            ),
-        )

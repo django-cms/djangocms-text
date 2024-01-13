@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from djangocms_text_ckeditor import html, settings
+from djangocms_text import html, settings
 
 
 class HtmlSanitizerAdditionalProtocolsTests(TestCase):

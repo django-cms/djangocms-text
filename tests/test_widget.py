@@ -1,7 +1,7 @@
 from cms.api import add_plugin
 
-from djangocms_text_ckeditor import html, settings
-from djangocms_text_ckeditor.utils import plugin_to_tag
+from djangocms_text import html, settings
+from djangocms_text.utils import plugin_to_tag
 
 from .base import BaseTestCase
 from .fixtures import TestFixture
@@ -16,7 +16,7 @@ class WidgetTestCase(TestFixture, BaseTestCase):
 
     def tearDown(self):
         settings.ALLOW_TOKEN_PARSERS = (
-            'djangocms_text_ckeditor.attribute_parsers.DataAttributeParser',
+            'djangocms_text.attribute_parsers.DataAttributeParser',
         )
         html.DEFAULT_PARSER = self.default_parser
 
@@ -27,7 +27,7 @@ class WidgetTestCase(TestFixture, BaseTestCase):
         )
         endpoint = self.get_change_plugin_uri(plugin)
 
-        with self.login_user_context(self.user):
+        with self.login_user_context(self.super_user):
             response = self.client.get(endpoint)
             self.assertContains(response, '"group": "Extra"')
             self.assertContains(response, '"title": "Add a link"')

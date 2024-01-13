@@ -1,11 +1,11 @@
 from django.template import Context, Template
 from django.utils.safestring import SafeData
 
-from djangocms_helper.base_test import BaseTestCase
+from djangocms_text.fields import HTMLFormField
 
-from djangocms_text_ckeditor.fields import HTMLFormField
-from tests.test_app.forms import SimpleTextForm
-from tests.test_app.models import SimpleText
+from .base import BaseTestCase
+from .test_app.forms import SimpleTextForm
+from .test_app.models import SimpleText
 
 
 class HtmlFieldTestCase(BaseTestCase):

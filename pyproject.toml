@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "djangocms-text"
+dynamic = ["version"]
+description = "Rich Text Plugin for django CMS"
+readme = "README.rst"
+license = {text = "BSD-3-Clause" }
+requires-python = ">=3.9"
+authors = [
+    { name = "Django CMS Association and contributors", email = "info@django-cms.org" },
+]
+maintainers = [
+    { name = "Django CMS Association and contributors", email = "info@django-cms.org" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django CMS",
+    "Framework :: Django CMS :: 3.11",
+    "Framework :: Django CMS :: 4.1",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "django-cms>=3.11",
+    "html5lib>=1",
+    "packaging",
+    "Pillow",
+]
+
+[tool.setuptools]
+packages = ["djangocms_text", "djangocms_text_ckeditor"]
+
+[project.urls]
+Homepage = "https://github.com/fsbraun/djangocms-text-rte"
+
+[tool.hatch.version]
+path = "djangocms_text/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/djangocms_text",
+    "/djangocms_text_ckeditor"
+]

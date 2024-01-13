@@ -6,7 +6,7 @@ from tempfile import mkdtemp
 from cms import __version__
 
 
-port = 8000
+port = 8009
 
 for arg in sys.argv:
     if arg.startswith('--port='):
@@ -32,7 +32,7 @@ HELPER_SETTINGS = {
         'filer',
         'djangocms_picture',
         'djangocms_link',
-        'djangocms_text_ckeditor',
+        'djangocms_text',
         'tests.test_app',
     ],
     'CMS_LANGUAGES': {
@@ -129,7 +129,7 @@ def _helper_patch(*args, **kwargs):
 
 def test():
     from app_helper import runner
-    runner.cms('djangocms_text_ckeditor', extra_args=[])
+    runner.cms('djangocms_text', extra_args=[])
 
 
 def run():
@@ -142,8 +142,8 @@ def run():
 
     # we use '.runner()', not '.cms()' nor '.run()' because it does not
     # add 'test' argument implicitly
-    runner.runner([sys.argv[0], 'cms', '--cms', 'server', '--bind', '0.0.0.0', '--port', str(port)])
+    runner.runner([sys.argv[0], 'cms', '--cms', 'server', '--bind', '127.0.0.1', '--port', str(port)])
 
 
 if __name__ == '__main__':
-    run()
+    test()

@@ -452,7 +452,7 @@ register(
             "djangocms_text/vendor/ckeditor4/ckeditor.js",
             "djangocms_text/bundles/bundle.ckeditor4.min.js",
         ),
-        css={"all": ("djangocms_text/css/cms.ckeditor4.css",)},
+        css={"all": ("djangocms_text/css/cms.ckeditor4.css", "djangocms_text/css/bundle.ckeditor4.min.css",)},
     )
 )
 

@@ -1,3 +1,5 @@
+import CmsDialog from "../../cms.dialog";
+
 (function ($) {
     if (CKEDITOR && CKEDITOR.plugins && CKEDITOR.plugins.registered && CKEDITOR.plugins.registered.cmsplugins) {
         return;
@@ -290,117 +292,44 @@
         },
 
         editPlugin: function (element, editor) {
-            var id = element.getAttribute('id'),
-				settings = CMS_Editor.getSettings(editor.name);
-            editor.openDialog('cmspluginsDialog');
-            var body = CMS.$(window);
+            var id = element.getAttribute('id');
+            editor.fire('saveSnapshot');
 
-            // now tweak in dynamic stuff
-            var dialog = CKEDITOR.dialog.getCurrent();
-
-            dialog.resize(body.width() * 0.8, body.height() * 0.6); // eslint-disable-line no-magic-numbers
-            $(dialog.getElement().$).addClass('cms-ckeditor-dialog');
-            $(dialog.parts.title.$).text(settings.lang.CMSPlugins.editLabel);
-            var textPluginUrl = editor.element.$.dataset.cmsEditUrl || window.location.href;
-            var path = encodeURIComponent(window.parent.location.pathname + window.parent.location.search);
-            var childPluginUrl = textPluginUrl.replace(
-                /(add-plugin|edit-plugin).*$/,
-                'edit-plugin/' + id + '/?_popup=1&no_preview&cms_history=0&cms_path=' + path
-            );
-			$(dialog.parts.contents.$).find('iframe').attr('src', childPluginUrl)
-                .bind('load', function () {
-                    var contents = $(this).contents();
-
-                    contents.find('body').addClass('ckeditor-popup');
-                    contents.find('.submit-row').hide();
-                    contents.find('#container').css({
-                        'min-width': 0,
-                        'padding': 0
-                    });
-                });
+			new CmsDialog(editor.element.$, saveSuccess => {
+				if (saveSuccess) {
+					window.CMS_Editor.requestPluginMarkup(id, editor.element.$)
+						.then(markup => {
+							editor.insertHtml(markup, 'unfiltered_html');
+							editor.fire('updateSnapshot');
+						})
+						.catch(error => {
+							console.warn(error);
+						});
+				}
+				editor.focus();
+			}, () => editor.focus()).editDialog(id);
         },
 
         addPlugin: function (item, panel, editor) {
-			var settings = CMS_Editor.getSettings(editor.name);
+
             // hide the panel
             panel.hide();
 
             editor.focus();
             editor.fire('saveSnapshot');
 
-            // gather data
-            var data = {
-                placeholder_id: settings.placeholder_id,
-                plugin_type: item.attr('rel'),
-                plugin_parent: settings.plugin_id,
-                plugin_language: settings.plugin_language,
-                plugin_position: settings.plugin_position + 1 + this.numberOfChildren,
-                cms_path: window.parent.location.pathname,
-                cms_history: 0
-            };
-            this.addPluginDialog(item, data, editor);
-        },
-
-        addPluginDialog: function (item, data, editor) {
-            var body = $(window),
-				settings = CMS_Editor.getSettings(editor.name);
-            // open the dialog
-            var selected_text = editor.getSelection().getSelectedText();
-
-            editor.openDialog('cmspluginsDialog');
-
-            // now tweak in dynamic stuff
-            var dialog = CKEDITOR.dialog.getCurrent();
-
-            dialog.resize(body.width() * 0.8, body.height() * 0.6); // eslint-disable-line no-magic-numbers
-            $(dialog.getElement().$).addClass('cms-ckeditor-dialog');
-            $(dialog.parts.title.$).text(settings.lang.CMSPlugins.addLabel);
-            $(dialog.parts.contents.$).find('iframe')
-				.attr('src', settings.add_plugin_url + '?' + $.param(data))
-                .on('load.addplugin', function () {
-                    var iframe = $(this);
-                    var contents = iframe.contents();
-
-                    contents.find('.submit-row').hide().end()
-                        .find('#container').css('min-width', 0).css('padding', 0);
-
-                    var inputs = contents.find('.js-ckeditor-use-selected-text');
-
-                    if (!inputs.length) {
-                        inputs = contents.find('#id_name');
-                    }
-
-                    if (!(inputs.val() && inputs.val().trim())) {
-                        inputs.val(selected_text);
-                    }
-
-                    iframe.off('load.addplugin');
-                });
-        },
-
-        insertPlugin: function (data, editor) {
-			var settings = CMS_Editor.getSettings(editor.name);
-
-            $.ajax({
-                method: 'GET',
-                url: settings.render_plugin_url,
-                data: {
-                    token: settings.action_token,
-                    plugin: data.plugin_id
-                }
-            }).done(function (res, textStatus, jqXHR) {
-				var wrapper = document.getElementById(editor.name);
-
-                wrapper.dataset.changed = true;
-                wrapper.dataset.childChanged = true;
-
-                if (jqXHR.status === 200) {
-                    editor.insertHtml(res, 'unfiltered_html');
-                } else if (jqXHR.status === 204) {
-                    editor.insertHtml(editor.getSelectedHtml().$.textContent);
-                }
-                editor.fire('updateSnapshot');
-            });
+			new CmsDialog(editor.element.$, data => {
+				if (data.plugin_id) {
+					window.CMS_Editor.requestPluginMarkup(data.plugin_id, editor.element.$)
+						.then(markup => {
+							editor.insertHtml(markup, 'unfiltered_html');
+							editor.fire('updateSnapshot');
+						})
+						.catch(error => {
+							console.error(error);
+						});
+				}
+			}, () => editor.focus()).addDialog(item.attr('rel'), editor.getSelection().getSelectedText());
         },
 
         /**

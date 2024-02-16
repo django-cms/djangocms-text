@@ -2,8 +2,7 @@
 /* jshint esversion: 6 */
 /* global document, window, console */
 
-
-import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
+import "../css/cms.dialog.css";
 
 class CmsDialog {
     /**

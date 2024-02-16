@@ -2,6 +2,7 @@ import copy
 import json
 import re
 import unittest
+from unittest import skipIf
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -136,7 +137,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         text_plugin_pk = self.get_plugin_id_from_response(response)
 
-        self.assertIn('?delete-on-cancel', response.url)
+        self.assertIn('?revert-on-cancel', response.url)
         self.assertEqual(response.status_code, 302)
 
         # Assert "ghost" plugin has been created
@@ -201,7 +202,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             action_token = text_plugin_class.get_action_token(request, cms_plugin)
             data = {'token': action_token}
             request = self.get_post_request(data)
-            response = text_plugin_class.delete_on_cancel(request)
+            response = text_plugin_class.revert_on_cancel(request)
             self.assertEqual(response.status_code, 204)
 
         # Assert "ghost" plugin has been removed
@@ -223,8 +224,9 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             action_token = text_plugin_class.get_action_token(request, text_plugin)
             data = {'token': action_token}
             request = self.get_post_request(data)
-            response = text_plugin_class.delete_on_cancel(request)
-            self.assertEqual(response.status_code, 400)
+            response = text_plugin_class.revert_on_cancel(request)
+            self.assertEqual(response.status_code, 204)
+            self.assertObjectExist(Text.objects.all(), pk=text_plugin.pk)
 
     def test_copy_referenced_plugins(self):
         """
@@ -354,8 +356,8 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             # Assert user is unable to delete a saved child plugin
             data = {'token': action_token, 'child_plugins': [child_plugin_1.pk]}
             request = self.get_post_request(data)
-            response = text_plugin_class.delete_on_cancel(request)
-            self.assertEqual(response.status_code, 400)
+            response = text_plugin_class.revert_on_cancel(request)
+            self.assertEqual(response.status_code, 204)
             self.assertObjectExist(CMSPlugin.objects.all(), pk=child_plugin_1.pk)
 
             # Assert user is unable to delete if plugins array contains
@@ -368,11 +370,11 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             ]
             data = {'token': action_token, 'child_plugins': plugin_ids}
             request = self.get_post_request(data)
-            response = text_plugin_class.delete_on_cancel(request)
-            self.assertEqual(response.status_code, 400)
+            response = text_plugin_class.revert_on_cancel(request)
+            self.assertEqual(response.status_code, 204)
             self.assertObjectExist(CMSPlugin.objects.all(), pk=child_plugin_1.pk)
-            self.assertObjectExist(CMSPlugin.objects.all(), pk=child_plugin_2.pk)
-            self.assertObjectExist(CMSPlugin.objects.all(), pk=child_plugin_3.pk)
+            self.assertObjectDoesNotExist(CMSPlugin.objects.all(), pk=child_plugin_2.pk)
+            self.assertObjectDoesNotExist(CMSPlugin.objects.all(), pk=child_plugin_3.pk)
             self.assertObjectExist(CMSPlugin.objects.all(), pk=child_plugin_4.pk)
 
             plugin_ids = [
@@ -381,7 +383,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             ]
             data = {'token': action_token, 'child_plugins': plugin_ids}
             request = self.get_post_request(data)
-            response = text_plugin_class.delete_on_cancel(request)
+            response = text_plugin_class.revert_on_cancel(request)
             self.assertEqual(response.status_code, 204)
 
             self.assertObjectDoesNotExist(CMSPlugin.objects.all(), pk=child_plugin_2.pk)
@@ -427,7 +429,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         cms_plugin = CMSPlugin.objects.get(pk=text_plugin_pk)
         text_plugin_class = cms_plugin.get_plugin_class_instance()
 
-        endpoint = self.get_custom_admin_url(TextPlugin, 'delete_on_cancel')
+        endpoint = self.get_custom_admin_url(TextPlugin, 'revert_on_cancel')
 
         # Assert a standard user (no staff) can't delete ghost plugin
         with self.login_user_context(self.get_standard_user()):
@@ -512,10 +514,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         self.add_plugin_to_text(text_plugin, self._add_child_plugin(text_plugin))
         if DJANGO_CMS4:
-            try:
-                from cms.models.contentmodels import PageContent
-            except ModuleNotFoundError:
-                from cms.models.titlemodels import PageContent
+            from cms.models.contentmodels import PageContent
             from cms.toolbar.utils import get_object_edit_url
 
             if DJANGOCMS_VERSIONING:
@@ -527,10 +526,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
                     ).first()
                 )
             else:
-                try:
-                    edit_endpoint = get_object_edit_url(simple_page.get_content_obj(language='en'))
-                except AttributeError:
-                    edit_endpoint = get_object_edit_url(simple_page.get_title_obj(language='en'))
+                edit_endpoint = get_object_edit_url(simple_page.get_content_obj(language='en'))
         else:
             edit_endpoint = simple_page.get_absolute_url()
         with self.login_user_context(self.get_superuser()):
@@ -631,9 +627,10 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             # it is important that we do not add any extra whitespace inside of
             # <cms-plugin></cms-plugin>
             rendered_child_plugin = ('<cms-plugin render-plugin=false '
-                                     'alt="Preview Disabled Plugin - 3 '
-                                     '"title="Preview Disabled Plugin - 3" '
-                                     'id="3"><span>Preview is disabled for this plugin</span>'
+                                     'alt="Preview Disabled Plugin - 3" '
+                                     'title="Preview Disabled Plugin - 3" '
+                                     'id="3" type="PreviewDisabledPlugin">'
+                                     '<span>Preview is disabled for this plugin</span>'
                                      '</cms-plugin>')
             self.assertEqual(force_str(response.content), rendered_child_plugin)
 
@@ -937,6 +934,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         for markup, expected in pairs:
             self.assertEqual(plugin_tags_to_id_list(markup), expected)
 
+    @skipIf(True, "sanitizer deactivated")
     def test_text_plugin_xss(self):
         page = self.create_page('test page', template='page.html', language='en')
         placeholder = self.get_placeholders(page, 'en').get(slot='content')

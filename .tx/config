@@ -1,8 +1,12 @@
 [main]
-host = https://www.transifex.com
+host = https://app.transifex.com
 
-[djangocms-text-ckeditor.djangocms_text_ckeditor]
-file_filter = djangocms_text_ckeditor/locale/<lang>/LC_MESSAGES/django.po
-source_file = djangocms_text_ckeditor/locale/en/LC_MESSAGES/django.po
-source_lang = en
-type = PO
+[o:divio:p:django-cms-text:r:djangocms-text]
+file_filter            = djangocms_text/locale/<lang>/LC_MESSAGES/django.po
+source_file            = djangocms_text/locale/en/LC_MESSAGES/django.po
+type                   = PO
+minimum_perc           = 0
+resource_name          = django CMS Text
+replace_edited_strings = false
+keep_translations      = false
+

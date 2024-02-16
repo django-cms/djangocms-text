@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-14 17:00+0200\n"
+"POT-Creation-Date: 2024-02-15 12:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,49 +17,206 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cms_plugins.py:356 cms_plugins.py:375
+#: cms_plugins.py:386
 msgid "You do not have permission to add a plugin."
 msgstr "You do not have permission to add a plugin."
 
-#: cms_plugins.py:428
+#: cms_plugins.py:449
 msgid "Unable to process your request. Invalid token."
 msgstr "Unable to process your request. Invalid token."
 
-#: cms_plugins.py:442 cms_plugins.py:476
-msgid "Unable to process your request."
-msgstr "Unable to process your request."
-
-#: cms_toolbars.py:53
+#: cms_toolbars.py:58
 msgid "Toggle inline editing mode for text plugins"
 msgstr "Toggle inline editing mode for text plugins"
 
-#: forms.py:69
-msgid "Can't delete a saved plugin."
-msgstr "Can't delete a saved plugin."
+#: editor_toolbars.py:29
+msgid "Undo"
+msgstr "Undo"
 
-#: models.py:37
+#: editor_toolbars.py:33
+msgid "Redo"
+msgstr "Redo"
+
+#: editor_toolbars.py:37
+msgid "Bold"
+msgstr "Bold"
+
+#: editor_toolbars.py:43
+msgid "Italic"
+msgstr "Italic"
+
+#: editor_toolbars.py:49
+msgid "Underline"
+msgstr "Underline"
+
+#: editor_toolbars.py:55
+msgid "Strike"
+msgstr "Strike"
+
+#: editor_toolbars.py:59
+msgid "Subscript"
+msgstr "Subscript"
+
+#: editor_toolbars.py:65
+msgid "Superscript"
+msgstr "Superscript"
+
+#: editor_toolbars.py:71
+msgid "Remove formatting"
+msgstr "Remove formatting"
+
+#: editor_toolbars.py:84
+msgid "Align left"
+msgstr "Align left"
+
+#: editor_toolbars.py:90
+msgid "Align center"
+msgstr "Align center"
+
+#: editor_toolbars.py:96
+msgid "Align right"
+msgstr "Align right"
+
+#: editor_toolbars.py:102
+msgid "Justify"
+msgstr "Justify"
+
+#: editor_toolbars.py:108
+msgid "Horizontal rule"
+msgstr "Horizontal rule"
+
+#: editor_toolbars.py:114
+msgid "Numbered list"
+msgstr "Numbered list"
+
+#: editor_toolbars.py:121
+msgid "Bullet list"
+msgstr "Bullet list"
+
+#: editor_toolbars.py:127
+msgid "Outdent"
+msgstr "Outdent"
+
+#: editor_toolbars.py:134
+msgid "Indent"
+msgstr "Indent"
+
+#: editor_toolbars.py:141
+msgid "Blockquote"
+msgstr "Blockquote"
+
+#: editor_toolbars.py:147 editor_toolbars.py:182
+msgid "Link"
+msgstr "Link"
+
+#: editor_toolbars.py:156
+msgid "Type URL or search for a page"
+msgstr "Type URL or search for a page"
+
+#: editor_toolbars.py:157
+msgid "URL or search"
+msgstr "URL or search"
+
+#: editor_toolbars.py:189
+msgid "Image"
+msgstr "Image"
+
+#: editor_toolbars.py:196
+msgid "Unlink"
+msgstr "Unlink"
+
+#: editor_toolbars.py:204
+msgid "Table"
+msgstr "Table"
+
+#: editor_toolbars.py:207
+msgid "Code"
+msgstr "Code"
+
+#: editor_toolbars.py:213
+msgid "Small"
+msgstr "Small"
+
+#: editor_toolbars.py:216
+msgid "Keyboard input"
+msgstr "Keyboard input"
+
+#: editor_toolbars.py:222
+msgid "Code block"
+msgstr "Code block"
+
+#: editor_toolbars.py:229
+msgid "Heading 1"
+msgstr "Heading 1"
+
+#: editor_toolbars.py:235
+msgid "Heading 2"
+msgstr "Heading 2"
+
+#: editor_toolbars.py:241
+msgid "Heading 3"
+msgstr "Heading 3"
+
+#: editor_toolbars.py:247
+msgid "Heading 4"
+msgstr "Heading 4"
+
+#: editor_toolbars.py:253
+msgid "Heading 5"
+msgstr "Heading 5"
+
+#: editor_toolbars.py:259
+msgid "Heading 6"
+msgstr "Heading 6"
+
+#: editor_toolbars.py:265
+msgid "Paragraph"
+msgstr "Paragraph"
+
+#: editor_toolbars.py:271
+msgid "Anchor"
+msgstr "Anchor"
+
+#: editor_toolbars.py:274
+msgid "Format"
+msgstr "Format"
+
+#: editor_toolbars.py:278
+msgid "Styles"
+msgstr "Styles"
+
+#: editor_toolbars.py:282
+msgid "Font"
+msgstr "Font"
+
+#: editor_toolbars.py:285
+msgid "Font size"
+msgstr "Font size"
+
+#: models.py:56
 msgid "body"
 msgstr "body"
 
-#: settings.py:36
+#: models.py:57
+msgid "json"
+msgstr "JSON"
+
+#: settings.py:39
 msgid "Text"
 msgstr "Text"
 
-#: settings.py:37
+#: settings.py:40
 msgid "Generic"
 msgstr "Generic"
 
-#: widgets.py:114 widgets.py:117
+#: widgets.py:154 widgets.py:157
 msgid "CMS Plugins"
 msgstr "CMS Plugins"
 
-#: widgets.py:115
+#: widgets.py:155
 msgid "Add CMS Plugin"
 msgstr "Add CMS Plugin"
 
-#: widgets.py:116
+#: widgets.py:156
 msgid "Edit CMS Plugin"
 msgstr "Edit CMS Plugin"
-
-#~ msgid "Standard Plugins"
-#~ msgstr "Standard Plugins"

@@ -1,0 +1,32 @@
+
+.djangocms-admin-style form .form-row>div>.flex-container>div.tox {
+    margin-right: inherit;
+    box-sizing: inherit;
+    width: inherit;
+    max-width: inherit;
+    &:not(:first-child) {
+        border-top: 2px solid #eee;;
+    }
+}
+
+.djangocms-admin-style .tox.tox-tinymce button {
+    padding: inherit !important;
+}
+
+.tox-statusbar__branding, .tox-promotion {
+    display: none;
+}
+
+.tox.tox-tinymce {
+    border-radius: 2px;
+    min-height: 200px;
+}
+
+.cms-admin.app-djangocms_text.model-text .tox.tox-tinymce {
+    border: none;
+}
+
+.cms-admin.app-djangocms_text.model-text .tox-statusbar__resize-handle {
+    display: none;
+}
+

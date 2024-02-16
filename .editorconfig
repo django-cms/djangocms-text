@@ -20,6 +20,9 @@ max_line_length = 120
 indent_style = space
 quote_type = double
 
+[*.html]
+insert_final_newline = false
+
 [*.js]
 max_line_length = 120
 quote_type = single

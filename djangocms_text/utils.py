@@ -72,13 +72,14 @@ def plugin_to_tag(obj, content="", admin=False):
         plugin_class = obj.get_plugin_class()
         preview = getattr(plugin_class, "text_editor_preview", True)
         plugin_tag = (
-            '<cms-plugin render-plugin=%(preview)s alt="%(icon_alt)s "'
-            'title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
+            '<cms-plugin render-plugin=%(preview)s alt="%(icon_alt)s" '
+            'title="%(icon_alt)s" id="%(id)d" type="%(type)s">%(content)s</cms-plugin>'
         )
         plugin_attrs["preview"] = "true" if preview else "false"
+        plugin_attrs["type"] = plugin_class.__name__
     else:
         plugin_tag = (
-            '<cms-plugin alt="%(icon_alt)s "'
+            '<cms-plugin alt="%(icon_alt)s" '
             'title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
         )
     return plugin_tag % plugin_attrs

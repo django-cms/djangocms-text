@@ -5,23 +5,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('cms', '0022_auto_20180620_1551'),
+        ("cms", "0022_auto_20180620_1551"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Text',
+            name="Text",
             fields=[
-                ('cmsplugin_ptr', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, related_name='%(app_label)s_%(class)s', serialize=False, to='cms.cmsplugin')),
-                ('body', models.TextField(verbose_name='body')),
+                (
+                    "cmsplugin_ptr",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        related_name="%(app_label)s_%(class)s",
+                        serialize=False,
+                        to="cms.cmsplugin",
+                    ),
+                ),
+                ("body", models.TextField(verbose_name="body")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('cms.cmsplugin',),
+            bases=("cms.cmsplugin",),
         ),
     ]

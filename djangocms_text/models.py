@@ -10,7 +10,12 @@ from cms.models import CMSPlugin
 
 from . import settings
 from .html import clean_html, extract_images
-from .utils import plugin_tags_to_db, plugin_tags_to_id_list, plugin_to_tag, replace_plugin_tags
+from .utils import (
+    plugin_tags_to_db,
+    plugin_tags_to_id_list,
+    plugin_to_tag,
+    replace_plugin_tags,
+)
 
 
 try:
@@ -22,8 +27,20 @@ except ImportError:
 
 
 class AbstractText(CMSPlugin):
+
     """
-    Abstract Text Plugin Class
+    Abstract Text Plugin Class designed to be backwards compatible with
+    djangocms-text-ckeditor:
+
+    1. If the json field is empty, the editor reads text from the body field.
+    2. When saving, the editor writes to the body field and the json field. It also sets
+       the rte field with a unique label identifying the json dialect used to represent
+       the rich text.
+    3. If the rte field is not known to the frontend editor, the plugin is read-only.
+    4. if the rte field is known to the frontend editor, it takes precedence over the
+       body field.
+
+    djangocms-text-ckeditor Text fields are migrated by copying the body field only.
     """
 
     # Add an app namespace to related_name to avoid field name clashes
@@ -37,11 +54,15 @@ class AbstractText(CMSPlugin):
         parent_link=True,
     )
     body = models.TextField(_("body"))
-    search_fields = ("body",)
+    json = models.JSONField(_("json"), blank=True, null=True)
+    rte = models.CharField(
+        default="",
+        blank=True,
+        max_length=16,
+        help_text="The rich text editor used to create this text. JSON formats vary between editors.",
+    )
 
-    # This property is deprecated. And will be removed in a future release.
-    # It should be set on the Plugin, not the model.
-    disable_child_plugins = True
+    search_fields = ("body",)
 
     class Meta:
         abstract = True
@@ -132,8 +153,8 @@ class AbstractText(CMSPlugin):
         """
         Method called when we auto add children to this plugin via
         default_plugins/<plugin>/children in CMS_PLACEHOLDER_CONF.
-        we must replace some strings with child tag for the CKEDITOR.
-        Strings are "%(_tag_child_<order>)s" with the inserted order of chidren
+        we must replace some strings with child tag for the editor.
+        Strings are "%(_tag_child_<order>)s" with the inserted order of children
         """
         replacements = {}
         order = 1

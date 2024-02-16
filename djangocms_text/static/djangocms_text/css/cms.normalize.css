@@ -1,0 +1,54 @@
+.app-djangocms_text.model-text.change-form .cms-editor-inline-wrapper.fixed {
+    background: var(--dca-white)  !important;
+    color: var(--dca-black)  !important;
+    font-size: 1rem  !important;
+    font-weight: 400  !important;
+    border-radius: 0  !important;
+    line-height: 1.5  !important;
+    h1, h2, h3, h4, h5, h6, p {
+        margin: 0 0 0.8rem 0  !important;
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: inherit;
+        line-height: 1.5;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: bold;
+    }
+    pre {
+        color: inherit  !important;
+        padding: 0.5rem  !important;
+        background: var(--dca-gray-lighter)  !important;
+        border-radius: 4px  !important;
+        font-size: 1rem  !important;
+    }
+        h1 {
+        font-size: 1.7rem;
+    }
+    h2 {
+        font-size: 1.42rem;
+    }
+    h3 {
+        font-size: 1.2rem;
+    }
+    h4, p {
+        font-size: 1rem;
+    }
+    h5 {
+        font-size: 0.83rem;
+    }
+    h6 {
+        font-size: 0.7rem;
+    }
+    img.float-start {
+        float: left;
+    }
+    img.float-end {
+        float: right;
+    }
+    hr {
+        border: none;
+        border-top: 1px solid var(--dca-gray-lighter);
+    }
+}

@@ -1,0 +1,37 @@
+.cms-editor-inline-wrapper {
+    color: var(--dca-black);
+    background: var(--dca-white);
+
+
+    h1, h2, h3, h4, h5, h6, p {
+        margin: 0;
+        margin-bottom: 1em;
+        border: none;
+        padding: 0;
+        line-height: 1.5;
+    }
+    h1 {
+        font-size: 1.7rem;
+    }
+    h2 {
+        font-size: 1.42rem;
+    }
+    h3 {
+        font-size: 1.2rem;
+    }
+    h4, p {
+        font-size: 1rem;
+    }
+    h5 {
+        font-size: 0.83rem;
+    }
+    h6 {
+        font-size: 0.7rem;
+    }
+    img.float-start {
+        float: left;
+    }
+    img.float-end {
+        float: right;
+    }
+}

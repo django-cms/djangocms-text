@@ -3,7 +3,7 @@ from django.db import models
 from django.forms.fields import CharField
 from django.utils.safestring import mark_safe
 
-from .html import clean_html
+from .html import clean_html, render_dynamic_attributes
 from .widgets import TextEditorWidget
 
 
@@ -22,6 +22,7 @@ class HTMLFormField(CharField):
 
     def clean(self, value):
         value = super().clean(value)
+        value = render_dynamic_attributes(value, admin_objects=False, remove_attr=False)
         clean_value = clean_html(value, full=False)
 
         # We `mark_safe` here (as well as in the correct places) because Django
@@ -43,14 +44,11 @@ class HTMLField(models.TextField):
     def from_db_value(self, value, expression, connection, context=None):
         if value is None:
             return value
+        value = render_dynamic_attributes(value, admin_objects=False, remove_attr=False)
         return mark_safe(value)
 
     def to_python(self, value):
-        # On Django >= 1.8 a new method
-        # was introduced (from_db_value) which is called
-        # whenever the value is loaded from the db.
-        # And to_python is called for serialization and cleaning.
-        # This means we don't need to add mark_safe on Django >= 1.8
+        # We don't need to add mark_safe
         # because it's handled by (from_db_value)
         if value is None:
             return value
@@ -76,5 +74,6 @@ class HTMLField(models.TextField):
     def clean(self, value, model_instance):
         # This needs to be marked safe as well because the form field's
         # clean method is not called on model.full_clean()
-        value = super().clean(value, model_instance)
-        return mark_safe(clean_html(value, full=False))
+        value = render_dynamic_attributes(value, admin_objects=False, remove_attr=False)
+        value = clean_html(super().clean(value, model_instance))
+        return mark_safe(value)

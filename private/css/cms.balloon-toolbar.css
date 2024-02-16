@@ -1,0 +1,41 @@
+.cms-editor-inline-wrapper .cms-balloon {
+    --size: 1rem;
+    position: absolute;
+    visibility: visible;
+    background-color: var(--dca-gray-lightest);
+    color: var(--dca-gray);
+    border-radius: 3px;
+    box-shadow: none;
+    /* box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4); */
+    right: calc(100% + 1rem);
+    width: calc(1.6*var(--size));
+    height:  calc(1.6*var(--size));
+    line-height: calc(1.3*var(--size));
+    text-align: center;
+    cursor: pointer;
+    svg {
+        width: var(--size);
+        height: var(--size);
+    }
+    &.show [role="menubar"] {
+        visibility: visible;
+    }
+    [role="menubar"] {
+        padding: 3px;
+        position: absolute;
+        top: 100%;
+        bottom: unset;
+        width: unset;
+        max-width: 100vw;
+    }
+}
+
+@keyframes delayedHide {
+  to {
+    visibility: hidden;
+  }
+}
+
+.cms-editor-inline-wrapper:not(:has(.ProseMirror-focused)) .cms-balloon {
+    animation: 0s linear 0.2s forwards delayedHide;
+}

@@ -1,31 +1,21 @@
 from urllib.parse import urlparse, urlunparse
 
-from django import forms
+from django.forms import forms
 from django.http import QueryDict
+from django.templatetags.static import static
 from django.utils.functional import cached_property
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from cms.cms_toolbars import CMSToolbar
-from cms.toolbar.items import BaseItem, Button, ButtonList
+from cms.toolbar.items import Button, ButtonList
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
-from .widgets import PATH_TO_JS
+from .widgets import rte_config
 
 
 class IconButton(Button):
     template = "cms/toolbar/icon-button.html"
-
-
-class InlineEditingItem(BaseItem):
-    """Make ckeditor base path available for inline editing"""
-
-    def render(self):
-        return mark_safe(
-            f'<script class="ckeditorconfig" '
-            f'data-ckeditor-basepath="{settings.TEXT_CKEDITOR_BASE_PATH}"></script>'
-        )
 
 
 class InlineEditingToolbar(CMSToolbar):
@@ -34,9 +24,16 @@ class InlineEditingToolbar(CMSToolbar):
         if self.toolbar.edit_mode_active and self.inline_editing:
             return forms.Media(
                 css={
-                    "screen": ("djangocms_text_ckeditor/css/cms.inline-ckeditor.css",)
+                    **rte_config.css,
+                    "all": (
+                        "djangocms_text/css/cms.text.css",
+                        *rte_config.css.get("all", ()),
+                    ),
                 },
-                js=(PATH_TO_JS,),
+                js=(
+                    static("djangocms_text/bundles/bundle.editor.min.js"),
+                    *(static(js) for js in rte_config.js),
+                ),
             )
         return forms.Media()
 
@@ -67,10 +64,6 @@ class InlineEditingToolbar(CMSToolbar):
                 ),
             )
             self.toolbar.add_item(item)
-            if self.inline_editing:
-                self.toolbar.add_item(
-                    InlineEditingItem(), position=None
-                )  # Loads js and css for inline editing
 
     def get_full_path_with_param(self, key, value):
         """

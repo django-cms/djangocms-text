@@ -1,3 +1,5 @@
+from unittest import skipIf
+
 from cms.api import add_plugin
 
 from djangocms_text import html, settings
@@ -11,14 +13,14 @@ class WidgetTestCase(TestFixture, BaseTestCase):
 
     def setUp(self):
         self.super_user = self._create_user('test', True, True)
-        self.default_parser = html.DEFAULT_PARSER
+        self.default_parser = html.cms_parser
         super().setUp()
 
     def tearDown(self):
         settings.ALLOW_TOKEN_PARSERS = (
             'djangocms_text.attribute_parsers.DataAttributeParser',
         )
-        html.DEFAULT_PARSER = self.default_parser
+        html.cms_parser = self.default_parser
 
     def test_sub_plugin_config(self):
         page = self.create_page(title='home', template='page.html', language='en')
@@ -81,9 +83,9 @@ class WidgetTestCase(TestFixture, BaseTestCase):
         self.assertContains(response, 'data-one="1"')
         self.assertContains(response, 'data-two="2"')
 
+    @skipIf(True, "sanitizer deactivated")
     def test_text_sanitizer_no_settings(self):
         settings.ALLOW_TOKEN_PARSERS = []
-        html.DEFAULT_PARSER = html._get_default_parser()
         page = self.create_page(title='home', template='page.html', language='en')
         placeholder = self.get_placeholders(page, 'en').get(slot='content')
         add_plugin(

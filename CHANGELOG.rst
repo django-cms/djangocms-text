@@ -6,7 +6,7 @@ Changelog
 ==================
 
 * fix(settings): Extend ALLOW_TOKEN_PARSERS if custom one is provided by @DmytroLitvinov in `#654 <https://github.com/django-cms/djangocms-text-ckeditor/pull/654>`_
-* fix: Support djangocms-picture 2.0.0 and higher in create_picture_plugin by @leture in `#660 <https://github.com/django-cms/djangocms-text-ckeditor/pull/660>`_ 
+* fix: Support djangocms-picture 2.0.0 and higher in create_picture_plugin by @leture in `#660 <https://github.com/django-cms/djangocms-text-ckeditor/pull/660>`_
 * Remove Flash plugin in the default settings by @MacLake in `#656 <https://github.com/django-cms/djangocms-text-ckeditor/pull/656>`_
 * fix: Allow for request-free context objects for testing purposes by @fsbraun in `#659 <https://github.com/django-cms/djangocms-text-ckeditor/pull/659>`_
 * Update test matrix to include Django 5 by @protoroto in `#662 <https://github.com/django-cms/djangocms-text-ckeditor/pull/662>`_
@@ -30,7 +30,7 @@ Changelog
 ==================
 
 * Add suport for django CMS 4.1
-* Fix `#468 <https://github.com/django-cms/djangocms-text-ckeditor/issues/468>`_ via `#637 <https://github.com/django-cms/djangocms-text-ckeditor/pull/637>`_: Delay importing models.CMSPlugin in utils to allow adding an HTMLField to a custom user model.
+* Fix `#468 <https://github.com/django-cms/djangocms-text-ckeditor/issues/468>`_ via `#637 <https://github.com/django-cms/djangocms-text-ckeditor/pull/637>`_: Delay importing models.CmsPlugin in utils to allow adding an HTMLField to a custom user model.
 
 
 5.1.1 (2022-06-22)

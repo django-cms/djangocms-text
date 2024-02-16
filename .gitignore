@@ -111,4 +111,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# Dynamically created bundles
+bundles/
+
+
 !djangocms_text_ckeditor/static/djangocms_text_ckeditor/js/dist
+bundle.ckeditor5.min.css
+bundle.tiptap.min.css

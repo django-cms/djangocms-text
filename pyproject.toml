@@ -40,7 +40,8 @@ classifiers = [
 ]
 dependencies = [
     "django-cms>=3.11",
-    "html5lib>=1",
+    "lxml",
+    "nh3",
     "packaging",
     "Pillow",
 ]

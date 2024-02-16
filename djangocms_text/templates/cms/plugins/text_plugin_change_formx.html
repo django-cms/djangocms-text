@@ -1,0 +1,12 @@
+{% extends change_form_template|default:"admin/cms/page/plugin/change_form.html" %}
+{% load cms_static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static_with_version "cms/js/dist/bundle.admin.base.min.js" %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+	CMS.API.Helpers.csrf('{{ csrf_token }}');
+});
+</script>
+{% endblock %}

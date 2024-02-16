@@ -165,3 +165,5 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

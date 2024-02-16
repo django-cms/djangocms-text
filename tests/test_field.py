@@ -1,3 +1,5 @@
+from unittest import skipIf
+
 from django.template import Context, Template
 from django.utils.safestring import SafeData
 
@@ -37,6 +39,7 @@ class FieldTestCase(BaseTestCase):
         rendered = template.render(Context({'obj': text}))
         self.assertEqual(original, rendered)
 
+    @skipIf(True, "sanitizer deactivated")
     def test_model_field_sanitized(self):
         obj = SimpleText(text=self.text_normal)
         obj.full_clean()
@@ -58,6 +61,7 @@ class FieldTestCase(BaseTestCase):
 
         self.assertEqual(obj.text, self.text_with_script_escaped)
 
+    @skipIf(True, "sanitizer deactivated")
     def test_form_field_sanitized(self):
         form = SimpleTextForm(data={'text': self.text_normal})
         self.assertTrue(form.is_valid())

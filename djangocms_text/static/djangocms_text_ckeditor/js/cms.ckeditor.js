@@ -319,7 +319,7 @@
                 });
             }
 
-            // add css tweks to the editor
+            // add css tweaks to the editor
             this.styles();
             this._resizing();
         },

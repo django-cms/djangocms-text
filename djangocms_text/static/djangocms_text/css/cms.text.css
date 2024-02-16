@@ -1,0 +1,18 @@
+.cms-admin.app-djangocms_text.model-text .form-row.field-body > div > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.popup.cms-admin.app-djangocms_text.model-text #content {
+    padding: 0;
+    margin: 0;
+    .form-row {
+        padding: 0;
+    };
+    label {
+        display: none;
+    }
+}

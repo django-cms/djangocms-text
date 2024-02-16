@@ -10,20 +10,7 @@ import './ckeditor4_plugins/cmsresize/plugin';
 import './ckeditor4_plugins/cmswidget/plugin';
 
 // Configure cmsplugin
-(function() {
-    document.createElement('cms-plugin');
-    CKEDITOR.dtd['cms-plugin'] = CKEDITOR.dtd.div;
-    CKEDITOR.dtd.$inline['cms-plugin'] = 1;
-    // has to be here, otherwise extra <p> tags appear
-    CKEDITOR.dtd.$nonEditable['cms-plugin'] = 1;
-    CKEDITOR.dtd.$transparent['cms-plugin'] = 1;
-    CKEDITOR.dtd.body['cms-plugin'] = 1;
 
-    // add additional plugins (autoloads plugins.js)
-    CKEDITOR.skin.addIcon('cmsplugins', '/static' +
-        '/ckeditor_plugins/cmsplugins/icons/cmsplugins.svg');
-    CKEDITOR.disableAutoInline = true
-})();
 
 window.cms_editor_plugin = {
 
@@ -73,26 +60,39 @@ window.cms_editor_plugin = {
     },
 
     // initializes the editor on the target element, with the given html code
-    create: function(el, inline, content, settings, save_callback) {
+    create: function(el, inModal, content, settings, save_callback) {
         const all_options = Object.assign({}, this.options, settings.options);
 
         // add extra plugins that we absolutely must have
         all_options.extraPlugins = all_options.extraPlugins +=
-            ',cmsplugins,cmswidget,cmsdialog,cmsresize,widget';
+            ',CMSPlugins,cmswidget,cmsdialog,cmsresize,widget';
 
         if (typeof all_options.toolbar === 'string' && ('toolbar_' + all_options.toolbar) in all_options) {
             all_options.toolbar = all_options['toolbar_' + all_options.toolbar];
         }
 
+        if (CKEDITOR.dtd['cms-plugin'] === undefined) {
+            document.createElement('cms-plugin');
+            CKEDITOR.dtd['cms-plugin'] = CKEDITOR.dtd.div;
+            CKEDITOR.dtd.$inline['cms-plugin'] = 1;
+            // has to be here, otherwise extra <p> tags appear
+            CKEDITOR.dtd.$nonEditable['cms-plugin'] = 1;
+            CKEDITOR.dtd.$transparent['cms-plugin'] = 1;
+            CKEDITOR.dtd.body['cms-plugin'] = 1;
+
+            // add additional plugins (autoloads plugins.js)
+            CKEDITOR.skin.addIcon('CMSPlugins', settings.static_url +
+                '/ckeditor_plugins/cmsplugins/icons/cmsplugins.svg');
+            CKEDITOR.disableAutoInline = true
+        };
         if (!(el.id in this._editors)) {
-            if (!inline) {
+            if (el.tagName === 'TEXTAREA') {
                 const editor = CKEDITOR.replace(el, all_options);
                 this._editors[el.id] = editor;
 
                 // Maximize editor if alone in modal
-                const modal = document.querySelector('.app-djangocms_text.model-text');
-                if (modal !== null && modal.contains(el)) {
-                    console.warn(modal, el, modal.contains(el));
+                if (inModal) {
+
                     setTimeout(() => editor.execCommand('maximize'), 300);
                 }
             } else {

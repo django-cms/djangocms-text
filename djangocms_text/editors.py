@@ -289,11 +289,17 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
     "FontSize": {
         "title": _("Font size"),
     },
+    "CMSPlugins": {
+        "title": _("CMS Plugins"),
+        "aria": _("CMS Plugins"),
+        "editLabel": _("Edit CMS Plugin"),
+        "addLabel": _("Add CMS Plugin"),
+    }
 }
 
 DEFAULT_TOOLBAR_CMS = [
     ["Undo", "Redo"],
-    ["cmsplugins", "cmswidget", "-", "ShowBlocks"],
+    ["CMSPlugins", "cmswidget", "-", "ShowBlocks"],
     ["Format", "Styles"],
     ["TextColor", "BGColor", "-", "PasteText", "PasteFromWord"],
     ["Scayt"],

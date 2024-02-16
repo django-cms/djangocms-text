@@ -54,10 +54,10 @@
         });
     }
 
-    CKEDITOR.plugins.add('cmsplugins', {
+    CKEDITOR.plugins.add('CMSPlugins', {
 
         // Register the icons. They must match command names.
-        icons: 'cmsplugins',
+        icons: 'CMSPlugins',
 
         // The plugin initialization logic goes inside this method.
         init: function (editor) {
@@ -82,6 +82,7 @@
             this.unsaved_child_plugins = [];
 
 			var settings  = CMS_Editor.getSettings(editor.name);
+			console.log(settings);
 			this.setupCancelCleanupCallback(settings);
 
             // don't do anything if there are no plugins defined
@@ -92,22 +93,23 @@
             this.setupDialog(editor);
 
             // add the button
-            editor.ui.add('cmsplugins', CKEDITOR.UI_PANELBUTTON, {
+            editor.ui.add('CMSPlugins', CKEDITOR.UI_PANELBUTTON, {
                 toolbar: 'cms,0',
-                label: settings.lang.toolbar,
-                title: settings.lang.toolbar,
+                label: settings.lang.CMSPlugins.title,
+                title: settings.lang.CMSPlugins.title,
                 className: 'cke_panelbutton__cmsplugins',
                 modes: { wysiwyg: 1 },
                 editorFocus: 0,
 
                 panel: {
                     css: [CKEDITOR.skin.getPath('editor')].concat(editor.config.contentsCss),
-                    attributes: { 'role': 'cmsplugins', 'aria-label': settings.lang.aria }
+                    attributes: { 'role': 'cmsplugins', 'aria-label': settings.lang.CMSPlugins.aria }
                 },
 
                 // this is called when creating the dropdown list
                 onBlock: function (panel, block) {
-                    block.element.setHtml(editor.plugins.cmsplugins.setupDropdown(editor));
+					console.log("onBlock", editor.plugins);
+                    block.element.setHtml(editor.plugins.CMSPlugins.setupDropdown(editor));
 
                     var anchors = $(block.element.$).find('.cke_panel_listItem a');
 
@@ -270,7 +272,7 @@
 
             editor.addMenuGroup('cmspluginsGroup');
             editor.addMenuItem('cmspluginsItem', {
-                label: settings.lang.edit,
+                label: settings.lang.CMSPlugins.editLabel,
                 icon: settings.static_url + '/ckeditor_plugins/cmsplugins/icons/cmsplugins.svg',
                 command: 'cmspluginsEdit',
                 group: 'cmspluginsGroup'
@@ -290,7 +292,6 @@
         editPlugin: function (element, editor) {
             var id = element.getAttribute('id'),
 				settings = CMS_Editor.getSettings(editor.name);
-
             editor.openDialog('cmspluginsDialog');
             var body = CMS.$(window);
 
@@ -299,8 +300,8 @@
 
             dialog.resize(body.width() * 0.8, body.height() * 0.6); // eslint-disable-line no-magic-numbers
             $(dialog.getElement().$).addClass('cms-ckeditor-dialog');
-            $(dialog.parts.title.$).text(settings.lang.edit);
-            var textPluginUrl = settings.url || window.location.href;
+            $(dialog.parts.title.$).text(settings.lang.CMSPlugins.editLabel);
+            var textPluginUrl = editor.element.$.dataset.cmsEditUrl || window.location.href;
             var path = encodeURIComponent(window.parent.location.pathname + window.parent.location.search);
             var childPluginUrl = textPluginUrl.replace(
                 /(add-plugin|edit-plugin).*$/,
@@ -353,7 +354,7 @@
 
             dialog.resize(body.width() * 0.8, body.height() * 0.6); // eslint-disable-line no-magic-numbers
             $(dialog.getElement().$).addClass('cms-ckeditor-dialog');
-            $(dialog.parts.title.$).text(settings.lang.add);
+            $(dialog.parts.title.$).text(settings.lang.CMSPlugins.addLabel);
             $(dialog.parts.contents.$).find('iframe')
 				.attr('src', settings.add_plugin_url + '?' + $.param(data))
                 .on('load.addplugin', function () {

@@ -58,5 +58,7 @@ path = "djangocms_text/__init__.py"
 [tool.hatch.build.targets.sdist]
 include = [
     "/djangocms_text",
-    "/djangocms_text_ckeditor"
+    "/djangocms_text/*.js",
+    "/djangocms_text/*.css",
+    "/djangocms_text_ckeditor",
 ]

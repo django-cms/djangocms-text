@@ -189,7 +189,7 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
 cms-plugin {
     a {
         pointer-events: none;
-        &> * {
+        & cms-plugin {
             pointer-events: auto;
         }
     }

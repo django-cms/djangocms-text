@@ -1,0 +1,452 @@
+/*!******************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./private/css/cms.dialog.css ***!
+  \******************************************************************************/
+
+dialog.cms-dialog {
+    padding: 0;
+    resize: both;
+    top: 50%;
+    left: 50%;
+    transform: translate(calc(-50% + 250px), calc(-50% + 121px));
+    width: 32rem;
+    height: 24rem;
+    min-height: 16rem;
+    min-width: 16rem;
+    .cms-modal-foot {
+        margin-right: 1rem;
+        .cms-modal-buttons {
+            padding-right: 10px;
+        }
+    }
+    .cms-modal-body iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+}
+
+dialog.cms-form-dialog {
+    &::before {
+        position: absolute;
+        background: var(--dca-white);
+        border: 1px solid var(--dca-gray-light);
+        box-shadow: 0 0 10px rgba(var(--dca-shadow), .25);
+        height: 10px;
+        width:  10px;
+        left: 24px;
+        top: 8px;
+        transform: rotate(-135deg);
+        transform-origin: 0 0;
+        content: "";
+    }
+    &.right::before {
+        right: 24px;
+        left: auto;
+    }
+    &::after {
+        position: absolute;
+        background: var(--dca-white);
+        height: 10px;
+        left: 10px;
+        top: 0;
+        width: 40px;
+        content: "";
+    }
+    &.right::after {
+        right: 10px;
+        left: auto;
+    }
+    .dropback {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        cursor: unset;  /* browser default */
+    }
+    z-index: 1001;
+    position: fixed;
+    margin: unset;
+    left: auto;
+    transform: translate(-50%, -50%);
+    min-width: 200px;
+    padding: 10px 15px;
+    background-color: var(--dca-white);
+    border: 1px solid var(--dca-gray-light);
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(var(--dca-shadow), .25);
+    form {
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        align-content: baseline;
+        align-items: center;
+    }
+    .cancel {
+        display: inline-flex;
+        color: #f00;
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+        cursor: pointer;
+    }
+    .submit {
+        display: inline-flex;
+        color: #693;
+        cursor: pointer;
+    }
+}
+
+
+form.cms-form {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    align-content: baseline;
+    align-items: center;
+    text-align: start;
+    zoom: 1;
+    input, select {
+        min-width: 200px;
+        width: 100%;
+        margin-bottom: 3px;
+        font-size: 0.8rem;
+        min-height: 1rem;
+        line-height: unset;
+        height: unset;
+        padding: 3px 6px !important;
+    }
+    select {  /* !important for djangocms-admin-style */
+        background: var(--dca-white) url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\" fill=\"%23808080\" viewBox=\"0 0 16 16\"><path d=\"M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z\"/></svg>") no-repeat right center  !important;
+        background-size: auto 1em  !important;
+        appearance: none;
+    }
+    label {
+        font-size: 0.7rem;
+        padding-bottom: 4px;
+    }
+    hr {
+        margin: 0.3em -1em;
+    }
+    .cms-form-buttons {
+        display: inline-flex;
+        margin-inline-start: 1em;
+        .cancel {
+            color: #f00;
+            cursor: pointer;
+            zoom: 1.2;
+        }
+        .submit {
+            margin-left: 0.5em;
+            margin-right: 0.5em;
+            color: #693;
+            cursor: pointer;
+            zoom: 1.2;
+        }
+    }
+}
+
+/*!***************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./private/css/cms.balloon-toolbar.css ***!
+  \***************************************************************************************/
+.cms-editor-inline-wrapper .cms-balloon {
+    --size: 1rem;
+    position: absolute;
+    visibility: visible;
+    background-color: var(--dca-gray-lightest);
+    color: var(--dca-gray);
+    border-radius: 3px;
+    box-shadow: none;
+    /* box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4); */
+    right: calc(100% + 1rem);
+    width: calc(1.6*var(--size));
+    height:  calc(1.6*var(--size));
+    line-height: calc(1.3*var(--size));
+    text-align: center;
+    cursor: pointer;
+    svg {
+        width: var(--size);
+        height: var(--size);
+    }
+    &.show [role="menubar"] {
+        visibility: visible;
+    }
+    [role="menubar"] {
+        padding: 3px;
+        position: absolute;
+        top: 100%;
+        bottom: unset;
+        width: unset;
+        max-width: 100vw;
+    }
+}
+
+@keyframes delayedHide {
+  to {
+    visibility: hidden;
+  }
+}
+
+.cms-editor-inline-wrapper:not(:has(.ProseMirror-focused)) .cms-balloon {
+    animation: 0s linear 0.2s forwards delayedHide;
+}
+
+/*!*********************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./private/css/cms.linkfield.css ***!
+  \*********************************************************************************/
+.cms-editor-inline-wrapper {
+    .cms-linkfield-wrapper {
+        font-size: 0.8rem;
+        position: relative;
+        input[type="text"] {
+            padding-right: 3em;
+            background: var(--dca-white) url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\" fill=\"%23808080\" viewBox=\"0 0 16 16\"><path d=\"M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z\"/></svg>") no-repeat right center;
+            background-size: auto 1em;
+        }
+        .cms-linkfield-selected {
+            font-weight: bold;
+        }
+        input[type="text"]:focus + .cms-linkfield-dropdown:not(:empty), .cms-linkfield-dropdown:active {
+            /* Hide dropdown when empty */
+            visibility: visible;
+        }
+        .cms-linkfield-dropdown {
+            z-index: 1;
+            visibility: hidden;
+            position: absolute;
+            max-height: 400px;
+            overflow: auto;
+            left: 0;
+            top: 100%;
+            border: 1px solid var(--dca-gray-lighter);
+            background: var(--dca-white);
+            width: 120%;
+            resize: both;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
+            .cms-linkfield-error {
+                color: red;
+                font-size: 0.8rem;
+            }
+            div {
+                padding: 0.5rem 6px;
+                white-space: nowrap;
+                font-weight: normal;
+                border-bottom: 1px solid var(--dca-gray-lighter);
+                &:last-child {
+                    border-bottom: none;
+                }
+                &.cms-linkfield-parent {
+                    font-weight: bold;
+                    background: var(--dca-gray-lightest);
+                }
+                &.cms-linkfield-option:hover {
+                    background: var(--dca-primary);
+                    color: var(--dca-white);
+                }
+            }
+        }
+    }
+}
+
+/*!******************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./private/css/cms.tiptap.css ***!
+  \******************************************************************************/
+.app-djangocms_text.model-text.change-form {
+
+    textarea.CMS_Editor, textarea#id_json {
+        display: none;
+    }
+
+    textarea.CMS_Editor + div#id_body_editor.fixed {
+        display: flex;
+        flex-flow: column;
+        height: 100%;
+        width: 100%;
+        max-width: 100%;  /* for djangocms-admin-style */
+        [role="menubar"] {
+            border: none;
+        }
+        .ProseMirror {
+            overflow-y: scroll;
+            padding: 1rem 0.8rem 0.2rem 0.2rem;
+            border-top: 2px solid var(--dca-gray-lighter);
+            &:focus-visible {
+                outline: none;
+            }
+        }
+    }
+}
+
+p:not(.is-empty) > br.ProseMirror-trailingBreak {
+    displaxy: none;
+}
+
+.cms-editor-inline-wrapper {
+    &.textarea .tiptap {
+        border: 1px solid var(--dca-gray-lighter);
+        padding: 6px;
+        min-height: 3rem;
+        border-radius: 3px;
+    }
+    &.textarea.fixed .tiptap {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+    position: relative;
+    a {
+        pointer-events: none;
+    }
+    & cms-plugin {
+        pointer-events: auto;
+        a {
+            pointer-events: none;  /* for text-enabled link plugins */
+        }
+        &.ProseMirror-selectednode > * {
+            outline: 2px solid #fad507;
+            outline-offset: 2px;
+        }
+    }
+    [role="menubar"] {
+        bottom: calc(100% - 1px);
+        &.show {
+            visibility: visible;
+        }
+        [role="button"].show > .dropdown-content {
+            visibility: visible;
+        }
+        padding: 6px 0.8rem;
+        /* border-radius: 3px; */
+        margin: 0  !important;
+        font-size: 1rem;
+        font-weight: normal;
+        visibility: hidden;
+        position: absolute;
+        pointer-events: all;
+        display: flex;
+        flex-flow: row wrap;
+        border: solid 1px var(--dca-gray-light);
+        box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
+        color: var(--dca-black);
+        background: var(--dca-white);
+        opacity: 1;
+        div.grouper {
+            padding: 0;
+            margin: 0;
+            display: inline-flex;
+            justify-content: center;
+            break-inside: avoid;
+        }
+    }
+    &.fixed [role="menubar"]  {
+        display: block;
+        top: 0;
+        visibility: visible;
+        position: static;
+        width: 100%;
+        box-sizing: border-box;
+        outline: none;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        border: 1px solid var(--dca-gray-lighter);
+        border-bottom: none;
+        .dropdown-content {
+            top: 100%;
+            left: 0;
+        }
+    }
+    button, [role="button"] {
+        width: auto  !important;  /* for djangocms-admin-style */
+        position: relative;
+        li {
+            color: var(--dca-gray-darker);
+            font-weight: normal;
+        }
+        display: inline-flex;
+        justify-content: center;
+        cursor: pointer;
+        border: none  !important;
+        background: var(--dca-white);
+        border-radius: 2px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.2;
+        padding: 6px 4px  !important;
+        &:active, &.active {
+            background: var(--dca-gray-lighter)  !important;
+        }
+        &:hover:not(:disabled),&.show {
+            color: var(--dca-white) !important;
+            background: var(--dca-primary)  !important;
+        }
+        &:disabled {
+            color: var(--dca-gray-light);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        &.dropdown {
+            position: relative;
+            font-size: 0.8rem;
+            padding: 6px 8px  !important;
+        }
+        svg {
+            zoom: 120%;
+            display: inline;
+            vertical-align: middle;
+        }
+    }
+    .dropdown-content {
+        color: var(--dca-black);
+        border-radius: 0;
+        visibility: hidden;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        display: flex;
+        flex-flow: row;
+        border: solid 1px var(--dca-gray-light);
+        box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
+        background: var(--dca-white);
+        padding: 6px 0.8rem;
+        &.vertical {
+            flex-flow: column;
+            font-size: 1rem;
+            padding: 0;
+            button {
+                text-align: left;
+                justify-content: left;
+                padding: 8px 1.2rem  !important;
+                small {
+                    margin: 0;
+                }
+            }
+        }
+    }
+    span:empty {
+        margin-left: 4px;
+        margin-right: 4px;
+        &.separator {
+            border-left: dashed 1px var(--dca-gray);
+        }
+        &.space {
+            border-left: dashed 1px var(--dca-white);
+        }
+
+    }
+    .dropback, .toolbar-dropback {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        cursor: unset;  /* browser default */
+    }
+    :not(:has(.dropdown.show)) .toolbar-dropback {
+        display: none;
+    }
+}
+
+
+/*# sourceMappingURL=bundle.tiptap.min.css.map*/

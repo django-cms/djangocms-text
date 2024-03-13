@@ -122,8 +122,8 @@ page tree and get the correctly rendered version of the changed plugin.
 Default content in Placeholder
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you use Django-CMS >= 3.0, you can use ``TextPlugin`` in "default_plugins" (see docs
-about the CMS_PLACEHOLDER_CONF_ setting in Django CMS 3.0). ``TextPlugin`` requires just
+You can use ``TextPlugin`` in "default_plugins" (see docs
+about the CMS_PLACEHOLDER_CONF_ setting). ``TextPlugin`` requires just
 one value: ``body`` where you write your default HTML content. If you want to add some
 "default children" to your automagically added plugin (i.e. a ``LinkPlugin``), you have
 to put children references in the body. References are ``"%(_tag_child_<order>)s"`` with
@@ -729,10 +729,8 @@ Old djangocms-text-ckeditor readme:
 
 .. |pypi| image:: https://badge.fury.io/py/djangocms-text.svg
     :target: http://badge.fury.io/py/djangocms-text
-.. |build| image:: https://travis-ci.org/divio/djangocms-text.svg?branch=main
-    :target: https://travis-ci.org/fsbraun/djangocms-text
 .. |coverage| image:: https://codecov.io/gh/django-cms/djangocms-text/branch/main/graph/badge.svg
-    :target: https://codecov.io/gh/fsbraun/djangocms-text
+    :target: https://codecov.io/gh/django-cms/djangocms-text
 .. |python| image:: https://img.shields.io/badge/python-3.7+-blue.svg
     :target: https://pypi.org/project/djangocms-text/
 .. |django| image:: https://img.shields.io/badge/django-3.2--5.0-blue.svg

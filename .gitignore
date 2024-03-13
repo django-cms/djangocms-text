@@ -23,7 +23,8 @@ env/
 *.css.map
 npm-debug.log
 
-local.sqlite
+*.sqlite
+
 
 # C extensions
 *.so

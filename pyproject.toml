@@ -50,7 +50,7 @@ dependencies = [
 packages = ["djangocms_text", "djangocms_text_ckeditor"]
 
 [project.urls]
-Homepage = "https://github.com/fsbraun/djangocms-text-rte"
+Homepage = "https://github.com/django-cms/djangocms-text"
 
 [tool.hatch.version]
 path = "djangocms_text/__init__.py"

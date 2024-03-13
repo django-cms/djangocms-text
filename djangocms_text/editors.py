@@ -409,7 +409,7 @@ def get_editor_config(editor: Optional[str] = None) -> RTEConfig:
     :rtype: RTEConfig
     """
 
-    TEXT_EDITOR = getattr(settings, "TEXT_EDITOR", "ckeditor4")
+    TEXT_EDITOR = getattr(settings, "TEXT_EDITOR", "tiptap")
     config = TEXT_EDITOR if editor is None else editor
     if "." in config and config not in configuration:
         # Load the configuration from the module
@@ -434,39 +434,10 @@ def get_editor_base_config(editor: Optional[str] = None) -> dict:
 
 register(
     RTEConfig(
-        name="tinymce",
-        config="TinyMCE",
-        js=(
-            "djangocms_text/vendor/tinymce/js/tinymce/tinymce.min.js",
-            "djangocms_text/bundles/bundle.tinymce.min.js",
-        ),
-        css={"all": ("djangocms_text/css/cms.tinymce.css",)},
+        name="tiptap",
+        config="TIPTAP",
+        js=("djangocms_text/bundles/bundle.tiptap.min.js",),
+        css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
     )
 )
 
-register(
-    RTEConfig(
-        name="ckeditor4",
-        config="CKEDITOR",
-        js=(
-            "djangocms_text/vendor/ckeditor4/ckeditor.js",
-            "djangocms_text/bundles/bundle.ckeditor4.min.js",
-        ),
-        css={"all": ("djangocms_text/css/cms.ckeditor4.css", "djangocms_text/css/bundle.ckeditor4.min.css",)},
-    )
-)
-
-register(
-    RTEConfig(
-        name="quill",
-        config="QUILL",
-        js=("djangocms_text/bundles/bundle.quill.min.js",),
-        css={
-            "all": (
-                "djangocms_text/vendor/quill/quill.snow.css",
-                "djangocms_text/vendor/quill/bubble.css",
-                "djangocms_text/css/cms.quill.css",
-            )
-        },
-    )
-)

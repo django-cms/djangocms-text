@@ -42,8 +42,15 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
     position: relative;
     a {
         pointer-events: none;
-        & > * {
-            pointer-events: auto;
+    }
+    & cms-plugin {
+        pointer-events: auto;
+        a {
+            pointer-events: none;  /* for text-enabled link plugins */
+        }
+        &.ProseMirror-selectednode > * {
+            outline: 2px solid #fad507;
+            outline-offset: 2px;
         }
     }
     [role="menubar"] {
@@ -183,18 +190,5 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
     }
     :not(:has(.dropdown.show)) .toolbar-dropback {
         display: none;
-    }
-}
-
-cms-plugin {
-    a {
-        pointer-events: none;
-        & cms-plugin {
-            pointer-events: auto;
-        }
-    }
-    &.ProseMirror-selectednode > * {
-        outline: 2px solid #fad507;
-        outline-offset: 2px;
     }
 }

@@ -1,6 +1,8 @@
 [run]
 branch = True
-source = djangocms_text_ckeditor
+source =
+    djangocms_text
+    djangocms_text_ckeditor
 omit =
     migrations/*
     tests/*

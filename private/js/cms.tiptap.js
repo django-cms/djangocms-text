@@ -201,7 +201,7 @@ class CMSTipTapPlugin {
     }
 
     _createBlockToolbar(el, editor, options) {
-        const toolbar = this._populateToolbar(options.toolbar || this.settings.toolbar_HTMLField, 'block');
+        const toolbar = this._populateToolbar(editor,options.toolbar || this.settings.toolbar_HTMLField, 'block');
         const ballonToolbar = new CmsBalloonToolbar(editor, toolbar,
             (event) => this._handleToolbarClick(event, editor),
             (el) => this._updateToolbar(editor, el));
@@ -213,7 +213,7 @@ class CMSTipTapPlugin {
         toolbarElement.classList.add('cms-toolbar');
 
         // create the toolbar html from the settings
-        toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${this._populateToolbar(toolbar, filter)}`;
+        toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${this._populateToolbar(editor, toolbar, filter)}`;
 
         toolbarElement.querySelector('.toolbar-dropback').addEventListener('click', (event) => {
             console.log(toolbarElement.querySelector('.dropdown.show'));
@@ -319,7 +319,7 @@ class CMSTipTapPlugin {
                     editor.commands.focus();
                 }
             } else if (TiptapToolbar[action]) {
-                TiptapToolbar[action].action(editor, event);
+                TiptapToolbar[action].action(editor, button);
                 this._updateToolbar(editor);
                 // Close dropdowns after command execution
                 this._closeAllDropdowns(event, editor);
@@ -353,7 +353,7 @@ class CMSTipTapPlugin {
             .forEach((el) => el.classList.remove('show'));
     }
 
-    _populateToolbar(array, filter) {
+    _populateToolbar(editor, array, filter) {
         let html = '';
         for (let item of array) {
             if (item in TiptapToolbar && TiptapToolbar[item].insitu) {
@@ -366,12 +366,12 @@ class CMSTipTapPlugin {
                 item.icon = repr.icon;
             }
             if (Array.isArray(item)) {
-                const group = this._populateToolbar(item, filter);
+                const group = this._populateToolbar(editor, item, filter);
                 if (group.length > 0) {
-                    html += this._populateToolbar(item, filter) + this.separator_markup;
+                    html += this._populateToolbar(editor, item, filter) + this.separator_markup;
                 }
             } else if (item.constructor === Object) {
-                const dropdown = this._populateToolbar(item.items, filter);
+                const dropdown = this._populateToolbar(editor, item.items, filter);
                 // Are there any items in the dropdown?
                 if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length > 0) {
                     const title = item.title && item.icon ? `title='${item.title}' ` : '';
@@ -400,7 +400,12 @@ class CMSTipTapPlugin {
                         break;
                     default:
                         // Button
-                        html += this._createToolbarButton(item, filter);
+                        if (item in TiptapToolbar && TiptapToolbar[item].render) {
+                            html += TiptapToolbar[item].render(editor, TiptapToolbar[item], filter);
+                        } else {
+                            html += this._createToolbarButton(editor, item, filter);
+                        }
+                        break;
                 }
             }
         }
@@ -418,21 +423,39 @@ class CMSTipTapPlugin {
      * @param {string} item - The item to get the representation for.
      * @return {string} - The representation of the specified item, or the "failed" representation from the TiptapToolbar.
      */
-    _getRepresentation(item) {
-        if (this.lang && item in this.lang) {
+    _getRepresentation(item, filter) {
+        if (item.endsWith('Plugin')) {
+            for (const plugin of window.CMS_Editor.getInstalledPlugins()) {
+                if (plugin.value === item && filter !== 'block') {
+                    return {
+                        title: plugin.name,
+                        icon: plugin.icon,
+                        cmsplugin: plugin.value,
+                        dataaction: 'CMSPlugins',
+                    };
+                }
+            }
+            return null;
+        }
+        if (this.lang && item in this.lang && item in TiptapToolbar) {
+            if (filter && filter !== TiptapToolbar[item].type) {
+                return null;
+            }
             return Object.assign({}, TiptapToolbar[item] || {}, this.lang[item]);
         }
         return TiptapToolbar.failed;
     }
 
     // create the html for a toolbar button
-    _createToolbarButton(itemName, filter) {
+    _createToolbarButton(editor, itemName, filter) {
         const item = itemName.split(' ')[0];
 
-        if (TiptapToolbar[item] && (!filter || TiptapToolbar[item].type === filter)) {
-            const repr = this._getRepresentation(item);
+        const repr = this._getRepresentation(item, filter);
+        if (repr) {
+            repr.dataaction = repr.dataaction || item;
             const title = repr && repr.icon ? `title='${repr.title}' ` : '';
             const position = repr.position ? `style="float :${repr.position};" ` : '';
+            const cmsplugin = repr.cmsplugin ? `data-cmsplugin="${repr.cmsplugin}" ` : '';
             let form = '';
             let classes = 'button';
             if (repr.toolbarForm) {
@@ -449,7 +472,7 @@ class CMSTipTapPlugin {
                             </div>
                         </form>`;
             }
-            return `<button data-action="${item}" ${title}${position}class="${classes}" role="button">
+            return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}" role="button">
                         ${repr.icon ? repr.icon : repr.title}${form}
                     </button>`;
         }
@@ -472,9 +495,9 @@ class CMSTipTapPlugin {
                 if (TiptapToolbar[action]) {
                     const toolbarItem = this._getRepresentation(action);
                     try {
-                        button.disabled = !toolbarItem.enabled(editor);
+                        button.disabled = !toolbarItem.enabled(editor, button);
                         try {
-                            if (toolbarItem.active(editor)) {
+                            if (toolbarItem.active(editor, button)) {
                                 button.classList.add('active');
                             } else {
                                 button.classList.remove('active');
@@ -520,7 +543,7 @@ class CMSTipTapPlugin {
             this._closeAllDropdowns(event, editor);
             const action = form.closest('[role=button]').dataset.action;
             if (TiptapToolbar[action]) {
-                TiptapToolbar[action].action(editor, event, new FormData(form));
+                TiptapToolbar[action].action(editor, event.target.closest('button, [role="button"]'), new FormData(form));
             }
         }
     }

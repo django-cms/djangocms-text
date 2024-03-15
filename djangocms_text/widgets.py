@@ -100,7 +100,13 @@ class TextEditorWidget(forms.Textarea):
         return super().render(name, value, attrs, renderer)
 
     def get_toolbar_setting(self, toolbar):
-        return get_editor_base_config()
+        toolbar_setting = get_editor_base_config()
+        for plugin in self.installed_plugins:
+            toolbar_setting[plugin["value"]] = {
+                "title": plugin["name"],
+                "icon": plugin["icon"],
+            }
+        return toolbar_setting
 
     def get_editor_settings(self, language):
         configuration = deepcopy(self.configuration)

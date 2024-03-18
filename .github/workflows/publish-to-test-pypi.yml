@@ -9,10 +9,15 @@ jobs:
   build-n-publish:
     name: Build and publish Python 🐍 distributions 📦 to TestPyPI
     runs-on: ubuntu-latest
+    environment:
+      name: test
+      url: https://test.pypi.org/p/djangocms-text
+    permissions:
+      id-token: write
     steps:
     - uses: actions/checkout@master
     - name: Set up Python 3.12
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v5
       with:
         python-version: 3.12
 
@@ -42,7 +47,5 @@ jobs:
     - name: Publish distribution 📦 to Test PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository-url: https://test.pypi.org/legacy/
         skip-existing: true

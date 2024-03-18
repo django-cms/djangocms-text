@@ -587,6 +587,14 @@ class TextPlugin(CMSPluginBase):
             ]
         return text_enabled_plugins
 
+    def render_plugin_icon(self, plugin):
+        icon = getattr(plugin, "text_icon", None)
+        if icon is None:
+            return
+        if "cms-icon" in icon:
+            return f'<span class="{icon}"></span>'
+        return icon
+
     def get_plugins(self, obj=None):
         plugin = getattr(self, "cms_plugin_instance", None) or obj
         if not plugin:
@@ -614,7 +622,7 @@ class TextPlugin(CMSPluginBase):
                 {
                     "value": plugin.value,
                     "name": names.get(plugin.value, plugin.name),
-                    "icon": getattr(plugin, "text_icon", None),
+                    "icon": self.render_plugin_icon(plugin),
                     "module": modules.get(plugin.value, plugin.module),
                 }
             )

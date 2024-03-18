@@ -2,9 +2,9 @@
 /* jshint esversion: 6 */
 /* global document, window, console */
 
-import { Node, mergeAttributes } from '@tiptap/core';
+import { Node } from '@tiptap/core';
 import CmsDialog from "../cms.dialog.js";
-
+import TiptapToolbar from "./cms.tiptap.toolbar";
 
 function addCmsPluginDialog(editor, pluginType, selectionText) {
     'use strict';
@@ -27,7 +27,7 @@ function addCmsPluginDialog(editor, pluginType, selectionText) {
                         attrs: {
                             HTMLAttributes: attrs,
                             HTMLContent: plugin.innerHTML,
-                            type: attrs["type"]
+                            type: attrs.type
                         },
                     }).run();
                 })
@@ -41,6 +41,8 @@ function addCmsPluginDialog(editor, pluginType, selectionText) {
 
 
 function editCmsPluginDialog(editor, id, position) {
+    "use strict";
+
     new CmsDialog(editor.options.el, saveSuccess => {
         if (saveSuccess) {
             window.CMS_Editor.requestPluginMarkup(id, editor.options.el)
@@ -59,7 +61,7 @@ function editCmsPluginDialog(editor, id, position) {
                     transaction.setNodeMarkup(position, null, {
                         HTMLAttributes: attrs,
                         HTMLContent: plugin.innerHTML,
-                        type: attrs["type"]
+                        type: attrs.type
                     });
 
                     editor.view.dispatch(transaction);
@@ -72,6 +74,39 @@ function editCmsPluginDialog(editor, id, position) {
         editor.commands.focus();
     }, () => editor.commands.focus()).editDialog(id);
 }
+
+
+function renderCmsPluginMenu(editor, item, filter) {
+    "use strict";
+
+    if (filter === 'block') {
+        return '';
+    }
+    const title = item.title && item.icon ? `title='${item.title}' ` : '';
+    const icon = item.icon || item.title;
+    let dropdown = '';
+
+    const plugins = window.CMS_Editor.getInstalledPlugins();
+
+    if (!plugins) {
+        return '';
+    }
+    let module = '';
+
+    for (const plugin of plugins) {
+        if (module !== plugin.module) {
+            module = plugin.module;
+            dropdown += `<em class="header">${module}</em>`;
+        }
+        dropdown += `<button data-cmsplugin="${plugin.value}" data-action="CMSPlugins">${plugin.icon || '<span class="icon"></span>'}${plugin.name}</button>`;
+        console.log(plugin);
+    }
+    return `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content vertical plugins">${dropdown}</div></span>`;
+
+}
+
+TiptapToolbar['CMSPlugins'].render = renderCmsPluginMenu;
+
 
 export default Node.create({
 
@@ -132,7 +167,7 @@ export default Node.create({
                     return {
                         HTMLAttributes: attrs,
                         HTMLContent: dom.innerHTML,
-                        type: attrs["type"] || "CMSPlugin"
+                        type: attrs.type || "CMSPlugin"
                     };
                 }
             },
@@ -190,7 +225,7 @@ export default Node.create({
 
                 if (editor.isActive('cmsPlugin', {type: pluginType})) {
                     // Already plugin of this type active? Edit it.
-                    const position = editor.state.doc.resolve(editor.state.selection.from);
+                    // const position = editor.state.doc.resolve(editor.state.selection.from);
                     editCmsPluginDialog(
                         editor,
                         editor.state.selection.node.attrs.HTMLAttributes.id,

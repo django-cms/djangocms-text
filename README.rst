@@ -731,7 +731,7 @@ Old djangocms-text-ckeditor readme:
     :target: http://badge.fury.io/py/djangocms-text
 .. |coverage| image:: https://codecov.io/gh/django-cms/djangocms-text/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/django-cms/djangocms-text
-.. |python| image:: https://img.shields.io/badge/python-3.7+-blue.svg
+.. |python| image:: https://img.shields.io/badge/python-3.10+-blue.svg
     :target: https://pypi.org/project/djangocms-text/
 .. |django| image:: https://img.shields.io/badge/django-3.2--5.0-blue.svg
     :target: https://www.djangoproject.com/

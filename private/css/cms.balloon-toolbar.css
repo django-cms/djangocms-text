@@ -7,7 +7,7 @@
     border-radius: 3px;
     box-shadow: none;
     /* box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4); */
-    right: calc(100% + 1rem);
+    inset-inline-end: calc(100% + 1rem);
     width: calc(1.6*var(--size));
     height:  calc(1.6*var(--size));
     line-height: calc(1.3*var(--size));
@@ -23,7 +23,8 @@
     [role="menubar"] {
         padding: 3px;
         position: absolute;
-        top: 100%;
+        inset-block-start: 100%;
+        inset-block-end: unset;
         bottom: unset;
         width: unset;
         max-width: 100vw;

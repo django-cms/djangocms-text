@@ -185,8 +185,15 @@ class CMSEditor {
         });
     }
 
-    // CMS Editor: get_settings
-    // Get settings from json script element
+    /**
+     * Retrieves the settings for the given editor.
+     * If the element is a string, it will be treated as an element's ID.
+     * Reads settings from a json script element.
+     *
+     * @param {string|HTMLElement} el - The element or element's ID to retrieve the settings for.
+     *
+     * @return {Object} - The settings object for the element.
+     */
     getSettings(el) {
         if (typeof el === "string") {
             if (this._editor_settings[el]) {
@@ -203,6 +210,18 @@ class CMSEditor {
             return this._editor_settings[el.id];
         }
         return {};
+    }
+
+    /**
+     * Retrieves the list of installed plugins. (Returns empty list of no editor has been initialized.)
+     *
+     * @returns {Array} - The list of installed plugins.
+     */
+    getInstalledPlugins() {
+        if (this._editor_settings) {
+            return this.getSettings(Object.keys(this._editor_settings)[0]).installed_plugins;
+        }
+        return [];
     }
 
     // CMS Editor: init_all

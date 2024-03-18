@@ -114,7 +114,7 @@ export default class CmsBalloonToolbar {
         const startPos = resolvedPos.start(depth);
         this.toolbar.dataset.block = startPos;
         const pos = this.editor.view.coordsAtPos(startPos);
-        this.toolbar.style.top = `${pos.top + window.scrollY - this.ref.top}px`;
+        this.toolbar.style.insetBlockStart = `${pos.top + window.scrollY - this.ref.top}px`;
         // TODO: Set the size of the balloon according to the fontsize
         //  this.toolbar.style.setProperty('--size', this.editor.view. ...)
     }

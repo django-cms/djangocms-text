@@ -3,8 +3,8 @@
         font-size: 0.8rem;
         position: relative;
         input[type="text"] {
-            padding-right: 3em;
-            background: var(--dca-white) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16" fill="%23808080" viewBox="0 0 16 16"><path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>') no-repeat right center;
+            padding-inline-end: 3em;
+            background: var(--dca-white) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16" fill="%23808080" viewBox="0 0 16 16"><path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>') no-repeat inline-end center;
             background-size: auto 1em;
         }
         .cms-linkfield-selected {
@@ -18,16 +18,16 @@
             z-index: 1;
             visibility: hidden;
             position: absolute;
-            max-height: 400px;
+            max-block-size: 400px;
             overflow: auto;
-            left: 0;
-            top: 100%;
+            inset-inline-start: 0;
+            inset-block-start: 100%;
             border: 1px solid var(--dca-gray-lighter);
             background: var(--dca-white);
-            width: 120%;
+            inline-size: 120%;
             resize: both;
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
+            border-end-start-radius: 4px;
+            border-end-end-radius: 4px;
             box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
             .cms-linkfield-error {
                 color: red;
@@ -37,7 +37,7 @@
                 padding: 0.5rem 6px;
                 white-space: nowrap;
                 font-weight: normal;
-                border-bottom: 1px solid var(--dca-gray-lighter);
+                border-block-end: 1px solid var(--dca-gray-lighter);
                 &:last-child {
                     border-bottom: none;
                 }

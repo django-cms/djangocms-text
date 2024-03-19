@@ -48,8 +48,8 @@ Add an editor frontend to your installed apps, and set the editor you want to us
 
 .. code-block:: python
 
-    INSTALLED_APPS = [..., "djangocms_text.contrib.text_tiptap", ...]
-    DJANGOCMS_TEXT_EDITOR = "djangocms_text.contrib.text_tiptap.tiptap"
+    INSTALLED_APPS = [..., "djangocms_text.contrib.text_ckeditor5", ...]
+    DJANGOCMS_TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor5.ckeditor5"
 
 Usage
 -----
@@ -65,14 +65,16 @@ Editors
 ``djangocms-text`` supports multiple rich text editors, which can be swapped out as
 needed. The following editors are currently supported:
 
+- **TipTap**: A modern rich text editor with a modular architecture, TipTap is currently
+  in development and is the default editor. TipTap does not allow the user to edit
+  HTML directly, which means that some formating options are lost when switching from
+    CKEditor 4 to TipTap.
 - **CKEditor 4**: The initial version of ``djangocms-text`` includes a port of the
   CKEditor 4 interface and child plugin functionality. This editor is compatible with
   the ``djangocms-text-ckeditor`` plugin, and can be used as a drop-in replacement.
-- **TipTap**: A modern rich text editor with a modular architecture, TipTap is currently
-  in development and might be supported in a future release of ``djangocms-text`` or as
-  a separate package.
 - **CKEditor 5** (currently no text-enabled plugins): The current version of CKEditor might be
-      supported in a future release of ``djangocms-text`` or as a separate package.
+  supported in a future release of ``djangocms-text`` or as a separate package. Its current
+  imlementation does not support text-enabled plugins or dynamic attributes.
 - **TinyMCE** (currently no text-enabled plugins): A popular open-source rich text
   editor, TinyMCE is currently in development and might be supported in a future release
   of ``djangocms-text`` or as a separate package.
@@ -207,8 +209,8 @@ Building the JavaScript
 
 ``djangocms-text`` distributes a javascript bundle required for the plugin to work,
 which contains frontend editors themselves and all the necessary plugins for functioning
-within CMS. To build the bundle you need to have to install dependencies with ``nvm
-use``, ``npm install`` and then to run ``webpack``.
+within CMS. To build the bundle you need to have to install dependencies with
+``nvm use``, ``npm install`` and then to run ``webpack``.
 
 Acknowledgments
 ---------------

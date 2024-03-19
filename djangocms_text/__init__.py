@@ -17,5 +17,3 @@ Release logic:
 11. Github actions will publish the new package to pypi
 """
 __version__ = "0.1.0"
-
-default_app_config = "djangocms_text.apps.TextConfig"

@@ -32,6 +32,7 @@ class CmsDialog {
     pluginDialog() {
         this.dialog = document.createElement("dialog");
         this.dialog.classList.add("cms-dialog");
+        this.dialog.dataset.editor = this.el.id;
         this.dialog.innerHTML = `
             <div class="cms-modal-head">
                 <span class="cms-modal-title">
@@ -144,14 +145,13 @@ class CmsDialog {
         // Prefill marked input fields with selected text
         selectionText = selectionText || '';
         if (selectionText.length > 0) {
-            let fillInput = content.querySelector('.js-ckeditor-use-selected-text,.js-prepopulate-selected-text');
-            if (!fillInput) {
-                fillInput = content.querySelector('#id_name');
-            }
-
-            if (!(fillInput.value.trim())) {
-                fillInput.value = selectionText;
-                fillInput.focus();
+            let fillInput = content.querySelector('.js-ckeditor-use-selected-text,.js-prepopulate-selected-text') ||
+                content.querySelector('#id_name');
+            if (fillInput) {  // Does such a field exist?
+                if (!(fillInput.value.trim())) {
+                    fillInput.value = selectionText;  // Prefill the field only if it is empty
+                    fillInput.focus();
+                }
             }
         }
         this.open();

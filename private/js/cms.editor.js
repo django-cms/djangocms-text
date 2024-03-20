@@ -117,7 +117,7 @@ class CMSEditor {
         }
         const plugins = this.CMS._plugins;
 
-        this.observer = this.observer || new IntersectionObserver( (entries, opts) => {
+        this.observer = this.observer || new IntersectionObserver( (entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                     this.init(entry.target);
@@ -247,6 +247,7 @@ class CMSEditor {
         }
     }
 
+
     saveData(el, action) {
         if (el && el.dataset.changed === "true") {
             const html = window.cms_editor_plugin.getHTML(el),
@@ -271,28 +272,43 @@ class CMSEditor {
             })
                 .then(response => {
                         el.dataset.changed = 'false';
-                        if (this.CMS) {
-                            this.CMS.API.Toolbar.hideLoader();
-                        }
                         if (action !== undefined) {
                             action(el, response);
                         }
-                    if (el.dataset.childChanged) {
-                        this.CMS.API.Helpers.reloadBrowser('REFRESH_PAGE');
-                    } else {
-                        this._loadToolbar();
-                    }
+                        if (this.CMS) {
+                            this.CMS.API.Toolbar.hideLoader();
+                        }
+                        return response.text();
+                }).then(body => {
+                        // Read the CMS databridge values from the response
+                        // The regexes are used to extract the databridge values from the response.
+                        // This depends on the exact format django CMS core returns it. This will need to be adjusted
+                        // if the format changes.
+                        // Fallback solution is to reload the page as djagocms-text-ckeditor used to do.
+                        const regex1  = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
+                        const regex2  = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(body);
+                        if (regex1 && regex2 && this.CMS) {
+                            this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
+                            this.CMS.API.Helpers.dataBridge.structure = JSON.parse(regex2[1]);
+                            this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
+                            this._loadToolbar();
+                        } else {
+                            // No databridge found
+                            // Reload
+                            this.CMS.API.Helpers.reloadBrowser('REFRESH_PAGE');
+                        }
                 })
                 .catch(error => {
                         el.dataset.changed = 'true';
                     if (this.CMS) {
+                        this.CMS.API.Toolbar.hideLoader();
                         this.CMS.API.Messages.open({
                             message: error.message,
-                            error: true
+                            error: true,
+                            delay: -1,
                         });
-                    } else {
-                        window.console.error(error.message);
                     }
+                    window.console.error(error.message);
                 });
         }
     }
@@ -352,17 +368,18 @@ class CMSEditor {
             if (saveSuccess) {
                 // Mark document and child as changed
                 el.dataset.changed = 'true';
-                el.dataset.childChanged = 'true';
                 // Hook into the django CMS dataBridge to get the details of the newly created or saved
                 // plugin. For new plugins we need their id to get the content.
                 if (!this.CMS.API.Helpers.dataBridge) {
                     // The dataBridge sets a timer, so typically it will not yet be present
                     setTimeout(() => {
+                        // Needed to update StructureBoard
                         if (onSave) {
                             onSave(el, form, this.CMS.API.Helpers.dataBridge);
                         }
                     }, 100);
                 } else {
+                    // Needed to update StructureBoard
                     if (onSave) {
                         onSave(el, form, this.CMS.API.Helpers.dataBridge);
                     }

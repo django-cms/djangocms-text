@@ -68,7 +68,7 @@ needed. The following editors are currently supported:
 - **TipTap**: A modern rich text editor with a modular architecture, TipTap is currently
   in development and is the default editor. TipTap does not allow the user to edit
   HTML directly, which means that some formating options are lost when switching from
-    CKEditor 4 to TipTap.
+  CKEditor 4 to TipTap.
 - **CKEditor 4**: The initial version of ``djangocms-text`` includes a port of the
   CKEditor 4 interface and child plugin functionality. This editor is compatible with
   the ``djangocms-text-ckeditor`` plugin, and can be used as a drop-in replacement.

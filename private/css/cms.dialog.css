@@ -4,15 +4,17 @@ dialog.cms-dialog {
     resize: both;
     top: 50%;
     left: 50%;
+    inset-inline-start: 50%;
+    inset-inline-end: unset;
     transform: translate(calc(-50% + 250px), calc(-50% + 121px));
     width: 32rem;
     height: 24rem;
     min-height: 16rem;
     min-width: 16rem;
     .cms-modal-foot {
-        margin-right: 1rem;
+        margin-inline-end: 1rem;
         .cms-modal-buttons {
-            padding-right: 10px;
+            padding-inline-end: 10px;
         }
     }
     .cms-modal-body iframe {
@@ -20,6 +22,11 @@ dialog.cms-dialog {
         height: 100%;
         border: none;
     }
+}
+
+[dir="rtl"] dialog.cms-dialog {
+    inset-inline-start: unset;
+    inset-inline-end: 50%;
 }
 
 dialog.cms-form-dialog {

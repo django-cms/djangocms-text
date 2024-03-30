@@ -280,23 +280,31 @@ class CMSEditor {
                         }
                         return response.text();
                 }).then(body => {
-                        // Read the CMS databridge values from the response
-                        // The regexes are used to extract the databridge values from the response.
-                        // This depends on the exact format django CMS core returns it. This will need to be adjusted
-                        // if the format changes.
-                        // Fallback solution is to reload the page as djagocms-text-ckeditor used to do.
-                        const regex1  = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
-                        const regex2  = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(body);
+                    // Read the CMS databridge values from the response, either directly or from a script tag or
+                    //  from the response using regex.
+                    // This depends on the exact format django CMS core returns it. This will need to be adjusted
+                    // if the format changes.
+                    // Fallback solution is to reload the page as djagocms-text-ckeditor used to do.
+                    const dom = document.createElement('div');
+                    dom.innerHTML = body;
+                    const script = dom.querySelector('script#data-bridge');
+                    if (script) {
+                        this.CMS.API.Helpers.dataBridge = JSON.parse(script.textContent);
+                    } else {
+                        const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
+                        const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(body);
                         if (regex1 && regex2 && this.CMS) {
                             this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
                             this.CMS.API.Helpers.dataBridge.structure = JSON.parse(regex2[1]);
-                            this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
-                            this._loadToolbar();
                         } else {
                             // No databridge found
                             // Reload
                             this.CMS.API.Helpers.reloadBrowser('REFRESH_PAGE');
+                            return;
                         }
+                    }
+                    this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
+                    this._loadToolbar();
                 })
                 .catch(error => {
                         el.dataset.changed = 'true';

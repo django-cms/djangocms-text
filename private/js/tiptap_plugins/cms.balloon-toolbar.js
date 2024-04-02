@@ -34,6 +34,7 @@ export default class CmsBalloonToolbar {
 
     constructor(editor, tb_config, actionCallback, updateCallback) {
         this.editor = editor;
+        this.form = null;
         this.toolbar = document.createElement('div');
         this.toolbar.classList.add('cms-balloon');
         this.toolbar.style.zIndex = editor.options.baseFloatZIndex || 10000000;  //
@@ -46,32 +47,40 @@ export default class CmsBalloonToolbar {
             e.preventDefault();
             e.stopPropagation();
             this.editor.commands.focus();
-            const form = new CmsForm(this.editor.options.element, () => {});
-            const rect = this.toolbar.getBoundingClientRect();
-            const options = {
-                x: (rect.left + rect.right) / 2,
-                y: rect.bottom,
-                toolbar: true
-            }
-            form.formDialog(tb_config, options);
-            if (updateCallback) {
-                updateCallback(form.dialog, editor);
-            }
-            if (actionCallback) {
-                for (const entry of form.dialog.querySelectorAll('button, [role="button"]')) {
-                    entry.addEventListener('click', (event) => {
-                        const button = event.target.closest('button, [role="button"]');
-                        if (!button.disabled) {
-                            form.close();
-                            actionCallback(event, editor);
-                            this._updateToolbarIcon();  // Update icon
-                        } else {
-                            editor.commands.focus();
-                        }
-                    });
+            if (this.form && editor.options.el.parentNode.querySelector('.cms-balloon-menu')) {
+                this.form.close();
+                this.form = null;
+            } else {
+                // Add the form dialog only if it is not already open
+                this.form = new CmsForm(this.editor.options.element, () => {
+                });
+                const rect = this.toolbar.getBoundingClientRect();
+                const options = {
+                    x: (rect.left + rect.right) / 2,
+                    y: rect.bottom,
+                    toolbar: true
+                };
+                this.form.formDialog(tb_config, options);
+                this.form.dialog.classList.add('cms-balloon-menu');
+                if (updateCallback) {
+                    updateCallback(this.form.dialog, editor);
                 }
+                if (actionCallback) {
+                    for (const entry of this.form.dialog.querySelectorAll('button, [role="button"]')) {
+                        entry.addEventListener('click', (event) => {
+                            const button = event.target.closest('button, [role="button"]');
+                            if (!button.disabled) {
+                                this.form.close();
+                                actionCallback(event, editor);
+                                this._updateToolbarIcon();  // Update icon
+                            } else {
+                                editor.commands.focus();
+                            }
+                        });
+                    }
+                }
+                this.form.open();
             }
-            form.open();
         });
         this.ref = editor.options.el.getBoundingClientRect();
         editor.on('selectionUpdate', () => this._showToolbar());

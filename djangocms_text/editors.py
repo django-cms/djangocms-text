@@ -361,7 +361,7 @@ DEFAULT_TOOLBAR_HTMLField = [
     ["Link", "Unlink"],
     ["NumberedList", "BulletedList"],
     ["HorizontalRule", "CodeBlock"],
-    ["Outdent", "Indent", "-", "Blockquote", "-", "Link", "Unlink", "-", "Table"],
+    ["Outdent", "Indent", "-", "Blockquote", "-", "Table"],
     ["Source"],
 ]
 

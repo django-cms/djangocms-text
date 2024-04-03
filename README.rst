@@ -24,7 +24,9 @@ Features
 Installation
 ------------
 
-Install ``djangocms-text`` using pip:
+Install ``djangocms-text`` using pip: ``pip install djangocms-text``.
+
+Build latest development branch using git:
 
 .. code-block:: bash
 

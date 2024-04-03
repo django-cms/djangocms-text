@@ -10,9 +10,11 @@ import CmsDynLink from './tiptap_plugins/cms.dynlink';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
+import Table from '@tiptap/extension-table'
+import TableCell from '@tiptap/extension-table-cell'
+import TableHeader from '@tiptap/extension-table-header'
+import TableRow from '@tiptap/extension-table-row'
 import { TextAlign, TextAlignOptions } from '@tiptap/extension-text-align';
-import BubbleMenu from '@tiptap/extension-bubble-menu';
-import FloatingMenu from '@tiptap/extension-floating-menu';
 import CmsPluginNode from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 import {StarterKit} from "@tiptap/starter-kit";
@@ -39,6 +41,15 @@ class CMSTipTapPlugin {
                 Placeholder,
                 Subscript,
                 Superscript,
+                Table.configure({
+                    resizable: false,
+                    HTMLAttributes: {
+                        class: 'table',
+                    },
+                }),
+                TableRow,
+                TableHeader,
+                TableCell,
                 CmsDynLink.extend({
                     inclusive: false,
                 }),
@@ -47,8 +58,6 @@ class CMSTipTapPlugin {
                 TextAlign.configure({
                     types: ['heading', 'paragraph'],
                 }),
-                BubbleMenu,
-                FloatingMenu,
                 FormExtension,
             ],
             toolbar_HTMLField: [
@@ -216,7 +225,6 @@ class CMSTipTapPlugin {
         toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${this._populateToolbar(editor, toolbar, filter)}`;
 
         toolbarElement.querySelector('.toolbar-dropback').addEventListener('click', (event) => {
-            console.log(toolbarElement.querySelector('.dropdown.show'));
             event.preventDefault();
             event.stopPropagation();
             this._closeAllDropdowns(event, editor);
@@ -355,6 +363,7 @@ class CMSTipTapPlugin {
 
     _populateToolbar(editor, array, filter) {
         let html = '';
+
         for (let item of array) {
             if (item in TiptapToolbar && TiptapToolbar[item].insitu) {
                 item = TiptapToolbar[item].insitu;
@@ -368,7 +377,7 @@ class CMSTipTapPlugin {
             if (Array.isArray(item)) {
                 const group = this._populateToolbar(editor, item, filter);
                 if (group.length > 0) {
-                    html += this._populateToolbar(editor, item, filter) + this.separator_markup;
+                    html += group + this.separator_markup;
                 }
             } else if (item.constructor === Object) {
                 const dropdown = this._populateToolbar(editor, item.items, filter);
@@ -382,7 +391,12 @@ class CMSTipTapPlugin {
                 switch (item) {
                     case '|':
                         // vertical separator
+                        if (html.endsWith(this.space_markup)) {
+                            // Remove trailing space if there is one
+                            html = html.slice(0, -this.space_markup.length);
+                        }
                         if (html.length > 0 && !html.endsWith(this.separator_markup)) {
+                            // Add separator if there is not already a vertical separator
                             html += this.separator_markup;
                         }
                         break;
@@ -409,8 +423,12 @@ class CMSTipTapPlugin {
                 }
             }
         }
+        // Remove trailing separator or space
         if (html.endsWith(this.separator_markup)) {
             html = html.slice(0, -this.separator_markup.length);
+        }
+        if (html.endsWith(this.space_markup)) {
+            html = html.slice(0, -this.space_markup.length);
         }
         return html;
     }

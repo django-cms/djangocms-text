@@ -89,8 +89,7 @@ export default class CmsBalloonToolbar {
 
         this._node_icons = {};
         for (const [icon, node] of  Object.entries(this.topLevelBlocks)) {
-            console.log(icon);
-            this._node_icons[node] = cms_editor_plugin.lang[icon].icon;
+            this._node_icons[node] = window.cms_editor_plugin.lang[icon].icon;
         }
      }
 
@@ -99,7 +98,7 @@ export default class CmsBalloonToolbar {
         if (ul.length === 0) {
             return;
         }
-        ul = ul[0]
+        ul = ul[0];
         for (let item of this.tb_config) {
             ul.append(`<li><a href="#" data-action="${item[0]}">${item[1]}</a></li>`);
         }}

@@ -2,6 +2,8 @@
 /* jshint esversion: 6 */
 /* global document, window, console */
 
+"use strict";
+
 
 const TiptapToolbar = {
     Undo: {
@@ -102,6 +104,7 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('bulletList'),
         type: 'block',
     },
+/*
     Outdent: {
         action: (editor) => editor.chain().focus().outdent().run(),
         enabled: (editor) => editor.can().outdent(),
@@ -112,6 +115,7 @@ const TiptapToolbar = {
         enabled: (editor) => editor.can().indent(),
         type: 'block',
     },
+*/
     Blockquote: {
         action: (editor) => editor.chain().focus().toggleBlockquote().run(),
         enabled: (editor) => editor.can().toggleBlockquote(),
@@ -277,7 +281,7 @@ const TiptapToolbar = {
         enabled: (editor) => editor.can().toggleStyle(style),
         title: `<span class="text-${style}">${style.charAt(0).toUpperCase() + style.slice(1)}</span>`,
         type: 'mark',
-    }
+    };
 });
 
 export default TiptapToolbar;

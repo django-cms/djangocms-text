@@ -143,9 +143,10 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
             }
         }
         svg {
-            zoom: 120%;
             display: inline;
             vertical-align: middle;
+            width: 1.2rem;
+            height: 1.2rem;
         }
     }
     .dropdown-content {
@@ -168,7 +169,7 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
             button {
                 text-align: start;
                 justify-content: start;
-                padding: 8px 1.2rem  !important;
+                padding: 8px 1rem  !important;
                 small {
                     margin: 0;
                 }
@@ -186,7 +187,7 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
             }
             button {
                 > * {
-                    width: 1rem;
+                    width: 1.2rem;
                     margin-inline-end: 0.8rem;
                     margin-inline-start: -0.3rem;
                 }

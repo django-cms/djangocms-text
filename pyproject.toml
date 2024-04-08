@@ -60,3 +60,7 @@ include = [
     "/djangocms_text",
     "/djangocms_text_ckeditor"
 ]
+artifacts = [
+    "djangocms_text/static/**",
+    "djangocms_text/contrib/**/static/**",
+]

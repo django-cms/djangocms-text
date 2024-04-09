@@ -55,7 +55,7 @@ Homepage = "https://github.com/django-cms/djangocms-text"
 [tool.hatch.version]
 path = "djangocms_text/__init__.py"
 
-[tool.hatch.build.targets.sdist]
+[tool.hatch.build]
 include = [
     "/djangocms_text",
     "/djangocms_text_ckeditor"

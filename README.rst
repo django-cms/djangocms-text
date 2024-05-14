@@ -34,7 +34,7 @@ Build latest development branch using git:
     cd djangocms-text
     nvm use
     npm install
-    webpack --mode development
+    npx webpack --mode development
 
 You then can install the cloned repo using ``pip install -e
 /path/to/the/repo/djangocms-text``.
@@ -212,7 +212,7 @@ Building the JavaScript
 ``djangocms-text`` distributes a javascript bundle required for the plugin to work,
 which contains frontend editors themselves and all the necessary plugins for functioning
 within CMS. To build the bundle you need to have to install dependencies with
-``nvm use``, ``npm install`` and then to run ``webpack``.
+``nvm use``, ``npm install`` and then to run ``npx webpack``.
 
 Acknowledgments
 ---------------

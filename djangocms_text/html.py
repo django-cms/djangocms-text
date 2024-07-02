@@ -90,7 +90,7 @@ cms_parser: NH3Parser = NH3Parser(
 
 def clean_html(data: str, full: bool = False, cleaner: NH3Parser = cms_parser) -> str:
     """
-    Cleans HTML from XSS vulnerabilities using lxml
+    Cleans HTML from XSS vulnerabilities using nh3
     If full is False, only the contents inside <body> will be returned (without
     the <body> tags).
     """
@@ -185,9 +185,10 @@ def dynamic_href(elem: Element, obj: models.Model, attr: str) -> None:
 
 def dynamic_src(elem: Element, obj: models.Model, attr: str) -> None:
     """
-    This method modifies the provided element by setting the value of the specified attribute based on the provided object.
-    If the object has a "get_absolute_url" method and it returns a non-empty value, the attribute of the element will be set to the URL returned by the method.
-    Otherwise, the "data-cms-error" attribute of the XML element will be set to "ref-not-found".
+    This method modifies the provided element by setting the value of the specified attribute based on the provided
+    object. If the object has a "get_absolute_url" method, and it returns a non-empty value, the attribute of the
+    element will be set to the URL returned by the method. Otherwise, the "data-cms-error" attribute of the XML
+    element will be set to "ref-not-found".
 
     :param elem: The XML element to modify.
     :type elem: Element
@@ -217,7 +218,8 @@ def render_dynamic_attributes(
     Parameters:
     - dyn_html (str): The HTML content with dynamic attributes
     - admin_objects (bool) (optional): Flag to indicate whether to fetch data from admin objects (default: False)
-    - remove_attr (bool) (optional): Flag to indicate whether to remove dynamic attributes from the final HTML (default: True)
+    - remove_attr (bool) (optional): Flag to indicate whether to remove dynamic attributes from the final HTML
+      (default: True)
 
     Returns:
     - str: The updated HTML content with dynamic attributes

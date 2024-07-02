@@ -72,7 +72,7 @@ class TextEditorWidget(forms.Textarea):
 
         super().__init__(attrs)
 
-        self.installed_plugins = installed_plugins  # general
+        self.installed_plugins = installed_plugins or [] # general
         self.pk = pk  # specific
         self.placeholder = (
             placeholder.pk if isinstance(placeholder, models.Model) else placeholder

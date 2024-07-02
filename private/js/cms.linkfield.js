@@ -86,9 +86,9 @@ class LinkField {
     _addResult(result) {
         const item = document.createElement('div');
         item.textContent = result.text;
-        if (result.value) {
+        if (result.id) {
             item.classList.add('cms-linkfield-option');
-            item.setAttribute('data-value', result.value);
+            item.setAttribute('data-value', result.id);
             item.setAttribute('data-href', result.url);
             item.setAttribute('data-text', result.verbose);
             item.addEventListener('click', this.handleSelection.bind(this));

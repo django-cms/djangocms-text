@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.2.0 (24-07-2024)
+==================
+
+What's Changed
+--------------
+
+* feat: Add migration for djangocms-text-ckeditor fields by @fsbraun in https://github.com/django-cms/djangocms-text/pull/13
+
+
 0.1.3 (16-06-2024)
 ==================
 

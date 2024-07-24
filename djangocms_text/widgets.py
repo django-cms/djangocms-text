@@ -35,7 +35,7 @@ class TextEditorWidget(forms.Textarea):
         }
         js = (
             static_with_version("cms/js/dist/bundle.admin.base.min.js"),
-            static("djangocms_text/bundles/bundle.editor.min.js"),
+            "djangocms_text/bundles/bundle.editor.min.js",
             *(static(js) for js in rte_config.js),
         )
 
@@ -72,7 +72,7 @@ class TextEditorWidget(forms.Textarea):
 
         super().__init__(attrs)
 
-        self.installed_plugins = installed_plugins  # general
+        self.installed_plugins = installed_plugins or [] # general
         self.pk = pk  # specific
         self.placeholder = (
             placeholder.pk if isinstance(placeholder, models.Model) else placeholder

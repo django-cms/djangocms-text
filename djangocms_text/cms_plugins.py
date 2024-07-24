@@ -14,7 +14,7 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
-    HttpResponseRedirect,
+    HttpResponseRedirect, JsonResponse,
 )
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
@@ -545,14 +545,14 @@ class TextPlugin(CMSPluginBase):
                             "text": " " * (0 if search else len(page_content.page.node.path) // 4 - 1)
                                     + page_content.title,
                             "url": page_content.get_absolute_url(),
-                            "value": f"cms.page:{page_content.page.pk}",
+                            "id": f"cms.page:{page_content.page.pk}",
                             "verbose": page_content.title,
                         } for page_content in qs
                     ]
                 }
             ]
         }
-        return HttpResponse(json.dumps(urls))
+        return JsonResponse(urls)
 
     @classmethod
     def get_child_plugin_candidates(cls, slot, page):

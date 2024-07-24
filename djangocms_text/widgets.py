@@ -35,7 +35,7 @@ class TextEditorWidget(forms.Textarea):
         }
         js = (
             static_with_version("cms/js/dist/bundle.admin.base.min.js"),
-            static("djangocms_text/bundles/bundle.editor.min.js"),
+            "djangocms_text/bundles/bundle.editor.min.js",
             *(static(js) for js in rte_config.js),
         )
 

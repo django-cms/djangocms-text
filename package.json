@@ -29,6 +29,7 @@
     "sass": "^1.72.0",
     "sass-loader": "^14.1.1",
     "slim-select": "^2.8.2",
+    "source-map-loader": "^5.0.0",
     "style-loader": "^3.3.4",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"

@@ -8,7 +8,6 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.template.loader import render_to_string
-from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 from django.utils.translation.trans_real import get_language, gettext
 
@@ -36,7 +35,7 @@ class TextEditorWidget(forms.Textarea):
         js = (
             static_with_version("cms/js/dist/bundle.admin.base.min.js"),
             "djangocms_text/bundles/bundle.editor.min.js",
-            *(static(js) for js in rte_config.js),
+            *rte_config.js,
         )
 
     def __init__(

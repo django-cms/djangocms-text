@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.2.1 (20-08-2024)
+==================
+
+* fix: Unnecessary call to `static` in widget Media class made djangocms-text fail with manifest file storages
+
 0.2.0 (24-07-2024)
 ==================
 

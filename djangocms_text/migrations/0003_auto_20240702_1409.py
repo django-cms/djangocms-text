@@ -27,7 +27,7 @@ def migrate_text_ckeditor_fields(apps, schema_editor):
             Text_Text(body=ckeditor_text.body, rte="text_ckeditor4", cmsplugin_ptr_id=ckeditor_text.cmsplugin_ptr_id)
             for ckeditor_text in qs
         )
-        
+
 
 class Migration(migrations.Migration):
 

@@ -2,9 +2,11 @@
 Changelog
 =========
 
-0.2.1 (20-08-2024)
-==================
+0.2.2 / 0.2.1 (20-08-2024)
+==========================
 
+* fix: Let the migration only convert djangocms-text-ckeditor plugins if a corresponding table exists in the database
+* fix: Let webpack import js map files from node libraries to remove references to non-existing map files in the js bundles
 * fix: Unnecessary call to `static` in widget Media class made djangocms-text fail with manifest file storages
 
 0.2.0 (24-07-2024)

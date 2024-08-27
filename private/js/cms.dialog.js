@@ -2,8 +2,6 @@
 /* jshint esversion: 6 */
 /* global document, window, console */
 
-import "../css/cms.dialog.css";
-
 class CmsDialog {
     /**
      * Constructor for creating an instance of the class whowing a django CMS modal in a

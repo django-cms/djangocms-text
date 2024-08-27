@@ -1,5 +1,6 @@
 from djangocms_text.editors import RTEConfig
 
+
 ckeditor4 = RTEConfig(
     name="ckeditor4",
     config="CKEDITOR",

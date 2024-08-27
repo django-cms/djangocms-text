@@ -6,12 +6,11 @@ import warnings
 from copy import deepcopy
 from typing import Optional, Union
 
-import nh3
 from django.apps import apps
-from lxml import etree
-
 from django.db import models
 
+import nh3
+from lxml import etree
 from lxml.etree import Element
 
 from . import settings

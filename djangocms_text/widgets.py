@@ -14,8 +14,9 @@ from django.utils.translation.trans_real import get_language, gettext
 from cms.utils.urlutils import admin_reverse, static_with_version
 
 from . import settings as text_settings
-from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, LazyEncoder, get_editor_base_config
-from .editors import get_editor_config
+from .editors import (
+    DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, LazyEncoder, get_editor_base_config, get_editor_config,
+)
 from .utils import cms_placeholder_add_plugin
 
 

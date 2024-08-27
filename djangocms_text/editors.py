@@ -1,13 +1,10 @@
 from typing import Iterable, Optional
 
 from django.conf import settings
-
-
-from django.utils.translation import gettext_lazy as _
-
-from django.utils.functional import Promise
-from django.utils.encoding import force_str
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.encoding import force_str
+from django.utils.functional import Promise
+from django.utils.translation import gettext_lazy as _
 
 
 class LazyEncoder(DjangoJSONEncoder):

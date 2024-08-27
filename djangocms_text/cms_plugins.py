@@ -2,7 +2,6 @@ import json
 import operator
 import re
 
-from cms.utils import get_language_from_request
 from django.apps import apps
 from django.contrib.admin.utils import unquote
 from django.core import signing
@@ -10,11 +9,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.forms.fields import CharField
 from django.http import (
-    Http404,
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseRedirect, JsonResponse,
+    Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect, JsonResponse,
 )
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
@@ -26,12 +21,16 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
 from cms.models import CMSPlugin, Page
+from cms.utils import get_language_from_request
+
+from .settings import TEXT_CHILDREN_ENABLED
 
 
 try:
     from cms.models import PageContent
 except ImportError:
     from cms.models import Title as PageContent
+
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 from cms.utils.placeholder import get_placeholder_conf
@@ -42,15 +41,8 @@ from .forms import ActionTokenValidationForm, RenderPluginForm, TextForm
 from .html import render_dynamic_attributes
 from .models import Text
 from .utils import (
-    OBJ_ADMIN_WITH_CONTENT_RE_PATTERN,
-    _plugin_tags_to_html,
-    cms_placeholder_add_plugin,
-    plugin_tags_to_admin_html,
-    plugin_tags_to_id_list,
-    plugin_tags_to_user_html,
-    plugin_to_tag,
-    random_comment_exempt,
-    replace_plugin_tags,
+    OBJ_ADMIN_WITH_CONTENT_RE_PATTERN, _plugin_tags_to_html, cms_placeholder_add_plugin, plugin_tags_to_admin_html,
+    plugin_tags_to_id_list, plugin_tags_to_user_html, plugin_to_tag, random_comment_exempt, replace_plugin_tags,
 )
 from .widgets import TextEditorWidget, rte_config
 
@@ -597,7 +589,7 @@ class TextPlugin(CMSPluginBase):
 
     def get_plugins(self, obj=None):
         plugin = getattr(self, "cms_plugin_instance", None) or obj
-        if not plugin:
+        if not plugin or not TEXT_CHILDREN_ENABLED:
             return []
         get_plugin = plugin_pool.get_plugin
         child_plugin_types = self.get_child_classes(

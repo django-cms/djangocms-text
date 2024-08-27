@@ -572,7 +572,7 @@ class TextPlugin(CMSPluginBase):
             page=page,
         )
         # Filter out plugins that are not in the whitelist if given
-        if settings.TEXT_CHILDREN_WHITELIST:
+        if settings.TEXT_CHILDREN_WHITELIST is not None:
             text_enabled_plugins = [
                 plugin
                 for plugin in text_enabled_plugins

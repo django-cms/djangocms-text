@@ -21,7 +21,7 @@ class IconButton(Button):
 class InlineEditingToolbar(CMSToolbar):
     @property
     def media(self):
-        if self.toolbar.edit_mode_active and self.inline_editing:
+        if self.toolbar.edit_mode_active:
             return forms.Media(
                 css={
                     **rte_config.css,
@@ -33,7 +33,7 @@ class InlineEditingToolbar(CMSToolbar):
                 js=(
                     static("djangocms_text/bundles/bundle.editor.min.js"),
                     *(static(js) for js in rte_config.js),
-                ),
+                ) if self.inline_editing else (),
             )
         return forms.Media()
 

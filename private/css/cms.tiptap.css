@@ -38,6 +38,8 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
     &.textarea.fixed .tiptap {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
+        resize: vertical;
+        overflow-y: auto;
     }
     position: relative;
     a {

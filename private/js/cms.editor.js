@@ -226,6 +226,8 @@ class CMSEditor {
 
     // CMS Editor: init_all
     initAll () {
+        // Save the active element
+        const active = document.activeElement;
         // Get global options from script element
         try {
             this._options = JSON.parse(document.getElementById('cms-editor-cfg').textContent);
@@ -238,6 +240,10 @@ class CMSEditor {
         );
         // Register all plugins on the page for inline editing
         this.initInlineEditors();
+        // Re-focus the active element
+        if (active) {
+            active.focus();
+        }
     }
 
     // CMS Editor: destroy

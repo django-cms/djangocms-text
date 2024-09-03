@@ -30,6 +30,7 @@ class TextEditorWidget(forms.Textarea):
             **rte_config.css,
             "all": (
                 "djangocms_text/css/cms.text.css",
+                "djangocms_text/css/cms.normalize.css",
                 *rte_config.css.get("all", ()),
             ),
         }

@@ -6,6 +6,7 @@ Changelog
 ==================
 
 * feat: Make HTMLField resizable
+* fix: Reset some style for HTMLFields
 
 
 0.2.2 / 0.2.1 (20-08-2024)

@@ -1,4 +1,4 @@
-.app-djangocms_text.model-text.change-form .cms-editor-inline-wrapper.fixed {
+body.change-form .cms-editor-inline-wrapper.fixed {
     background: var(--dca-white)  !important;
     color: var(--dca-black)  !important;
     font-size: 1rem  !important;
@@ -50,5 +50,14 @@
     hr {
         border: none;
         border-top: 1px solid var(--dca-gray-lighter);
+    }
+    ul {
+        display: block;
+        list-style: disc outside none;
+        margin: 0;
+        padding: 0 0 0 40px;
+    }
+    li {
+        list-style: inherit;
     }
 }

@@ -139,6 +139,9 @@ class CMSTipTapPlugin {
             if (el.tagName === 'TEXTAREA') {
                 // Not inline
                 this._createTopToolbar(editorElement, editor, options);
+                if (el.rows) {
+                    editorElement.querySelector('.tiptap').style.height = el.rows * 1.5 + 'em';
+                }
             } else {
                 // Inline
                 this._createTopToolbar(editorElement, editor, options, 'mark');

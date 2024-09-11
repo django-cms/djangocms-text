@@ -97,6 +97,7 @@ p:not(.is-empty) > br.ProseMirror-trailingBreak {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
         border: 1px solid var(--dca-gray-lighter, var(--hairline-color));
+        box-shadow: none;
         border-bottom: none;
         .dropdown-content {
             inset-block-start: 100%;

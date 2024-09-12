@@ -192,7 +192,8 @@ class CMSTipTapPlugin {
         if (el.tagName === 'TEXTAREA') {
             const div = document.createElement('div');
             div.id = el.id + '_editor';
-            div.classList.add('cms-editor-inline-wrapper');
+            div.classList.add('cms-editor-inline-wrapper', 'cke');
+            // .cke for compatibility with djangocms-admin-style;
             el.parentNode.insertBefore(div, el.nextSibling);
             el.dataset.textarea = el.id;
             if (inModal) {

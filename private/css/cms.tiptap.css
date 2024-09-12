@@ -24,10 +24,6 @@
     }
 }
 
-p:not(.is-empty) > br.ProseMirror-trailingBreak {
-    displaxy: none;
-}
-
 .cms-editor-inline-wrapper {
     &.textarea .tiptap {
         border: 1px solid var(--dca-gray-lighter, var(--hairline-color));

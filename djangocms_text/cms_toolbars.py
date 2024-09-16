@@ -1,5 +1,6 @@
 from urllib.parse import urlparse, urlunparse
 
+from django.apps import apps
 from django.forms import forms
 from django.http import QueryDict
 from django.templatetags.static import static
@@ -7,7 +8,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from cms.cms_toolbars import CMSToolbar
-from cms.toolbar.items import Button, ButtonList
+from cms.toolbar.items import Button, ButtonList, TemplateItem
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
@@ -51,17 +52,30 @@ class InlineEditingToolbar(CMSToolbar):
         return inline_editing
 
     def populate(self):
-        if self.toolbar.edit_mode_active:
+        if self.toolbar.edit_mode_active or self.toolbar.structure_mode_active:
             item = ButtonList(side=self.toolbar.RIGHT)
             item.add_item(
                 IconButton(
                     name=_("Toggle inline editing mode for text plugins"),
                     url=self.get_full_path_with_param(
                         "inline_editing", int(not self.inline_editing)
-                    ),
+                    ).replace("/structure/","/edit/"),
                     active=self.inline_editing,
                     extra_classes=["cms-icon cms-icon-pencil"],
                 ),
+            )
+            self.toolbar.add_item(item)
+
+            config = settings.CKEDITOR_SETTINGS  # TODO: Change to TEXT_EDITOR_SETTINGS
+            if "toolbar_HTMLField" in config:
+                config["toolbar"] = config["toolbar_HTMLField"]
+            item = TemplateItem(
+                "cms/toolbar/config.html",
+                extra_context={
+                    "html_field_config": config,
+                    "allowed_inlines": apps.get_app_config("djangocms_text").inline_models,
+                },
+                side=self.toolbar.RIGHT,
             )
             self.toolbar.add_item(item)
 

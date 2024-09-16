@@ -1,0 +1,2 @@
+{% if html_field_config %}{{ html_field_config|json_script:"cms-cfg-htmlfield-inline-config" }}{% endif %}
+{% if allowed_inlines %}{{ allowed_inlines|json_script:"cms-generic-inline-fields" }}{% endif %}

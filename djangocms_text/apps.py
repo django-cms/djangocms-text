@@ -8,7 +8,40 @@ class TextConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
-         register(check_ckeditor_settings)
+        register(check_ckeditor_settings)
+
+        from django.contrib.admin import site
+
+        registered_inline_fields = ["HTMLField", "CharField"]
+        inline_models = {}
+        blacklist_apps = ["auth", "admin", "sessions", "contenttypes", "sites", "cms", "djangocms_text", "djangocms_alias"]
+        for model, modeladmin in site._registry.items():
+            if model._meta.app_label in blacklist_apps:
+                continue
+            try:
+                form = modeladmin.get_form(request=None)  # Worth a try
+            except Exception:
+                form = getattr(modeladmin, "form", None)
+            if form:
+                for field_name, field_instance in form.base_fields.items():
+                    if field_instance.__class__.__name__ in registered_inline_fields:
+                        inline_models[
+                            f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
+                        ] = field_instance.__class__.__name__
+
+        from cms.plugin_pool import plugin_pool
+        for plugin in plugin_pool.plugins.values():
+            model = plugin.model
+            if model._meta.app_label in blacklist_apps:
+                continue
+            form = plugin.form
+            for field_name, field_instance in form.base_fields.items():
+                if field_instance.__class__.__name__ in registered_inline_fields:
+                    inline_models[
+                        f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
+                    ] = field_instance.__class__.__name__
+
+        self.inline_models = inline_models
 
 
 def check_ckeditor_settings(app_configs, **kwargs):

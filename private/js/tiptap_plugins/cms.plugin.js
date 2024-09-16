@@ -99,7 +99,6 @@ function renderCmsPluginMenu(editor, item, filter) {
             dropdown += `<em class="header">${module}</em>`;
         }
         dropdown += `<button data-cmsplugin="${plugin.value}" data-action="CMSPlugins">${plugin.icon || '<span class="icon"></span>'}${plugin.name}</button>`;
-        console.log(plugin);
     }
     return `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content vertical plugins">${dropdown}</div></span>`;
 

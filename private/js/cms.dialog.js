@@ -4,7 +4,7 @@
 
 class CmsDialog {
     /**
-     * Constructor for creating an instance of the class whowing a django CMS modal in a
+     * Constructor for creating an instance of the class showing a django CMS modal in a
      * modal HTML dialog element to show a plugin admin form in an iframe.
      *
      * The django CMS modal is resizable (thanks to CSS) and movable. It cannot be

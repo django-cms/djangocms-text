@@ -157,7 +157,10 @@ class CMSTipTapPlugin {
      * @return {string} - The HTML content of the specified editor element.
      */
     getHTML(el) {
-        return this._editors[el.id].getHTML();
+        if (el.id in this._editors) {
+            return this._editors[el.id].getHTML();
+        }
+        return undefined;
     }
 
     /**
@@ -169,7 +172,10 @@ class CMSTipTapPlugin {
      * @return {Object} - The JSON representation of the element.
      */
     getJSON(el) {
-        return this._editors[el.id].getJSON();
+        if (el.id in this._editors) {
+            return this._editors[el.id].getJSON();
+        }
+        return undefined;
     }
 
     /**
@@ -183,8 +189,10 @@ class CMSTipTapPlugin {
         if (document.getElementById(el.id + '_editor')) {
             document.getElementById(el.id + '_editor').remove();
         }
-        this._editors[el.id].destroy();
-        delete this._editors[el.id];
+        if (el.id in this._editors) {
+            this._editors[el.id].destroy();
+            delete this._editors[el.id];
+        }
     }
 
     // transforms the textarea into a div, and returns the div

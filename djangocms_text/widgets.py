@@ -1,4 +1,5 @@
 import json
+import uuid
 from copy import deepcopy
 from itertools import groupby
 from typing import Union
@@ -68,7 +69,7 @@ class TextEditorWidget(forms.Textarea):
         if self.editor_class not in attrs.get("class", "").join(" "):
             new_class = f'{attrs.get("class", "")} {self.editor_class}'
             attrs["class"] = new_class.strip()
-        self.editor_settings_id = f"cms-cfg-{pk if pk else attrs.get('id')}"
+        self.editor_settings_id = f"cms-cfg-{pk if pk else attrs.get('id', uuid.uuid4())}"
         attrs["data-settings"] = self.editor_settings_id
 
         super().__init__(attrs)

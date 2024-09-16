@@ -100,7 +100,7 @@ class CMSEditor {
         );
 
         // Create editor
-        if (el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
+        if (!el.dataset.cmsType ||el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
             window.cms_editor_plugin.create(
                 el,
                 inModal,
@@ -353,7 +353,6 @@ class CMSEditor {
                 body: new URLSearchParams(data),
             })
                 .then(response => {
-                        el.dataset.changed = 'false';
                         if (action !== undefined) {
                             action(el, response);
                         }
@@ -367,21 +366,45 @@ class CMSEditor {
                     // This depends on the exact format django CMS core returns it. This will need to be adjusted
                     // if the format changes.
                     // Fallback solution is to reload the page as djagocms-text-ckeditor used to do.
-                    if (el.dataset.onClose) {
-                        this.CMS.API.Helpers.reloadBrowser(el.dataset.onClose);
-                    }
-                    const dom = document.createElement('div');
+                    const dom = document.createElement('html');
                     dom.innerHTML = body;
+                    const success = dom.querySelectorAll('.messagelist > .success').length > 0;
+                    if (!success) {
+                        const domMessages = dom.querySelectorAll(
+                            `.field-${field ? field : 'body'} ul.errorlist > li`
+                        );
+                        let messages = [];
+                        domMessages.forEach((message) => {
+                            messages.push(message.textContent);
+                        });
+                        const domField = dom.querySelectorAll(
+                            `.field-${field ? field : 'body'} label`
+                        );
+                        el.dataset.changed = 'true';
+                        if (messages.length > 0 && this.CMS) {
+                            this.CMS.API.Toolbar.hideLoader();
+                            this.CMS.API.Messages.open({
+                                message: (domField.length > 0 ? domField[0].textContent : '') + messages.join(', '),
+                                error: true,
+                                delay: -1,
+                            });
+                        }
+                        return;
+                    }
                     const script = dom.querySelector('script#data-bridge');
-                    if (script) {
+                    if (script && script.textContent.length > 2) {
+                        el.dataset.changed = 'false';
+                        console.log(script, script.textContent);
                         this.CMS.API.Helpers.dataBridge = JSON.parse(script.textContent);
                     } else {
                         const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
                         const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(body);
                         if (regex1 && regex2 && this.CMS) {
+                            el.dataset.changed = 'false';
                             this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
                             this.CMS.API.Helpers.dataBridge.structure = JSON.parse(regex2[1]);
                         } else {
+                            console.log(dom.innerHTML);
                             // No databridge found: reload
                             this.CMS.API.Helpers.reloadBrowser('REFRESH_PAGE');
                             return;
@@ -391,7 +414,7 @@ class CMSEditor {
                     this._loadToolbar();
                 })
                 .catch(error => {
-                        el.dataset.changed = 'true';
+                    el.dataset.changed = 'true';
                     if (this.CMS) {
                         this.CMS.API.Toolbar.hideLoader();
                         this.CMS.API.Messages.open({

@@ -5,7 +5,7 @@ import re
 from django.apps import apps
 from django.contrib.admin.utils import unquote
 from django.core import signing
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError, FieldError
 from django.db import transaction
 from django.forms.fields import CharField
 from django.http import (
@@ -233,9 +233,6 @@ class TextPlugin(CMSPluginBase):
         cancel_url_name = self.get_admin_url_name("revert_on_cancel")
         cancel_url = reverse(f"admin:{cancel_url_name}")
 
-        url_endpoint_name = self.get_admin_url_name("get_available_urls")
-        url_endpoint = reverse(f"admin:{url_endpoint_name}")
-
         render_plugin_url_name = self.get_admin_url_name("render_plugin")
         render_plugin_url = reverse(f"admin:{render_plugin_url_name}")
 
@@ -251,7 +248,6 @@ class TextPlugin(CMSPluginBase):
                 configuration=self.editor_configuration,
                 render_plugin_url=render_plugin_url,
                 cancel_url=cancel_url,
-                url_endpoint=url_endpoint,
                 action_token=action_token,
                 revert_on_cancel=settings.TEXT_CHILDREN_ENABLED,
                 body_css_classes=self._get_body_css_classes_from_parent_plugins(plugin),
@@ -266,7 +262,6 @@ class TextPlugin(CMSPluginBase):
                 configuration=self.editor_configuration,
                 render_plugin_url=render_plugin_url,
                 cancel_url=cancel_url,
-                url_endpoint=url_endpoint,
                 action_token=action_token,
                 revert_on_cancel=False,
                 body_css_classes="",
@@ -525,9 +520,15 @@ class TextPlugin(CMSPluginBase):
 
         search = request.GET.get("q", "").strip("  ").lower()
         language = get_language_from_request(request)
-        qs = (PageContent.admin_manager.filter(language=language, title__icontains=search)
-              .current_content()
-              .order_by("page__node__path"))
+        try:
+            qs = (PageContent.admin_manager.filter(language=language, title__icontains=search)
+                  .current_content()
+                  .order_by("page__path"))
+        except FieldError:
+            qs = (PageContent.admin_manager.filter(language=language, title__icontains=search)
+                  .current_content()
+                  .order_by("page__node__path"))
+
         urls = {
             "results": [
                 {
@@ -650,9 +651,11 @@ class TextPlugin(CMSPluginBase):
         request = context.get("request")
         if self.inline_editing_active(request):
             with override(request.toolbar.toolbar_language):
-                editor_settings = self.get_editor_widget(
+                widget = self.get_editor_widget(
                     context["request"], self.get_plugins(instance), instance
-                ).get_editor_settings(request.toolbar.toolbar_language.split("-")[0])
+                )
+                editor_settings = widget.get_editor_settings(request.toolbar.toolbar_language.split("-")[0])
+                global_settings = widget.get_global_settings(request.toolbar.toolbar_language.split("-")[0])
 
             body = render_dynamic_attributes(
                 instance.body, admin_objects=True, remove_attr=False
@@ -664,7 +667,9 @@ class TextPlugin(CMSPluginBase):
                     "placeholder": placeholder,
                     "object": instance,
                     "editor_settings": editor_settings,
-                    "editor_settings_id": "cms-cfg-" + str(instance.pk),
+                    "editor_settings_id": widget.editor_settings_id,
+                    "global_settings": global_settings,
+                    "global_settings_id": widget.global_settings_id,
                 }
             )
         else:

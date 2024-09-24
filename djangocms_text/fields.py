@@ -4,6 +4,7 @@ from django.forms.fields import CharField
 from django.utils.safestring import mark_safe
 
 from .html import clean_html, render_dynamic_attributes
+from .utils import get_url_endpoint
 from .widgets import TextEditorWidget
 
 
@@ -12,9 +13,9 @@ class HTMLFormField(CharField):
 
     def __init__(self, *args, **kwargs):
         conf = kwargs.pop("configuration", None)
-
+        url_endpoint = kwargs.pop("url_endpoint", None)
         if conf:
-            widget = TextEditorWidget(configuration=conf)
+            widget = TextEditorWidget(configuration=conf, url_endpoint=url_endpoint)
         else:
             widget = None
         kwargs.setdefault("widget", widget)
@@ -39,6 +40,7 @@ class HTMLField(models.TextField):
         # This allows widget configuration customization
         # from the model definition
         self.configuration = kwargs.pop("configuration", None)
+        self.url_endpoint = kwargs.pop("url_endpoint", None)
         super().__init__(*args, **kwargs)
 
     def from_db_value(self, value, expression, connection, context=None):
@@ -55,20 +57,16 @@ class HTMLField(models.TextField):
         return value
 
     def formfield(self, **kwargs):
-        if self.configuration:
-            widget = TextEditorWidget(configuration=self.configuration)
-        else:
-            widget = TextEditorWidget
-
         defaults = {
             "form_class": HTMLFormField,
-            "widget": widget,
+            "widget": TextEditorWidget(configuration=self.configuration) if self.configuration else TextEditorWidget,
         }
         defaults.update(kwargs)
 
         # override the admin widget
         if defaults["widget"] == admin_widgets.AdminTextareaWidget:
-            defaults["widget"] = widget
+            # In the admin the URL endpoint is available
+            defaults["widget"] = TextEditorWidget(configuration=self.configuration, url_endpoint=get_url_endpoint())
         return super().formfield(**defaults)
 
     def clean(self, value, model_instance):

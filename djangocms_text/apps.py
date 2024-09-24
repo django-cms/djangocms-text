@@ -12,9 +12,18 @@ class TextConfig(AppConfig):
 
         from django.contrib.admin import site
 
-        registered_inline_fields = ["HTMLField", "CharField"]
+        registered_inline_fields = ["HTMLFormField", "CharField"]
         inline_models = {}
-        blacklist_apps = ["auth", "admin", "sessions", "contenttypes", "sites", "cms", "djangocms_text", "djangocms_alias"]
+        blacklist_apps = [
+            "auth",
+            "admin",
+            "sessions",
+            "contenttypes",
+            "sites",
+            "cms",
+            "djangocms_text",
+            "djangocms_alias",
+        ]
         for model, modeladmin in site._registry.items():
             if model._meta.app_label in blacklist_apps:
                 continue
@@ -24,19 +33,26 @@ class TextConfig(AppConfig):
                 form = getattr(modeladmin, "form", None)
             if form:
                 for field_name, field_instance in form.base_fields.items():
-                    if field_instance.__class__.__name__ in registered_inline_fields:
+                    if (
+                        field_instance.__class__.__name__ in registered_inline_fields
+                        and field_name in getattr(modeladmin, "frontend_editable_fields", [])
+                    ):
                         inline_models[
                             f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
                         ] = field_instance.__class__.__name__
 
         from cms.plugin_pool import plugin_pool
+
         for plugin in plugin_pool.plugins.values():
             model = plugin.model
             if model._meta.app_label in blacklist_apps:
                 continue
             form = plugin.form
             for field_name, field_instance in form.base_fields.items():
-                if field_instance.__class__.__name__ in registered_inline_fields:
+                if (
+                    field_instance.__class__.__name__ in registered_inline_fields
+                    and field_name in getattr(plugin, "frontend_editable_fields", [])
+                ):
                     inline_models[
                         f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
                     ] = field_instance.__class__.__name__
@@ -47,8 +63,10 @@ class TextConfig(AppConfig):
 def check_ckeditor_settings(app_configs, **kwargs):
     from django.conf import settings
 
-    change_msg = ("Please use the TEXT_ADDITIONAL_ATTRIBUTES setting with a dictionary instead. "
-                  "Have an entry for each tag and specify allowed attributes for the tag as a set.")
+    change_msg = (
+        "Please use the TEXT_ADDITIONAL_ATTRIBUTES setting with a dictionary instead. "
+        "Have an entry for each tag and specify allowed attributes for the tag as a set."
+    )
     warnings = []
     if getattr(settings, "TEXT_ADDITIONAL_TAGS", None):
         warnings.append(
@@ -65,7 +83,7 @@ def check_ckeditor_settings(app_configs, **kwargs):
         warnings.append(
             Warning(
                 f"The TEXT_ADDITIONAL_ATTRIBUTES setting has changed.\n{change_msg}",
-                f"TEXT_ADDITIONAL_ATTRIBUTES = {{\"*\": {set(settings.TEXT_ADDITIONAL_ATTRIBUTES)}}}",
+                f'TEXT_ADDITIONAL_ATTRIBUTES = {{"*": {set(settings.TEXT_ADDITIONAL_ATTRIBUTES)}}}',
                 id="text.W002",
                 obj="settings.TEXT_ADDITIONAL_ATTRIBUTES",
             )

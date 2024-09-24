@@ -274,13 +274,14 @@ class CmsForm {
         }
 
         if (options && options.x && options.y) {
-            if (options.x > window.innerWidth/2) {
+            const el_pos = this.el.getBoundingClientRect();
+            if (options.x > el_pos.width/2) {
                 this.dialog.classList.add("right");
-                this.dialog.style.right = (window.innerWidth - options.x - 35) + 'px';
+                this.dialog.style.right = (el_pos.width - options.x - 35) + 'px';
             } else {
-                this.dialog.style.left = (options.x - 25) + 'px';
+                this.dialog.style.left = (options.x - el_pos.x - 25) + 'px';
             }
-            this.dialog.style.top = (options.y + 5) + 'px';
+            this.dialog.style.top = (options.y - el_pos.y + 5) + 'px';
             this.dialog.style.transform = 'none';
         }
 

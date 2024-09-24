@@ -11,7 +11,7 @@ class CmsTextEditor {
         this.options = options;
         this.events = {};
         this.save = (el) => {
-            save_callback(el);
+            return save_callback(el);
         };
         this.init();
     }
@@ -49,7 +49,10 @@ class CmsTextEditor {
         }
         if (e.key === 'Escape') {
             e.preventDefault();
-            e.target.innerText = e.target.dataset.undo;
+            if (e.target.dataset.undo) {
+                e.target.innerText = e.target.dataset.undo;
+                e.target.dataset.changed = false;
+            }
             e.target.blur();
         }
     }
@@ -59,8 +62,12 @@ class CmsTextEditor {
     }
 
     _blur (e) {
-        if (this.el.innerText !== this.options.undo) {
-            this.save(e.target);
+        const success = this.save(e.target);
+        console.log(success);
+        if (!success) {
+            e.target.innerText = this.options.undo;
+            e.target.dataset.changed = 'false';
+            e.target.focus();
         }
     }
 
@@ -77,6 +84,7 @@ class CmsTextEditor {
     _change (e) {
         e.target.dataset.changed = 'true';
     }
+
     find_plugin_identifier () {
         const header = 'cms-plugin-';
 

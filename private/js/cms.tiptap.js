@@ -114,6 +114,7 @@ class CMSTipTapPlugin {
 
             const editor = new Editor({
                 extensions: options.extensions,
+                autofocus: false,
                 content: content || '',
                 editable: true,
                 element: editorElement,
@@ -222,7 +223,7 @@ class CMSTipTapPlugin {
     }
 
     _createBlockToolbar(el, editor, options) {
-        const toolbar = this._populateToolbar(editor,options.toolbar || this.settings.toolbar_HTMLField, 'block');
+        const toolbar = this._populateToolbar(editor,options.toolbar || this.options.toolbar_HTMLField, 'block');
         const ballonToolbar = new CmsBalloonToolbar(editor, toolbar,
             (event) => this._handleToolbarClick(event, editor),
             (el) => this._updateToolbar(editor, el));
@@ -291,8 +292,6 @@ class CMSTipTapPlugin {
 
             // Limit its width to the available space
             toolbarElement.style.maxWidth = (window.innerWidth - toolbarElement.getBoundingClientRect().left - 16) + 'px';
-        } else {
-            editor.commands.focus('start');
         }
         // 4.Document if a selection is in progress
         editor.view.dom.addEventListener('dblclick', (e) => this._handleDblClick(e, editor));
@@ -377,6 +376,9 @@ class CMSTipTapPlugin {
         let html = '';
 
         for (let item of array) {
+            if (item === undefined) {
+                continue;
+            }
             if (item in TiptapToolbar && TiptapToolbar[item].insitu) {
                 item = TiptapToolbar[item].insitu;
             } else if (item in TiptapToolbar && TiptapToolbar[item].items) {

@@ -16,10 +16,9 @@ from cms.utils.urlutils import admin_reverse, static_with_version
 
 from . import settings as text_settings
 from .editors import (
-    DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, LazyEncoder, get_editor_base_config, get_editor_config,
+    DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_base_config, get_editor_config,
 )
-from .utils import cms_placeholder_add_plugin
-
+from .utils import cms_placeholder_add_plugin, get_url_endpoint
 
 rte_config = get_editor_config()
 #: The configuration for the text editor widget
@@ -70,8 +69,8 @@ class TextEditorWidget(forms.Textarea):
             new_class = f'{attrs.get("class", "")} {self.editor_class}'
             attrs["class"] = new_class.strip()
         self.editor_settings_id = f"cms-cfg-{pk if pk else attrs.get('id', uuid.uuid4())}"
+        self.global_settings_id = "cms-editor-cfg"
         attrs["data-settings"] = self.editor_settings_id
-
         super().__init__(attrs)
 
         self.installed_plugins = installed_plugins or [] # general
@@ -101,16 +100,8 @@ class TextEditorWidget(forms.Textarea):
     def render_textarea(self, name, value, attrs=None, renderer=None):
         return super().render(name, value, attrs, renderer)
 
-    def get_toolbar_setting(self, toolbar):
-        toolbar_setting = get_editor_base_config()
-        for plugin in self.installed_plugins:
-            toolbar_setting[plugin["value"]] = {
-                "title": plugin["name"],
-                "icon": plugin["icon"],
-            }
-        return toolbar_setting
-
     def get_editor_settings(self, language):
+        """The editor settings are specific for the widget and change by plugin instance or HTMLField"""
         configuration = deepcopy(self.configuration)
         # We are in a plugin -> we use toolbar_CMS or a custom defined toolbar
         if self.placeholder:
@@ -136,13 +127,28 @@ class TextEditorWidget(forms.Textarea):
         configuration["bodyClass"] = self.body_css_classes
         config = json.dumps(configuration, cls=DjangoJSONEncoder)
 
-        # Group plugins by module
+        return {
+            key: value for key, value in {
+                "plugins": self.get_installed_plugins(),
+                "installed_plugins": self.installed_plugins,
+                "plugin_id": self.pk,
+                "plugin_language": self.plugin_language,
+                "plugin_position": self.plugin_position,
+                "placeholder_id": self.placeholder if self.placeholder else None,
+                "revert_on_cancel": self.revert_on_cancel or False,
+                "action_token": self.action_token or "",
+                "options": json.loads(config.replace("{{ language }}", language)),
+            }.items() if value
+        }
+
+    def get_installed_plugins(self):
+        """Groups plugins by module"""
         if self.installed_plugins:
             plugins = groupby(
                 sorted(self.installed_plugins, key=lambda x: x.get("module")),
                 key=lambda x: x.get("module"),
             )
-            plugins = [
+            return [
                 {
                     "group": group,
                     "items": [
@@ -153,33 +159,33 @@ class TextEditorWidget(forms.Textarea):
                 for group, items in plugins
             ]
         else:
-            plugins = []
+            return []
+
+    def get_global_settings(self, language):
+        """The global settings are shared by all widgets and are the same for all instances. They only need
+        to be loaded once."""
+        # Get the toolbar setting
+        toolbar_setting = get_editor_base_config()
+        for plugin in self.installed_plugins:
+            toolbar_setting[plugin["value"]] = {
+                "title": plugin["name"],
+                "icon": plugin["icon"],
+            }
 
         return {
-            "language": language,
-            "installed_plugins": self.installed_plugins,
+            "url_endpoint": self.url_endpoint or get_url_endpoint(),
             "static_url": settings.STATIC_URL + "djangocms_text",
-            "plugin_id": self.pk,
-            "plugin_language": self.plugin_language,
-            "plugin_position": self.plugin_position,
-            "placeholder_id": self.placeholder if self.placeholder else None,
-            "render_plugin_url": self.render_plugin_url or "",
-            "add_plugin_url": admin_reverse(cms_placeholder_add_plugin)
-            if self.placeholder
-            else "",
-            "cancel_plugin_url": self.cancel_url or "",
-            "url_endpoint": self.url_endpoint or "",
-            "revert_on_cancel": self.revert_on_cancel or False,
-            "action_token": self.action_token or "",
+            "add_plugin_url": admin_reverse(cms_placeholder_add_plugin),
+            "lang": toolbar_setting,
             "lang_alt": {
                 "toolbar": gettext("CMS Plugins"),
                 "add": gettext("Add CMS Plugin"),
                 "edit": gettext("Edit CMS Plugin"),
                 "aria": gettext("CMS Plugins"),
             },
-            "plugins": plugins,
-            "options": json.loads(config.replace("{{ language }}", language)),
-            "lang": json.loads(json.dumps(self.get_toolbar_setting(configuration["toolbar"]), cls=LazyEncoder)),
+            "language": language,
+            "render_plugin_url": self.render_plugin_url or "",
+            "cancel_plugin_url": self.cancel_url or "",
         }
 
     def render_additions(self, name, value, attrs=None, renderer=None):
@@ -203,6 +209,8 @@ class TextEditorWidget(forms.Textarea):
             "renderer": renderer,
             "editor_settings": self.get_editor_settings(language),
             "editor_settings_id": self.editor_settings_id,
+            "global_settings": self.get_global_settings(language),
+            "global_settings_id": self.global_settings_id,
         }
         return mark_safe(render_to_string("cms/plugins/widgets/editor.html", context))
 

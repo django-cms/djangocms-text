@@ -12,7 +12,8 @@ from cms.toolbar.items import Button, ButtonList, TemplateItem
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
-from .widgets import rte_config
+from .utils import get_url_endpoint
+from .widgets import rte_config, TextEditorWidget
 
 
 class IconButton(Button):
@@ -66,13 +67,12 @@ class InlineEditingToolbar(CMSToolbar):
             )
             self.toolbar.add_item(item)
 
-            config = settings.CKEDITOR_SETTINGS  # TODO: Change to TEXT_EDITOR_SETTINGS
-            if "toolbar_HTMLField" in config:
-                config["toolbar"] = config["toolbar_HTMLField"]
+            widget = TextEditorWidget(url_endpoint=get_url_endpoint())
             item = TemplateItem(
                 "cms/toolbar/config.html",
                 extra_context={
-                    "html_field_config": config,
+                    "global_config": widget.get_global_settings(self.current_lang),
+                    "html_field_config": widget.get_editor_settings(self.current_lang),
                     "allowed_inlines": apps.get_app_config("djangocms_text").inline_models,
                 },
                 side=self.toolbar.RIGHT,

@@ -137,7 +137,9 @@ class CMSTipTapPlugin {
                 }
             });
             this._editors[el.id] = editor;
-            if (el.tagName === 'TEXTAREA') {
+            const el_rect = el.getBoundingClientRect();
+
+            if (el.tagName === 'TEXTAREA' || el_rect.x < 32) {
                 // Not inline
                 this._createTopToolbar(editorElement, editor, options);
                 if (el.rows) {

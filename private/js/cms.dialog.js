@@ -277,7 +277,7 @@ class CmsForm {
             const el_pos = this.el.getBoundingClientRect();
             if (options.x > el_pos.width/2) {
                 this.dialog.classList.add("right");
-                this.dialog.style.right = (el_pos.width - options.x - 35) + 'px';
+                this.dialog.style.right = (options.x - el_pos.width - 5) + 'px';
             } else {
                 this.dialog.style.left = (options.x - el_pos.x - 25) + 'px';
             }

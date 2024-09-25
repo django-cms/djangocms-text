@@ -65,7 +65,11 @@
         font-size: 1rem;
         font-weight: normal;
         visibility: hidden;
-        position: absolute;
+        position: sticky;
+        inset-inline-start: 0;
+        inset-inline-end: auto;
+        width: auto;
+        top: 48px; /* Keep below toolbar */
         pointer-events: all;
         display: flex;
         flex-flow: row wrap;

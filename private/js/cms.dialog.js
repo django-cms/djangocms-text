@@ -330,7 +330,6 @@ class CmsForm {
     }
 
     close(event) {
-         console.log(event);
         if (!event || !this.dialog.contains(event.target)) {
 
             if (this.cancel) {

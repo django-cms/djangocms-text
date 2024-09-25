@@ -171,7 +171,6 @@ class CMSEditor {
                             wrapper = this._initInlineRichText(document.getElementsByClassName(plugin[0]), url, id);
                             if (wrapper) {
                                 wrapper.dataset.cmsCsrfToken = this.CMS.config.csrf;
-                                wrapper.dataset.onClose = plugin[1].onClose;
                                 wrapper.dataset.cmsField = edit_fields;
                                 wrapper.dataset.cmsType = (
                                     generic_inline_fields[search_key] === 'HTMLFormField' ?
@@ -188,22 +187,21 @@ class CMSEditor {
                     // Catch CMS double click event if present, since double click is needed by Editor
                     this.observer.observe(wrapper);
                     if (this.CMS) {
-                        this.CMS.$(wrapper).on('dblclick.cms-editor', function (event) {
+                        // Remove django CMS core's double click event handler which opens an edit dialog
+                        this.CMS.$(wrapper).off('dblclick.cms.plugin')
+                            .on('dblclick.cms-editor', function (event) {
                             event.stopPropagation();
                         });
                         wrapper.addEventListener('focusin.cms-editor', () => {
                             this._highlightTextplugin(id);
                         }, true);
+                        // Prevent tooltip on hover
+                        this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
+                            .on('pointerover.cms-editor', function (event) {
+                                this.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
+                                event.stopPropagation();
+                            });
                     }
-
-                    // Prevent tooltip on hover
-                    document.addEventListener('pointerover.cms-editor', (event) => {
-                        // use time out to let other event handlers (CMS' !) run first.
-                        setTimeout(function () {
-                            // do not show tooltip on inline editing text fields.
-                            this.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
-                        }, 0);
-                    });
                 }
             }
         }, this);
@@ -397,6 +395,11 @@ class CMSEditor {
                         }
                         return;  // No databridge to evaluate
                     }
+                    if (this.CMS) {
+                        // Success:
+                        // Remove an error message from a previous save attempt
+                        this.CMS.API.Messages.close();
+                    }
                     const script = dom.querySelector('script#data-bridge');
                     el.dataset.changed = 'false';
                     if (script && script.textContent.length > 2) {
@@ -428,9 +431,7 @@ class CMSEditor {
                     }
                     window.console.error(error.message);
                 });
-            return el.dataset.changed === 'false';
         }
-        return true;
     }
 
     // CMS Editor: addPluginForm

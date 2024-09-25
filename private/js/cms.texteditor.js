@@ -10,9 +10,7 @@ class CmsTextEditor {
         this.plugin_id = parseInt(id_split[id_split.length-1]);
         this.options = options;
         this.events = {};
-        this.save = (el) => {
-            return save_callback(el);
-        };
+        this.save = save_callback;
         this.init();
     }
 
@@ -62,13 +60,18 @@ class CmsTextEditor {
     }
 
     _blur (e) {
-        const success = this.save(e.target);
-        console.log(success);
-        if (!success) {
-            e.target.innerText = this.options.undo;
-            e.target.dataset.changed = 'false';
-            e.target.focus();
-        }
+        this.save(e.target, (el, response) => {
+            console.log("timer set");
+            console.log(response);
+            setTimeout(() => {
+                console.log(e.target);
+                if (e.target.dataset.changed === 'true') {
+                    e.target.innerText = this.options.undo;
+                    e.target.dataset.changed = 'false';
+                    e.target.focus();
+                }
+            }, 100);
+        });
     }
 
     _paste (e) {

@@ -37,7 +37,6 @@ class CMSEditor {
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
-        const editor_type = el.dataset.type || 'HTMLField';
         let content;
 
         // Get content: json > textarea > innerHTML
@@ -143,7 +142,7 @@ class CMSEditor {
         if (generic_inline_fields) {
             generic_inline_fields = JSON.parse(generic_inline_fields.textContent || '{}');
         }
-        generic_inline_fields['djangocms_blog-postcontent-post_text'] = 'HTMLFormField';  // TODO: Remove
+
         plugins.forEach(function (plugin) {
             if (plugin[1].type === 'plugin' || plugin[1].type === 'generic') {
                 // Either plugin or frontend editable element
@@ -155,7 +154,6 @@ class CMSEditor {
                     // Text plugin
                     const elements = document.querySelectorAll('.cms-plugin.cms-plugin-' + id);
                     wrapper = this._initInlineRichText(elements, url, id);
-                    console.log(elements, wrapper);
                     if (wrapper) {
                         wrapper.dataset.cmsPluginId = id;
                         wrapper.dataset.cmsType = 'TextPlugin';
@@ -242,19 +240,6 @@ class CMSEditor {
         }
         // No elements found
         return undefined;
-    }
-
-    _initInlineGeneric(elements, url, id, edit_field, field_type, onClose) {
-        for (let el of elements) {
-            el.dataset.cmsEditUrl = url;
-            el.dataset.cmsCsrfToken = this.CMS.config.csrf;
-            el.dataset.onClose = onClose;
-            el.dataset.cmsField = edit_field;
-            el.dataset.cmsType = field_type === 'HTMLFormField' ? 'HTMLField' : field_type;
-            el.dataset.settings = 'cms-cfg-htmlfield-inline';
-            el.classList.add("cms-editor-inline-wrapper");
-        }
-        return elements;
     }
 
     /**

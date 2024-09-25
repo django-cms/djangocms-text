@@ -142,7 +142,7 @@ class CMSTipTapPlugin {
             if (el.tagName === 'TEXTAREA' || el_rect.x < 32) {
                 // Not inline
                 this._createTopToolbar(editorElement, editor, options);
-                if (el.rows) {
+                if (el.rows && !el.closest('body.app-djangocms_text.change-form')) {
                     editorElement.querySelector('.tiptap').style.height = el.rows * 1.5 + 'em';
                 }
             } else {

@@ -9,55 +9,58 @@ class TextConfig(AppConfig):
 
     def ready(self):
         register(check_ckeditor_settings)
+        self.inline_models = discover_inline_editable_models()
 
-        from django.contrib.admin import site
 
-        registered_inline_fields = ["HTMLFormField", "CharField"]
-        inline_models = {}
-        blacklist_apps = [
-            "auth",
-            "admin",
-            "sessions",
-            "contenttypes",
-            "sites",
-            "cms",
-            "djangocms_text",
-            "djangocms_alias",
-        ]
-        for model, modeladmin in site._registry.items():
-            if model._meta.app_label in blacklist_apps:
-                continue
+def discover_inline_editable_models():
+    # Find frontend-editable models and plugins
+
+    from django.contrib.admin import site
+
+    registered_inline_fields = ["HTMLFormField", "CharField"]
+    inline_models = {}
+    blacklist_apps = [
+        "auth",
+        "admin",
+        "sessions",
+        "contenttypes",
+        "sites",
+        "cms",
+        "djangocms_text",
+        "djangocms_alias",
+    ]
+    for model, modeladmin in site._registry.items():
+        if model._meta.app_label in blacklist_apps:
+            continue
+
+        for field_name in getattr(modeladmin, "frontend_editable_fields", []):
             try:
-                form = modeladmin.get_form(request=None)  # Worth a try
+                form = modeladmin.get_form(request=None, fields=(field_name,))  # Worth a try
             except Exception:
                 form = getattr(modeladmin, "form", None)
             if form:
-                for field_name, field_instance in form.base_fields.items():
-                    if (
-                        field_instance.__class__.__name__ in registered_inline_fields
-                        and field_name in getattr(modeladmin, "frontend_editable_fields", [])
-                    ):
-                        inline_models[
-                            f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
-                        ] = field_instance.__class__.__name__
-
-        from cms.plugin_pool import plugin_pool
-
-        for plugin in plugin_pool.plugins.values():
-            model = plugin.model
-            if model._meta.app_label in blacklist_apps:
-                continue
-            form = plugin.form
-            for field_name, field_instance in form.base_fields.items():
-                if (
-                    field_instance.__class__.__name__ in registered_inline_fields
-                    and field_name in getattr(plugin, "frontend_editable_fields", [])
-                ):
+                field_instance = form.base_fields.get(field_name, None)
+                if field_instance.__class__.__name__ in registered_inline_fields:
                     inline_models[
                         f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
                     ] = field_instance.__class__.__name__
 
-        self.inline_models = inline_models
+    from cms.plugin_pool import plugin_pool
+
+    for plugin in plugin_pool.plugins.values():
+        model = plugin.model
+        if model._meta.app_label in blacklist_apps:
+            continue
+        for field_name in getattr(plugin, "frontend_editable_fields", []):
+            form = plugin.form
+            field_instance = form.base_fields.get(field_name, None)
+            if field_instance.__class__.__name__ in registered_inline_fields:
+                inline_models[
+                    f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
+                ] = field_instance.__class__.__name__
+
+    return inline_models
+
 
 
 def check_ckeditor_settings(app_configs, **kwargs):

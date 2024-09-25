@@ -198,7 +198,7 @@ class CMSEditor {
                         // Prevent tooltip on hover
                         this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
                             .on('pointerover.cms-editor', function (event) {
-                                this.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
+                                window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
                                 event.stopPropagation();
                             });
                     }

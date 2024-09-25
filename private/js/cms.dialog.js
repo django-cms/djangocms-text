@@ -275,11 +275,13 @@ class CmsForm {
 
         if (options && options.x && options.y) {
             const el_pos = this.el.getBoundingClientRect();
-            if (options.x > el_pos.width/2) {
+            if (options.x > window.innerWidth / 2) {
+                console.log("options.x", options.x);
+                console.log("el_pos.width", el_pos.width);
                 this.dialog.classList.add("right");
-                this.dialog.style.right = (options.x - el_pos.width - 5) + 'px';
+                this.dialog.style.right = ( el_pos.x + el_pos.width - options.x - 28) + 'px';
             } else {
-                this.dialog.style.left = (options.x - el_pos.x - 25) + 'px';
+                this.dialog.style.left = (options.x - el_pos.x - 28) + 'px';
             }
             this.dialog.style.top = (options.y - el_pos.y + 5) + 'px';
             this.dialog.style.transform = 'none';

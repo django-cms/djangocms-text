@@ -173,4 +173,10 @@ def get_plugins_from_text(text, regex=OBJ_ADMIN_RE):
 
 
 def get_url_endpoint():
+    """Get the url for dynamic liks for cms plugins and HTMLFields"""
     return admin_reverse("djangocms_text_textplugin_get_available_urls")
+
+
+def get_render_plugin_url():
+    """Get the url for rendering a text-enabled plugin for the toolbar"""
+    return admin_reverse("djangocms_text_textplugin_render_plugin")

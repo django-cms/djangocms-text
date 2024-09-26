@@ -27,7 +27,6 @@ class CMSEditor {
             this.CMS = window.parent.CMS;
         }
 
-        document.addEventListener('DOMContentLoaded', () => this.initAll());
         if (this.CMS) {
             // Only needs to happen on the main window.
             this.CMS.$(window).on('cms-content-refresh', () => this._resetInlineEditors());
@@ -291,6 +290,7 @@ class CMSEditor {
         } catch (e) {
             this._global_settings = {};
         }
+
         // All textareas with class CMS_Editor: typically on admin site
         document.querySelectorAll('textarea.CMS_Editor').forEach(
             (el) => this.init(el), this
@@ -417,7 +417,10 @@ class CMSEditor {
                         }
                     }
                     this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
-                    this._loadToolbar();
+                    if (this.CMS.settings.version < "4") {
+                        /* Reflect dirty flag in django CMS < 4 */
+                        this._loadToolbar();
+                    }
                 })
                 .catch(error => {
                     el.dataset.changed = 'true';
@@ -613,5 +616,10 @@ class CMSEditor {
 }
 
 // Create global editor object
-window.CMS_Editor = new CMSEditor();
+document.addEventListener('DOMContentLoaded', () => {
+    "use strict";
+
+    window.CMS_Editor = new CMSEditor();
+    window.CMS_Editor.initAll();
+});
 

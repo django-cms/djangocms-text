@@ -12,7 +12,7 @@ from cms.toolbar.items import Button, ButtonList, TemplateItem
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
-from .utils import get_url_endpoint
+from .utils import get_url_endpoint, get_render_plugin_url
 from .widgets import rte_config, TextEditorWidget
 
 
@@ -35,7 +35,9 @@ class InlineEditingToolbar(CMSToolbar):
                 js=(
                     static("djangocms_text/bundles/bundle.editor.min.js"),
                     *(static(js) for js in rte_config.js),
-                ) if self.inline_editing else (),
+                )
+                if self.inline_editing
+                else (),
             )
         return forms.Media()
 
@@ -60,20 +62,25 @@ class InlineEditingToolbar(CMSToolbar):
                     name=_("Toggle inline editing mode for text plugins"),
                     url=self.get_full_path_with_param(
                         "inline_editing", int(not self.inline_editing)
-                    ).replace("/structure/","/edit/"),
+                    ).replace("/structure/", "/edit/"),
                     active=self.inline_editing,
                     extra_classes=["cms-icon cms-icon-pencil"],
                 ),
             )
             self.toolbar.add_item(item)
 
-            widget = TextEditorWidget(url_endpoint=get_url_endpoint())
+            widget = TextEditorWidget(
+                url_endpoint=get_url_endpoint(),
+                render_plugin_url=get_render_plugin_url(),
+            )
             item = TemplateItem(
                 "cms/toolbar/config.html",
                 extra_context={
                     "global_config": widget.get_global_settings(self.current_lang),
                     "html_field_config": widget.get_editor_settings(self.current_lang),
-                    "allowed_inlines": apps.get_app_config("djangocms_text").inline_models,
+                    "allowed_inlines": apps.get_app_config(
+                        "djangocms_text"
+                    ).inline_models,
                 },
                 side=self.toolbar.RIGHT,
             )

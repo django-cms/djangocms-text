@@ -2,6 +2,23 @@
 Changelog
 =========
 
+0.3.0 (26-09-2024)
+==================
+
+* feat: Inline editor for CharField (no-frills editor)
+* feat: Auto-detection of inline-editable fields (HTMLFormField and CharField)
+  in both models and plugins
+* feat: Enable inline-editing for models that support
+  ``{% render_model instance "field_name" "field_name" %}`` command (renders the
+  named field of the instance and opens an editor with only this field in the
+  frontend) available since django CMS 3.0 - requires their admin to have the
+  ``FrontendEditableAdmin`` mixin
+* fix: HTML editor size in modals of text plugin independent of the row attribute
+* fix: Made URL target selection available in HTMLFields
+* fix: Balloon toolbar (for block commands, typically positioned left of the
+  current editing line) now allows for scrolling
+
+
 0.2.3 (03-09-2024)
 ==================
 
@@ -14,7 +31,7 @@ Changelog
 
 * fix: Let the migration only convert djangocms-text-ckeditor plugins if a corresponding table exists in the database
 * fix: Let webpack import js map files from node libraries to remove references to non-existing map files in the js bundles
-* fix: Unnecessary call to `static` in widget Media class made djangocms-text fail with manifest file storages
+* fix: Unnecessary call to ``static`` in widget Media class made djangocms-text fail with manifest file storages
 
 0.2.0 (24-07-2024)
 ==================

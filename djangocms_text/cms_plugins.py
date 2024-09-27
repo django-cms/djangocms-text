@@ -4,6 +4,7 @@ import re
 
 from django.apps import apps
 from django.contrib.admin.utils import unquote
+from django.contrib.messages import get_messages
 from django.core import signing
 from django.core.exceptions import PermissionDenied, ValidationError, FieldError
 from django.db import transaction
@@ -414,6 +415,7 @@ class TextPlugin(CMSPluginBase):
             pattern(r"^render-plugin/$", self.render_plugin),
             pattern(r"^revert-on-cancel/$", self.revert_on_cancel),
             pattern(r"^urls/$", self.get_available_urls),
+            pattern(r"^messages/$", self.get_messages),
         ]
         return url_patterns
 
@@ -546,6 +548,15 @@ class TextPlugin(CMSPluginBase):
             ]
         }
         return JsonResponse(urls)
+
+    def get_messages(self, request):
+        """Serve the messages that the admin might have started piling"""
+        messages = get_messages(request)
+        return JsonResponse({"messages": [{
+            "message": message.message,
+            "level": message.level,
+            "level_tag": message.level_tag,
+        } for message in messages]})
 
     @classmethod
     def get_child_plugin_candidates(cls, slot, page):

@@ -220,7 +220,6 @@ class CMSEditor {
                 }
             }
             wrapper.dataset.cmsEditUrl = url;
-
             return wrapper;
         }
         // No elements found
@@ -401,6 +400,30 @@ class CMSEditor {
                         // Success:
                         // Remove an error message from a previous save attempt
                         this.CMS.API.Messages.close();
+                        // Show messages if any
+                        const settings = this.getSettings(el);
+                        if (settings.messages_url) {
+                            fetch(settings.messages_url)
+                                .then(response => response.json())
+                                .then(messages => {
+                                    if (messages.messages) {
+                                        let error = "success", message_text = "";
+                                        for (let message of messages.messages) {
+                                            if (message.level_tag === "error") {
+                                                error = "error";
+                                                break;
+                                            }
+                                            message_text += `<p>${message.message}</p>`;
+                                        }
+                                        this.CMS.API.Messages.open({
+                                            message: message_text,
+                                            error: error === "error",
+                                            delay: -1,
+                                        });
+                                    }
+                                });
+                        }
+
                     }
                     const script = dom.querySelector('script#data-bridge');
                     el.dataset.changed = 'false';
@@ -485,7 +508,7 @@ class CMSEditor {
             }
 
             //
-            let saveSuccess = !!form.querySelector('.messagelist :not(.error,.success)');
+            let saveSuccess = !!form.querySelector('div.messagelist div.success');
             if (!saveSuccess) {
                 saveSuccess =
                     !!form.querySelector('.dashboard #content-main') &&

@@ -12,7 +12,7 @@ from cms.toolbar.items import Button, ButtonList, TemplateItem
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
-from .utils import get_url_endpoint, get_render_plugin_url, get_cancel_url
+from .utils import get_url_endpoint, get_render_plugin_url, get_cancel_url, get_messages_url
 from .widgets import rte_config, TextEditorWidget
 
 
@@ -69,6 +69,7 @@ class InlineEditingToolbar(CMSToolbar):
                 url_endpoint=get_url_endpoint(),
                 render_plugin_url=get_render_plugin_url(),
                 cancel_url=get_cancel_url(),
+                messages_url=get_messages_url(),
             )
             item = TemplateItem(
                 "cms/toolbar/config.html",

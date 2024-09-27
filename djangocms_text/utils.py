@@ -185,3 +185,8 @@ def get_render_plugin_url():
 def get_cancel_url():
     """Get the url for cancelling a plugin edit"""
     return admin_reverse("djangocms_text_textplugin_revert_on_cancel")
+
+
+def get_messages_url():
+    """Get the url for cancelling a plugin edit"""
+    return admin_reverse("djangocms_text_textplugin_get_messages")

@@ -52,6 +52,7 @@ class TextEditorWidget(forms.Textarea):
         cancel_url: str = None,
         url_endpoint: str = None,
         render_plugin_url: str = None,
+        messages_url: str = None,
         action_token: str = None,
         revert_on_cancel: bool = False,
         body_css_classes: str = "",
@@ -89,6 +90,7 @@ class TextEditorWidget(forms.Textarea):
         self.cancel_url = cancel_url
         self.url_endpoint = url_endpoint
         self.render_plugin_url = render_plugin_url
+        self.messages_url = messages_url
         self.action_token = action_token  # specific
         self.revert_on_cancel = revert_on_cancel
         self.body_css_classes = (
@@ -186,6 +188,7 @@ class TextEditorWidget(forms.Textarea):
             "language": language,
             "render_plugin_url": self.render_plugin_url or "",
             "cancel_plugin_url": self.cancel_url or "",
+            "messages_url": self.messages_url or "",
         }
 
     def render_additions(self, name, value, attrs=None, renderer=None):

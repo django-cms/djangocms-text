@@ -6,7 +6,7 @@ import { Node } from '@tiptap/core';
 import CmsDialog from "../cms.dialog.js";
 import TiptapToolbar from "./cms.tiptap.toolbar";
 
-const blockTags = ((x) => x.toUpperCase().substring(1, x.length-1).split("><"))(
+const blockTags = ((str) => str.toUpperCase().substring(1, str.length-1).split("><"))(
     "<address><article><aside><blockquote><canvas><dd><div><dl><dt><fieldset><figcaption><figure><footer><form>" +
     "<h1><h2><h3><h4><h5><h6><header><hr><li><main><nav><noscript><ol><p><pre><section><table><tfoot><ul><video>"
 );

@@ -366,7 +366,7 @@ class CMSEditor {
                     // Fallback solution is to reload the page as djagocms-text-ckeditor used to do.
                     const dom = document.createElement('html');
                     dom.innerHTML = body;
-                    const success_element = dom.querySelectorAll('.messagelist > .success').length > 0;
+                    const success_element = dom.querySelectorAll('div.messagelist > div.success').length > 0;
                     if (!success_element) {
                         el.dataset.changed = 'true';
                         // Collect messages
@@ -485,7 +485,7 @@ class CMSEditor {
             }
 
             //
-            let saveSuccess = !!form.querySelector('.messagelist :not(.error)');
+            let saveSuccess = !!form.querySelector('.messagelist :not(.error,.success)');
             if (!saveSuccess) {
                 saveSuccess =
                     !!form.querySelector('.dashboard #content-main') &&

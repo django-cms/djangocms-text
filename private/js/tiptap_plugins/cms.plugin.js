@@ -163,6 +163,7 @@ const cmsPluginNodes = {
                         // Node types need to match
                         return false;
                     }
+                    attrs['data-node'] = this.name;
                     // return attributes and content
                     return {
                         HTMLAttributes: attrs,

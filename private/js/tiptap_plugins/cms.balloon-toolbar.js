@@ -116,14 +116,18 @@ export default class CmsBalloonToolbar {
             }
             depth -= 1;
         }
-        depth = 1;  // TODO: Decide which works better: First level, or highest level with block node
-        this._updateToolbarIcon(resolvedPos.node(depth));
-        const startPos = resolvedPos.start(depth);
-        this.toolbar.dataset.block = startPos;
-        const pos = this.editor.view.coordsAtPos(startPos);
-        const ref = this.editor.options.el.getBoundingClientRect();
+        if (depth > 0) {
+            this._updateToolbarIcon(resolvedPos.node(depth));
+            const startPos = resolvedPos.start(depth);
+            this.toolbar.dataset.block = startPos;
+            const pos = this.editor.view.coordsAtPos(startPos);
+            const ref = this.editor.options.el.getBoundingClientRect();
 
-        this.toolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
+            this.toolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
+            this.toolbar.style.display = 'block';
+        } else {
+            this.toolbar.style.display = 'none';
+        }
         // TODO: Set the size of the balloon according to the fontsize
         // this.toolbar.style.setProperty('--size', this.editor.view. ...)
     }

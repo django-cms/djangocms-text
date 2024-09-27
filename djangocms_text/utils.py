@@ -180,3 +180,8 @@ def get_url_endpoint():
 def get_render_plugin_url():
     """Get the url for rendering a text-enabled plugin for the toolbar"""
     return admin_reverse("djangocms_text_textplugin_render_plugin")
+
+
+def get_cancel_url():
+    """Get the url for cancelling a plugin edit"""
+    return admin_reverse("djangocms_text_textplugin_revert_on_cancel")

@@ -18,19 +18,7 @@ class CMSEditor {
         this._global_settings = {};
         this._editor_settings = {};
 
-        // Get the CMS object from the parent window
-        if (window.CMS !== undefined && window.CMS.config !== undefined) {
-            this.mainWindow = window;
-            this.CMS = window.CMS;
-        } else {
-            this.mainWindow = window.parent;
-            this.CMS = window.parent.CMS;
-        }
-
-        if (this.CMS) {
-            // Only needs to happen on the main window.
-            this.CMS.$(window).on('cms-content-refresh', () => this._resetInlineEditors());
-        }
+        document.addEventListener('DOMContentLoaded', () => this.initAll());
     }
 
     // CMS Editor: init
@@ -284,6 +272,20 @@ class CMSEditor {
 
     // CMS Editor: init_all
     initAll () {
+        // Get the CMS object from the parent window
+        if (window.CMS !== undefined && window.CMS.config !== undefined) {
+            this.mainWindow = window;
+            this.CMS = window.CMS;
+        } else {
+            this.mainWindow = window.parent;
+            this.CMS = window.parent.CMS;
+        }
+
+        if (this.CMS) {
+            // Only needs to happen on the main window.
+            this.CMS.$(window).on('cms-content-refresh', () => this._resetInlineEditors());
+        }
+
         // Get global options from script element
         try {
             this._global_settings = JSON.parse(document.getElementById('cms-editor-cfg').textContent);
@@ -615,11 +617,7 @@ class CMSEditor {
     }
 }
 
-// Create global editor object
-document.addEventListener('DOMContentLoaded', () => {
-    "use strict";
 
-    window.CMS_Editor = new CMSEditor();
-    window.CMS_Editor.initAll();
-});
+// Create global editor object
+window.CMS_Editor = new CMSEditor();
 

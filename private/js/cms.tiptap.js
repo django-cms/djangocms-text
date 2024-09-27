@@ -15,7 +15,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import { TextAlign, TextAlignOptions } from '@tiptap/extension-text-align';
-import CmsPluginNode from './tiptap_plugins/cms.plugin';
+import { CmsPluginNode, CmsBlockPluginNode } from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 import {StarterKit} from "@tiptap/starter-kit";
 
@@ -55,6 +55,7 @@ class CMSTipTapPlugin {
                 }),
                 Small, Var, Kbd, Samp,
                 CmsPluginNode,
+                CmsBlockPluginNode,
                 TextAlign.configure({
                     types: ['heading', 'paragraph'],
                 }),

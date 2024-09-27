@@ -12,7 +12,7 @@ from cms.toolbar.items import Button, ButtonList, TemplateItem
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
-from .utils import get_url_endpoint, get_render_plugin_url
+from .utils import get_url_endpoint, get_render_plugin_url, get_cancel_url
 from .widgets import rte_config, TextEditorWidget
 
 
@@ -43,12 +43,8 @@ class InlineEditingToolbar(CMSToolbar):
 
     @cached_property
     def inline_editing(self):
-        inline_editing = self.request.session.get(
-            "inline_editing", True
-        )  # Activated by default
-        change = self.request.GET.get(
-            "inline_editing", None
-        )  # can be changed by query param
+        inline_editing = self.request.session.get("inline_editing", True)  # Activated by default
+        change = self.request.GET.get("inline_editing", None)  # can be changed by query param
         if change is not None:
             inline_editing = change == "1"
             self.request.session["inline_editing"] = inline_editing  # store in session
@@ -60,9 +56,9 @@ class InlineEditingToolbar(CMSToolbar):
             item.add_item(
                 IconButton(
                     name=_("Toggle inline editing mode for text plugins"),
-                    url=self.get_full_path_with_param(
-                        "inline_editing", int(not self.inline_editing)
-                    ).replace("/structure/", "/edit/"),
+                    url=self.get_full_path_with_param("inline_editing", int(not self.inline_editing)).replace(
+                        "/structure/", "/edit/"
+                    ),
                     active=self.inline_editing,
                     extra_classes=["cms-icon cms-icon-pencil"],
                 ),
@@ -72,15 +68,14 @@ class InlineEditingToolbar(CMSToolbar):
             widget = TextEditorWidget(
                 url_endpoint=get_url_endpoint(),
                 render_plugin_url=get_render_plugin_url(),
+                cancel_url=get_cancel_url(),
             )
             item = TemplateItem(
                 "cms/toolbar/config.html",
                 extra_context={
                     "global_config": widget.get_global_settings(self.current_lang),
                     "html_field_config": widget.get_editor_settings(self.current_lang),
-                    "allowed_inlines": apps.get_app_config(
-                        "djangocms_text"
-                    ).inline_models,
+                    "allowed_inlines": apps.get_app_config("djangocms_text").inline_models,
                 },
                 side=self.toolbar.RIGHT,
             )

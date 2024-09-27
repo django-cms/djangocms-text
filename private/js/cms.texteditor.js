@@ -61,10 +61,7 @@ class CmsTextEditor {
 
     _blur (e) {
         this.save(e.target, (el, response) => {
-            console.log("timer set");
-            console.log(response);
             setTimeout(() => {
-                console.log(e.target);
                 if (e.target.dataset.changed === 'true') {
                     e.target.innerText = this.options.undo;
                     e.target.dataset.changed = 'false';

@@ -8,8 +8,8 @@ class TextConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
-        register(check_ckeditor_settings)
         self.inline_models = discover_inline_editable_models()
+        register(check_ckeditor_settings)
 
 
 def discover_inline_editable_models():
@@ -19,23 +19,17 @@ def discover_inline_editable_models():
 
     registered_inline_fields = ["HTMLFormField", "CharField"]
     inline_models = {}
-    blacklist_apps = [
-        "auth",
-        "admin",
-        "sessions",
-        "contenttypes",
-        "sites",
-        "cms",
-        "djangocms_text",
-        "djangocms_alias",
-    ]
+    blacklist_apps = []
+
     for model, modeladmin in site._registry.items():
         if model._meta.app_label in blacklist_apps:
             continue
 
         for field_name in getattr(modeladmin, "frontend_editable_fields", []):
             try:
-                form = modeladmin.get_form(request=None, fields=(field_name,))  # Worth a try
+                form = modeladmin.get_form(
+                    request=None, fields=(field_name,)
+                )  # Worth a try
             except Exception:
                 form = getattr(modeladmin, "form", None)
             if form:
@@ -60,7 +54,6 @@ def discover_inline_editable_models():
                 ] = field_instance.__class__.__name__
 
     return inline_models
-
 
 
 def check_ckeditor_settings(app_configs, **kwargs):

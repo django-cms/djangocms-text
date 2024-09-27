@@ -125,7 +125,7 @@ export default class CmsBalloonToolbar {
 
         this.toolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
         // TODO: Set the size of the balloon according to the fontsize
-        //  this.toolbar.style.setProperty('--size', this.editor.view. ...)
+        // this.toolbar.style.setProperty('--size', this.editor.view. ...)
     }
 
     _getResolvedPos() {
@@ -142,7 +142,6 @@ export default class CmsBalloonToolbar {
         if (type in this._node_icons) {
             this.toolbar.innerHTML = this._node_icons[type];
         } else {
-            console.log(type);
             this.toolbar.innerHTML = this._menu_icon;
         }
     }

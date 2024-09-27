@@ -173,9 +173,9 @@ class TextEditorWidget(forms.Textarea):
             }
 
         return {
+            "add_plugin_url": admin_reverse(cms_placeholder_add_plugin),
             "url_endpoint": self.url_endpoint or get_url_endpoint(),
             "static_url": settings.STATIC_URL + "djangocms_text",
-            "add_plugin_url": admin_reverse(cms_placeholder_add_plugin),
             "lang": toolbar_setting,
             "lang_alt": {
                 "toolbar": gettext("CMS Plugins"),

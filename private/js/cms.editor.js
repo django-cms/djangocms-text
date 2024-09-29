@@ -18,7 +18,48 @@ class CMSEditor {
         this._global_settings = {};
         this._editor_settings = {};
 
-        document.addEventListener('DOMContentLoaded', () => this.initAll());
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the CMS object from the parent window
+            if (window.CMS !== undefined && window.CMS.config !== undefined) {
+                this.mainWindow = window;
+                this.CMS = window.CMS;
+            } else {
+                this.mainWindow = window.parent;
+                this.CMS = window.parent.CMS;
+            }
+
+            if (this.CMS) {
+                // Only needs to happen on the main window.
+                console.log("Refresh established");
+                this.CMS.$(window).on('cms-content-refresh', () => {
+                    if (document.querySelector('template.cms-plugin')) {
+                        // django CMS core does not wrap newly inserted inline editable fields
+                        this.CMS.API.Helpers.reloadBrowser();
+                    } else {
+                        this._resetInlineEditors();
+                    }
+                });
+            }
+            this.initAll();
+        });
+    }
+
+    // CMS Editor: init_all
+    // Initialize all editors on the page
+    initAll () {
+        // Get global options from script element
+        try {
+            this._global_settings = JSON.parse(document.getElementById('cms-editor-cfg').textContent);
+        } catch (e) {
+            this._global_settings = {};
+        }
+
+        // All textareas with class CMS_Editor: typically on admin site
+        document.querySelectorAll('textarea.CMS_Editor').forEach(
+            (el) => this.init(el), this
+        );
+        // Register all plugins on the page for inline editing
+        this.initInlineEditors();
     }
 
     // CMS Editor: init
@@ -112,6 +153,7 @@ class CMSEditor {
             // no plugins -> no inline editors
             return;
         }
+        console.log("Init inline editors");
         const plugins = this.CMS._plugins;
 
         this.observer = this.observer || new IntersectionObserver( (entries) => {
@@ -267,37 +309,6 @@ class CMSEditor {
             return this.getSettings(Object.keys(this._editor_settings)[0]).installed_plugins || [];
         }
         return [];
-    }
-
-    // CMS Editor: init_all
-    initAll () {
-        // Get the CMS object from the parent window
-        if (window.CMS !== undefined && window.CMS.config !== undefined) {
-            this.mainWindow = window;
-            this.CMS = window.CMS;
-        } else {
-            this.mainWindow = window.parent;
-            this.CMS = window.parent.CMS;
-        }
-
-        if (this.CMS) {
-            // Only needs to happen on the main window.
-            this.CMS.$(window).on('cms-content-refresh', () => this._resetInlineEditors());
-        }
-
-        // Get global options from script element
-        try {
-            this._global_settings = JSON.parse(document.getElementById('cms-editor-cfg').textContent);
-        } catch (e) {
-            this._global_settings = {};
-        }
-
-        // All textareas with class CMS_Editor: typically on admin site
-        document.querySelectorAll('textarea.CMS_Editor').forEach(
-            (el) => this.init(el), this
-        );
-        // Register all plugins on the page for inline editing
-        this.initInlineEditors();
     }
 
     // CMS Editor: destroy

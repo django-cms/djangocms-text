@@ -93,5 +93,5 @@ class InlineEditingToolbar(CMSToolbar):
         return urlunparse(url)
 
 
-if settings.TEXT_INLINE_EDITING:  # Only register if explicitly required from settings
+if settings.TEXT_INLINE_EDITING and rte_config.inline_editing:  # Only register if explicitly required from settings
     toolbar_pool.register(InlineEditingToolbar)

@@ -250,7 +250,7 @@ class TextPlugin(CMSPluginBase):
                 render_plugin_url=render_plugin_url,
                 cancel_url=cancel_url,
                 action_token=action_token,
-                revert_on_cancel=settings.TEXT_CHILDREN_ENABLED,
+                revert_on_cancel=settings.TEXT_CHILDREN_ENABLED and rte_config.child_plugin_support,
                 body_css_classes=self._get_body_css_classes_from_parent_plugins(plugin),
             )
         else:
@@ -353,7 +353,7 @@ class TextPlugin(CMSPluginBase):
             # CMS >= 3.4 compatibility
             self.cms_plugin_instance = self._get_plugin_or_404(request.GET["plugin"])
 
-        if not settings.TEXT_CHILDREN_ENABLED or getattr(
+        if not settings.TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support or getattr(
             self, "cms_plugin_instance", None
         ):
             # This can happen if the user did not properly cancel the plugin
@@ -601,7 +601,7 @@ class TextPlugin(CMSPluginBase):
 
     def get_plugins(self, obj=None):
         plugin = getattr(self, "cms_plugin_instance", None) or obj
-        if not plugin or not TEXT_CHILDREN_ENABLED:
+        if not plugin or not TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support:
             return []
         get_plugin = plugin_pool.get_plugin
         child_plugin_types = self.get_child_classes(
@@ -653,6 +653,7 @@ class TextPlugin(CMSPluginBase):
     def inline_editing_active(request):
         return (
             settings.TEXT_INLINE_EDITING
+            and rte_config.inline_editing
             and hasattr(request, "toolbar")
             and request.toolbar.edit_mode_active
             and request.session.get("inline_editing", True)

@@ -24,9 +24,9 @@ class FieldTestCase(BaseTestCase):
                         '<iframe src="http://www.w3schools.com"></iframe>')
     text_with_iframe_escaped = ('<p>some non malicious text</p>&lt;iframe '
                                 'src="http://www.w3schools.com"&gt;&lt;/iframe&gt;')
-    text_with_script = ('<p>some non malicious text</p> '
+    text_with_script = ('<p>some non malicious text</p>'
                         '<script>alert("Hello! I am an alert box!");</script>')
-    text_with_script_escaped = ('<p>some non malicious text</p> &lt;script&gt;'
+    text_with_script_escaped = ('<p>some non malicious text</p>&lt;script&gt;'
                                 'alert("Hello! I am an alert box!");&lt;/script&gt;')
 
     def test_model_field_text_is_safe(self):
@@ -39,7 +39,6 @@ class FieldTestCase(BaseTestCase):
         rendered = template.render(Context({'obj': text}))
         self.assertEqual(original, rendered)
 
-    @skipIf(True, "sanitizer deactivated")
     def test_model_field_sanitized(self):
         obj = SimpleText(text=self.text_normal)
         obj.full_clean()
@@ -53,15 +52,14 @@ class FieldTestCase(BaseTestCase):
         obj.full_clean()
         obj.save()
 
-        self.assertEqual(obj.text, self.text_with_iframe_escaped)
+        self.assertEqual(obj.text, self.text_normal)
 
         obj = SimpleText(text=self.text_with_script)
         obj.full_clean()
         obj.save()
 
-        self.assertEqual(obj.text, self.text_with_script_escaped)
+        self.assertEqual(obj.text, self.text_normal)
 
-    @skipIf(True, "sanitizer deactivated")
     def test_form_field_sanitized(self):
         form = SimpleTextForm(data={'text': self.text_normal})
         self.assertTrue(form.is_valid())
@@ -71,9 +69,9 @@ class FieldTestCase(BaseTestCase):
         form = SimpleTextForm(data={'text': self.text_with_iframe})
         self.assertTrue(form.is_valid())
 
-        self.assertEqual(form.cleaned_data['text'], self.text_with_iframe_escaped)
+        self.assertEqual(form.cleaned_data['text'], self.text_normal)
 
         form = SimpleTextForm(data={'text': self.text_with_script})
         self.assertTrue(form.is_valid())
 
-        self.assertEqual(form.cleaned_data['text'], self.text_with_script_escaped)
+        self.assertEqual(form.cleaned_data['text'], self.text_normal)

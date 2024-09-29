@@ -1,6 +1,9 @@
-
+from cms.api import create_page
+from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_text import html, settings
+from djangocms_text.html import render_dynamic_attributes
+from tests.fixtures import TestFixture
 
 
 class HtmlSanitizerAdditionalProtocolsTests:
@@ -92,3 +95,35 @@ class HtmlSanitizerAdditionalProtocolsTests:
             self.assertHTMLEqual(original, cleaned)
         finally:
             settings.TEXT_HTML_SANITIZE = old_text_html_sanitize
+
+
+class HTMLDynamicAttriutesTest(TestFixture, CMSTestCase):
+    def test_dynamic_link(self):
+        page = self.create_page("page", "page.html", language="en")
+        self.publish(page, "en")
+        self.assertEqual(
+            page.get_absolute_url(),
+            "/en/page/",
+        )
+        dynamic_html = f'<a data-cms-href="cms.page:{page.pk}">Link</a>'
+
+        result = render_dynamic_attributes(dynamic_html)
+        self.assertEqual(
+            result,
+            f'<a href="{page.get_absolute_url()}">Link</a>',
+        )
+
+    def test_invalid_dynamic_link(self):
+        page = self.create_page("page", "page.html", language="en")
+        self.publish(page, "en")
+        self.assertEqual(
+            page.get_absolute_url(),
+            "/en/page/",
+        )
+        dynamic_html = f'<a data-cms-href="cms.page:{page.pk + 1}">Link</a>'
+
+        result = render_dynamic_attributes(dynamic_html)
+        self.assertEqual(
+            result,
+            '<span data-cms-error="ref-not-found">Link</span>',
+        )

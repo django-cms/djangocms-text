@@ -934,7 +934,6 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         for markup, expected in pairs:
             self.assertEqual(plugin_tags_to_id_list(markup), expected)
 
-    @skipIf(True, "sanitizer deactivated")
     def test_text_plugin_xss(self):
         page = self.create_page('test page', template='page.html', language='en')
         placeholder = self.get_placeholders(page, 'en').get(slot='content')

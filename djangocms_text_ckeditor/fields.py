@@ -5,7 +5,7 @@ from djangocms_text.fields import HTMLField as TextHTMLField
 from djangocms_text.fields import HTMLFormField as TextHTMLFormField
 
 
-class HTMLField(TextHTMLField):
+class HTMLField(TextHTMLField):  # pragma: no cover
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         warnings.warn(
             "djangocms_text_ckeditor.fields.HTMLField is deprecated. "
@@ -16,7 +16,7 @@ class HTMLField(TextHTMLField):
         super().__init__(*args, **kwargs)
 
 
-class HTMLFormField(TextHTMLFormField):
+class HTMLFormField(TextHTMLFormField):  # pragma: no cover
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         warnings.warn(
             "djangocms_text_ckeditor.fields.HTMLFormField is deprecated. "

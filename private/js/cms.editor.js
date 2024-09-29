@@ -406,19 +406,17 @@ class CMSEditor {
                             fetch(settings.messages_url)
                                 .then(response => response.json())
                                 .then(messages => {
-                                    if (messages.messages) {
-                                        let error = "success", message_text = "";
-                                        for (let message of messages.messages) {
-                                            if (message.level_tag === "error") {
-                                                error = "error";
-                                                break;
-                                            }
-                                            message_text += `<p>${message.message}</p>`;
+                                    let error = "success", message_text = "";
+                                    for (let message of messages.messages) {
+                                        if (message.level_tag === "error") {
+                                            error = "error";
                                         }
+                                        message_text += `<p>${message.message}</p>`;
+                                    }
+                                    if (message_text.length > 0) {
                                         this.CMS.API.Messages.open({
                                             message: message_text,
                                             error: error === "error",
-                                            delay: -1,
                                         });
                                     }
                                 });

@@ -3,7 +3,7 @@
 from django.db import migrations, models
 
 
-def migrate_text_ckeditor_fields(apps, schema_editor):
+def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
     class CKEditorText(models.Model):
         class Meta:
             managed = False

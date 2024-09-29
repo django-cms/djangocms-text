@@ -515,19 +515,19 @@ class TextPlugin(CMSPluginBase):
                 obj = model.objects.get(pk=pk)
                 if isinstance(obj, Page):
                     obj = obj.pagecontent_set(manager="admin_manager").current_content().first()
-                    return HttpResponse(json.dumps({"text": obj.title, "url": obj.get_absolute_url()}))
-                return HttpResponse(json.dumps({"text": str(obj), "url": obj.get_absolute_url()}))
+                    return JsonResponse({"text": obj.title, "url": obj.get_absolute_url()})
+                return JsonResponse({"text": str(obj), "url": obj.get_absolute_url()})
             except Exception as e:
-                return HttpResponseBadRequest(json.dumps({"error": str(e)}))
+                return JsonResponse({"error": str(e)})
 
         search = request.GET.get("q", "").strip("  ").lower()
         language = get_language_from_request(request)
         try:
-            qs = (PageContent.admin_manager.filter(language=language, title__icontains=search)
+            qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
                   .current_content()
                   .order_by("page__path"))
         except FieldError:
-            qs = (PageContent.admin_manager.filter(language=language, title__icontains=search)
+            qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
                   .current_content()
                   .order_by("page__node__path"))
 

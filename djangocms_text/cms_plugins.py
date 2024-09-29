@@ -29,8 +29,10 @@ from .settings import TEXT_CHILDREN_ENABLED
 
 try:
     from cms.models import PageContent
+    _version = 4
 except ImportError:
     from cms.models import Title as PageContent
+    _version = 3
 
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
@@ -513,7 +515,7 @@ class TextPlugin(CMSPluginBase):
                 app, model = model.split(".")
                 model = apps.get_model(app, model)
                 obj = model.objects.get(pk=pk)
-                if isinstance(obj, Page):
+                if isinstance(obj, Page) and _version >= 4:
                     obj = obj.pagecontent_set(manager="admin_manager").current_content().first()
                     return JsonResponse({"text": obj.title, "url": obj.get_absolute_url()})
                 return JsonResponse({"text": str(obj), "url": obj.get_absolute_url()})
@@ -522,14 +524,17 @@ class TextPlugin(CMSPluginBase):
 
         search = request.GET.get("q", "").strip("  ").lower()
         language = get_language_from_request(request)
-        try:
-            qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
-                  .current_content()
-                  .order_by("page__path"))
-        except FieldError:
-            qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
-                  .current_content()
-                  .order_by("page__node__path"))
+        if _version >= 4:
+            try:
+                qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
+                      .current_content()
+                      .order_by("page__path"))
+            except FieldError:
+                qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
+                      .current_content()
+                      .order_by("page__node__path"))
+        else:
+            qs = list(PageContent.objects.filter(language=language, title__icontains=search).order_by("page__node__path"))
 
         urls = {
             "results": [

@@ -6,12 +6,10 @@ import "../css/cms.linkfield.css";
 
 class LinkField {
     constructor(element, options) {
-        console.log("LinkField constructor", element.id + '_select');
         this.options = options;
         this.urlElement = element;
         this.form = element.closest("form");
         this.selectElement = this.form.querySelector(`input[name="${this.urlElement.id + '_select'}"]`);
-        console.log(this.urlElement, this.selectElement);
         if (this.selectElement) {
             this.prepareField();
             this.registerEvents();
@@ -108,7 +106,6 @@ class LinkField {
     handleSelection(event) {
         event.stopPropagation();
         event.preventDefault();
-        console.log("handleSelection", event.target.textContent, event.target.getAttribute('data-href'));
         this.inputElement.value = event.target.getAttribute('data-text') || event.target.textContent;
         this.inputElement.classList.add('cms-linkfield-selected');
         this.urlElement.value = event.target.getAttribute('data-href');
@@ -118,7 +115,6 @@ class LinkField {
     }
 
     handleChange(event) {
-        console.log("handleChange", event.target);
         if (this.selectElement.value) {
             fetch(this.options.url + '?g=' + encodeURIComponent(this.selectElement.value))
                 .then(response => response.json())

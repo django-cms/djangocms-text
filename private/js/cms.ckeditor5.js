@@ -220,7 +220,10 @@ class CMSCKEditor5Plugin {
 
     // returns the edited html code
     getHTML (el) {
-        return this._editors[el.id].getData();
+        if (el.id in this._editors) {
+            return this._editors[el.id].getData();
+        }
+        return undefined;
     }
 
     // returns the edited content as json
@@ -231,8 +234,10 @@ class CMSCKEditor5Plugin {
 
     // destroy the editor
     destroyEditor (el) {
-        this._editors[el.id].destroy();
-        delete this._editors[el.id];
+        if (el.id in this._editors) {
+            this._editors[el.id].destroy();
+            delete this._editors[el.id];
+        }
     }
 
     _init() {

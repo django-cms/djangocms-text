@@ -1,0 +1,3 @@
+{% if allowed_inlines %}{{ allowed_inlines|json_script:"cms-generic-inline-fields" }}{% load sekizai_tags %}{% endif %}
+{% if global_config %}{{ global_config|json_script:"cms-editor-cfg" }}{% endif %}
+{% if html_field_config %}{{ html_field_config|json_script:"cms-cfg-htmlfield-inline" }}{% endif %}

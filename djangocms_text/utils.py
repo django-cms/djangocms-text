@@ -2,6 +2,7 @@ import re
 from collections import OrderedDict
 from functools import WRAPPER_ASSIGNMENTS, wraps
 
+from cms.utils.urlutils import admin_reverse
 from django.template.defaultfilters import force_escape
 from django.template.loader import render_to_string
 
@@ -169,3 +170,23 @@ def get_plugins_from_text(text, regex=OBJ_ADMIN_RE):
     plugins = CMSPlugin.objects.filter(pk__in=plugin_ids).select_related("placeholder")
     plugin_list = downcast_plugins(plugins, select_placeholder=True)
     return {plugin.pk: plugin for plugin in plugin_list}
+
+
+def get_url_endpoint():
+    """Get the url for dynamic liks for cms plugins and HTMLFields"""
+    return admin_reverse("djangocms_text_textplugin_get_available_urls")
+
+
+def get_render_plugin_url():
+    """Get the url for rendering a text-enabled plugin for the toolbar"""
+    return admin_reverse("djangocms_text_textplugin_render_plugin")
+
+
+def get_cancel_url():
+    """Get the url for cancelling a plugin edit"""
+    return admin_reverse("djangocms_text_textplugin_revert_on_cancel")
+
+
+def get_messages_url():
+    """Get the url for cancelling a plugin edit"""
+    return admin_reverse("djangocms_text_textplugin_get_messages")

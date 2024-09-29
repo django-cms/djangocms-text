@@ -2,7 +2,6 @@ import copy
 import json
 import re
 import unittest
-from unittest import skipIf
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -934,7 +933,6 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         for markup, expected in pairs:
             self.assertEqual(plugin_tags_to_id_list(markup), expected)
 
-    @skipIf(True, "sanitizer deactivated")
     def test_text_plugin_xss(self):
         page = self.create_page('test page', template='page.html', language='en')
         placeholder = self.get_placeholders(page, 'en').get(slot='content')
@@ -950,6 +948,50 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             response = self.client.post(endpoint, data)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(self.reload(plugin).body, '<div>divcontent</div><a>acontent</a>')
+
+    def test_url_resolution(self):
+        page = self.create_page('test page', template='page.html', language='en')
+        endpoint = admin_reverse('djangocms_text_textplugin_get_available_urls')
+
+        with self.login_user_context(self.superuser):
+            result = self.client.get(endpoint + f'?g=cms.page:{page.pk}')
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json()["url"], page.get_absolute_url())
+
+    def test_failed_url_resolution(self):
+        page = self.create_page('test page', template='page.html', language='en')
+        endpoint = admin_reverse('djangocms_text_textplugin_get_available_urls')
+
+        with self.login_user_context(self.superuser):
+            result = self.client.get(endpoint + f'?g=cms.page:{page.pk + 1}')
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json(), {"error": "Page matching query does not exist."})
+
+    def test_url_query(self):
+        page = self.create_page('test page', template='page.html', language='en')
+        endpoint = admin_reverse('djangocms_text_textplugin_get_available_urls')
+
+        with self.login_user_context(self.superuser):
+            result = self.client.get(endpoint + '?q=test')
+
+        self.assertEqual(
+            result.json()["results"],
+            [{'text': 'Pages', 'children': [{
+                'text': 'test page',
+                'url': '/en/test-page/',
+                'id': f'cms.page:{page.pk}',
+                'verbose': 'test page'}]}])
+
+    def test_get_messages(self):
+        endpoint = admin_reverse('djangocms_text_textplugin_get_messages')
+
+        with self.login_user_context(self.superuser):
+            result = self.client.get(endpoint)
+
+        # Just see that it returns a 200
+        self.assertEqual(result.json(), {'messages': []})
 
 
 @unittest.skipUnless(

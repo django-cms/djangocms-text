@@ -15,7 +15,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import { TextAlign, TextAlignOptions } from '@tiptap/extension-text-align';
-import CmsPluginNode from './tiptap_plugins/cms.plugin';
+import { CmsPluginNode, CmsBlockPluginNode } from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 import {StarterKit} from "@tiptap/starter-kit";
 
@@ -55,6 +55,7 @@ class CMSTipTapPlugin {
                 }),
                 Small, Var, Kbd, Samp,
                 CmsPluginNode,
+                CmsBlockPluginNode,
                 TextAlign.configure({
                     types: ['heading', 'paragraph'],
                 }),
@@ -114,6 +115,7 @@ class CMSTipTapPlugin {
 
             const editor = new Editor({
                 extensions: options.extensions,
+                autofocus: false,
                 content: content || '',
                 editable: true,
                 element: editorElement,
@@ -136,10 +138,12 @@ class CMSTipTapPlugin {
                 }
             });
             this._editors[el.id] = editor;
-            if (el.tagName === 'TEXTAREA') {
+            const el_rect = el.getBoundingClientRect();
+
+            if (el.tagName === 'TEXTAREA' || el_rect.x < 32) {
                 // Not inline
                 this._createTopToolbar(editorElement, editor, options);
-                if (el.rows) {
+                if (el.rows && !el.closest('body.app-djangocms_text.change-form')) {
                     editorElement.querySelector('.tiptap').style.height = el.rows * 1.5 + 'em';
                 }
             } else {
@@ -157,7 +161,10 @@ class CMSTipTapPlugin {
      * @return {string} - The HTML content of the specified editor element.
      */
     getHTML(el) {
-        return this._editors[el.id].getHTML();
+        if (el.id in this._editors) {
+            return this._editors[el.id].getHTML();
+        }
+        return undefined;
     }
 
     /**
@@ -169,7 +176,10 @@ class CMSTipTapPlugin {
      * @return {Object} - The JSON representation of the element.
      */
     getJSON(el) {
-        return this._editors[el.id].getJSON();
+        if (el.id in this._editors) {
+            return this._editors[el.id].getJSON();
+        }
+        return undefined;
     }
 
     /**
@@ -183,8 +193,10 @@ class CMSTipTapPlugin {
         if (document.getElementById(el.id + '_editor')) {
             document.getElementById(el.id + '_editor').remove();
         }
-        this._editors[el.id].destroy();
-        delete this._editors[el.id];
+        if (el.id in this._editors) {
+            this._editors[el.id].destroy();
+            delete this._editors[el.id];
+        }
     }
 
     // transforms the textarea into a div, and returns the div
@@ -214,7 +226,7 @@ class CMSTipTapPlugin {
     }
 
     _createBlockToolbar(el, editor, options) {
-        const toolbar = this._populateToolbar(editor,options.toolbar || this.settings.toolbar_HTMLField, 'block');
+        const toolbar = this._populateToolbar(editor,options.toolbar || this.options.toolbar_HTMLField, 'block');
         const ballonToolbar = new CmsBalloonToolbar(editor, toolbar,
             (event) => this._handleToolbarClick(event, editor),
             (el) => this._updateToolbar(editor, el));
@@ -283,8 +295,6 @@ class CMSTipTapPlugin {
 
             // Limit its width to the available space
             toolbarElement.style.maxWidth = (window.innerWidth - toolbarElement.getBoundingClientRect().left - 16) + 'px';
-        } else {
-            editor.commands.focus('start');
         }
         // 4.Document if a selection is in progress
         editor.view.dom.addEventListener('dblclick', (e) => this._handleDblClick(e, editor));
@@ -369,6 +379,9 @@ class CMSTipTapPlugin {
         let html = '';
 
         for (let item of array) {
+            if (item === undefined) {
+                continue;
+            }
             if (item in TiptapToolbar && TiptapToolbar[item].insitu) {
                 item = TiptapToolbar[item].insitu;
             } else if (item in TiptapToolbar && TiptapToolbar[item].items) {

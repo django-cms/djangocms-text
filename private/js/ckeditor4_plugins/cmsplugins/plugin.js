@@ -84,7 +84,6 @@ import CmsDialog from "../../cms.dialog";
             this.unsaved_child_plugins = [];
 
 			var settings  = CMS_Editor.getSettings(editor.name);
-			console.log(settings);
 			this.setupCancelCleanupCallback(settings);
 
             // don't do anything if there are no plugins defined

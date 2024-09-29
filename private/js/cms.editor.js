@@ -2,6 +2,8 @@
 /* jshint esversion: 6 */
 /* global window, document, fetch, IntersectionObserver, URLSearchParams, console */
 
+import CmsTextEditor from './cms.texteditor.js';
+
 // #############################################################################
 // CMS Editor
 // #############################################################################
@@ -12,29 +14,57 @@ class CMSEditor {
     // Initialize the editor object
     constructor() {
         this._editors = [];
-        this._options = {};
+        this._generic_editors = [];
+        this._global_settings = {};
         this._editor_settings = {};
 
-        // Get the CMS object from the parent window
-        if (window.CMS !== undefined && window.CMS.config !== undefined) {
-            this.mainWindow = window;
-            this.CMS = window.CMS;
-        } else {
-            this.mainWindow = window.parent;
-            this.CMS = window.parent.CMS;
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the CMS object from the parent window
+            if (window.CMS !== undefined && window.CMS.config !== undefined) {
+                this.mainWindow = window;
+                this.CMS = window.CMS;
+            } else {
+                this.mainWindow = window.parent;
+                this.CMS = window.parent.CMS;
+            }
+
+            if (this.CMS) {
+                // Only needs to happen on the main window.
+                console.log("Refresh established");
+                this.CMS.$(window).on('cms-content-refresh', () => {
+                    if (document.querySelector('template.cms-plugin')) {
+                        // django CMS core does not wrap newly inserted inline editable fields
+                        this.CMS.API.Helpers.reloadBrowser();
+                    } else {
+                        this._resetInlineEditors();
+                    }
+                });
+            }
+            this.initAll();
+        });
+    }
+
+    // CMS Editor: init_all
+    // Initialize all editors on the page
+    initAll () {
+        // Get global options from script element
+        try {
+            this._global_settings = JSON.parse(document.getElementById('cms-editor-cfg').textContent);
+        } catch (e) {
+            this._global_settings = {};
         }
 
-        document.addEventListener('DOMContentLoaded', () => this.initAll());
-        if (this.CMS) {
-            // Only needs to happen on the main window.
-            this.CMS.$(window).on('cms-content-refresh', () => this._resetInlineEditors());
-        }
+        // All textareas with class CMS_Editor: typically on admin site
+        document.querySelectorAll('textarea.CMS_Editor').forEach(
+            (el) => this.init(el), this
+        );
+        // Register all plugins on the page for inline editing
+        this.initInlineEditors();
     }
 
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
-        const editor_type = el.dataset.type || 'HTMLField';
         let content;
 
         // Get content: json > textarea > innerHTML
@@ -54,7 +84,6 @@ class CMSEditor {
         const settings = this.getSettings(el);
         // Element options overwrite
         settings.options = Object.assign({},
-            this._options[editor_type],
             settings.options || {},
             JSON.parse(el.dataset.options || '{}')
         );
@@ -97,12 +126,21 @@ class CMSEditor {
         );
 
         // Create editor
-        window.cms_editor_plugin.create(
-            el,
-            inModal,
-            content, settings,
-            el.tagName !== 'TEXTAREA' ? () => this.saveData(el) : () => {}
-        );
+        if (!el.dataset.cmsType ||el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
+            window.cms_editor_plugin.create(
+                el,
+                inModal,
+                content, settings,
+                el.tagName !== 'TEXTAREA' ? () => this.saveData(el) : () => {
+                }
+            );
+        } else if (el.dataset.cmsType === 'CharField') {
+            this._generic_editors.push(new CmsTextEditor(el, {
+                    spellcheck: el.dataset.spellcheck || 'false',
+                },
+                (el) => this.saveData(el)
+            ));
+        }
         this._editors.push(el);
     }
 
@@ -115,6 +153,7 @@ class CMSEditor {
             // no plugins -> no inline editors
             return;
         }
+        console.log("Init inline editors");
         const plugins = this.CMS._plugins;
 
         this.observer = this.observer || new IntersectionObserver( (entries) => {
@@ -128,50 +167,70 @@ class CMSEditor {
             threshold: 0.05
         });
 
+        let generic_inline_fields = document.getElementById('cms-generic-inline-fields') || {};
+        if (generic_inline_fields) {
+            generic_inline_fields = JSON.parse(generic_inline_fields.textContent || '{}');
+        }
+
         plugins.forEach(function (plugin) {
-            if (plugin[1].plugin_type === 'TextPlugin') {
+            if (plugin[1].type === 'plugin' || plugin[1].type === 'generic') {
+                // Either plugin or frontend editable element
                 const url = plugin[1].urls.edit_plugin;
                 const id = plugin[1].plugin_id;
-                const elements = document.querySelectorAll('.cms-plugin.cms-plugin-' + id);
                 let wrapper;
 
-                if (elements.length > 0) {
-                    if (elements.length === 1 && elements[0].tagName === 'DIV') {  // already wrapped?
-                        wrapper = elements[0];
-                        wrapper.classList.add('cms-editor-inline-wrapper');
-                    } else {  // no, wrap now!
-                        wrapper = document.createElement('div');
-                        wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
-                        wrapper = this._wrapAll(elements, wrapper);
-                        wrapper.classList.add('cms-plugin', 'cms-plugin-' + id);
-                        for (let child of wrapper.children) {
-                            child.classList.remove('cms-plugin', 'cms-plugin-' + id);
+                if (plugin[1].type === 'plugin' && plugin[1].plugin_type === 'TextPlugin') {
+                    // Text plugin
+                    const elements = document.querySelectorAll('.cms-plugin.cms-plugin-' + id);
+                    wrapper = this._initInlineRichText(elements, url, id);
+                    if (wrapper) {
+                        wrapper.dataset.cmsPluginId = id;
+                        wrapper.dataset.cmsType = 'TextPlugin';
+                    }
+                } else if (plugin[1].type === 'generic') {
+                    // Frontend editable element
+                    const edit_fields = new URL(url.replace('&amp;', '&'), 'https://random-base.org')
+                        .searchParams.get('edit_fields');  // Get the edit_fields parameter from the URL
+                    if (edit_fields && edit_fields.indexOf(',') === -1 && edit_fields !== 'changelist') {
+                        // Single field
+                        const generic_class = plugin[0].split('-');
+                        const search_key = `${generic_class[2]}-${generic_class[3]}-${edit_fields}`;
+                        if (generic_inline_fields[search_key]) {
+                            // Inline editable?
+                            wrapper = this._initInlineRichText(document.getElementsByClassName(plugin[0]), url, id);
+                            if (wrapper) {
+                                wrapper.dataset.cmsCsrfToken = this.CMS.config.csrf;
+                                wrapper.dataset.cmsField = edit_fields;
+                                wrapper.dataset.cmsType = (
+                                    generic_inline_fields[search_key] === 'HTMLFormField' ?
+                                        'HTMLField' : generic_inline_fields[search_key]
+                                );
+                                wrapper.dataset.settings = 'cms-cfg-htmlfield-inline';
+                            }
                         }
                     }
-                    wrapper.dataset.cmsEditUrl = url;
-                    wrapper.dataset.cmsPluginId = id;
+                }
 
+                if (wrapper) {
                     // Catch CMS single click event to highlight the plugin
                     // Catch CMS double click event if present, since double click is needed by Editor
+                    this.observer.observe(wrapper);
                     if (this.CMS) {
-                        this.CMS.$(wrapper).on('dblclick.cms-editor', function (event) {
+                        // Remove django CMS core's double click event handler which opens an edit dialog
+                        this.CMS.$(wrapper).off('dblclick.cms.plugin')
+                            .on('dblclick.cms-editor', function (event) {
                             event.stopPropagation();
                         });
-                        wrapper.addEventListener('focusin.cms-editor',  () => {
+                        wrapper.addEventListener('focusin.cms-editor', () => {
                             this._highlightTextplugin(id);
                         }, true);
+                        // Prevent tooltip on hover
+                        this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
+                            .on('pointerover.cms-editor', function (event) {
+                                window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
+                                event.stopPropagation();
+                            });
                     }
-
-                    // Prevent tooltip on hover
-                    document.addEventListener('pointerover.cms-editor', (event) => {
-                        // use time out to let other event handlers (CMS' !) run first.
-                        setTimeout(function () {
-                            // do not show tooltip on inline editing text fields.
-                            this.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
-                        }, 0);
-                    });
-
-                    this.observer.observe(wrapper);
                 }
             }
         }, this);
@@ -183,6 +242,30 @@ class CMSEditor {
                 return 'Do you really want to leave this page?';
             }
         });
+    }
+
+    _initInlineRichText(elements, url, id) {
+        let wrapper;
+
+        if (elements.length > 0) {
+            if (elements.length === 1 && elements[0].tagName === 'DIV' || elements[0].tagName === 'CMS-PLUGIN') {
+                // already wrapped?
+                wrapper = elements[0];
+                wrapper.classList.add('cms-editor-inline-wrapper');
+            } else {  // no, wrap now!
+                wrapper = document.createElement('div');
+                wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
+                wrapper = this._wrapAll(elements, wrapper);
+                wrapper.classList.add('cms-plugin', 'cms-plugin-' + id);
+                for (let child of wrapper.children) {
+                    child.classList.remove('cms-plugin', 'cms-plugin-' + id);
+                }
+            }
+            wrapper.dataset.cmsEditUrl = url;
+            return wrapper;
+        }
+        // No elements found
+        return undefined;
     }
 
     /**
@@ -206,7 +289,11 @@ class CMSEditor {
             document.getElementById('cms-cfg-' + el.dataset.cmsPluginId)
         );
         if (settings_el) {
-            this._editor_settings[el.id] = JSON.parse(settings_el.textContent);
+            this._editor_settings[el.id] = Object.assign(
+                {},
+                this._global_settings,
+                JSON.parse(settings_el.textContent) || {}
+            );
             return this._editor_settings[el.id];
         }
         return {};
@@ -219,40 +306,28 @@ class CMSEditor {
      */
     getInstalledPlugins() {
         if (this._editor_settings) {
-            return this.getSettings(Object.keys(this._editor_settings)[0]).installed_plugins;
+            return this.getSettings(Object.keys(this._editor_settings)[0]).installed_plugins || [];
         }
         return [];
-    }
-
-    // CMS Editor: init_all
-    initAll () {
-        // Save the active element
-        const active = document.activeElement;
-        // Get global options from script element
-        try {
-            this._options = JSON.parse(document.getElementById('cms-editor-cfg').textContent);
-        } catch (e) {
-            this._options = {};
-        }
-        // All textareas with class CMS_Editor: typically on admin site
-        document.querySelectorAll('textarea.CMS_Editor').forEach(
-            (el) => this.init(el), this
-        );
-        // Register all plugins on the page for inline editing
-        this.initInlineEditors();
-        // Re-focus the active element
-        if (active) {
-            active.focus();
-        }
     }
 
     // CMS Editor: destroy
     destroyAll() {
         while (this._editors.length) {
-            window.cms_editor_plugin.destroyEditor(this._editors.pop());
+            const el = this._editors.pop();
+            this.destroyGenericEditor(el);
+            window.cms_editor_plugin.destroyEditor(el);
         }
     }
 
+    // CMS Editor: destroyGenericEditor
+    destroyGenericEditor (el) {
+        if (el in this._generic_editors) {
+            this._generic_editors[el].destroy();
+            delete this._generic_editors[el];
+            this._generic_editors.pop(el);
+        }
+    }
 
     saveData(el, action) {
         if (el && el.dataset.changed === "true") {
@@ -261,23 +336,31 @@ class CMSEditor {
 
             let url = el.dataset.cmsEditUrl;
             let csrf = el.dataset.cmsCsrfToken;
+            let field = el.dataset.cmsField;
             if (this.CMS) {
                 this.CMS.API.Toolbar.showLoader();
                 url = this.CMS.API.Helpers.updateUrlWithPath(url);
                 csrf = this.CMS.config.csrf;
             }
 
+            let data = {
+                csrfmiddlewaretoken: csrf,
+                _save: 'Save'
+            };
+            if (field) {
+                // FormField data
+                data[field] = el.dataset.cmsType === 'HTMLField' ? html : el.textContent ;
+            } else {
+                // Plugin data
+                data.body = html;
+                data.json = JSON.stringify(json) || '';
+            }
+
             fetch(url, {
                 method: 'POST',
-                body: new URLSearchParams({
-                    csrfmiddlewaretoken: csrf,
-                    body: html,
-                    json: JSON.stringify(json) || '',
-                    _save: 'Save'
-                }),
+                body: new URLSearchParams(data),
             })
                 .then(response => {
-                        el.dataset.changed = 'false';
                         if (action !== undefined) {
                             action(el, response);
                         }
@@ -286,15 +369,74 @@ class CMSEditor {
                         }
                         return response.text();
                 }).then(body => {
-                    // Read the CMS databridge values from the response, either directly or from a script tag or
-                    //  from the response using regex.
+                    // If the edited field does not force a reload, read the CMS databridge values from the response,
+                    // either directly or from a script tag or from the response using regex.
                     // This depends on the exact format django CMS core returns it. This will need to be adjusted
                     // if the format changes.
                     // Fallback solution is to reload the page as djagocms-text-ckeditor used to do.
-                    const dom = document.createElement('div');
+                    const dom = document.createElement('html');
                     dom.innerHTML = body;
+                    const success_element = dom.querySelectorAll('div.messagelist > div.success').length > 0;
+                    if (!success_element) {
+                        el.dataset.changed = 'true';
+                        // Collect messages
+                        const domMessages = dom.querySelectorAll(
+                            `.field-${field ? field : 'body'} ul.errorlist > li`
+                        );
+                        let messages = [];
+                        domMessages.forEach((message) => {
+                            messages.push(message.textContent);
+                        });
+                        const domField = dom.querySelectorAll(
+                            `.field-${field ? field : 'body'} label`
+                        );
+                        if (messages.length === 0) {
+                            // Maybe CMS message from error.html?
+                            const errorDescription = dom.querySelector('form fieldset .description');
+                            if (errorDescription) {
+                                messages.push(errorDescription.textContent);
+                            }
+                        }
+                        if (messages.length > 0 && this.CMS) {
+                            this.CMS.API.Toolbar.hideLoader();
+                            this.CMS.API.Messages.open({
+                                message: (domField.length > 0 ? domField[0].textContent : '') + messages.join(', '),
+                                error: true,
+                                delay: -1,
+                            });
+                        }
+                        return;  // No databridge to evaluate
+                    }
+                    if (this.CMS) {
+                        // Success:
+                        // Remove an error message from a previous save attempt
+                        this.CMS.API.Messages.close();
+                        // Show messages if any
+                        const settings = this.getSettings(el);
+                        if (settings.messages_url) {
+                            fetch(settings.messages_url)
+                                .then(response => response.json())
+                                .then(messages => {
+                                    let error = "success", message_text = "";
+                                    for (let message of messages.messages) {
+                                        if (message.level_tag === "error") {
+                                            error = "error";
+                                        }
+                                        message_text += `<p>${message.message}</p>`;
+                                    }
+                                    if (message_text.length > 0) {
+                                        this.CMS.API.Messages.open({
+                                            message: message_text,
+                                            error: error === "error",
+                                        });
+                                    }
+                                });
+                        }
+
+                    }
                     const script = dom.querySelector('script#data-bridge');
-                    if (script) {
+                    el.dataset.changed = 'false';
+                    if (script && script.textContent.length > 2) {
                         this.CMS.API.Helpers.dataBridge = JSON.parse(script.textContent);
                     } else {
                         const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
@@ -303,17 +445,19 @@ class CMSEditor {
                             this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
                             this.CMS.API.Helpers.dataBridge.structure = JSON.parse(regex2[1]);
                         } else {
-                            // No databridge found
-                            // Reload
+                            // No databridge found: reload
                             this.CMS.API.Helpers.reloadBrowser('REFRESH_PAGE');
                             return;
                         }
                     }
                     this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
-                    this._loadToolbar();
+                    if (this.CMS.settings.version < "4") {
+                        /* Reflect dirty flag in django CMS < 4 */
+                        this._loadToolbar();
+                    }
                 })
                 .catch(error => {
-                        el.dataset.changed = 'true';
+                    el.dataset.changed = 'true';
                     if (this.CMS) {
                         this.CMS.API.Toolbar.hideLoader();
                         this.CMS.API.Messages.open({
@@ -373,7 +517,7 @@ class CMSEditor {
             }
 
             //
-            let saveSuccess = !!form.querySelector('.messagelist :not(.error)');
+            let saveSuccess = !!form.querySelector('div.messagelist div.success');
             if (!saveSuccess) {
                 saveSuccess =
                     !!form.querySelector('.dashboard #content-main') &&
@@ -504,6 +648,7 @@ class CMSEditor {
         return wrapper;
     }
 }
+
 
 // Create global editor object
 window.CMS_Editor = new CMSEditor();

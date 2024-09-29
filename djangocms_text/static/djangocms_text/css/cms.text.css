@@ -89,7 +89,7 @@ dialog.cms-form-dialog {
         cursor: unset;  /* browser default */
     }
     z-index: 1001;
-    position: fixed;
+    position: absolute;
     margin: unset;
     left: auto;
     transform: translate(-50%, -50%);

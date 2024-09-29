@@ -1,10 +1,25 @@
 /* eslint-env es6 */
-/* jshint esversion: 6 */
+/* jshint esversion: 9 */
 /* global document, window, console */
 
 import { Node } from '@tiptap/core';
 import CmsDialog from "../cms.dialog.js";
 import TiptapToolbar from "./cms.tiptap.toolbar";
+
+const blockTags = ((str) => str.toUpperCase().substring(1, str.length-1).split("><"))(
+    "<address><article><aside><blockquote><canvas><dd><div><dl><dt><fieldset><figcaption><figure><footer><form>" +
+    "<h1><h2><h3><h4><h5><h6><header><hr><li><main><nav><noscript><ol><p><pre><section><table><tfoot><ul><video>"
+);
+
+
+function getNodeType(plugin) {
+    'use strict';
+    if (plugin) {
+        return blockTags.includes(plugin.tagName) ? 'cmsBlockPlugin': 'cmsPlugin';
+    }
+    return 'cmsPlugin';
+}
+
 
 function addCmsPluginDialog(editor, pluginType, selectionText) {
     'use strict';
@@ -14,7 +29,7 @@ function addCmsPluginDialog(editor, pluginType, selectionText) {
             window.CMS_Editor.requestPluginMarkup(data.plugin_id, editor.options.el)
                 .then(markup => {
                     const ghost = document.createElement("div");
-                    ghost.innerHTML = markup;
+                    ghost.innerHTML = markup || "<cms-plugin></cms-plugin>";
 
                     const plugin = ghost.firstChild;
 
@@ -22,8 +37,10 @@ function addCmsPluginDialog(editor, pluginType, selectionText) {
                     Array.from(plugin.attributes).forEach(attr => {
                         attrs[attr.name] = attr.value;
                     });
+                    attrs["data-node"] = getNodeType(plugin.firstElementChild);
+
                     editor.chain().focus().insertContent({
-                        type: 'cmsPlugin',
+                        type: getNodeType(plugin.firstElementChild),
                         attrs: {
                             HTMLAttributes: attrs,
                             HTMLContent: plugin.innerHTML,
@@ -56,9 +73,11 @@ function editCmsPluginDialog(editor, id, position) {
                     Array.from(plugin.attributes).forEach(attr => {
                         attrs[attr.name] = attr.value;
                     });
+                    attrs["data-node"] = getNodeType(plugin.firstElementChild);
 
                     let transaction = editor.state.tr;
-                    transaction.setNodeMarkup(position, null, {
+                    let node = editor.schema.nodes[getNodeType(plugin.firstElementChild)];
+                    transaction.setNodeMarkup(position, node, {
                         HTMLAttributes: attrs,
                         HTMLContent: plugin.innerHTML,
                         type: attrs.type
@@ -99,7 +118,6 @@ function renderCmsPluginMenu(editor, item, filter) {
             dropdown += `<em class="header">${module}</em>`;
         }
         dropdown += `<button data-cmsplugin="${plugin.value}" data-action="CMSPlugins">${plugin.icon || '<span class="icon"></span>'}${plugin.name}</button>`;
-        console.log(plugin);
     }
     return `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content vertical plugins">${dropdown}</div></span>`;
 
@@ -107,45 +125,23 @@ function renderCmsPluginMenu(editor, item, filter) {
 
 TiptapToolbar['CMSPlugins'].render = renderCmsPluginMenu;
 
-
-export default Node.create({
-
-    name: 'cmsPlugin',
+// Common node properties for both inline and block nodes
+const cmsPluginNodes = {
+    addAttributes() {
+        'use strict';
+        return {
+            HTMLAttributes: {},
+            HTMLContent: null,
+            HTMLBlock: false,
+            type: "",
+        };
+    },
 
     addOptions() {
         'use strict';
         return {
             editor: null,
         };
-    },
-
-    addAttributes() {
-        'use strict';
-        return {
-            HTMLAttributes: {},
-            HTMLContent: null,
-            type: "",
-        };
-    },
-
-    group() {
-        'use strict';
-        let group = 'inline';
-        try {
-            group = this.firstChild.type.spec.group;
-        } catch (e) {
-            console.warn(e);
-        }
-        console.log("group", group);
-        return group;
-    },
-
-    inline() {
-        'use strict';
-        try {
-            return this.firstChild.type.spec.inline.contains('inline');
-        } catch (e) { }
-        return true;
     },
 
     atom: true,
@@ -163,6 +159,11 @@ export default Node.create({
                     Array.from(dom.attributes).forEach(attr => {
                         attrs[attr.name] = attr.value;
                     });
+                    if (getNodeType(dom.firstElementChild) !== this.name) {
+                        // Node types need to match
+                        return false;
+                    }
+                    attrs['data-node'] = this.name;
                     // return attributes and content
                     return {
                         HTMLAttributes: attrs,
@@ -175,6 +176,8 @@ export default Node.create({
     },
 
     renderHTML({node}) {
+        // render the node as HTML
+        // If a block HTML tag comes, wrap it in a span to avoid issues with the editor
         return [
             'cms-plugin',
             node.attrs.HTMLAttributes,
@@ -195,6 +198,7 @@ export default Node.create({
             for (const [attr, value] of Object.entries(node.attrs.HTMLAttributes)) {
                 dom.setAttribute(attr, value);
             }
+
             // Capture and stop click events
             dom.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -242,5 +246,22 @@ export default Node.create({
             },
         };
     },
+};
+
+const CmsPluginNode = Node.create({
+    ...cmsPluginNodes,
+
+    name: 'cmsPlugin',
+    inline: () => true,
+    group:() => 'inline',
 });
 
+const CmsBlockPluginNode = Node.create({
+    ...cmsPluginNodes,
+
+    name: 'cmsBlockPlugin',
+    inline: () => false,
+    group: () => 'block',
+});
+
+export { CmsPluginNode, CmsBlockPluginNode, CmsPluginNode as default };

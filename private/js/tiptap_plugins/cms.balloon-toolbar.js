@@ -37,7 +37,7 @@ export default class CmsBalloonToolbar {
         this.form = null;
         this.toolbar = document.createElement('div');
         this.toolbar.classList.add('cms-balloon');
-        this.toolbar.style.zIndex = editor.options.baseFloatZIndex || 10000000;  //
+        this.toolbar.style.zIndex = editor.options.baseFloatZIndex || 1000000;  //
         this.toolbar.innerHTML = this._menu_icon;
 
         editor.options.el.prepend(this.toolbar);
@@ -82,7 +82,6 @@ export default class CmsBalloonToolbar {
                 this.form.open();
             }
         });
-        this.ref = editor.options.el.getBoundingClientRect();
         editor.on('selectionUpdate', () => this._showToolbar());
         editor.on('blur', () => this._showToolbar());
         editor.on('destroy', () => this.remove());
@@ -117,14 +116,20 @@ export default class CmsBalloonToolbar {
             }
             depth -= 1;
         }
-        depth = 1;  // TODO: Decide which works better: First level, or highest level with block node
-        this._updateToolbarIcon(resolvedPos.node(depth));
-        const startPos = resolvedPos.start(depth);
-        this.toolbar.dataset.block = startPos;
-        const pos = this.editor.view.coordsAtPos(startPos);
-        this.toolbar.style.insetBlockStart = `${pos.top + window.scrollY - this.ref.top}px`;
+        if (depth > 0) {
+            this._updateToolbarIcon(resolvedPos.node(depth));
+            const startPos = resolvedPos.start(depth);
+            this.toolbar.dataset.block = startPos;
+            const pos = this.editor.view.coordsAtPos(startPos);
+            const ref = this.editor.options.el.getBoundingClientRect();
+
+            this.toolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
+            this.toolbar.style.display = 'block';
+        } else {
+            this.toolbar.style.display = 'none';
+        }
         // TODO: Set the size of the balloon according to the fontsize
-        //  this.toolbar.style.setProperty('--size', this.editor.view. ...)
+        // this.toolbar.style.setProperty('--size', this.editor.view. ...)
     }
 
     _getResolvedPos() {
@@ -141,7 +146,6 @@ export default class CmsBalloonToolbar {
         if (type in this._node_icons) {
             this.toolbar.innerHTML = this._node_icons[type];
         } else {
-            console.log(type);
             this.toolbar.innerHTML = this._menu_icon;
         }
     }

@@ -119,7 +119,7 @@ class HTMLDynamicAttriutesTest(TestFixture, CMSTestCase):
             page.get_absolute_url(),
             "/en/page/",
         )
-        dynamic_html = f'<a data-cms-href="cms.page:{page.pk + 1}">Link</a>'
+        dynamic_html = '<a data-cms-href="cms.page:0">Link</a>'
 
         result = render_dynamic_attributes(dynamic_html)
         self.assertEqual(

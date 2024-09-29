@@ -2,7 +2,6 @@ import copy
 import json
 import re
 import unittest
-from unittest import skipIf
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -975,7 +974,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         endpoint = admin_reverse('djangocms_text_textplugin_get_available_urls')
 
         with self.login_user_context(self.superuser):
-            result = self.client.get(endpoint + f'?q=test')
+            result = self.client.get(endpoint + '?q=test')
 
         self.assertEqual(
             result.json()["results"],

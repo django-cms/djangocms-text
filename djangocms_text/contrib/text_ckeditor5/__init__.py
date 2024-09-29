@@ -6,4 +6,5 @@ ckeditor5 = RTEConfig(
     config="CKEDITOR5",
     js=("djangocms_text/bundles/bundle.ckeditor5.min.js",),
     css={"all": ("djangocms_text/css/cms.ckeditor5.css",)},
+    inline_editing=True,
 )

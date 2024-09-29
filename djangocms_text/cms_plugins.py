@@ -10,7 +10,12 @@ from django.core.exceptions import PermissionDenied, ValidationError, FieldError
 from django.db import transaction
 from django.forms.fields import CharField
 from django.http import (
-    Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect, JsonResponse,
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    HttpResponseRedirect,
+    JsonResponse,
 )
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
@@ -29,9 +34,11 @@ from .settings import TEXT_CHILDREN_ENABLED
 
 try:
     from cms.models import PageContent
+
     _version = 4
 except ImportError:
     from cms.models import Title as PageContent
+
     _version = 3
 
 from cms.plugin_base import CMSPluginBase
@@ -44,8 +51,15 @@ from .forms import ActionTokenValidationForm, RenderPluginForm, TextForm
 from .html import render_dynamic_attributes
 from .models import Text
 from .utils import (
-    OBJ_ADMIN_WITH_CONTENT_RE_PATTERN, _plugin_tags_to_html, cms_placeholder_add_plugin, plugin_tags_to_admin_html,
-    plugin_tags_to_id_list, plugin_tags_to_user_html, plugin_to_tag, random_comment_exempt, replace_plugin_tags,
+    OBJ_ADMIN_WITH_CONTENT_RE_PATTERN,
+    _plugin_tags_to_html,
+    cms_placeholder_add_plugin,
+    plugin_tags_to_admin_html,
+    plugin_tags_to_id_list,
+    plugin_tags_to_user_html,
+    plugin_to_tag,
+    random_comment_exempt,
+    replace_plugin_tags,
 )
 from .widgets import TextEditorWidget, rte_config
 
@@ -98,16 +112,12 @@ def pre_change_plugin(operation, **kwargs):
     # have already been set on the database when this pre operation
     # is executed.
     old_tree = (
-        old_text_plugin.cmsplugin_set.filter(pk__in=old_plugin_ids)
-        .order_by("position")
-        .values_list("pk", flat=True)
+        old_text_plugin.cmsplugin_set.filter(pk__in=old_plugin_ids).order_by("position").values_list("pk", flat=True)
     )
     old_tree = list(old_tree)
 
     new_tree = (
-        new_text_plugin.cmsplugin_set.filter(pk__in=new_plugin_ids)
-        .order_by("position")
-        .values_list("pk", flat=True)
+        new_text_plugin.cmsplugin_set.filter(pk__in=new_plugin_ids).order_by("position").values_list("pk", flat=True)
     )
     new_tree = list(new_tree)
 
@@ -122,11 +132,7 @@ def pre_change_plugin(operation, **kwargs):
             "parent_id": old_text_plugin.pk,
         }
 
-        post_plugin_data = [
-            get_plugin_data(plugin)
-            for plugin in bound_plugins
-            if plugin.pk in added_plugin_ids
-        ]
+        post_plugin_data = [get_plugin_data(plugin) for plugin in bound_plugins if plugin.pk in added_plugin_ids]
         post_action_data = {
             "order": new_tree,
             "parent_id": old_text_plugin.pk,
@@ -144,9 +150,7 @@ def pre_change_plugin(operation, **kwargs):
 
     if deleted_plugin_ids:
         order += 1
-        deleted_plugins = [
-            plugin for plugin in bound_plugins if plugin.pk in deleted_plugin_ids
-        ]
+        deleted_plugins = [plugin for plugin in bound_plugins if plugin.pk in deleted_plugin_ids]
         pre_plugin_data = [get_plugin_data(plugin) for plugin in deleted_plugins]
         pre_action_data = {
             "order": old_tree,
@@ -154,9 +158,7 @@ def pre_change_plugin(operation, **kwargs):
             "plugins": pre_plugin_data,
         }
 
-        post_plugin_data = [
-            get_plugin_data(plugin, only_meta=True) for plugin in deleted_plugins
-        ]
+        post_plugin_data = [get_plugin_data(plugin, only_meta=True) for plugin in deleted_plugins]
         post_action_data = {
             "order": new_tree,
             "parent_id": old_text_plugin.pk,
@@ -210,23 +212,16 @@ class TextPlugin(CMSPluginBase):
             content = getattr(obj, field) if field else ""
             return plugin_to_tag(obj, content)
 
-        content = _plugin_tags_to_html(
-            plugin_data[field], output_func=_render_plugin_with_content
-        )
+        content = _plugin_tags_to_html(plugin_data[field], output_func=_render_plugin_with_content)
         subplugins_within_this_content = plugin_tags_to_id_list(content)
         return content, subplugins_within_this_content
 
     @staticmethod
     def set_translation_import_content(content, plugin):
-        data = [
-            x.groups() for x in re.finditer(OBJ_ADMIN_WITH_CONTENT_RE_PATTERN, content)
-        ]
+        data = [x.groups() for x in re.finditer(OBJ_ADMIN_WITH_CONTENT_RE_PATTERN, content)]
         data = {int(pk): value for pk, value in data}
 
-        return {
-            subplugin_id: data[subplugin_id]
-            for subplugin_id in plugin_tags_to_id_list(content)
-        }
+        return {subplugin_id: data[subplugin_id] for subplugin_id in plugin_tags_to_id_list(content)}
 
     def get_editor_widget(self, request, plugins, plugin):
         """
@@ -288,12 +283,8 @@ class TextPlugin(CMSPluginBase):
                     body_css_class = ""
                     if getattr(plugin_class, "child_ckeditor_body_css_class", False):
                         body_css_class = plugin_class.child_ckeditor_body_css_class
-                    if getattr(
-                        plugin_class, "get_child_ckeditor_body_css_class", False
-                    ):
-                        body_css_class = plugin_class.get_child_ckeditor_body_css_class(
-                            parent_current
-                        )
+                    if getattr(plugin_class, "get_child_ckeditor_body_css_class", False):
+                        body_css_class = plugin_class.get_child_ckeditor_body_css_class(parent_current)
 
                     if body_css_class and (body_css_class not in css_classes):
                         css_classes += " " + body_css_class
@@ -355,8 +346,10 @@ class TextPlugin(CMSPluginBase):
             # CMS >= 3.4 compatibility
             self.cms_plugin_instance = self._get_plugin_or_404(request.GET["plugin"])
 
-        if not settings.TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support or getattr(
-            self, "cms_plugin_instance", None
+        if (
+            not settings.TEXT_CHILDREN_ENABLED
+            or not rte_config.child_plugin_support
+            or getattr(self, "cms_plugin_instance", None)
         ):
             # This can happen if the user did not properly cancel the plugin
             # and so a "ghost" plugin instance is left over.
@@ -481,8 +474,7 @@ class TextPlugin(CMSPluginBase):
         # The following is needed for permission checking
         plugin_class.opts = plugin_class.model._meta
         if not (
-            plugin_class.has_add_permission(request)
-            and text_plugin.placeholder.has_change_permission(request.user)  # noqa
+            plugin_class.has_add_permission(request) and text_plugin.placeholder.has_change_permission(request.user)  # noqa
         ):
             raise PermissionDenied
 
@@ -526,15 +518,27 @@ class TextPlugin(CMSPluginBase):
         language = get_language_from_request(request)
         if _version >= 4:
             try:
-                qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
-                      .current_content()
-                      .order_by("page__path"))
+                # django CMS 4.2+
+                qs = list(
+                    PageContent.admin_manager.filter(language=language, title__icontains=search)
+                    .current_content()
+                    .order_by("page__path")
+                )
             except FieldError:
-                qs = list(PageContent.admin_manager.filter(language=language, title__icontains=search)
-                      .current_content()
-                      .order_by("page__node__path"))
+                # django CMS 4.0 - 4.1
+                qs = list(
+                    PageContent.admin_manager.filter(language=language, title__icontains=search)
+                    .current_content()
+                    .order_by("page__node__path")
+                )
         else:
-            qs = list(PageContent.objects.filter(language=language, title__icontains=search).order_by("page__node__path"))
+            # django CMS 3
+            qs = [
+                title.page
+                for title in PageContent.objects.filter(language=language, title__icontains=search).order_by(
+                    "page__node__path"
+                )
+            ]
 
         urls = {
             "results": [
@@ -543,12 +547,13 @@ class TextPlugin(CMSPluginBase):
                     "children": [
                         {
                             "text": " " * (0 if search else len(page_content.page.node.path) // 4 - 1)
-                                    + page_content.title,
+                            + page_content.title,
                             "url": page_content.get_absolute_url(),
                             "id": f"cms.page:{page_content.page.pk}",
                             "verbose": page_content.title,
-                        } for page_content in qs
-                    ]
+                        }
+                        for page_content in qs
+                    ],
                 }
             ]
         }
@@ -557,11 +562,18 @@ class TextPlugin(CMSPluginBase):
     def get_messages(self, request):
         """Serve the messages that the admin might have started piling"""
         messages = get_messages(request)
-        return JsonResponse({"messages": [{
-            "message": message.message,
-            "level": message.level,
-            "level_tag": message.level_tag,
-        } for message in messages]})
+        return JsonResponse(
+            {
+                "messages": [
+                    {
+                        "message": message.message,
+                        "level": message.level,
+                        "level_tag": message.level_tag,
+                    }
+                    for message in messages
+                ]
+            }
+        )
 
     @classmethod
     def get_child_plugin_candidates(cls, slot, page):
@@ -583,16 +595,12 @@ class TextPlugin(CMSPluginBase):
         # Filter out plugins that are not in the whitelist if given
         if settings.TEXT_CHILDREN_WHITELIST is not None:
             text_enabled_plugins = [
-                plugin
-                for plugin in text_enabled_plugins
-                if plugin.__name__ in settings.TEXT_CHILDREN_WHITELIST
+                plugin for plugin in text_enabled_plugins if plugin.__name__ in settings.TEXT_CHILDREN_WHITELIST
             ]
         # Filter out plugins that are in the blacklist
         if settings.TEXT_CHILDREN_BLACKLIST:
             text_enabled_plugins = [
-                plugin
-                for plugin in text_enabled_plugins
-                if plugin.__name__ not in settings.TEXT_CHILDREN_BLACKLIST
+                plugin for plugin in text_enabled_plugins if plugin.__name__ not in settings.TEXT_CHILDREN_BLACKLIST
             ]
         return text_enabled_plugins
 
@@ -616,12 +624,8 @@ class TextPlugin(CMSPluginBase):
         child_plugins = (get_plugin(name) for name in child_plugin_types)
         template = getattr(self.page, "template", None)
 
-        modules = get_placeholder_conf(
-            "plugin_modules", plugin.placeholder.slot, template, default={}
-        )
-        names = get_placeholder_conf(
-            "plugin_labels", plugin.placeholder.slot, template, default={}
-        )
+        modules = get_placeholder_conf("plugin_modules", plugin.placeholder.slot, template, default={})
+        names = get_placeholder_conf("plugin_labels", plugin.placeholder.slot, template, default={})
         main_list = []
 
         # plugin.value points to the class name of the plugin
@@ -668,15 +672,11 @@ class TextPlugin(CMSPluginBase):
         request = context.get("request")
         if self.inline_editing_active(request):
             with override(request.toolbar.toolbar_language):
-                widget = self.get_editor_widget(
-                    context["request"], self.get_plugins(instance), instance
-                )
+                widget = self.get_editor_widget(context["request"], self.get_plugins(instance), instance)
                 editor_settings = widget.get_editor_settings(request.toolbar.toolbar_language.split("-")[0])
                 global_settings = widget.get_global_settings(request.toolbar.toolbar_language.split("-")[0])
 
-            body = render_dynamic_attributes(
-                instance.body, admin_objects=True, remove_attr=False
-            )
+            body = render_dynamic_attributes(instance.body, admin_objects=True, remove_attr=False)
 
             context.update(
                 {
@@ -690,9 +690,7 @@ class TextPlugin(CMSPluginBase):
                 }
             )
         else:
-            body = render_dynamic_attributes(
-                instance.body, admin_objects=False, remove_attr=True
-            )
+            body = render_dynamic_attributes(instance.body, admin_objects=False, remove_attr=True)
             context.update(
                 {
                     "body": plugin_tags_to_user_html(body, context),
@@ -735,9 +733,7 @@ class TextPlugin(CMSPluginBase):
 
     def _get_plugin_or_404(self, pk):
         plugin_type = self.__class__.__name__
-        plugins = CMSPlugin.objects.select_related("placeholder", "parent").filter(
-            plugin_type=plugin_type
-        )
+        plugins = CMSPlugin.objects.select_related("placeholder", "parent").filter(plugin_type=plugin_type)
 
         field = self.model._meta.pk
 

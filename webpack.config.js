@@ -16,7 +16,6 @@ module.exports = {
         editor: './private/js/cms.editor.js',
         tiptap: './private/js/cms.tiptap.js',
         tinymce: './private/js/cms.tinymce.js',
-        ckeditor5: './private/js/cms.ckeditor5.js',
         ckeditor4: './private/js/cms.ckeditor4.js',
         quill: './private/js/cms.quill.js',
     },
@@ -54,18 +53,6 @@ module.exports = {
                             }
                         }
                     },
-                    'css-loader',
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: styles.getPostCssConfig({
-                                themeImporter: {
-                                    themePath: require.resolve('@ckeditor/ckeditor5-theme-lark')
-                                },
-                                minify: true
-                            })
-                        }
-                    }
                 ]
             },
             {

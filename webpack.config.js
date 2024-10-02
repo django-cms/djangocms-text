@@ -1,6 +1,5 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const {styles} = require('@ckeditor/ckeditor5-dev-utils');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 
@@ -9,7 +8,6 @@ const distribution = {
     tiptap: 'static/djangocms_text/',
     tinymce: 'contrib/text_tinymce/static/djangocms_text/',
     ckeditor4: 'contrib/text_ckeditor4/static/djangocms_text/',
-    ckeditor5: 'contrib/text_ckeditor5/static/djangocms_text/',
     quill: 'contrib/text_quill/static/djangocms_text/',
 };
 
@@ -18,7 +16,6 @@ module.exports = {
         editor: './private/js/cms.editor.js',
         tiptap: './private/js/cms.tiptap.js',
         tinymce: './private/js/cms.tinymce.js',
-        ckeditor5: './private/js/cms.ckeditor5.js',
         ckeditor4: './private/js/cms.ckeditor4.js',
         quill: './private/js/cms.quill.js',
     },
@@ -56,18 +53,6 @@ module.exports = {
                             }
                         }
                     },
-                    'css-loader',
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: styles.getPostCssConfig({
-                                themeImporter: {
-                                    themePath: require.resolve('@ckeditor/ckeditor5-theme-lark')
-                                },
-                                minify: true
-                            })
-                        }
-                    }
                 ]
             },
             {

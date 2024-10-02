@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.3.1 (02-10-2024)
+==================
+
+* feat: Moved CKEditor 5 code to https://github.com/django-cms/djangocms-text-ckeditor5
+  due to licensing issues
+
+
 0.3.0 (26-09-2024)
 ==================
 

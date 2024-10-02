@@ -109,9 +109,10 @@ needed. The following editors are currently supported:
   CKEditor 4 interface and child plugin functionality. This editor is compatible with
   the ``djangocms-text-ckeditor`` plugin, and can be used as a drop-in replacement.
   It supports inline editing and text-enabled plugins.
-- **CKEditor 5**: The current version of CKEditor might be supported in a future
-  release of ``djangocms-text`` or as a separate package. Its current
-  implementation does not support text-enabled plugins or dynamic attributes.
+- **CKEditor 5**: To keep licenses separated, there is a
+  `separate package <https://github.com/django-cms/djangocms-text-ckeditor5>`_
+  ``djangocms-text-ckeditor5`` which provides CKEditor 5 as a rich text editor.
+
 
 Contributing
 ------------
@@ -123,7 +124,7 @@ License
 -------
 
 This project is licensed under the BSD-3-Clause License - see the LICENSE file for
-details. The CKEditor 5 interface is licensed under the GPL-2.0 License.
+details.
 
 Configuration
 -------------

@@ -146,8 +146,6 @@ Example::
     DJANGOCMS_TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor5.ckeditor4"
 
 
-Other rich text editors may be available, e.g. CKEditor 5 in ``extension_text_ckeditor5``.
-
 
 Inline editing feature
 ~~~~~~~~~~~~~~~~~~~~~~

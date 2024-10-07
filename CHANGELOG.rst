@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.3.2 (07-10-2024)
+==================
+
+* fix: Improve inline editing experience for django CMS v3
+
+
 0.3.1 (02-10-2024)
 ==================
 

@@ -30,7 +30,6 @@ class CMSEditor {
 
             if (this.CMS) {
                 // Only needs to happen on the main window.
-                console.log("Refresh established");
                 this.CMS.$(window).on('cms-content-refresh', () => {
                     if (document.querySelector('template.cms-plugin')) {
                         // django CMS core does not wrap newly inserted inline editable fields
@@ -153,8 +152,6 @@ class CMSEditor {
             // no plugins -> no inline editors
             return;
         }
-        console.log("Init inline editors");
-        const plugins = this.CMS._plugins;
 
         this.observer = this.observer || new IntersectionObserver( (entries) => {
             entries.forEach((entry) => {
@@ -172,7 +169,7 @@ class CMSEditor {
             generic_inline_fields = JSON.parse(generic_inline_fields.textContent || '{}');
         }
 
-        plugins.forEach(function (plugin) {
+        this.CMS._plugins.forEach(function (plugin) {
             if (plugin[1].type === 'plugin' || plugin[1].type === 'generic') {
                 // Either plugin or frontend editable element
                 const url = plugin[1].urls.edit_plugin;
@@ -256,10 +253,6 @@ class CMSEditor {
                 wrapper = document.createElement('div');
                 wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
                 wrapper = this._wrapAll(elements, wrapper);
-                wrapper.classList.add('cms-plugin', 'cms-plugin-' + id);
-                for (let child of wrapper.children) {
-                    child.classList.remove('cms-plugin', 'cms-plugin-' + id);
-                }
             }
             wrapper.dataset.cmsEditUrl = url;
             return wrapper;
@@ -450,10 +443,17 @@ class CMSEditor {
                             return;
                         }
                     }
-                    this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
                     if (this.CMS.settings.version < "4") {
                         /* Reflect dirty flag in django CMS < 4 */
+                        try {
+                            /* For some reason, in v3 this fails if the structure board is not open */
+                            this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
+                        } catch (e) {
+                            console.error(e);
+                        }
                         this._loadToolbar();
+                    } else {
+                        this.CMS.API.StructureBoard.handleEditPlugin(this.CMS.API.Helpers.dataBridge);
                     }
                 })
                 .catch(error => {
@@ -467,6 +467,7 @@ class CMSEditor {
                         });
                     }
                     window.console.error(error.message);
+                    window.console.log(error.stack);
                 });
         }
     }
@@ -584,14 +585,12 @@ class CMSEditor {
     // CMS Editor: loadToolbar
     // Load the toolbar after saving for update
     _loadToolbar () {
-        if (this.CMS) {
-            const $ = this.CMS.$;
-            this.CMS.API.StructureBoard._loadToolbar()
-                .done((newToolbar) => {
-                    this.CMS.API.Toolbar._refreshMarkup($(newToolbar).find('.cms-toolbar'));
-                })
-                .fail(() => this.CMS.API.Helpers.reloadBrowser());
-        }
+        const $ = this.CMS.$;
+        this.CMS.API.StructureBoard._loadToolbar()
+            .done((newToolbar) => {
+                this.CMS.API.Toolbar._refreshMarkup($(newToolbar).find('.cms-toolbar'));
+            })
+            .fail(() => this.CMS.API.Helpers.reloadBrowser());
     }
 
     _highlightTextplugin (pluginId) {

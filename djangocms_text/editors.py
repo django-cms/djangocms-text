@@ -332,7 +332,7 @@ DEFAULT_TOOLBAR_CMS = [
     ["JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock"],
     ["NumberedList", "BulletedList"],
     ["HorizontalRule", "CodeBlock"],
-    ["Outdent", "Indent", "-", "Blockquote", "-", "Link", "Unlink", "-", "Table"],
+    ["Outdent", "Indent", "-", "Blockquote", "-", "Link", "Unlink",],
     ["ImagePlugin"],
     ["Source"],
 ]
@@ -359,7 +359,7 @@ DEFAULT_TOOLBAR_HTMLField = [
     ["Link", "Unlink"],
     ["NumberedList", "BulletedList"],
     ["HorizontalRule", "CodeBlock"],
-    ["Outdent", "Indent", "-", "Blockquote", "-", "Table"],
+    ["Outdent", "Indent", "-", "Blockquote"],
     ["Source"],
 ]
 

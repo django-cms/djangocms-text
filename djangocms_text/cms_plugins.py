@@ -535,7 +535,7 @@ class TextPlugin(CMSPluginBase):
             # django CMS 3
             qs = list(
                 PageContent.objects.filter(language=language, title__icontains=search).order_by("page__node__path")
-                )
+            )
             for page_content in qs:
                 # Patch the missing get_absolute_url method
                 page_content.get_absolute_url = lambda: page_content.page.get_absolute_url()

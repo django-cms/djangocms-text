@@ -9,7 +9,6 @@ from django.template.loader import render_to_string
 from cms import __version__
 
 from classytags.utils import flatten_context
-from django.urls.exceptions import NoReverseMatch
 from packaging.version import Version
 
 

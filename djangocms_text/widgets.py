@@ -74,7 +74,7 @@ class TextEditorWidget(forms.Textarea):
         attrs["data-settings"] = self.editor_settings_id
         super().__init__(attrs)
 
-        self.installed_plugins = installed_plugins or [] # general
+        self.installed_plugins = installed_plugins or []  # general
         self.pk = pk  # specific
         self.placeholder = (
             placeholder.pk if isinstance(placeholder, models.Model) else placeholder

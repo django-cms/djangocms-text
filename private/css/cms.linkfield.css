@@ -34,7 +34,7 @@
                 font-size: 0.8rem;
             }
             div {
-                padding: 0.5rem 6px;
+                padding: 0.3rem 6px;
                 white-space: nowrap;
                 font-weight: normal;
                 border-block-end: 1px solid var(--dca-gray-lighter);
@@ -44,6 +44,10 @@
                 &.cms-linkfield-parent {
                     font-weight: bold;
                     background: var(--dca-gray-lightest);
+                }
+                &.cms-linkfield-message {
+                    font-style: italic;
+                    color: var(--dca-gray);
                 }
                 &.cms-linkfield-option:hover {
                     background: var(--dca-primary);

@@ -253,7 +253,7 @@ def render_dynamic_attributes(
     for elem in update_queue:
         for attr, value in elem.attrib.items():
             if attr.startswith(prefix):
-                target_attr = attr[len(prefix) :]
+                target_attr = attr[len(prefix):]
                 try:
                     model, pk = value.rsplit(":", 1)
                     obj = from_db[model.strip()][int(pk.strip())]
@@ -267,6 +267,7 @@ def render_dynamic_attributes(
     doc = doc.removeprefix("<html>").removesuffix("</html>")  # remove html tags added by lxml
     doc = doc.removeprefix("<body>").removesuffix("</body>")  # remove body tags added by lxml
     return doc
+
 
 def register_attr(attr: str, render_func: callable) -> None:
     dynamic_attr_pool[attr] = render_func

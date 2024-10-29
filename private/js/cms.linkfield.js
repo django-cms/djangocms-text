@@ -88,7 +88,7 @@ class LinkField {
             item.classList.add('cms-linkfield-option');
             item.setAttribute('data-value', result.id);
             item.setAttribute('data-href', result.url);
-            item.setAttribute('data-text', result.verbose);
+            item.setAttribute('data-text', result.verbose || result.text);
             item.addEventListener('click', this.handleSelection.bind(this));
         }
         if (result.children && result.children.length > 0) {

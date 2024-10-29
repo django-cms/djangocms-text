@@ -2,30 +2,31 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 # Translators:
 # Scott Jiang, 2024
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-15 12:43+0100\n"
+"POT-Creation-Date: 2024-10-27 21:26+0100\n"
 "PO-Revision-Date: 2024-02-15 10:49+0000\n"
 "Last-Translator: Scott Jiang, 2024\n"
-"Language-Team: Chinese (China) (https://app.transifex.com/divio/teams/58664/zh_CN/)\n"
+"Language-Team: Chinese (China) (https://app.transifex.com/divio/teams/58664/"
+"zh_CN/)\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: cms_plugins.py:386
+#: cms_plugins.py:370
 msgid "You do not have permission to add a plugin."
 msgstr "你没有加入插件的权限"
 
-#: cms_plugins.py:449
+#: cms_plugins.py:434
 msgid "Unable to process your request. Invalid token."
 msgstr "无法处理您的请求，无效电凭"
 
@@ -33,175 +34,187 @@ msgstr "无法处理您的请求，无效电凭"
 msgid "Toggle inline editing mode for text plugins"
 msgstr "切换到锲入式文本插件的编辑模式"
 
-#: editor_toolbars.py:29
+#: editors.py:31
 msgid "Undo"
 msgstr "撤消更改"
 
-#: editor_toolbars.py:33
+#: editors.py:35
 msgid "Redo"
 msgstr "复原更改"
 
-#: editor_toolbars.py:37
+#: editors.py:39
 msgid "Bold"
 msgstr "粗体"
 
-#: editor_toolbars.py:43
+#: editors.py:45
 msgid "Italic"
 msgstr "斜体"
 
-#: editor_toolbars.py:49
+#: editors.py:51
 msgid "Underline"
 msgstr "底线"
 
-#: editor_toolbars.py:55
+#: editors.py:57
 msgid "Strike"
 msgstr "字中横线"
 
-#: editor_toolbars.py:59
+#: editors.py:61
 msgid "Subscript"
 msgstr "下标"
 
-#: editor_toolbars.py:65
+#: editors.py:67
 msgid "Superscript"
 msgstr "上标"
 
-#: editor_toolbars.py:71
+#: editors.py:73
 msgid "Remove formatting"
 msgstr "移除表现形式"
 
-#: editor_toolbars.py:84
+#: editors.py:86
 msgid "Align left"
 msgstr "对齐左边"
 
-#: editor_toolbars.py:90
+#: editors.py:92
 msgid "Align center"
 msgstr "置中"
 
-#: editor_toolbars.py:96
+#: editors.py:98
 msgid "Align right"
 msgstr "对齐右边"
 
-#: editor_toolbars.py:102
+#: editors.py:104
 msgid "Justify"
 msgstr "对齐两边"
 
-#: editor_toolbars.py:108
+#: editors.py:110
 msgid "Horizontal rule"
 msgstr "水平格线"
 
-#: editor_toolbars.py:114
+#: editors.py:116
 msgid "Numbered list"
 msgstr "编号排序"
 
-#: editor_toolbars.py:121
+#: editors.py:123
 msgid "Bullet list"
 msgstr "引导符排序"
 
-#: editor_toolbars.py:127
+#: editors.py:129
 msgid "Outdent"
 msgstr "首行突出"
 
-#: editor_toolbars.py:134
+#: editors.py:136
 msgid "Indent"
 msgstr "首行缩进"
 
-#: editor_toolbars.py:141
+#: editors.py:143
 msgid "Blockquote"
 msgstr "引用区"
 
-#: editor_toolbars.py:147 editor_toolbars.py:182
+#: editors.py:149
 msgid "Link"
 msgstr "链接"
 
-#: editor_toolbars.py:156
-msgid "Type URL or search for a page"
+#: editors.py:158
+#, fuzzy
+#| msgid "Type URL or search for a page"
+msgid "Type URL or search for a destination"
 msgstr "输入URL 或者搜寻某一页"
 
-#: editor_toolbars.py:157
+#: editors.py:159
 msgid "URL or search"
 msgstr "输入URL 或者搜寻"
 
-#: editor_toolbars.py:189
-msgid "Image"
-msgstr "图像"
-
-#: editor_toolbars.py:196
+#: editors.py:184
 msgid "Unlink"
 msgstr "取消链接"
 
-#: editor_toolbars.py:204
+#: editors.py:192
 msgid "Table"
 msgstr "表格"
 
-#: editor_toolbars.py:207
+#: editors.py:196
 msgid "Code"
 msgstr "代码"
 
-#: editor_toolbars.py:213
+#: editors.py:202
 msgid "Small"
 msgstr "小的"
 
-#: editor_toolbars.py:216
+#: editors.py:205
 msgid "Keyboard input"
 msgstr "键盘输入"
 
-#: editor_toolbars.py:222
+#: editors.py:211
 msgid "Code block"
 msgstr "代码引用区"
 
-#: editor_toolbars.py:229
+#: editors.py:218
 msgid "Heading 1"
 msgstr "标题 1 格式"
 
-#: editor_toolbars.py:235
+#: editors.py:224
 msgid "Heading 2"
 msgstr "标题 2 格式"
 
-#: editor_toolbars.py:241
+#: editors.py:230
 msgid "Heading 3"
 msgstr "标题 3 格式"
 
-#: editor_toolbars.py:247
+#: editors.py:236
 msgid "Heading 4"
 msgstr "标题 4 格式"
 
-#: editor_toolbars.py:253
+#: editors.py:242
 msgid "Heading 5"
 msgstr "标题 5 格式"
 
-#: editor_toolbars.py:259
+#: editors.py:248
 msgid "Heading 6"
 msgstr "标题 6 格式"
 
-#: editor_toolbars.py:265
+#: editors.py:254
 msgid "Paragraph"
 msgstr "段落"
 
-#: editor_toolbars.py:271
+#: editors.py:260
 msgid "Anchor"
 msgstr "基点"
 
-#: editor_toolbars.py:274
-msgid "Format"
-msgstr "排版"
+#: editors.py:263
+#, fuzzy
+#| msgid "Blockquote"
+msgid "Block format"
+msgstr "引用区"
 
-#: editor_toolbars.py:278
+#: editors.py:267
 msgid "Styles"
 msgstr "样式"
 
-#: editor_toolbars.py:282
+#: editors.py:271
 msgid "Font"
 msgstr "字体"
 
-#: editor_toolbars.py:285
+#: editors.py:274
 msgid "Font size"
 msgstr "字体大小"
 
-#: models.py:56
+#: editors.py:277 editors.py:278 widgets.py:183 widgets.py:186
+msgid "CMS Plugins"
+msgstr "CMS 的插件组"
+
+#: editors.py:279 widgets.py:185
+msgid "Edit CMS Plugin"
+msgstr "编辑 CMS 插件"
+
+#: editors.py:280 widgets.py:184
+msgid "Add CMS Plugin"
+msgstr "添加 CMS 插件"
+
+#: models.py:51
 msgid "body"
 msgstr "整体"
 
-#: models.py:57
+#: models.py:52
 msgid "json"
 msgstr "JSON"
 
@@ -213,14 +226,8 @@ msgstr "文本"
 msgid "Generic"
 msgstr "通用的"
 
-#: widgets.py:154 widgets.py:157
-msgid "CMS Plugins"
-msgstr "CMS 的插件组"
+#~ msgid "Image"
+#~ msgstr "图像"
 
-#: widgets.py:155
-msgid "Add CMS Plugin"
-msgstr "添加 CMS 插件"
-
-#: widgets.py:156
-msgid "Edit CMS Plugin"
-msgstr "编辑 CMS 插件"
+#~ msgid "Format"
+#~ msgstr "排版"

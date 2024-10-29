@@ -155,24 +155,24 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
             },
             {
                 "name": "href",
-                "label": _("Type URL or search for a page"),
+                "label": _("Type URL or search for a destination"),
                 "placeholder": _("URL or search"),
                 "type": "text",
                 "class": "js-linkfield",
                 "required": False,
             },
-            # {type: 'hr'},
+            # {"type": 'hr'},
             # {
-            # name: 'target',
-            # label: 'Target',
-            # type: 'select',
-            # options: [
-            #     {value: '', label: '-----'},
-            #     {value: '_blank', label: 'New window'},
-            #     {value: '_self', label: 'Same window'},
-            #     {value: '_parent', label: 'Parent window'},
-            # ],
-            # required: false,
+            #     "name": 'target',
+            #     "label": 'Target',
+            #     "type": 'select',
+            #     "options": [
+            #         {"value": '', "label": '-----'},
+            #         {"value": '_blank', "label": 'New window'},
+            #         {"value": '_self', "label": 'Same window'},
+            #         {"value": '_parent', "label": 'Parent window'},
+            #     ],
+            #     "required": False
             # }
         ],
         "icon": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">\n'

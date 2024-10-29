@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-from functools import WRAPPER_ASSIGNMENTS, wraps
+from functools import WRAPPER_ASSIGNMENTS, wraps, cache
 
 from cms.utils.urlutils import admin_reverse
 from django.template.defaultfilters import force_escape
@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from cms import __version__
 
 from classytags.utils import flatten_context
+from django.urls.exceptions import NoReverseMatch
 from packaging.version import Version
 
 
@@ -172,8 +173,15 @@ def get_plugins_from_text(text, regex=OBJ_ADMIN_RE):
     return {plugin.pk: plugin for plugin in plugin_list}
 
 
+@cache
 def get_url_endpoint():
     """Get the url for dynamic liks for cms plugins and HTMLFields"""
+    from django.contrib.admin import site
+
+    for model_admin in site._registry.values():
+        if hasattr(model_admin, "global_link_url_name"):
+            print("model_admin.global_link_url_name", model_admin.global_link_url_name)
+            return admin_reverse(model_admin.global_link_url_name)
     return admin_reverse("djangocms_text_textplugin_get_available_urls")
 
 

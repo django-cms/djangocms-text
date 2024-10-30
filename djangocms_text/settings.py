@@ -39,7 +39,7 @@ TEXT_AUTO_HYPHENATE = getattr(settings, "TEXT_AUTO_HYPHENATE", True)
 TEXT_PLUGIN_NAME = getattr(settings, "TEXT_PLUGIN_NAME", _("Text"))
 TEXT_PLUGIN_MODULE_NAME = getattr(settings, "TEXT_PLUGIN_MODULE_NAME", _("Generic"))
 
-TEXT_INLINE_EDITING = getattr(settings, "TEXT_INLINE_EDITING", False)
+TEXT_INLINE_EDITING = getattr(settings, "TEXT_INLINE_EDITING", True)
 TEXT_CHILDREN_ENABLED = getattr(settings, "TEXT_CHILDREN_ENABLED", True)
 TEXT_CHILDREN_WHITELIST = getattr(settings, "TEXT_CHILDREN_WHITELIST", None)
 TEXT_CHILDREN_BLACKLIST = getattr(settings, "TEXT_CHILDREN_BLACKLIST", [])

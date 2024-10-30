@@ -9,22 +9,19 @@ body.change-form .cms-editor-inline-wrapper.fixed {
     border-radius: 0  !important;
     line-height: 1.5  !important;
     h1, h2, h3, h4, h5, h6, p {
-        margin: 0 0 0.8rem 0  !important;
-        padding: 0;
-        border: 0;
-        color: inherit;
-        background: inherit;
-        line-height: 1.5;
+        margin: 0 0 0.8rem 0 !important;
     }
     h1, h2, h3, h4, h5, h6 {
         font-weight: bold;
     }
-        h1, h2, h3, h4, h5, h6, p {
+    h1, h2, h3, h4, h5, h6, p {
         margin: 0;
         margin-bottom: 1em;
         border: none;
         padding: 0;
         line-height: 1.5;
+        color: inherit;
+        background: inherit;
     }
     h1 {
         font-size: 1.7rem !important;
@@ -51,7 +48,7 @@ body.change-form .cms-editor-inline-wrapper.fixed {
         border-radius: 4px  !important;
         font-size: 1rem  !important;
     }
-        h1 {
+    h1 {
         font-size: 1.7rem;
     }
     h2 {
@@ -97,4 +94,9 @@ body.change-form .cms-editor-inline-wrapper.fixed {
         padding-inline-start: 1em;
         border-inline-start: 0.3em solid var(--dca-gray-lighter, var(--border-color, #ddd));
     }
+}
+
+body.change-form .field-body .flex-container {
+    margin: 0;
+    background-color: var(--dca-white, var(--body-bg, #fff));
 }

@@ -84,30 +84,30 @@ class LinkField {
        }
 
     showResults(response, page = 1) {
-        if (response.results.length === 1 && Object.keys(response.results[0]).length === 0) {
-            // Create message element
-            this.dropdown.innerHTML = `<div class="cms-linkfield-message">${this.options.noResults || 'No destinations found'}</div>`;
-            return;
-        }
+        var currentSection;  // Keep track of the current section so that paginated data can be added
         if (page === 1) {
             // First page clears the dropdown
             this.dropdown.innerHTML = '';
+            currentSection = '';
         } else {
             // Remove the more link
-            this.dropdown.querySelector('.cms-linkfield-more').remove();
+            const more = this.dropdown.querySelector('.cms-linkfield-more');
+            currentSection = more?.dataset.group;
+            more?.remove();
         }
-        response.results.forEach(result => this._addResult(result));
+        response.results.forEach(result => currentSection = this._addResult(result, currentSection));
         if (response?.pagination?.more) {
             const more = document.createElement('div');
             more.classList.add('cms-linkfield-more');
             more.setAttribute('data-page', page + 1);
+            more.setAttribute('data-group', currentSection);
             more.textContent = '...';
             this.dropdown.appendChild(more);
             this.intersection.observe(more);
         }
     }
 
-    _addResult(result) {
+    _addResult(result, currentSection = '') {
         const item = document.createElement('div');
         item.textContent = result.text;
         if (result.id) {
@@ -119,14 +119,17 @@ class LinkField {
         }
         if (result.children && result.children.length > 0) {
             item.classList.add('cms-linkfield-parent');
-            this.dropdown.appendChild(item);
+            if (result.text !== currentSection) {
+                this.dropdown.appendChild(item);
+                currentSection = result.text;
+            }
             result.children.forEach(child => {
                 this._addResult(child);
             });
-        }
-        if (!result.children) {
+        } else {
             this.dropdown.appendChild(item);
         }
+        return currentSection;
     }
 
     handleSelection(event) {

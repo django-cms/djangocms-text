@@ -1,5 +1,5 @@
-/* eslint-env es6 */
-/* jshint esversion: 6 */
+/* eslint-env es11 */
+/* jshint esversion: 11 */
 /* global document, window, console */
 
 import "../css/cms.linkfield.css";
@@ -65,7 +65,14 @@ class LinkField {
             // this.selectElement.value = '';
         });
         this.selectElement.addEventListener('input', event => this.handleChange(event));
-
+        this.intersection = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    this.updateSearch();
+                    observer.disconnect();
+                }
+            });
+        });
     }
 
     handleInput(event) {
@@ -76,9 +83,28 @@ class LinkField {
         this.search();
        }
 
-    showResults(response) {
-        this.dropdown.innerHTML = '';
+    showResults(response, page = 1) {
+        if (response.results.length === 1 && Object.keys(response.results[0]).length === 0) {
+            // Create message element
+            this.dropdown.innerHTML = `<div class="cms-linkfield-message">${this.options.noResults || 'No destinations found'}</div>`;
+            return;
+        }
+        if (page === 1) {
+            // First page clears the dropdown
+            this.dropdown.innerHTML = '';
+        } else {
+            // Remove the more link
+            this.dropdown.querySelector('.cms-linkfield-more').remove();
+        }
         response.results.forEach(result => this._addResult(result));
+        if (response?.pagination?.more) {
+            const more = document.createElement('div');
+            more.classList.add('cms-linkfield-more');
+            more.setAttribute('data-page', page + 1);
+            more.textContent = '...';
+            this.dropdown.appendChild(more);
+            this.intersection.observe(more);
+        }
     }
 
     _addResult(result) {
@@ -126,18 +152,25 @@ class LinkField {
         }
     }
 
-    search() {
+    search(page = 1) {
         const searchText = this.inputElement.value.toLowerCase();
-        this.fetchData(searchText).then(response => {
-            this.showResults(response);
+        this.fetchData(searchText, page).then(response => {
+            this.showResults(response, page);
         }).catch (error => {
            this.dropdown.innerHTML = `<div class="cms-linkfield-error">${error.message}</div>`;
         });
     }
 
-    fetchData(searchText) {
+    updateSearch() {
+        const more = this.dropdown.querySelector('.cms-linkfield-more');
+        if (more) {
+            this.search(parseInt(more.getAttribute('data-page')));
+        }
+    }
+
+    fetchData(searchText, page ) {
         if (this.options.url) {
-            return fetch(this.options.url + '?q=' + encodeURIComponent(searchText))
+            return fetch(this.options.url + `?q=${encodeURIComponent(searchText)}${page > 1 ? '&page=' + page : ''}`)
                 .then(response => response.json());
         }
         return new Promise(resolve => {

@@ -1,6 +1,6 @@
 .cms-editor-inline-wrapper {
-    color: var(--dca-black);
-    background: var(--dca-white);
+    color: var(--dca-black, var(--body-fg, #000));
+    background: var(--dca-gray, var(--body-bg, #fff));
 
 
     h1, h2, h3, h4, h5, h6, p {
@@ -33,5 +33,11 @@
     }
     img.float-end {
         float: right;
+    }
+    blockquote {
+        margin-left: unset;
+        margin-right: unset;
+        padding-inline-start: 2em;
+        border-inline-start: 4px solid var(--dca-gray-lighter, var(--border-color, #ddd));
     }
 }

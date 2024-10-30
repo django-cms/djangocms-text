@@ -168,7 +168,7 @@
             button {
                 text-align: start;
                 justify-content: start;
-                padding: 8px 1rem  !important;
+                padding: 8px 2rem 8px 1rem  !important;
                 small {
                     margin: 0;
                 }

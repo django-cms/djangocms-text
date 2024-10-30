@@ -1,6 +1,9 @@
 body.change-form .cms-editor-inline-wrapper.fixed {
-    background: var(--dca-white)  !important;
-    color: var(--dca-black)  !important;
+    background: var(--dca-white, var(--body-bg, #fff))  !important;
+    color: var(--dca-black, var(--body-fg, #000))  !important;
+    p {
+        color: var(--dca-black, var(--body-fg, #000))  !important;
+    }
     font-size: 1rem  !important;
     font-weight: 400  !important;
     border-radius: 0  !important;
@@ -15,6 +18,31 @@ body.change-form .cms-editor-inline-wrapper.fixed {
     }
     h1, h2, h3, h4, h5, h6 {
         font-weight: bold;
+    }
+        h1, h2, h3, h4, h5, h6, p {
+        margin: 0;
+        margin-bottom: 1em;
+        border: none;
+        padding: 0;
+        line-height: 1.5;
+    }
+    h1 {
+        font-size: 1.7rem !important;
+    }
+    h2 {
+        font-size: 1.42rem !important;
+    }
+    h3 {
+        font-size: 1.2rem !important;
+    }
+    h4, p {
+        font-size: 1rem !important;
+    }
+    h5 {
+        font-size: 0.83rem !important;
+    }
+    h6 {
+        font-size: 0.7rem !important;
     }
     pre {
         color: inherit  !important;
@@ -59,5 +87,14 @@ body.change-form .cms-editor-inline-wrapper.fixed {
     }
     li {
         list-style: inherit;
+    }
+    blockquote {
+        /* Correct default django admin blockquote */
+        color: var(--dca-black, var(--body-fg, #000));
+        margin-left: 0;
+        margin-right: 0;
+        /* Add own flavor */
+        padding-inline-start: 1em;
+        border-inline-start: 0.3em solid var(--dca-gray-lighter, var(--border-color, #ddd));
     }
 }

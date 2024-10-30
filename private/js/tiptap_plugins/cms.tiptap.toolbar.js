@@ -154,7 +154,7 @@ const TiptapToolbar = {
         enabled: (editor) => editor.can().unsetLink(),
         type: 'mark',
     },
-    Table: {
+    TipTapTable: {
         action: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run(),
         enabled: (editor) => editor.can().insertTable(),
         type: 'block',

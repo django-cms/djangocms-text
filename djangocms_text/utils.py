@@ -179,7 +179,6 @@ def get_url_endpoint():
 
     for model_admin in site._registry.values():
         if hasattr(model_admin, "global_link_url_name"):
-            print("model_admin.global_link_url_name", model_admin.global_link_url_name)
             return admin_reverse(model_admin.global_link_url_name)
     return admin_reverse("djangocms_text_textplugin_get_available_urls")
 

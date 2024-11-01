@@ -30,7 +30,7 @@ class InlineEditingToolbar(CMSToolbar):
                     "all": (
                         "djangocms_text/css/cms.text.css",
                         *rte_config.css.get("all", ()),
-                    ),
+                    ) if self.inline_editing else ("djangocms_text/css/cms.text.css",),
                 },
                 js=(
                     static("djangocms_text/bundles/bundle.editor.min.js"),
@@ -95,3 +95,9 @@ class InlineEditingToolbar(CMSToolbar):
 
 if settings.TEXT_INLINE_EDITING and rte_config.inline_editing:  # Only register if explicitly required from settings
     toolbar_pool.register(InlineEditingToolbar)
+else:
+    @toolbar_pool.register
+    class TextToolbar(CMSToolbar):
+        class Media:
+            # Needed for the text-editor modal to work
+            css = {"all": ("djangocms_text/css/cms.text.css",)}

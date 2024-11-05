@@ -10,7 +10,7 @@
         .cms-linkfield-selected {
             font-weight: bold;
         }
-        input[type="text"]:focus + .cms-linkfield-dropdown:not(:empty), .cms-linkfield-dropdown:active {
+        .cms-linkfield-dropdown:not(:empty), .cms-linkfield-dropdown:active {
             /* Hide dropdown when empty */
             visibility: visible;
         }
@@ -48,6 +48,9 @@
                 &.cms-linkfield-message {
                     font-style: italic;
                     color: var(--dca-gray);
+                }
+                &.cms-linkfield-option {
+                    cursor: pointer;
                 }
                 &.cms-linkfield-option:hover {
                     background: var(--dca-primary);

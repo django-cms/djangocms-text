@@ -67,6 +67,7 @@ class LinkField {
             // this.selectElement.value = '';
         });
         this.selectElement.addEventListener('input', event => this.handleChange(event));
+        this.dropdown.addEventListener('click', this.handleSelection.bind(this));
         this.intersection = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -117,7 +118,6 @@ class LinkField {
             item.setAttribute('data-value', result.id);
             item.setAttribute('data-href', result.url);
             item.setAttribute('data-text', result.verbose || result.text);
-            item.addEventListener('click', this.handleSelection.bind(this));
         }
         if (result.children && result.children.length > 0) {
             item.classList.add('cms-linkfield-parent');
@@ -135,17 +135,37 @@ class LinkField {
     }
 
     handleSelection(event) {
+        console.log("handleSelection", event);
         event.stopPropagation();
         event.preventDefault();
-        this.inputElement.value = event.target.getAttribute('data-text') || event.target.textContent;
-        this.inputElement.classList.add('cms-linkfield-selected');
-        this.urlElement.value = event.target.getAttribute('data-href');
-        this.selectElement.value = event.target.getAttribute('data-value');
-        this.inputElement.blur();
+        if (event.target.classList.contains('cms-linkfield-option')) {
+            this.inputElement.value = event.target.getAttribute('data-text') || event.target.textContent;
+            this.inputElement.classList.add('cms-linkfield-selected');
+            this.urlElement.value = event.target.getAttribute('data-href');
+            this.selectElement.value = event.target.getAttribute('data-value');
+            this.inputElement.blur();
+            this.closeDropdown(event);
+        }
         // this.dropdown.innerHTML = '';  // CSS hides dropdown when empty
     }
 
+    openDropdown(event) {
+        if (this.dropdown.style.visibility === 'visible') {
+            return;
+        }
+        this.dropdown.style.visibility = 'visible';
+        document.addEventListener('click', this.closeDropdown.bind(this));
+    }
+
+    closeDropdown(event) {
+        if (!this.wrapper.contains(event.target) || this.dropdown.contains(event.target)) {
+            this.dropdown.style.visibility = 'hidden';
+            document.removeEventListener('click', this.closeDropdown.bind(this));
+        }
+    }
+
     handleChange(event) {
+        console.log("handleChange", event);
         if (this.selectElement.value) {
             fetch(this.options.url + '?g=' + encodeURIComponent(this.selectElement.value))
                 .then(response => response.json())
@@ -158,6 +178,8 @@ class LinkField {
     }
 
     search(page = 1) {
+        console.log("search", page);
+        this.openDropdown();
         const searchText = this.inputElement.value.toLowerCase();
         this.fetchData(searchText, page).then(response => {
             this.showResults(response, page);

@@ -15,7 +15,7 @@ jobs:
           dj50_cms41.txt
         ]
         os: [
-          ubuntu-20.04,
+          ubuntu-latest,
         ]
     steps:
     - uses: actions/checkout@v4

@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.3.3 (05-11-2024)
+==================
+
+* feat: Add initial djangocms-link support by @fsbraun in https://github.com/django-cms/djangocms-text/pull/22
+* feat: Added support for djangocms-link url endpoint by @fsbraun in https://github.com/django-cms/djangocms-text/pull/23
+* fix: Add missing styles for add/edit plugin dialog by @fsbraun in https://github.com/django-cms/djangocms-text/pull/24
+* fix: Events prevented selection from link dropdown by @fsbraun in https://github.com/django-cms/djangocms-text/pull/25
+
+
 0.3.2 (07-10-2024)
 ==================
 

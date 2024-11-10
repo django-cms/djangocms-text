@@ -6,6 +6,10 @@ django-polymorphic>=2.0.3
 Pillow
 html5lib>=0.999999999
 setuptools
+ruff
+isort
+flake8
+flake8-pyproject
 
 # other requirements
 coverage

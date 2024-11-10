@@ -1,71 +1,125 @@
 [build-system]
-requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+requires = [ "hatchling" ]
 
 [project]
 name = "djangocms-text"
-dynamic = ["version"]
 description = "Rich Text Plugin for django CMS"
 readme = "README.rst"
-license = {text = "BSD-3-Clause" }
-requires-python = ">=3.9"
-authors = [
-    { name = "Django CMS Association and contributors", email = "info@django-cms.org" },
-]
+license = { text = "BSD-3-Clause" }
 maintainers = [
-    { name = "Django CMS Association and contributors", email = "info@django-cms.org" },
+  { name = "Django CMS Association and contributors", email = "info@django-cms.org" },
 ]
+authors = [
+  { name = "Django CMS Association and contributors", email = "info@django-cms.org" },
+]
+requires-python = ">=3.9"
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Web Environment",
-    "Framework :: Django",
-    "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.0",
-    "Framework :: Django :: 5.1",
-    "Framework :: Django CMS",
-    "Framework :: Django CMS :: 3.11",
-    "Framework :: Django CMS :: 4.0",
-    "Framework :: Django CMS :: 4.1",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Internet :: WWW/HTTP",
-    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-    "Topic :: Software Development",
-    "Topic :: Software Development :: Libraries",
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Framework :: Django :: 4.2",
+  "Framework :: Django :: 5.0",
+  "Framework :: Django :: 5.1",
+  "Framework :: Django CMS",
+  "Framework :: Django CMS :: 3.11",
+  "Framework :: Django CMS :: 4.0",
+  "Framework :: Django CMS :: 4.1",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+  "Topic :: Software Development",
+  "Topic :: Software Development :: Libraries",
 ]
+dynamic = [ "version" ]
 dependencies = [
-    "django-cms>=3.11",
-    "lxml",
-    "nh3",
-    "packaging",
-    "Pillow",
+  "django-cms>=3.11",
+  "lxml",
+  "nh3",
+  "packaging",
+  "pillow",
 ]
+
+urls.Homepage = "https://github.com/django-cms/djangocms-text"
 
 [tool.setuptools]
-packages = ["djangocms_text", "djangocms_text_ckeditor"]
-
-[project.urls]
-Homepage = "https://github.com/django-cms/djangocms-text"
+packages = [ "djangocms_text", "djangocms_text_ckeditor" ]
 
 [tool.hatch.version]
 path = "djangocms_text/__init__.py"
 
 [tool.hatch.build]
 include = [
-    "/djangocms_text",
-    "/djangocms_text_ckeditor"
+  "/djangocms_text",
+  "/djangocms_text_ckeditor",
 ]
 artifacts = [
-    "djangocms_text/static/**",
-    "djangocms_text/contrib/**/static/**",
+  "djangocms_text/static/**",
+  "djangocms_text/contrib/**/static/**",
 ]
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
+
+[tool.isort]
+line_length = 119
+skip = [
+  ".eggs",
+  ".env",
+  ".tox",
+  ".venv",
+  "data",
+  "manage.py",
+  "*migrations*",
+  "node_modules",
+  "private",
+]
+include_trailing_comma = true
+multi_line_output = 5
+lines_after_imports = 2
+default_section = "THIRDPARTY"
+sections = [
+  "FUTURE",
+  "STDLIB",
+  "DJANGO",
+  "CMS",
+  "THIRDPARTY",
+  "FIRSTPARTY",
+  "LOCALFOLDER",
+]
+known_first_party = "djangocms_text"
+known_cms = [ "cms", "menus" ]
+known_django = "django"
+
+[tool.flake8]
+ignore = "C101,E251,E128,E501,E800,W503"
+max-line-length = 119
+exclude = [
+  "*.egg-info",
+  ".eggs",
+  ".git",
+  ".settings",
+  ".tox",
+  ".env",
+  ".venv",
+  "build",
+  "data",
+  "dist",
+  "docs",
+  "*migrations*",
+  "node_modules",
+  "requirements",
+  "tmp",
+  "*node_modules*",
+]

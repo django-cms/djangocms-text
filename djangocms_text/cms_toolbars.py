@@ -12,8 +12,8 @@ from cms.toolbar.items import Button, ButtonList, TemplateItem
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
-from .utils import get_url_endpoint, get_render_plugin_url, get_cancel_url, get_messages_url
-from .widgets import rte_config, TextEditorWidget
+from .utils import get_cancel_url, get_messages_url, get_render_plugin_url, get_url_endpoint
+from .widgets import TextEditorWidget, rte_config
 
 
 class IconButton(Button):
@@ -30,7 +30,9 @@ class InlineEditingToolbar(CMSToolbar):
                     "all": (
                         "djangocms_text/css/cms.text.css",
                         *rte_config.css.get("all", ()),
-                    ) if self.inline_editing else ("djangocms_text/css/cms.text.css",),
+                    )
+                    if self.inline_editing
+                    else ("djangocms_text/css/cms.text.css",),
                 },
                 js=(
                     static("djangocms_text/bundles/bundle.editor.min.js"),
@@ -96,6 +98,7 @@ class InlineEditingToolbar(CMSToolbar):
 if settings.TEXT_INLINE_EDITING and rte_config.inline_editing:  # Only register if explicitly required from settings
     toolbar_pool.register(InlineEditingToolbar)
 else:
+
     @toolbar_pool.register
     class TextToolbar(CMSToolbar):
         class Media:

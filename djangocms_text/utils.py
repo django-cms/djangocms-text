@@ -1,21 +1,19 @@
 import re
 from collections import OrderedDict
-from functools import WRAPPER_ASSIGNMENTS, wraps, cache
+from functools import WRAPPER_ASSIGNMENTS, cache, wraps
 
-from cms.utils.urlutils import admin_reverse
 from django.template.defaultfilters import force_escape
 from django.template.loader import render_to_string
 
 from cms import __version__
+from cms.utils.urlutils import admin_reverse
 
 from classytags.utils import flatten_context
 from packaging.version import Version
 
 
 OBJ_ADMIN_RE_PATTERN = r'<cms-plugin .*?\bid="(?P<pk>\d+)".*?>.*?</cms-plugin>'
-OBJ_ADMIN_WITH_CONTENT_RE_PATTERN = (
-    r'<cms-plugin .*?\bid="(?P<pk>\d+)".*?>(?P<content>.*?)</cms-plugin>'
-)
+OBJ_ADMIN_WITH_CONTENT_RE_PATTERN = r'<cms-plugin .*?\bid="(?P<pk>\d+)".*?>(?P<content>.*?)</cms-plugin>'
 OBJ_ADMIN_RE = re.compile(OBJ_ADMIN_RE_PATTERN, flags=re.DOTALL)
 
 
@@ -79,10 +77,7 @@ def plugin_to_tag(obj, content="", admin=False):
         plugin_attrs["preview"] = "true" if preview else "false"
         plugin_attrs["type"] = plugin_class.__name__
     else:
-        plugin_tag = (
-            '<cms-plugin alt="%(icon_alt)s" '
-            'title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
-        )
+        plugin_tag = '<cms-plugin alt="%(icon_alt)s" ' 'title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
     return plugin_tag % plugin_attrs
 
 

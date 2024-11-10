@@ -6,7 +6,7 @@ from django.apps import apps
 from django.contrib.admin.utils import unquote
 from django.contrib.messages import get_messages
 from django.core import signing
-from django.core.exceptions import PermissionDenied, ValidationError, FieldError
+from django.core.exceptions import FieldError, PermissionDenied, ValidationError
 from django.db import transaction
 from django.forms.fields import CharField
 from django.http import (

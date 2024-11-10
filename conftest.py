@@ -7,9 +7,13 @@ from django.conf import settings
 from django.test.utils import get_runner
 
 
-def run(path):
+def pytest_configure():
     os.environ["DJANGO_SETTINGS_MODULE"] = "tests.test_settings"
     django.setup()
+
+
+def run(path):
+    pytest_configure()
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
     failures = test_runner.run_tests(path)

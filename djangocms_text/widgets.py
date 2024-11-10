@@ -15,10 +15,9 @@ from django.utils.translation.trans_real import get_language, gettext
 from cms.utils.urlutils import admin_reverse, static_with_version
 
 from . import settings as text_settings
-from .editors import (
-    DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_base_config, get_editor_config,
-)
+from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_base_config, get_editor_config
 from .utils import cms_placeholder_add_plugin, get_url_endpoint
+
 
 rte_config = get_editor_config()
 #: The configuration for the text editor widget
@@ -76,9 +75,7 @@ class TextEditorWidget(forms.Textarea):
 
         self.installed_plugins = installed_plugins or []  # general
         self.pk = pk  # specific
-        self.placeholder = (
-            placeholder.pk if isinstance(placeholder, models.Model) else placeholder
-        )  # specific
+        self.placeholder = placeholder.pk if isinstance(placeholder, models.Model) else placeholder  # specific
         self.plugin_language = plugin_language  # specific
         self.plugin_position = plugin_position  # specific
         if configuration and getattr(settings, configuration, False):
@@ -93,11 +90,7 @@ class TextEditorWidget(forms.Textarea):
         self.messages_url = messages_url
         self.action_token = action_token  # specific
         self.revert_on_cancel = revert_on_cancel
-        self.body_css_classes = (
-            body_css_classes
-            if body_css_classes
-            else self.configuration.get("bodyClass", "")
-        )
+        self.body_css_classes = body_css_classes if body_css_classes else self.configuration.get("bodyClass", "")
 
     def render_textarea(self, name, value, attrs=None, renderer=None):
         return super().render(name, value, attrs, renderer)
@@ -130,7 +123,8 @@ class TextEditorWidget(forms.Textarea):
         config = json.dumps(configuration, cls=DjangoJSONEncoder)
 
         return {
-            key: value for key, value in {
+            key: value
+            for key, value in {
                 "plugins": self.get_installed_plugins(),
                 "installed_plugins": self.installed_plugins,
                 "plugin_id": self.pk,
@@ -140,7 +134,8 @@ class TextEditorWidget(forms.Textarea):
                 "revert_on_cancel": self.revert_on_cancel or False,
                 "action_token": self.action_token or "",
                 "options": json.loads(config.replace("{{ language }}", language)),
-            }.items() if value
+            }.items()
+            if value
         }
 
     def get_installed_plugins(self):
@@ -153,10 +148,7 @@ class TextEditorWidget(forms.Textarea):
             return [
                 {
                     "group": group,
-                    "items": [
-                        {"title": item.get("name"), "type": item.get("value")}
-                        for item in items
-                    ],
+                    "items": [{"title": item.get("name"), "type": item.get("value")} for item in items],
                 }
                 for group, items in plugins
             ]
@@ -218,6 +210,4 @@ class TextEditorWidget(forms.Textarea):
         return mark_safe(render_to_string("cms/plugins/widgets/editor.html", context))
 
     def render(self, name, value, attrs=None, renderer=None):
-        return self.render_textarea(name, value, attrs) + self.render_additions(
-            name, value, attrs, renderer
-        )
+        return self.render_textarea(name, value, attrs) + self.render_additions(name, value, attrs, renderer)

@@ -1,7 +1,12 @@
 from django.apps import apps
 
 from cms import __version__
-from cms.api import create_page, create_title
+from cms.api import create_page
+
+try:
+    from cms.api import create_page_content
+except ImportError:
+    from cms.api import create_title as create_page_content
 
 
 DJANGO_CMS4 = not (__version__ < "4")
@@ -30,14 +35,9 @@ class TestFixture:
 
             from djangocms_versioning.models import Version
 
-            versions = Version.objects.filter_by_grouper(grouper).filter(
-                state=version_state
-            )
+            versions = Version.objects.filter_by_grouper(grouper).filter(state=version_state)
             for version in versions:
-                if (
-                    hasattr(version.content, "language")
-                    and version.content.language == language
-                ):
+                if hasattr(version.content, "language") and version.content.language == language:
                     return version
             return None
 
@@ -71,7 +71,8 @@ class TestFixture:
             return create_page(title=title, page=page, **kwargs)
 
         def get_placeholders(self, page, language=None):
-            return page.get_placeholders(language or self.language)
+            page_content = page.get_admin_content(language or self.language)
+            return page_content.get_placeholders()
 
     else:  # CMS V3
 
@@ -89,7 +90,7 @@ class TestFixture:
         def create_title(self, title, page, **kwargs):
             kwargs.setdefault("language", self.language)
             kwargs.setdefault("menu_title", title)
-            return create_title(title=title, page=page, **kwargs)
+            return create_page_content(title=title, page=page, **kwargs)
 
         def get_placeholders(self, page, language=None):
             return page.get_placeholders()

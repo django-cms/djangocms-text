@@ -23,7 +23,7 @@ class LazyEncoder(DjangoJSONEncoder):
     def default(self, obj):
         if isinstance(obj, Promise):
             return force_str(obj)
-        return super(LazyEncoder, self).default(obj)
+        return super().default(obj)
 
 
 _EDITOR_TOOLBAR_BASE_CONFIG = {
@@ -350,6 +350,8 @@ DEFAULT_TOOLBAR_HTMLField = [
         "Italic",
         "Underline",
         "Strike",
+        "-",
+        "Code",
         "-",
         "Subscript",
         "Superscript",

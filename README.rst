@@ -158,14 +158,15 @@ used normally. Changes are saved as soon as the text field leaves focus.
 Inline editing requires to encapsulate the HTML text in a ``<div>`` in edit mode. This
 might cause some side effects with a site's CSS, e.g. direct child rules.
 
-To activate inline editing add the following line in your project's ``settings.py``:
+Inline editing is active by default. To deactivate inline editing add the
+following line in your project's ``settings.py``:
 
 .. code-block::
 
-    TEXT_INLINE_EDITING = True
+    TEXT_INLINE_EDITING = False
 
-This will add a toggle button to the toolbar to allow to switch inline editing on and
-off for the current session.
+With inline editing active, a toggle button to the toolbar to allow to switch
+inline editing on and off for the current session.
 
 When inline editing is active the editor will save the plugin's content each time it
 loses focus. If only text has changed the user can immediately continue to edit. If a
@@ -218,7 +219,6 @@ icon. The icon will be displayed in the CMS plugin pulldown menu, or in the tool
 You can also configure text-enabled plugins to be directly accessible from the rich
 text editor toolbar by adding the plugin's name to the toolbar configuration,
 e.g. ``"LinkPlugin"``.
-T
 
 
 Default content in Placeholder

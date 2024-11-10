@@ -8,7 +8,7 @@ from django.test.utils import get_runner
 
 
 def pytest_configure():
-    os.environ["DJANGO_SETTINGS_MODULE"] = "tests.test_settings"
+    os.environ["DJANGO_SETTINGS_MODULE"] = "tests.settings"
     django.setup()
 
 

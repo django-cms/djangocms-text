@@ -10,6 +10,8 @@ ruff
 isort
 flake8
 flake8-pyproject
+pytest
+pytest-django
 
 # other requirements
 coverage

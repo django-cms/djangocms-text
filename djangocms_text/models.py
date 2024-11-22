@@ -63,9 +63,7 @@ class AbstractText(CMSPlugin):
         abstract = True
 
     def __str__(self):
-        return Truncator(strip_tags(self.body).replace("&shy;", "")).words(
-            3, truncate="..."
-        )
+        return Truncator(strip_tags(self.body).replace("&shy;", "")).words(3, truncate="...")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

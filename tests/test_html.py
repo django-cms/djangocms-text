@@ -7,7 +7,7 @@ from lxml.etree import Element
 
 from djangocms_text import html, settings
 from djangocms_text.html import dynamic_href, dynamic_src, render_dynamic_attributes
-from tests.fixtures import TestFixture
+from tests.fixtures import DJANGO_CMS4, TestFixture
 
 
 class HtmlSanitizerAdditionalProtocolsTests:
@@ -176,9 +176,12 @@ class DjangoCMSPictureIntegrationTestCase(CMSTestCase):
     def setUp(self):
         super().setUp()
         self.home = self.create_homepage("home", "page.html", "en")
-        self.placeholder = (
-            self.home.pagecontent_set(manager="admin_manager").first().get_placeholders().get(slot="content")
-        )
+        if DJANGO_CMS4:
+            self.placeholder = (
+                self.home.pagecontent_set(manager="admin_manager").first().get_placeholders().get(slot="content")
+            )
+        else:
+            self.placeholder = self.home.get_placeholders("en").get(slot="content")
 
     def test_extract_images(self):
         with patch("tests.test_html.save_image") as mock_save_image:

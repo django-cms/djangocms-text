@@ -1,3 +1,5 @@
+# Jest coverage
+/coverage
 *.py[cod]
 *$py.class
 *.egg-info

@@ -8,8 +8,7 @@ from djangocms_text.fields import HTMLFormField as TextHTMLFormField
 class HTMLField(TextHTMLField):  # pragma: no cover
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         warnings.warn(
-            "djangocms_text_ckeditor.fields.HTMLField is deprecated. "
-            "Use djangocms_text.fields.HTMLField instead.",
+            "djangocms_text_ckeditor.fields.HTMLField is deprecated. Use djangocms_text.fields.HTMLField instead.",
             DeprecationWarning,
             stacklevel=2,
         )

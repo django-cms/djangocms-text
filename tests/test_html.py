@@ -181,7 +181,7 @@ class DjangoCMSPictureIntegrationTestCase(CMSTestCase):
                 self.home.pagecontent_set(manager="admin_manager").first().get_placeholders().get(slot="content")
             )
         else:
-            self.placeholder = self.home.get_placeholders("en").get(slot="content")
+            self.placeholder = self.home.get_placeholders().get(slot="content")
 
     def test_extract_images(self):
         with patch("tests.test_html.save_image") as mock_save_image:

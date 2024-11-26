@@ -27,9 +27,7 @@ def discover_inline_editable_models():
 
         for field_name in getattr(modeladmin, "frontend_editable_fields", []):
             try:
-                form = modeladmin.get_form(
-                    request=None, fields=(field_name,)
-                )  # Worth a try
+                form = modeladmin.get_form(request=None, fields=(field_name,))  # Worth a try
             except Exception:
                 form = getattr(modeladmin, "form", None)
             if form:

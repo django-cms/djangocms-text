@@ -34,6 +34,7 @@ class NH3Parser:
     Methods:
     - __init__: Initializes the NH3Parser object.
     """
+
     def __init__(
         self,
         additional_attributes: Optional[dict[str, set[str]]] = None,
@@ -49,9 +50,7 @@ class NH3Parser:
         if additional_attributes:
             self.ALLOWED_TAGS |= set(additional_attributes.keys())
             for tag, attributes in additional_attributes.items():
-                self.ALLOWED_ATTRIBUTES[tag] = (
-                    self.ALLOWED_ATTRIBUTES.get(tag, set()) | attributes
-                )
+                self.ALLOWED_ATTRIBUTES[tag] = self.ALLOWED_ATTRIBUTES.get(tag, set()) | attributes
 
     def __call__(self) -> dict[str, Union[dict[str, set[str]], set[str], None]]:
         """
@@ -80,7 +79,7 @@ cms_parser: NH3Parser = NH3Parser(
     additional_attributes={
         "a": {"href", "target", "rel"},
         "cms-plugin": {"id", "title", "name", "alt", "render-plugin", "type"},
-        "*": {"style", "class"}
+        "*": {"style", "class"},
     },
     generic_attribute_prefixes={"data-"},
 )
@@ -208,9 +207,7 @@ def dynamic_src(elem: Element, obj: models.Model, attr: str) -> None:
         elem.attrib["data-cms-error"] = "ref-not-found"
 
 
-def render_dynamic_attributes(
-    dyn_html: str, admin_objects: bool = False, remove_attr=True
-) -> str:
+def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove_attr=True) -> str:
     """
     Render method to update dynamic attributes in HTML
 
@@ -239,7 +236,7 @@ def render_dynamic_attributes(
 
     for elem in tree.xpath(xpath):
         for attr, value in elem.attrib.items():
-            if attr.startswith(prefix):
+            if attr in dynamic_attr_pool:
                 try:
                     model, pk = value.rsplit(":", 1)
                     if model.strip() in req_model_obj:
@@ -252,8 +249,8 @@ def render_dynamic_attributes(
     from_db = get_data_from_db(req_model_obj, admin_objects=admin_objects)
     for elem in update_queue:
         for attr, value in elem.attrib.items():
-            if attr.startswith(prefix):
-                target_attr = attr[len(prefix):]
+            if attr in dynamic_attr_pool:
+                target_attr = attr[len(prefix) :]
                 try:
                     model, pk = value.rsplit(":", 1)
                     obj = from_db[model.strip()][int(pk.strip())]
@@ -307,9 +304,7 @@ def extract_images(data, plugin):
         width = img.getAttribute("width")
         height = img.getAttribute("height")
         # extract the image data
-        data_re = re.compile(
-            r'data:(?P<mime_type>[^"]*);(?P<encoding>[^"]*),(?P<data>[^"]*)'
-        )
+        data_re = re.compile(r'data:(?P<mime_type>[^"]*);(?P<encoding>[^"]*),(?P<data>[^"]*)')
         m = data_re.search(src)
         dr = m.groupdict()
         mime_type = dr["mime_type"]
@@ -353,14 +348,10 @@ def extract_images(data, plugin):
         # render the new html for the plugin
         new_img_html = plugin_to_tag(image_plugin)
         # replace the original image node with the newly created cms plugin html
-        img.parentNode.replaceChild(
-            parser.parseFragment(new_img_html).childNodes[0], img
-        )
+        img.parentNode.replaceChild(parser.parseFragment(new_img_html).childNodes[0], img)
         found = True
     if found:
-        return "".join(
-            [y.toxml() for y in dom.getElementsByTagName("body")[0].childNodes]
-        )
+        return "".join([y.toxml() for y in dom.getElementsByTagName("body")[0].childNodes])
     else:
         return data
 

@@ -20,5 +20,3 @@ jobs:
       run: webpack --mode=production
     - name: Run jest
       run: npx jest --coverage
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5

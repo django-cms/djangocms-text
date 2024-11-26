@@ -54,7 +54,7 @@ def discover_inline_editable_models():
     return inline_models
 
 
-def check_ckeditor_settings(app_configs, **kwargs):
+def check_ckeditor_settings(app_configs, **kwargs):  # pragma: no cover
     from django.conf import settings
 
     change_msg = (

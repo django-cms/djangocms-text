@@ -48,6 +48,9 @@ dependencies = [
   "nh3",
   "packaging",
   "pillow",
+  "playwright>=1.42.0",
+  "pytest-django>=4.8.0",
+  "pytest-playwright>=0.4.0",
 ]
 
 urls.Homepage = "https://github.com/django-cms/djangocms-text"

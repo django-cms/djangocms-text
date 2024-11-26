@@ -1,5 +1,5 @@
-/* eslint-env es6 */
-/* jshint esversion: 6 */
+/* eslint-env es11 */
+/* jshint esversion: 11 */
 /* global window, document, fetch, IntersectionObserver, URLSearchParams, console */
 
 import CmsTextEditor from './cms.texteditor.js';
@@ -90,7 +90,7 @@ class CMSEditor {
         // Add event listener to delete data on modal cancel
         if (settings.revert_on_cancel) {
             const CMS = this.CMS;
-            const csrf = CMS.config.csrf;
+            const csrf = CMS.config?.csrf || document.querySelector('input[name="csrfmiddlewaretoken"]').value;
             CMS.API.Helpers.addEventListener(
                 'modal-close.text-plugin.text-plugin-' + settings.plugin_id,
                 function(e, opts) {

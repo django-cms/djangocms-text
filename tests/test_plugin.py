@@ -125,8 +125,8 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
     def get_plugin_id_from_response(self, response):
         url = unquote(response.url)
         # Ideal case, this looks like:
-        # /en/admin/cms/page/edit-plugin/1/
-        return re.findall(r"\d+", url)[0]
+        # /en/admin/cms/placeholder/add-plugin/...?...&plugin=123
+        return re.findall(r"plugin=\d+", url)[0][7:]
 
     def test_add_and_edit_plugin(self):
         """
@@ -632,9 +632,9 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             # <cms-plugin></cms-plugin>
             rendered_child_plugin = (
                 "<cms-plugin render-plugin=false "
-                'alt="Preview Disabled Plugin - 3" '
-                'title="Preview Disabled Plugin - 3" '
-                'id="3" type="PreviewDisabledPlugin">'
+                f'alt="Preview Disabled Plugin - {child_plugin.pk}" '
+                f'title="Preview Disabled Plugin - {child_plugin.pk}" '
+                f'id="{child_plugin.pk}" type="PreviewDisabledPlugin">'
                 "<span>Preview is disabled for this plugin</span>"
                 "</cms-plugin>"
             )

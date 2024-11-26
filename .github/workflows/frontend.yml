@@ -19,4 +19,4 @@ jobs:
     - name: Build bundles
       run: webpack --mode=production
     - name: Run jest
-      run: jest
+      run: npx jest

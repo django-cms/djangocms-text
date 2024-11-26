@@ -2,6 +2,7 @@ import copy
 import json
 import re
 import unittest
+from unittest.mock import patch, MagicMock
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -1129,3 +1130,45 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
 
         result = TextPlugin.set_translation_import_content(result, plugin)
         self.assertDictEqual(result, {child1.pk: ""})
+
+
+class TestGetChildPluginCandidates(BaseTestCase):
+    @patch("cms.plugin_pool.plugin_pool.get_text_enabled_plugins")
+    def test_get_child_plugin_candidates_whitelist(self, get_text_enabled_plugins_mock):
+        slot = MagicMock()
+        page = MagicMock()
+
+        plugin_a = MagicMock(__name__="PluginA")
+        plugin_b = MagicMock(__name__="PluginB")
+        get_text_enabled_plugins_mock.return_value = [plugin_a, plugin_b]
+
+        with patch("djangocms_text.settings.TEXT_CHILDREN_WHITELIST", ["PluginA"]):
+            candidates = TextPlugin.get_child_plugin_candidates(slot, page)
+            self.assertEqual(candidates, [plugin_a])
+
+    @patch("cms.plugin_pool.plugin_pool.get_text_enabled_plugins")
+    def test_get_child_plugin_candidates_blacklist(self, get_text_enabled_plugins_mock):
+        slot = MagicMock()
+        page = MagicMock()
+
+        plugin_a = MagicMock(__name__="PluginA")
+        plugin_b = MagicMock(__name__="PluginB")
+        get_text_enabled_plugins_mock.return_value = [plugin_a, plugin_b]
+
+        with patch("djangocms_text.settings.TEXT_CHILDREN_BLACKLIST", ["PluginA"]):
+            candidates = TextPlugin.get_child_plugin_candidates(slot, page)
+            self.assertEqual(candidates, [plugin_b])
+
+    @patch("cms.plugin_pool.plugin_pool.get_text_enabled_plugins")
+    def test_get_child_plugin_candidates_no_whitelist_blacklist(self, get_text_enabled_plugins_mock):
+        slot = MagicMock()
+        page = MagicMock()
+
+        plugin_a = MagicMock(__name__="PluginA")
+        plugin_b = MagicMock(__name__="PluginB")
+        get_text_enabled_plugins_mock.return_value = [plugin_a, plugin_b]
+
+        with patch("djangocms_text.settings.TEXT_CHILDREN_WHITELIST", None):
+            with patch("djangocms_text.settings.TEXT_CHILDREN_BLACKLIST", []):
+                candidates = TextPlugin.get_child_plugin_candidates(slot, page)
+                self.assertEqual(candidates, [plugin_a, plugin_b])

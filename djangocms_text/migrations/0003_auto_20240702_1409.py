@@ -8,6 +8,7 @@ def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
         class Meta:
             managed = False
             db_table = "djangocms_text_ckeditor_text"
+
         cmsplugin_ptr_id = models.PositiveIntegerField(primary_key=True)
         body = models.TextField()
 
@@ -15,6 +16,7 @@ def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
         class Meta:
             managed = False
             db_table = "djangocms_text_text"
+
         cmsplugin_ptr_id = models.PositiveIntegerField(primary_key=True)
         body = models.TextField()
         json = models.JSONField(blank=True, null=True)
@@ -30,9 +32,8 @@ def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('djangocms_text', '0002_text_json_text_rte'),
+        ("djangocms_text", "0002_text_json_text_rte"),
     ]
 
     operations = [

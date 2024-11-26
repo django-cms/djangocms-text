@@ -16,7 +16,7 @@ class DummyLink(CMSPlugin):
         abstract = False
 
     def __str__(self):
-        return 'dummy link object'
+        return "dummy link object"
 
 
 class DummySpacer(CMSPlugin):
@@ -24,7 +24,7 @@ class DummySpacer(CMSPlugin):
         abstract = False
 
     def __str__(self):
-        return 'dummy spacer object'
+        return "dummy spacer object"
 
 
 class Pizza(models.Model):

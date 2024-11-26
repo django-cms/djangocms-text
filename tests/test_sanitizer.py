@@ -8,7 +8,6 @@ from djangocms_text.html import cms_parser, NH3Parser
 
 
 class SanitizerTestCase(TestCase):
-
     def setUp(self):
         self.cms_parser = html.cms_parser
 
@@ -22,7 +21,6 @@ class SanitizerTestCase(TestCase):
         self.assertTrue('data-two="2"' in body)
 
     def test_sanitizer_with_custom_token_parser(self):
-
         cleaner = NH3Parser(additional_attributes={"span": {"donut"}})
         body = '<span donut="yummy">some text</span>'
         body = html.clean_html(body, cleaner=cleaner)
@@ -32,4 +30,4 @@ class SanitizerTestCase(TestCase):
     def test_sanitizer_without_token_parsers(self):
         body = '<span data-one="1" data-two="2">some text</span>'
         body = html.clean_html(body)
-        self.assertEqual('<span>some text</span>', body)
+        self.assertEqual("<span>some text</span>", body)

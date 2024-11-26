@@ -1,4 +1,5 @@
-from typing import Iterable, Optional
+from typing import Optional
+from collections.abc import Iterable
 
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder

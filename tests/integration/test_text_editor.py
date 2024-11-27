@@ -28,13 +28,17 @@ def test_editor_loads(live_server, page, text_plugin):
     login(page, live_server)
 
     page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
-    editor = page.locator(".ProseMirror.tiptap")
 
+    editor = page.locator(".cms-editor-inline-wrapper.fixed")
     expect(editor).to_be_visible()  # Editor
+
+    tiptap = page.locator(".ProseMirror.tiptap")
+    expect(tiptap).to_be_visible()  # Editor
+
     expect(page.locator('div[role="menubar"]')).to_be_visible()  # its menu bar
     expect(page.locator('button[title="Bold"]')).to_be_visible()  # a button in the menu bar
 
-    assert editor.inner_text() == "Test content"
+    assert tiptap.inner_text() == "Test content"
 
 
 @pytest.mark.django_db

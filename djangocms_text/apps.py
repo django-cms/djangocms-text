@@ -33,9 +33,9 @@ def discover_inline_editable_models():
             if form:
                 field_instance = form.base_fields.get(field_name, None)
                 if field_instance.__class__.__name__ in registered_inline_fields:
-                    inline_models[
-                        f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
-                    ] = field_instance.__class__.__name__
+                    inline_models[f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"] = (
+                        field_instance.__class__.__name__
+                    )
 
     from cms.plugin_pool import plugin_pool
 
@@ -47,9 +47,9 @@ def discover_inline_editable_models():
             form = plugin.form
             field_instance = form.base_fields.get(field_name, None)
             if field_instance.__class__.__name__ in registered_inline_fields:
-                inline_models[
-                    f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"
-                ] = field_instance.__class__.__name__
+                inline_models[f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"] = (
+                    field_instance.__class__.__name__
+                )
 
     return inline_models
 

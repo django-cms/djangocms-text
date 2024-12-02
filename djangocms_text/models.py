@@ -22,7 +22,6 @@ except ImportError:
 
 
 class AbstractText(CMSPlugin):
-
     """
     Abstract Text Plugin Class designed to be backwards compatible with
     djangocms-text-ckeditor:

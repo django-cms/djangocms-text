@@ -8,6 +8,7 @@ class ToppingInlineAdmin(admin.TabularInline):
     extra = 1
 
 
+@admin.register(Pizza)
 class PizzaAdmin(admin.ModelAdmin):
     fieldsets = (
         (
@@ -27,6 +28,3 @@ class PizzaAdmin(admin.ModelAdmin):
         ),
     )
     inlines = [ToppingInlineAdmin]
-
-
-admin.site.register(Pizza, PizzaAdmin)

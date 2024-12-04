@@ -12,6 +12,8 @@ flake8
 flake8-pyproject
 pytest
 pytest-django
+playwright>=1.42.0
+pytest-playwright>=0.4.0
 
 # other requirements
 coverage

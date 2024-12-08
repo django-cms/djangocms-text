@@ -52,7 +52,7 @@ default TipTap frontend), and set the editor you want to use:
 .. code-block:: python
 
     INSTALLED_APPS = [..., "djangocms_text.contrib.text_ckeditor4", ...]
-    DJANGOCMS_TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor4.ckeditor4"
+    TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor4.ckeditor4"
 
 
 Upgrading from djangocms-text-ckeditor
@@ -134,7 +134,7 @@ Rich text editor selection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To select a rich text editor, add the editor's package to your ``INSTALLED_APPS`` and
-add the setting ``DJANGOCMS_TEXT_EDITOR`` to point to the editor's ``RTEConfig`` path.
+add the setting ``TEXT_EDITOR`` to point to the editor's ``RTEConfig`` path.
 
 Example::
 
@@ -144,7 +144,7 @@ Example::
         ...
     ]
 
-    DJANGOCMS_TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor5.ckeditor4"
+    TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor4.ckeditor4"
 
 
 

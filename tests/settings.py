@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.admin",
     "django.contrib.messages",
+    "django.contrib.staticfiles",
     "easy_thumbnails",
     "filer",
     "cms",

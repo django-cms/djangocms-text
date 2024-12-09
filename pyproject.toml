@@ -43,7 +43,6 @@ classifiers = [
 ]
 dynamic = [ "version" ]
 dependencies = [
-  "django-cms>=3.11",
   "lxml",
   "nh3",
   "packaging",

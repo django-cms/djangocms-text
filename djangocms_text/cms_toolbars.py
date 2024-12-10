@@ -12,8 +12,8 @@ from cms.toolbar_base import CMSToolbar
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings
-from .utils import get_cancel_url, get_messages_url, get_render_plugin_url, get_url_endpoint
-from .widgets import TextEditorWidget, rte_config
+from .utils import get_cancel_url, get_messages_url, get_render_plugin_url
+from .widgets import TextEditorWidget, get_url_endpoint, rte_config
 
 
 class IconButton(Button):

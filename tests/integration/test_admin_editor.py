@@ -26,4 +26,3 @@ def test_inline_admin_add_row(live_server, page, pizza, superuser):
     page.locator(".add-row a").click()
 
     assert page.locator(".cms-editor-inline-wrapper.textarea.fixed").count() == 4
-

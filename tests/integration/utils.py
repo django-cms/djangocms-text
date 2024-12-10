@@ -13,5 +13,3 @@ def login(live_server, page, superuser):
 
 def get_pagecontent(cms_page):
     return cms_page.pagecontent_set(manager="admin_manager").current_content(language="en").first()
-
-

@@ -7,8 +7,8 @@ from django.templatetags.static import static
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from cms.cms_toolbars import CMSToolbar
 from cms.toolbar.items import Button, ButtonList, TemplateItem
+from cms.toolbar_base import CMSToolbar
 from cms.toolbar_pool import toolbar_pool
 
 from . import settings

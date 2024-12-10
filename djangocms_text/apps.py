@@ -1,5 +1,5 @@
-from django.apps import AppConfig
-from django.core.checks import Warning, register
+from django.apps import AppConfig, apps
+from django.core.checks import Error, Warning, register
 
 
 class TextConfig(AppConfig):
@@ -10,6 +10,7 @@ class TextConfig(AppConfig):
     def ready(self):
         self.inline_models = discover_inline_editable_models()
         register(check_ckeditor_settings)
+        register(check_no_cms_config)
 
 
 def discover_inline_editable_models():
@@ -37,19 +38,21 @@ def discover_inline_editable_models():
                         field_instance.__class__.__name__
                     )
 
-    from cms.plugin_pool import plugin_pool
+    if apps.is_installed("cms"):
+        # also check the plugins
+        from cms.plugin_pool import plugin_pool
 
-    for plugin in plugin_pool.plugins.values():
-        model = plugin.model
-        if model._meta.app_label in blacklist_apps:
-            continue
-        for field_name in getattr(plugin, "frontend_editable_fields", []):
-            form = plugin.form
-            field_instance = form.base_fields.get(field_name, None)
-            if field_instance.__class__.__name__ in registered_inline_fields:
-                inline_models[f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"] = (
-                    field_instance.__class__.__name__
-                )
+        for plugin in plugin_pool.plugins.values():
+            model = plugin.model
+            if model._meta.app_label in blacklist_apps:
+                continue
+            for field_name in getattr(plugin, "frontend_editable_fields", []):
+                form = plugin.form
+                field_instance = form.base_fields.get(field_name, None)
+                if field_instance.__class__.__name__ in registered_inline_fields:
+                    inline_models[f"{model._meta.app_label}-{model._meta.model_name}-{field_name}"] = (
+                        field_instance.__class__.__name__
+                    )
 
     return inline_models
 
@@ -84,3 +87,19 @@ def check_ckeditor_settings(app_configs, **kwargs):  # pragma: no cover
         )
 
     return warnings
+
+
+def check_no_cms_config(app_configs, **kwargs):
+    from django.conf import settings
+
+    if "cms" not in settings.INSTALLED_APPS:
+        migration_modules = getattr(settings, "MIGRATION_MODULES", {})
+        if "djangocms_text" not in migration_modules or migration_modules["djangocms_text"] is not None:
+            return [
+                Error(
+                    "When using djangocms-text outside django-cms, deactivate migrations for it.",
+                    hint="Add \"'djangocms_text': None\" to your MIGRATION_MODULES setting.",
+                    id="djangocms_text.E001",
+                )
+            ]
+    return []

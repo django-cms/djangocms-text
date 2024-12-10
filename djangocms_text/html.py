@@ -250,7 +250,7 @@ def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove
     for elem in update_queue:
         for attr, value in elem.attrib.items():
             if attr in dynamic_attr_pool:
-                target_attr = attr[len(prefix) :]
+                target_attr = attr[len(prefix):]
                 try:
                     model, pk = value.rsplit(":", 1)
                     obj = from_db[model.strip()][int(pk.strip())]

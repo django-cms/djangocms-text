@@ -295,6 +295,25 @@ rendering the above settings useless.
 To completely disable the feature, set ``TEXT_HTML_SANITIZE = False``.
 
 
+Usage outside django CMS
+------------------------
+
+django CMS Text can be used without django CMS installed. Without django CMS it
+offers the ``HTMLField``, ``HTMLFormField``, and the ``TextEditorWidget`` class
+which can be used by any Django model or form.
+
+If django CMS is not installed with django CMS Text, add the following to your
+``MIGRATION_MODULES`` setting::
+
+    MIGRATION_MODULES = {
+        ...,
+        "djangocms_text": None,
+        ...
+    }
+
+This will prevent the creation of the model for the django CMS text plugin.
+
+
 Development
 ===========
 

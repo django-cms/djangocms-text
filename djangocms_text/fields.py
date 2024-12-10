@@ -4,7 +4,6 @@ from django.forms.fields import CharField
 from django.utils.safestring import mark_safe
 
 from .html import clean_html, render_dynamic_attributes
-from .utils import get_url_endpoint
 from .widgets import TextEditorWidget
 
 
@@ -66,7 +65,7 @@ class HTMLField(models.TextField):
         # override the admin widget
         if defaults["widget"] == admin_widgets.AdminTextareaWidget:
             # In the admin the URL endpoint is available
-            defaults["widget"] = TextEditorWidget(configuration=self.configuration, url_endpoint=get_url_endpoint())
+            defaults["widget"] = TextEditorWidget(configuration=self.configuration)
         return super().formfield(**defaults)
 
     def clean(self, value, model_instance):

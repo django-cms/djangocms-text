@@ -299,8 +299,8 @@ Usage outside django CMS
 ------------------------
 
 django CMS Text can be used without django CMS installed. Without django CMS it
-offers the ``HTMLField`` and ``HTMLFormField`` classes which can be used by any
-Django model or form.
+offers the ``HTMLField``, ``HTMLFormField``, and the ``TextEditorWidget`` class
+which can be used by any Django model or form.
 
 If django CMS is not installed with django CMS Text, add the following to your
 ``MIGRATION_MODULES`` setting::

@@ -101,7 +101,8 @@ def check_no_cms_config(app_configs, **kwargs):  # pragma: no cover
 
     return [
         Error(
-            "When using djangocms-text outside django-cms, deactivate migrations for it.",
+            "When using djangocms-text outside django-cms, deactivate migrations for it. Migrations are only "
+            "needed when using djangocms-text within django-cms. They will fail otherwise.",
             hint="Add \"'djangocms_text': None\" to your MIGRATION_MODULES setting.",
             id="djangocms_text.E001",
         )

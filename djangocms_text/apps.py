@@ -92,14 +92,17 @@ def check_ckeditor_settings(app_configs, **kwargs):  # pragma: no cover
 def check_no_cms_config(app_configs, **kwargs):  # pragma: no cover
     from django.conf import settings
 
-    if "cms" not in settings.INSTALLED_APPS:
-        migration_modules = getattr(settings, "MIGRATION_MODULES", {})
-        if "djangocms_text" not in migration_modules or migration_modules["djangocms_text"] is not None:
-            return [
-                Error(
-                    "When using djangocms-text outside django-cms, deactivate migrations for it.",
-                    hint="Add \"'djangocms_text': None\" to your MIGRATION_MODULES setting.",
-                    id="djangocms_text.E001",
-                )
-            ]
-    return []
+    if "cms" in settings.INSTALLED_APPS:
+        return []
+
+    migration_modules = getattr(settings, "MIGRATION_MODULES", {})
+    if "djangocms_text" in migration_modules and migration_modules["djangocms_text"] is None:
+        return []
+
+    return [
+        Error(
+            "When using djangocms-text outside django-cms, deactivate migrations for it.",
+            hint="Add \"'djangocms_text': None\" to your MIGRATION_MODULES setting.",
+            id="djangocms_text.E001",
+        )
+    ]

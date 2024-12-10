@@ -17,6 +17,9 @@ class CMSEditor {
         this._generic_editors = [];
         this._global_settings = {};
         this._editor_settings = {};
+        this._admin_selector = 'textarea.CMS_Editor';
+        this._admin_add_row_selector = 'body.change-form .add-row a';
+        this._inline_admin_selector = 'body.change-form .form-row';
 
         document.addEventListener('DOMContentLoaded', () => {
             // Get the CMS object from the parent window
@@ -39,6 +42,11 @@ class CMSEditor {
                     }
                 });
             }
+
+            if (document.querySelector(this._inline_admin_selector + '.empty-form')) {
+                // Marker for inline admin form: do **not** initialize empty form templates
+                this._admin_selector = this._inline_admin_selector + ':not(.empty-form) ' + this._admin_selector;
+            }
             this.initAll();
         });
     }
@@ -54,11 +62,26 @@ class CMSEditor {
         }
 
         // All textareas with class CMS_Editor: typically on admin site
-        document.querySelectorAll('textarea.CMS_Editor').forEach(
+        document.querySelectorAll(this._admin_selector).forEach(
             (el) => this.init(el), this
         );
         // Register all plugins on the page for inline editing
         this.initInlineEditors();
+
+        // Listen to the add row click for inline admin in a change form
+        if (this._admin_add_row_selector) {
+            setTimeout(() => {
+                for (const el of document.querySelectorAll(this._admin_add_row_selector)) {
+                    el.addEventListener('click', (event) => {
+                        setTimeout(() => {
+                            document.querySelectorAll(this._admin_selector).forEach(
+                                (el) => this.init(el), this
+                            );
+                        }, 0);
+                    });
+                }
+            }, 0);
+        }
     }
 
     // CMS Editor: init

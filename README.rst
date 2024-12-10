@@ -305,13 +305,13 @@ which can be used by any Django model or form.
 If django CMS is not installed with django CMS Text, add the following to your
 ``MIGRATION_MODULES`` setting::
 
-    MIGRATION_MODULES = [
+    MIGRATION_MODULES = {
         ...,
         "djangocms_text": None,
         ...
-    ]
+    }
 
-This will prevent the migration of the models for django CMS plugins.
+This will prevent the creation of the model for the django CMS text plugin.
 
 
 Development

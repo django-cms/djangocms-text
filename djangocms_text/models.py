@@ -133,10 +133,7 @@ if apps.is_installed("cms"):
             """
             Fix references to plugins
             """
-            replace_ids = {}
-            for new, old in ziplist:
-                replace_ids[old.pk] = new.pk
-
+            replace_ids = {old.pk: new.pk for new, old in ziplist}
             old_text = old_instance.get_plugin_instance()[0].body
             self.body = replace_plugin_tags(old_text, replace_ids)
             self.save()
@@ -148,11 +145,10 @@ if apps.is_installed("cms"):
             we must replace some strings with child tag for the editor.
             Strings are "%(_tag_child_<order>)s" with the inserted order of children
             """
-            replacements = {}
-            order = 1
-            for child in children:
-                replacements["_tag_child_" + str(order)] = plugin_to_tag(child)
-                order += 1
+            replacements = {
+                f"_tag_child_{str(order)}": plugin_to_tag(child)
+                for order, child in enumerate(children, start=1)
+            }
             self.body = self.body % replacements
             self.save()
 

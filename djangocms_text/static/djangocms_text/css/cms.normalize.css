@@ -10,6 +10,7 @@ body.change-form .cms-editor-inline-wrapper.fixed {
     line-height: 1.5  !important;
     h1, h2, h3, h4, h5, h6, p {
         margin: 0 0 0.8rem 0 !important;
+        text-transform: none;
     }
     h1, h2, h3, h4, h5, h6 {
         font-weight: bold;

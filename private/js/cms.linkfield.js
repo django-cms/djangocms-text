@@ -165,8 +165,7 @@ class LinkField {
     }
 
     handleChange(event) {
-        console.log("handleChange", event);
-        if (this.selectElement.value) {
+        if (this.selectElement.value && this.options.url) {
             fetch(this.options.url + '?g=' + encodeURIComponent(this.selectElement.value))
                 .then(response => response.json())
                 .then(data => {
@@ -178,7 +177,6 @@ class LinkField {
     }
 
     search(page = 1) {
-        console.log("search", page);
         this.openDropdown();
         const searchText = this.inputElement.value.toLowerCase();
         this.fetchData(searchText, page).then(response => {

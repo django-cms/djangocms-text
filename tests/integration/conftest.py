@@ -31,7 +31,7 @@ def page(browser_context):
 
 
 @pytest.fixture
-def user(db):
+def superuser(db):
     from django.contrib.auth import get_user_model
 
     User = get_user_model()
@@ -39,10 +39,10 @@ def user(db):
 
 
 @pytest.fixture
-def cms_page(db, user):
+def cms_page(db, superuser):
     from cms.api import create_page
 
-    return create_page("Test Page", "page.html", "en", created_by=user)
+    return create_page("Test Page", "page.html", "en", created_by=superuser)
 
 
 @pytest.fixture

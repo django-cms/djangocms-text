@@ -97,8 +97,7 @@ if apps.is_installed("cms"):
                 plugin.delete()
 
         def copy_referenced_plugins(self):
-            referenced_plugins = self.get_referenced_plugins()
-            if referenced_plugins:
+            if referenced_plugins := self.get_referenced_plugins():
                 plugin_pairs = []
                 for source_plugin in referenced_plugins:
                     new_plugin = deepcopy(source_plugin)

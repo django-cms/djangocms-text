@@ -89,7 +89,7 @@ def check_ckeditor_settings(app_configs, **kwargs):  # pragma: no cover
     return warnings
 
 
-def check_no_cms_config(app_configs, **kwargs):
+def check_no_cms_config(app_configs, **kwargs):  # pragma: no cover
     from django.conf import settings
 
     if "cms" not in settings.INSTALLED_APPS:

@@ -2,6 +2,17 @@
 Changelog
 =========
 
+0.4.0 (11-12-2024)
+==================
+
+* feat: Remove explicit django CMS dependency by @fsbraun in https://github.com/django-cms/djangocms-text/pull/36
+* feat: Integrate Jest for JavaScript testing with CI setup by @sourcery-ai in https://github.com/django-cms/djangocms-text/pull/28
+* fix: Add row needs to initialize new editor instances for inline admins by @fsbraun in https://github.com/django-cms/djangocms-text/pull/37
+* tests: Add missing tests by @fsbraun in https://github.com/django-cms/djangocms-text/pull/29
+* ci: pre-commit autoupdate by @pre-commit-ci in https://github.com/django-cms/djangocms-text/pull/33
+* tests: Add CKEditor integration tests and update dependencies by @sourcery-ai in https://github.com/django-cms/djangocms-text/pull/32
+* build(deps): bump codecov/codecov-action from 4 to 5 by @dependabot in https://github.com/django-cms/djangocms-text/pull/26
+
 0.3.3 (05-11-2024)
 ==================
 

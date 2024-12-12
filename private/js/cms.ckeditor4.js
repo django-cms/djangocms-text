@@ -3,7 +3,6 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import './ckeditor4/ckeditor';
 import './ckeditor4_plugins/cmsdialog/plugin';
 import './ckeditor4_plugins/cmsplugins/plugin';
 import './ckeditor4_plugins/cmsresize/plugin';

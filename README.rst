@@ -87,6 +87,12 @@ project, consider the following points:
   provided with djangocms-text. This allows you to retain the familiar
   CKEditor4 behavior while benefiting from other updates.
 
+Using ckeditor4
+---------------
+
+You can continue to use ckeditor4. Compared to djangocms-text-ckeditor, the
+ckeditor4 sources have moved to ``static/djangocms_text/vendor/ckeditor4``.
+Please reflect this if you use custom ckeditor4 plugins.
 
 Usage
 -----

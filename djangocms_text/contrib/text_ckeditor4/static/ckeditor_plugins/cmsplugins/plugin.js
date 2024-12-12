@@ -107,7 +107,6 @@
 
                 // this is called when creating the dropdown list
                 onBlock: function (panel, block) {
-                    console.log(panel, block);
                     block.element.setHtml(editor.plugins.CMSPlugins.setupDropdown(editor));
 
                     var anchors = $(block.element.$).find('.cke_panel_listItem a');
@@ -246,7 +245,6 @@
         setupDropdown: function (editor) {
             var tpl = '<div class="cke_panel_block">';
 			var settings = CMS_Editor.getSettings(editor.name);
-            console.log("setupDropdown", settings.plugins)
             // loop through the groups
             $.each(settings.plugins, function (i, group) {
                 // add template

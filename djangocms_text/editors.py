@@ -435,8 +435,7 @@ def get_editor_config(editor: Optional[str] = None) -> RTEConfig:
     :rtype: RTEConfig
     """
 
-    TEXT_EDITOR = getattr(settings, "TEXT_EDITOR", "tiptap")
-    config = TEXT_EDITOR if editor is None else editor
+    config = editor or getattr(settings, "TEXT_EDITOR", "tiptap")
     if "." in config and config not in configuration:
         # Load the configuration from the module
         module = __import__(config.rsplit(".", 1)[0], fromlist=[""])

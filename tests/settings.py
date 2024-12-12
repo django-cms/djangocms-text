@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "djangocms_picture",
     "djangocms_link",
     "djangocms_text",
+    "djangocms_text.contrib.text_ckeditor4",
     "tests.test_app",
 ]
 

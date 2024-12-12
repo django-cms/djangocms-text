@@ -135,7 +135,6 @@ class LinkField {
     }
 
     handleSelection(event) {
-        console.log("handleSelection", event);
         event.stopPropagation();
         event.preventDefault();
         if (event.target.classList.contains('cms-linkfield-option')) {

@@ -96,7 +96,6 @@ window.cms_editor_plugin = {
                 }
             } else {
                 const editor = CKEDITOR.inline(el, all_options);
-                console.warn(editor.config.readOnly);
                 this._editors[el.id] = editor;
                 el.addEventListener('blur', save_callback);
                 editor.on('change', () => el.dataset.changed='true');
@@ -108,7 +107,6 @@ window.cms_editor_plugin = {
 
     _manageStyles: function () {
         const styles = document.querySelectorAll('link[rel="stylesheet"][type="text/css"][href*="ckeditor4"]');
-        console.warn("styles", styles);
         if (styles.length > 0) {
             // Styles are installed in the document head, but we need to clone them
             // for later recovery

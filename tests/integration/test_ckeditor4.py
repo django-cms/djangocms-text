@@ -33,7 +33,7 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
     editor = page.locator(".cke.cke_reset")
     expect(editor).to_be_visible()  # Editor
 
-    expect(page.locator('.cke_top.cke_reset_all')).to_be_visible()  # its menu bar
-    expect(page.locator('.cke_button.cke_button__bold')).to_be_visible()  # a button in the menu bar
+    expect(page.locator(".cke_top.cke_reset_all")).to_be_visible()  # its menu bar
+    expect(page.locator(".cke_button.cke_button__bold")).to_be_visible()  # a button in the menu bar
 
     assert not console_errors, f"Console errors found: {console_errors}"

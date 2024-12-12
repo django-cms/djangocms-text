@@ -84,6 +84,7 @@ class TextEditorWidget(forms.Textarea):
         revert_on_cancel: A boolean flag to enable or disable reversion of changes on cancellation.
         body_css_classes: A string for CSS classes to be attached to the editor body.
     """
+
     @property
     def media(self):
         rte_config = get_editor_config()

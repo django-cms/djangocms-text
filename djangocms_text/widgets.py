@@ -40,19 +40,67 @@ def get_url_endpoint():
 
 
 class TextEditorWidget(forms.Textarea):
-    class Media:
-        css = {
-            **rte_config.css,
-            "all": (
-                "djangocms_text/css/cms.text.css",
-                "djangocms_text/css/cms.normalize.css",
-                *rte_config.css.get("all", ()),
+    """
+    A widget for editing text content and plugins in a CMS environment.
+
+    This class extends the standard Django forms.Textarea widget, providing additional
+    capabilities to edit and manage content enriched with plugins. It integrates with
+    CMS systems and supports rendering, configuration, and customization of the text editor.
+    The widget is designed to adapt to a plugin-based architecture for seamless content creation
+    and management. It leverages specific editor settings, installed plugins, and placeholders,
+    while also supporting dynamic configurations tailored to individual plugin instances.
+
+    Attributes:
+        editor_class (str): The CSS class used to initialize the text editor.
+        editor_settings_id (str): Unique identifier for widget-specific editor settings.
+        global_settings_id (str): Shared identifier for global editor settings.
+        installed_plugins (list): A list of plugins available for text enhancement.
+        pk (str | int): The primary key of the associated plugin instance.
+        placeholder (str | int | None): The placeholder associated with the widget, if applicable.
+        plugin_language (str | None): The language used within the plugin.
+        plugin_position (int | None): Position of the plugin relative to others.
+        configuration (dict): Configuration settings for the text editor.
+        cancel_url (str | None): URL used to cancel editor actions.
+        url_endpoint (str | None): Endpoint for editor-related HTTP API calls.
+        render_plugin_url (str | None): URL for rendering plugin content.
+        messages_url (str | None): URL for fetching editor-related messages.
+        action_token (str | None): A token used to perform secured editor actions.
+        revert_on_cancel (bool): Whether changes are reverted upon cancellation.
+        body_css_classes (str): CSS classes for text editor's body element.
+
+    Args:
+        attrs: Optional dictionary of widget attributes.
+        installed_plugins: A list containing details of plugins enabled for the widget.
+        pk: The primary key identifying the plugin instance.
+        placeholder: A placeholder instance or its identifier for the widget's context.
+        plugin_language: A string specifying the language of the plugin in the editor context.
+        plugin_position: The integer position of the plugin among others.
+        configuration: Optional custom configuration dictionary for the widget editor.
+        cancel_url: A string representing the URL to redirect after cancellation.
+        url_endpoint: A string URL endpoint for backend interaction.
+        render_plugin_url: A string URL for rendering plugin output.
+        messages_url: A string URL for retrieving informational messages.
+        action_token: A secure action token string for backend interaction.
+        revert_on_cancel: A boolean flag to enable or disable reversion of changes on cancellation.
+        body_css_classes: A string for CSS classes to be attached to the editor body.
+    """
+    @property
+    def media(self):
+        rte_config = get_editor_config()
+        return forms.Media(
+            css={
+                **rte_config.css,
+                "all": (
+                    "djangocms_text/css/cms.text.css",
+                    "djangocms_text/css/cms.normalize.css",
+                    *rte_config.css.get("all", ()),
+                ),
+            },
+            js=(
+                static_with_version("cms/js/dist/bundle.admin.base.min.js"),
+                "djangocms_text/bundles/bundle.editor.min.js",
+                *rte_config.js,
             ),
-        }
-        js = (
-            static_with_version("cms/js/dist/bundle.admin.base.min.js"),
-            "djangocms_text/bundles/bundle.editor.min.js",
-            *rte_config.js,
         )
 
     def __init__(

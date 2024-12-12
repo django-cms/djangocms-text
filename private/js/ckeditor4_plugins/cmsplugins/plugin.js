@@ -302,7 +302,7 @@ import CmsDialog from "../../cms.dialog";
 							editor.fire('updateSnapshot');
 						})
 						.catch(error => {
-							console.warn(error);
+							console.error(error);
 						});
 				}
 				editor.focus();

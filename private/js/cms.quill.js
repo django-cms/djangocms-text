@@ -1,3 +1,7 @@
+/* eslint-env es6 */
+/* jshint esversion: 6 */
+/* global window, document, fetch, IntersectionObserver, URLSearchParams, console */
+
 import Quill from 'quill';
 
 

@@ -123,7 +123,7 @@ function renderCmsPluginMenu(editor, item, filter) {
 
 }
 
-TiptapToolbar['CMSPlugins'].render = renderCmsPluginMenu;
+TiptapToolbar.CMSPlugins.render = renderCmsPluginMenu;
 
 // Common node properties for both inline and block nodes
 const cmsPluginNodes = {

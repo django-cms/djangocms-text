@@ -3,6 +3,8 @@
 /* global window, document, fetch, IntersectionObserver, URLSearchParams, console */
 
 import CmsTextEditor from './cms.texteditor.js';
+import LinkField from "./cms.linkfield";
+import CmsDialog from "./cms.dialog";
 
 // #############################################################################
 // CMS Editor
@@ -20,6 +22,11 @@ class CMSEditor {
         this._admin_selector = 'textarea.CMS_Editor';
         this._admin_add_row_selector = 'body.change-form .add-row a';
         this._inline_admin_selector = 'body.change-form .form-row';
+        this.API = {
+            LinkField: LinkField,
+            CmsDialog: CmsDialog,
+            CmsTextEditor: CmsTextEditor,
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             // Get the CMS object from the parent window

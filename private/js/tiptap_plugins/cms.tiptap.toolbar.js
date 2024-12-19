@@ -26,9 +26,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('italic'),
         title: 'Italic',
         type: 'mark',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type-italic" viewBox="0 0 16 16">\n' +
-            '  <path d="M7.991 11.674 9.53 4.455c.123-.595.246-.71 1.347-.807l.11-.52H7.211l-.11.52c1.06.096 1.128.212 1.005.807L6.57 11.674c-.123.595-.246.71-1.346.806l-.11.52h3.774l.11-.52c-1.06-.095-1.129-.211-1.006-.806z"/>\n' +
-            '</svg>'
     },
     Underline: {
         action: (editor) => editor.chain().focus().toggleUnderline().run(),
@@ -36,9 +33,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('underline'),
         title: 'Underline',
         type: 'mark',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type-underline" viewBox="0 0 16 16">\n' +
-            '  <path d="M5.313 3.136h-1.23V9.54c0 2.105 1.47 3.623 3.917 3.623s3.917-1.518 3.917-3.623V3.136h-1.23v6.323c0 1.49-.978 2.57-2.687 2.57s-2.687-1.08-2.687-2.57zM12.5 15h-9v-1h9z"/>\n' +
-            '</svg>'
     },
     Strike: {
         action: (editor) => editor.chain().focus().toggleStrike().run(),
@@ -220,9 +214,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('heading', { level: 3 }),
         title: 'Heading 3',
         type: 'block',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type-h3" viewBox="0 0 16 16">\n' +
-            '  <path d="M11.07 8.4h1.049c1.174 0 1.99.69 2.004 1.724s-.802 1.786-2.068 1.779c-1.11-.007-1.905-.605-1.99-1.357h-1.21C8.926 11.91 10.116 13 12.028 13c1.99 0 3.439-1.188 3.404-2.87-.028-1.553-1.287-2.221-2.096-2.313v-.07c.724-.127 1.814-.935 1.772-2.293-.035-1.392-1.21-2.468-3.038-2.454-1.927.007-2.94 1.196-2.981 2.426h1.23c.064-.71.732-1.336 1.744-1.336 1.027 0 1.744.64 1.744 1.568.007.95-.738 1.639-1.744 1.639h-.991V8.4ZM7.495 13V3.201H6.174v4.15H1.32V3.2H0V13h1.32V8.513h4.854V13z"/>\n' +
-            '</svg>'
     },
     Heading4: {
         action: (editor) => editor.chain().focus().setHeading({ level: 4 }).run(),
@@ -230,9 +221,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('heading', { level: 4 }),
         title: 'Heading 4',
         type: 'block',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type-h4" viewBox="0 0 16 16">\n' +
-            '  <path d="M13.007 3H15v10h-1.29v-2.051H8.854v-1.18C10.1 7.513 11.586 5.256 13.007 3m-2.82 6.777h3.524v-5.62h-.074a95 95 0 0 0-3.45 5.554zM7.495 13V3.201H6.174v4.15H1.32V3.2H0V13h1.32V8.513h4.854V13z"/>\n' +
-            '</svg>'
     },
     Heading5: {
         action: (editor) => editor.chain().focus().setHeading({ level: 5 }).run(),
@@ -240,9 +228,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('heading', { level: 5 }),
         title: 'Heading 5',
         type: 'block',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type-h5" viewBox="0 0 16 16">\n' +
-            '  <path d="M9 10.516h1.264c.193.976 1.112 1.364 2.01 1.364 1.005 0 2.067-.782 2.067-2.247 0-1.292-.983-2.082-2.089-2.082-1.012 0-1.658.596-1.924 1.077h-1.12L9.646 3h5.535v1.141h-4.415L10.5 7.28h.072c.201-.316.883-.84 1.967-.84 1.709 0 3.13 1.177 3.13 3.158 0 2.025-1.407 3.403-3.475 3.403-1.809 0-3.1-1.048-3.194-2.484ZM7.495 13V3.201H6.174v4.15H1.32V3.2H0V13h1.32V8.512h4.854V13z"/>\n' +
-            '</svg>'
     },
     Heading6: {
         action: (editor) => editor.chain().focus().setHeading({ level: 6 }).run(),
@@ -250,9 +235,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('heading', { level: 6 }),
         title: 'Heading 6',
         type: 'block',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type-h6" viewBox="0 0 16 16">\n' +
-            '  <path d="M15.596 5.178H14.3c-.106-.444-.62-1.072-1.706-1.072-1.332 0-2.325 1.269-2.325 3.947h.07c.268-.67 1.043-1.445 2.445-1.445 1.494 0 3.017 1.064 3.017 3.073C15.8 11.795 14.37 13 12.48 13c-1.036 0-2.093-.36-2.77-1.452C9.276 10.836 9 9.808 9 8.37 9 4.656 10.494 3 12.636 3c1.812 0 2.883 1.113 2.96 2.178m-5.151 4.566c0 1.367.944 2.15 2.043 2.15 1.128 0 2.037-.684 2.037-2.136 0-1.41-1-2.065-2.03-2.065-1.19 0-2.05.853-2.05 2.051M7.495 13V3.201H6.174v4.15H1.32V3.2H0V13h1.32V8.513h4.854V13z"/>\n' +
-            '</svg>'
     },
     Paragraph: {
         action: (editor) => editor.chain().focus().setParagraph().run(),
@@ -260,9 +242,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('paragraph'),
         title: 'Paragraph',
         type: 'block',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paragraph" viewBox="0 0 16 16">\n' +
-            '  <path d="M10.5 15a.5.5 0 0 1-.5-.5V2H9v12.5a.5.5 0 0 1-1 0V9H7a4 4 0 1 1 0-8h5.5a.5.5 0 0 1 0 1H11v12.5a.5.5 0 0 1-.5.5"/>\n' +
-            '</svg>'
     },
     CMSPlugins: {
         icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-puzzle" viewBox="0 0 16 16">\n' +

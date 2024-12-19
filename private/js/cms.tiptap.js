@@ -27,6 +27,7 @@ import { formToHtml, populateForm } from './cms.dialog';
 import LinkField from "./cms.linkfield";
 
 import "../css/cms.tiptap.css";
+import "../css/cms.linkfield.css";
 
 
 class CMSTipTapPlugin {

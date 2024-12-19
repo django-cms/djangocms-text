@@ -59,7 +59,7 @@
         [role="button"].show > .dropdown-content {
             visibility: visible;
         }
-        padding: 6px 0.8rem;
+        padding: 2px 0.4rem;
         /* border-radius: 3px; */
         margin: 0  !important;
         font-size: 1rem;
@@ -118,6 +118,7 @@
         vertical-align: middle;
         line-height: 1.2;
         padding: 6px 4px  !important;
+        z-index: 1;
         &:active, &.active {
             background: var(--dca-gray-lighter, var(--selected-bg))  !important;
         }

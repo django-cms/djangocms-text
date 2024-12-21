@@ -21,6 +21,7 @@ class CmsDialog {
         this.el = el;
         this.saveSuccess = saveSuccess;
         this.cancel = cancel;
+        this.close = this._close.bind(this);
     }
 
     /**
@@ -176,8 +177,8 @@ class CmsDialog {
      * @memberof ClassName
      * @returns {void}
      */
-    close() {
-        this.dialog.removeEventListener("close", this.close.bind(this));
+    _close() {
+        this.dialog.removeEventListener("close", this.close);
         this.dialog.remove();
     }
 
@@ -251,6 +252,7 @@ class CmsForm {
         this.el = el;
         this.saveSuccess = saveSuccess;
         this.cancel = cancel;
+        this.close = this._close.bind(this);
     }
 
     formDialog(form, options) {
@@ -277,7 +279,7 @@ class CmsForm {
             const el_pos = this.el.getBoundingClientRect();
             if (options.x > window.innerWidth / 2) {
                 this.dialog.classList.add("right");
-                this.dialog.style.right = ( el_pos.x + el_pos.width - options.x - 24) + 'px';
+                this.dialog.style.right = (el_pos.x + el_pos.width - options.x - 24 - 10) + 'px';
             } else {
                 this.dialog.style.left = (options.x - el_pos.x - 24) + 'px';
             }
@@ -291,11 +293,10 @@ class CmsForm {
             event.stopPropagation();
             this.close();
         });
-        document.addEventListener("click", this.close.bind(this));
+        document.addEventListener("click", this.close);
         if (this.dialog.querySelector('.cancel')) {
-            this.dialog
-                .querySelector(".cancel")
-                .addEventListener('click', (event) => this.close()  );
+            this.dialog.querySelector(".cancel")
+                .addEventListener('click',  () => this.close() );
         }
         this.dialog.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
@@ -329,14 +330,14 @@ class CmsForm {
         }
     }
 
-    close(event) {
+    _close(event) {
         if (!event || !this.dialog.contains(event.target)) {
-
+            // Do only close if the click is outside the dialog
+            document.removeEventListener("click", this.close);
+            this.dialog.removeEventListener("close", this.close);
             if (this.cancel) {
                 this.cancel(event);
             }
-            document.removeEventListener("click", this.close.bind(this));
-            this.dialog.removeEventListener("close", this.close.bind(this));
             this.dialog.remove();
         }
     }

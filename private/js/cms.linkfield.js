@@ -161,10 +161,10 @@ class LinkField {
     }
 
     openDropdown(event) {
-        if (this.dropdown.style.visibility === 'visible') {
+        if (this.dropdown.style.visibility !== 'hidden') {
             return;
         }
-        this.dropdown.style.visibility = 'visible';
+        this.dropdown.style.visibility = '';
         document.addEventListener('click', this.closeDropdown.bind(this));
     }
 

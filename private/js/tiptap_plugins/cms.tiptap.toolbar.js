@@ -131,9 +131,11 @@ const TiptapToolbar = {
                 } else {
                     editor.chain().focus().setLink(link).run();
                 }
+            } else {
+                editor.focus();
             }
         },
-        enabled: (editor) => editor.can().setLink(),
+        enabled: (editor) => editor.can().setLink({href: '#'}),
         active: (editor) => editor.isActive('link'),
         attributes: (editor) => {
             let attrs = editor.getAttributes('link');
@@ -150,7 +152,7 @@ const TiptapToolbar = {
     },
     TipTapTable: {
         action: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run(),
-        enabled: (editor) => editor.can().insertTable(),
+        enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
         type: 'block',
     },
     Code: {

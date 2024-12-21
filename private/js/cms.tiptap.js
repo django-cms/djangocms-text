@@ -51,9 +51,7 @@ class CMSTipTapPlugin {
                 TableRow,
                 TableHeader,
                 TableCell,
-                CmsDynLink.extend({
-                    inclusive: false,
-                }),
+                CmsDynLink,
                 Small, Var, Kbd, Samp,
                 CmsPluginNode,
                 CmsBlockPluginNode,
@@ -124,7 +122,7 @@ class CMSTipTapPlugin {
                 save_callback: save_callback,
                 settings: settings,
             });
-            editor.on('blur', ({editor, event}) => {
+            el.addEventListener('blur', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });
             editor.on('update', ({editor}) => {
@@ -139,10 +137,11 @@ class CMSTipTapPlugin {
                 }
             });
             this._editors[el.id] = editor;
-            const el_rect = el.getBoundingClientRect();
+            editor.cmsPlugin = this;
 
-            if (el.tagName === 'TEXTAREA' || el_rect.x < 32) {
-                // Not inline
+            const el_rect = el.getBoundingClientRect();
+            if (el.tagName === 'TEXTAREA' || el_rect.x < 28) {
+                // Not inline or too close to the left edge to see the block toolbar
                 this._createTopToolbar(editorElement, editor, options);
                 if (el.rows && !el.closest('body.app-djangocms_text.change-form')) {
                     editorElement.querySelector('.tiptap').style.height = el.rows * 1.5 + 'em';
@@ -530,6 +529,7 @@ class CMSTipTapPlugin {
             if (action) {
                 if (TiptapToolbar[action]) {
                     const toolbarItem = this._getRepresentation(action);
+                    button.disabled = !toolbarItem.enabled(editor, button);
                     try {
                         button.disabled = !toolbarItem.enabled(editor, button);
                         try {

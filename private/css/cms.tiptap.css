@@ -38,18 +38,41 @@
         overflow-y: auto;
     }
     position: relative;
-    a {
-        pointer-events: none;
-    }
-    & cms-plugin {
-        pointer-events: auto;
-        a {
-            pointer-events: none;  /* for text-enabled link plugins */
+    .tiptap {
+        &.resize-cursor {
+            cursor: col-resize;
         }
-        &.ProseMirror-selectednode > * {
-            outline: 2px solid #fad507;
-            outline-offset: 2px;
+        a[href] {
+            cursor: pointer;
         }
+        table {
+            th, td {
+                position: relative;
+            }
+            .selectedCell {
+                background: color-mix(in srgb, var(--dca-primary) 20%, transparent);
+            }
+            .column-resize-handle {
+                top: 0;
+                bottom: 0;
+                right: -1px;
+                width: 2px;
+                position: absolute;
+                background: var(--dca-primary);
+                box-shadow: 0 0 2px var(--dca-primary);
+            }
+        }
+        & cms-plugin {
+            pointer-events: auto;
+            a {
+                pointer-events: none;  /* for text-enabled link plugins */
+            }
+            &.ProseMirror-selectednode > * {
+                outline: 2px solid #fad507;
+                outline-offset: 2px;
+            }
+        }
+
     }
     [role="menubar"] {
         bottom: calc(100% - 1px);

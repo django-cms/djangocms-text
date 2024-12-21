@@ -2,6 +2,7 @@
 /* jshint esversion: 6 */
 /* global document, window, console */
 
+
 class CmsDialog {
     /**
      * Constructor for creating an instance of the class showing a django CMS modal in a

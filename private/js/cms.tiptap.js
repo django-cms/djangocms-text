@@ -10,10 +10,10 @@ import CmsDynLink from './tiptap_plugins/cms.dynlink';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
-import Table from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
 import { TextAlign, TextAlignOptions } from '@tiptap/extension-text-align';
 import { CmsPluginNode, CmsBlockPluginNode } from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
@@ -24,10 +24,10 @@ import CmsBalloonToolbar from "./tiptap_plugins/cms.balloon-toolbar";
 import FormExtension from "./tiptap_plugins/cms.formextension";
 
 import { formToHtml, populateForm } from './cms.dialog';
-import LinkField from "./cms.linkfield";
+import LinkField from './cms.linkfield';
 
-import "../css/cms.tiptap.css";
-import "../css/cms.linkfield.css";
+import '../css/cms.tiptap.css';
+import '../css/cms.linkfield.css';
 
 
 class CMSTipTapPlugin {
@@ -122,7 +122,7 @@ class CMSTipTapPlugin {
                 save_callback: save_callback,
                 settings: settings,
             });
-            el.addEventListener('blur', ({editor, event}) => {
+            el.addEventListener('focusout', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });
             editor.on('update', ({editor}) => {

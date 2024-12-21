@@ -2,7 +2,7 @@
 /* jshint esversion: 6 */
 /* global document, window, console */
 
-"use strict";
+'use strict';
 
 
 const TiptapToolbar = {

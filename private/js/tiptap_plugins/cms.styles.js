@@ -1,5 +1,5 @@
-/* eslint-env es6 */
-/* jshint esversion: 6 */
+/* eslint-env es11 */
+/* jshint esversion: 11 */
 /* global document, window, console */
 
 
@@ -8,11 +8,13 @@ import {Mark, mergeAttributes,} from '@tiptap/core';
 
 const _markElement = {
     addOptions() {
+        'use strict';
         return {
             HTMLAttributes: {},
         };
     },
     parseHTML() {
+        'use strict';
         return [
             {
                 tag: this.name.toLowerCase()
@@ -20,9 +22,11 @@ const _markElement = {
         ];
     },
     renderHTML({ HTMLAttributes }) {
+        'use strict';
         return [this.name.toLowerCase(), mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
     },
     addCommands() {
+        'use strict';
         let commands = {};
 
         commands[`set${this.name}`] = () => ({ commands }) => {

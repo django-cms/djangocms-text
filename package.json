@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/django-cms/djangocms-text/issues"
   },
-  "homepage": "https://github.com/django-cms/djangocms-text-rte",
+  "homepage": "https://github.com/django-cms/djangocms-text",
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",

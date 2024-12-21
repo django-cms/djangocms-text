@@ -122,7 +122,7 @@ class CMSTipTapPlugin {
                 save_callback: save_callback,
                 settings: settings,
             });
-            el.addEventListener('focusout', ({editor, event}) => {
+            editor.on('blur', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });
             editor.on('update', ({editor}) => {

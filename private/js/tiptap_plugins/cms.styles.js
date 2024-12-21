@@ -5,16 +5,16 @@
 
 import {Mark, mergeAttributes,} from '@tiptap/core';
 
+'use strict';
+
 
 const _markElement = {
     addOptions() {
-        'use strict';
         return {
             HTMLAttributes: {},
         };
     },
     parseHTML() {
-        'use strict';
         return [
             {
                 tag: this.name.toLowerCase()
@@ -22,7 +22,6 @@ const _markElement = {
         ];
     },
     renderHTML({ HTMLAttributes }) {
-        'use strict';
         return [this.name.toLowerCase(), mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
     },
     addCommands() {

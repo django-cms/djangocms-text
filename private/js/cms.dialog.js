@@ -384,6 +384,13 @@ function formToHtml(formArray) {
             case 'hr':
                 form += '<hr>';
                 break;
+            case 'link':
+                form += `<a href="${element.url}" target="_blank">${element.label}</a>`;
+                break;
+            case 'section':
+                const content = formToHtml(element.content);
+                form += `<details><summary>${element.label}</summary>${content}</details>`;
+                break;
         }
     });
     return form + '<input type="submit" hidden />';

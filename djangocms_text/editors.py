@@ -149,6 +149,17 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
     "Link": {
         "title": _("Link"),
         "form": [
+            # {
+            #     "type": "link",
+            #     "url": '#',
+            #     "label": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" '
+            #              'class="bi bi-box-arrow-up-left" viewBox="0 0 16 16">'
+            #              '<path fill-rule="evenodd" d="M7.364 3.5a.5.5 0 0 1 .5-.5H14.5A1.5 1.5 0 0 1 16 4.5v10a1.5 '
+            #              '1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 3 14.5V7.864a.5.5 0 1 1 1 0V14.5a.5.5 0 0 0 .5.5h10a.5.5 '
+            #              '0 0 0 .5-.5v-10a.5.5 0 0 0-.5-.5H7.864a.5.5 0 0 1-.5-.5"/><path fill-rule="evenodd" '
+            #              'd="M0 .5A.5.5 0 0 1 .5 0h5a.5.5 0 0 1 0 1H1.707l8.147 8.146a.5.5 0 0 1-.708.708L1 '
+            #              '1.707V5.5a.5.5 0 0 1-1 0z"/></svg>',
+            # },
             {
                 "name": "href_select",
                 "type": "hidden",
@@ -162,19 +173,24 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
                 "class": "js-linkfield",
                 "required": False,
             },
-            # {"type": 'hr'},
-            # {
-            #     "name": 'target',
-            #     "label": 'Target',
-            #     "type": 'select',
-            #     "options": [
-            #         {"value": '', "label": '-----'},
-            #         {"value": '_blank', "label": 'New window'},
-            #         {"value": '_self', "label": 'Same window'},
-            #         {"value": '_parent', "label": 'Parent window'},
-            #     ],
-            #     "required": False
-            # }
+            {
+                "type": 'section',
+                "label": _("Link options"),
+                "content": [
+                    {
+                        "name": 'target',
+                        "label": 'Target',
+                        "type": 'select',
+                        "options": [
+                            {"value": '', "label": '-----'},
+                            {"value": '_blank', "label": _('New window')},
+                            {"value": '_self', "label": _('Same window')},
+                            {"value": '_parent', "label": _('Parent window')},
+                        ],
+                        "required": False
+                    }
+                ],
+            },
         ],
         "icon": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">\n'
         + '  <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/>\n'

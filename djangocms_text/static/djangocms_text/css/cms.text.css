@@ -144,7 +144,7 @@ form.cms-form {
         background-size: auto 1em  !important;
         appearance: none;
     }
-    label {
+    label, summary {
         font-size: 0.7rem;
         padding-bottom: 4px;
     }

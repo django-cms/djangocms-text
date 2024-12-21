@@ -174,20 +174,20 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
                 "required": False,
             },
             {
-                "type": 'section',
+                "type": "section",
                 "label": _("Link options"),
                 "content": [
                     {
-                        "name": 'target',
-                        "label": 'Target',
-                        "type": 'select',
+                        "name": "target",
+                        "label": "Target",
+                        "type": "select",
                         "options": [
-                            {"value": '', "label": '-----'},
-                            {"value": '_blank', "label": _('New window')},
-                            {"value": '_self', "label": _('Same window')},
-                            {"value": '_parent', "label": _('Parent window')},
+                            {"value": "", "label": "-----"},
+                            {"value": "_blank", "label": _("New window")},
+                            {"value": "_self", "label": _("Same window")},
+                            {"value": "_parent", "label": _("Parent window")},
                         ],
-                        "required": False
+                        "required": False,
                     }
                 ],
             },

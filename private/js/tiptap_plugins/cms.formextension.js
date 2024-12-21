@@ -100,7 +100,7 @@ const FormExtension = Extension.create({
                     editor.options.element,
                     data => {
                         TiptapToolbar[action].formAction(editor, data);
-                        edior.commands.closeCmsForm();
+                        editor.commands.closeCmsForm();
                     },
                     () => editor.commands.closeCmsForm()
                 );

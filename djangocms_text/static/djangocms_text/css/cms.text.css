@@ -93,7 +93,7 @@ dialog.cms-form-dialog {
     margin: unset;
     left: auto;
     transform: translate(-50%, -50%);
-    min-width: 200px;
+    min-width: 240px;
     padding: 10px 15px;
     background-color: var(--dca-white);
     border: 1px solid var(--dca-gray-light);
@@ -144,7 +144,7 @@ form.cms-form {
         background-size: auto 1em  !important;
         appearance: none;
     }
-    label {
+    label, summary {
         font-size: 0.7rem;
         padding-bottom: 4px;
     }

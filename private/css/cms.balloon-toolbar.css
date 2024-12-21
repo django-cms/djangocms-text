@@ -7,7 +7,7 @@
     border-radius: 3px;
     box-shadow: none;
     /* box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4); */
-    inset-inline-end: calc(100% + 1rem);
+    inset-inline-end: calc(100% + 0.75rem);
     width: calc(1.6*var(--size));
     height:  calc(1.6*var(--size));
     line-height: calc(1.3*var(--size));
@@ -43,4 +43,6 @@
 
 dialog.cms-form-dialog.cms-balloon-menu {
     padding: 2px 0.4rem;
+    border-radius: 0;
+    box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
 }

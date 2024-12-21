@@ -40,8 +40,8 @@ const FormExtension = Extension.create({
                 }
                 const dialog = new CmsForm(
                     editor.options.element,
-                    data => TiptapToolbar[action].formAction(editor, data)
-                    // () => editor.commands.focus()
+                    data => TiptapToolbar[action].formAction(editor, data),
+                    () => editor.commands.focus()
                 );
                 const formRepresentation = window.cms_editor_plugin._getRepresentation(action);
                 const formElement = dialog.formDialog(formToHtml(formRepresentation.form), options);

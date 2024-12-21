@@ -14,13 +14,13 @@
         .cms-linkfield-selected {
             font-weight: bold;
         }
-        .cms-linkfield-dropdown:not(:empty), .cms-linkfield-dropdown:active {
-            /* Hide dropdown when empty */
-            visibility: visible;
-        }
         .cms-linkfield-dropdown {
             z-index: 1;
-            visibility: hidden;
+            visibility: visible;
+            &:empty {
+                /* Hide dropdown when empty */
+                visibility: hidden;
+            }
             position: absolute;
             max-block-size: 400px;
             overflow: auto;

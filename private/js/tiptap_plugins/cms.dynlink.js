@@ -39,9 +39,9 @@ const CmsDynLink = Link.extend({
         editor.view.dom.addEventListener('click', this);
     },
 
-    onDestroy({editor}) {
-        editor.parent?.();  // Call the parent implementation, if it exists
-        editor.view.dom.removeEventListener('click', this);
+    onDestroy() {
+        this.editor.parent?.();  // Call the parent implementation, if it exists
+        this.editor.view.dom.removeEventListener('click', this);
     },
 }).configure({
     openOnClick: false,

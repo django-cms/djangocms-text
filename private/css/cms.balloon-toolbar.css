@@ -20,6 +20,11 @@
     &.show [role="menubar"] {
         visibility: visible;
     }
+    &.disabled {
+        cursor: not-allowed;
+        pointer-events: none;
+        color: var(--dca-gray-light);
+    }
     [role="menubar"] {
         padding: 3px;
         position: absolute;

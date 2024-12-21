@@ -315,7 +315,7 @@ class CMSTipTapPlugin {
         event.stopPropagation();
         event.preventDefault();
         const button = event.target.closest('button, .dropdown');
-        if (button && !button.disabled) {
+        if (button && !button.disabled && !editor.options.el.querySelector('dialog.cms-form-dialog')) {
             const action = button.dataset.action;
             if (button.classList.contains('dropdown')) {
                 // Open dropdown
@@ -364,8 +364,6 @@ class CMSTipTapPlugin {
                 // hide the toolbar
                 editor.options.element.querySelectorAll('[role="menubar"], [role="button"]')
                     .forEach((el) => el.classList.remove('show'));
-            }
-            if (!editor.options.element.contains(document.activeElement)) {
                 // save the content (is no-op for non-inline calls)
                 editor.options.save_callback();
             }
@@ -400,13 +398,20 @@ class CMSTipTapPlugin {
                     html += group + this.separator_markup;
                 }
             } else if (item.constructor === Object) {
-                const dropdown = this._populateToolbar(editor, item.items, filter);
-                // Are there any items in the dropdown?
-                if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length > 0) {
-                    const title = item.title && item.icon ? `title='${item.title}' ` : '';
-                    const icon = item.icon || item.title;
-                    html += `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+                let dropdown;
+
+                if (typeof item.items === 'string') {
+                    dropdown = item.items;
+                } else {
+                    dropdown = this._populateToolbar(editor, item.items, filter);
+                    // Are there any items in the dropdown?
+                    if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length === 0) {
+                        continue
+                    }
                 }
+                const title = item.title && item.icon ? `title='${item.title}' ` : '';
+                const icon = item.icon || item.title;
+                html += `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
             } else {
                 switch (item) {
                     case '|':

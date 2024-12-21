@@ -1,5 +1,5 @@
-/* eslint-env es6 */
-/* jshint esversion: 6 */
+/* eslint-env es11 */
+/* jshint esversion: 11 */
 /* global document, window, console */
 'use strict';
 
@@ -54,6 +54,8 @@ function addFakeSelection(view) {
     // Add meta to trigger the plugin
     tr.setMeta("fake-selection", "add");
     dispatch(tr);
+    view.dom.parentNode.querySelector('.cms-toolbar')?.classList.add('disabled');
+    view.dom.parentNode.querySelector('.cms-balloon')?.classList.add('disabled');
 }
 
 function clearFakeSelection(view) {
@@ -62,6 +64,8 @@ function clearFakeSelection(view) {
     // Add meta to trigger the plugin
     tr.setMeta("fake-selection", "remove");
     dispatch(tr);
+    view.dom.parentNode.querySelector('.cms-toolbar')?.classList.remove('disabled');
+    view.dom.parentNode.querySelector('.cms-balloon')?.classList.remove('disabled');
 }
 
 
@@ -72,6 +76,9 @@ const FormExtension = Extension.create({
         'use strict';
         return {
             openCmsForm: (action, target) => ({editor, commands}) => {
+                if (editor.options.el.querySelector(`dialog.${action}-form`)) {
+                    return false;
+                }
                 let options;
                 addFakeSelection(editor.view);
                 if (target) {
@@ -111,6 +118,7 @@ const FormExtension = Extension.create({
                     // Populate the form with the current attributes (if existent)
                     populateForm(formElement, TiptapToolbar[action].attributes(editor), formRepresentation.form);
                 }
+                dialog.dialog.classList.add(action + '-form');
                 dialog.open();
                 formElement.querySelectorAll('form.cms-form .js-linkfield')
                     .forEach((el) => {

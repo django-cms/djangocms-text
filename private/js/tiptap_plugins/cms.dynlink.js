@@ -1,6 +1,7 @@
 /* eslint-env es11 */
 /* jshint esversion: 11 */
 /* global document, window, console */
+'use strict';
 
 import Link from '@tiptap/extension-link';
 
@@ -30,12 +31,12 @@ const CmsDynLink = Link.extend({
                 event.preventDefault();
                 setTimeout(() => {
                     if (this.editor.isActive('link')) {
+                        this.editor.commands.extendMarkRange('link');
                         this.editor.commands.openCmsForm('Link');
                     }
                 }, 0);
             }
         }).bind(this);  // hacky: move the eventHandler to the Mark object (this) to be able to remove it later
-        console.log("Event", editor.view.dom);
         editor.view.dom.addEventListener('click', this);
     },
 

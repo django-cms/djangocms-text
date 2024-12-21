@@ -117,7 +117,13 @@ const TiptapToolbar = {
         type: 'block',
     },
     Link: {
-        action: (editor) => editor.commands.openCmsForm('Link'),
+        action: (editor) => {
+            if (editor.isActive('link')) {
+                // If the user is currently editing a link, update the whole link
+                editor.commands.extendMarkRange('link');
+            }
+            editor.commands.openCmsForm('Link');
+        },
         formAction: (editor, data) => {
             if (data) {
                 const link = {
@@ -125,14 +131,7 @@ const TiptapToolbar = {
                     'data-cms-href': data.get('href_select') || null,
                     'target': data.get('target') || null,
                 };
-                if (editor.isActive('link')) {
-                    // If the user is currently editing a link, update the whole link
-                    editor.chain().focus().extendMarkRange('link').setLink(link).run();
-                } else {
-                    editor.chain().focus().setLink(link).run();
-                }
-            } else {
-                editor.focus();
+                editor.commands.setLink(link);
             }
         },
         enabled: (editor) => editor.can().setLink({href: '#'}),

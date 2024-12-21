@@ -31,14 +31,8 @@
     }
 }
 
-@keyframes delayedHide {
-  to {
+.cms-editor-inline-wrapper:not(:has(.cms-toolbar.show)) .cms-balloon {
     visibility: hidden;
-  }
-}
-
-.cms-editor-inline-wrapper:not(:has(.ProseMirror-focused)) .cms-balloon {
-    animation: 0s linear 0.2s forwards delayedHide;
 }
 
 dialog.cms-form-dialog.cms-balloon-menu {

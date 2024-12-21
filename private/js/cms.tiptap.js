@@ -14,20 +14,21 @@ import Table from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
-import { TextAlign, TextAlignOptions } from '@tiptap/extension-text-align';
-import { CmsPluginNode, CmsBlockPluginNode } from './tiptap_plugins/cms.plugin';
+import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
+import {CmsPluginNode, CmsBlockPluginNode} from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 import {StarterKit} from "@tiptap/starter-kit";
 
-import { InlineColors, Small, Var, Kbd, Samp } from "./tiptap_plugins/cms.styles";
+import {InlineColors, Small, Var, Kbd, Samp} from "./tiptap_plugins/cms.styles";
 import CmsBalloonToolbar from "./tiptap_plugins/cms.balloon-toolbar";
 import FormExtension from "./tiptap_plugins/cms.formextension";
 
-import { formToHtml, populateForm } from './cms.dialog';
+import {formToHtml, populateForm} from './cms.dialog';
 import LinkField from './cms.linkfield';
 
 import '../css/cms.tiptap.css';
 import '../css/cms.linkfield.css';
+
 
 
 class CMSTipTapPlugin {
@@ -62,12 +63,12 @@ class CMSTipTapPlugin {
             ],
             toolbar_HTMLField: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat']
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
                 ['Undo', 'Redo'],
             ],
             toolbar_CMS: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat']
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
                 ['Undo', 'Redo'],
             ],
         };
@@ -226,7 +227,7 @@ class CMSTipTapPlugin {
     }
 
     _createBlockToolbar(el, editor, options) {
-        const toolbar = this._populateToolbar(editor,options.toolbar || this.options.toolbar_HTMLField, 'block');
+        const toolbar = this._populateToolbar(editor, options.toolbar || this.options.toolbar_HTMLField, 'block');
         const ballonToolbar = new CmsBalloonToolbar(editor, toolbar,
             (event) => this._handleToolbarClick(event, editor),
             (el) => this._updateToolbar(editor, el));
@@ -352,17 +353,19 @@ class CMSTipTapPlugin {
 
     }
 
-   // Blur editor event
+    // Blur editor event
     _blurEditor(editor, event) {
         // Let the editor process clicks on the toolbar first
         // This hopefully prevents race conditions
         setTimeout(() => {
             // Allow toolbar and other editor widgets to process the click first
             // They need to refocus the editor to avoid a save
-            if (!editor.options.element.contains(document.activeElement)) {
+            if(!editor.options.el.contains(document.activeElement)) {
                 // hide the toolbar
                 editor.options.element.querySelectorAll('[role="menubar"], [role="button"]')
                     .forEach((el) => el.classList.remove('show'));
+            }
+            if (!editor.options.element.contains(document.activeElement)) {
                 // save the content (is no-op for non-inline calls)
                 editor.options.save_callback();
             }

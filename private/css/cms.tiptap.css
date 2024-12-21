@@ -45,12 +45,17 @@
         a[href] {
             cursor: pointer;
         }
+        .fake-selection {
+            background-color: Highlight;
+            color: HighlightText;
+        }
         table {
             th, td {
                 position: relative;
             }
             .selectedCell {
-                background: color-mix(in srgb, var(--dca-primary) 20%, transparent);
+                color: HighlightText;
+                background: Highlight;
             }
             .column-resize-handle {
                 top: 0;
@@ -58,8 +63,8 @@
                 right: -1px;
                 width: 2px;
                 position: absolute;
-                background: var(--dca-primary);
-                box-shadow: 0 0 2px var(--dca-primary);
+                background: Highlight;
+                box-shadow: 0 0 2px Highlight;
             }
         }
         & cms-plugin {

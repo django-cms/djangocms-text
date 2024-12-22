@@ -38,18 +38,46 @@
         overflow-y: auto;
     }
     position: relative;
-    a {
-        pointer-events: none;
-    }
-    & cms-plugin {
-        pointer-events: auto;
-        a {
-            pointer-events: none;  /* for text-enabled link plugins */
+    .tiptap {
+        &.resize-cursor {
+            cursor: col-resize;
         }
-        &.ProseMirror-selectednode > * {
-            outline: 2px solid #fad507;
-            outline-offset: 2px;
+        a[href] {
+            cursor: pointer;
         }
+        .fake-selection {
+            background-color: Highlight;
+            color: HighlightText;
+        }
+        table {
+            th, td {
+                position: relative;
+            }
+            .selectedCell {
+                color: HighlightText;
+                background: Highlight;
+            }
+            .column-resize-handle {
+                top: 0;
+                bottom: 0;
+                right: -1px;
+                width: 2px;
+                position: absolute;
+                background: Highlight;
+                box-shadow: 0 0 2px Highlight;
+            }
+        }
+        & cms-plugin {
+            pointer-events: auto;
+            a {
+                pointer-events: none;  /* for text-enabled link plugins */
+            }
+            &.ProseMirror-selectednode > * {
+                outline: 2px solid #fad507;
+                outline-offset: 2px;
+            }
+        }
+
     }
     [role="menubar"] {
         bottom: calc(100% - 1px);
@@ -70,10 +98,11 @@
         display: flex;
         flex-flow: row wrap;
         border: solid 1px var(--dca-gray-light, var(--hairline-color));
-        box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
+        box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow), .4);
         color: var(--dca-black, var(--body-fg));
         background: var(--dca-white, var(--body-bg));
         opacity: 1;
+
         div.grouper {
             padding: 0;
             margin: 0;
@@ -98,6 +127,36 @@
         .dropdown-content {
             inset-block-start: 100%;
             inset-inline-start: 0;
+        }
+    }
+    div.tt-create-table {
+        display: block;
+        position: relative;
+        width: calc(12px * 10);
+        height: calc(12px * 10 + 1rem);
+        button {
+            position: absolute;
+            top: 0;
+            inset-inline-start: 0;
+            padding: 4px !important; /* needed for djangocms-admin-style */
+            margin: 0px 2px !important;
+            border: 1px solid var(--dca-gray-lighter, var(--hairline-color)) !important;
+            margin-inline-start: var(--mx)  !important;
+            margin-top: var(--my) !important;
+            &:hover {
+                background-color: Highlight;
+            }
+            &:hover::after {
+                position: absolute;
+                top: calc(124px - var(--my));
+                inset-inline-start: calc(-1 * var(--mx));
+                text-align: center;
+                height: 2rem;
+                width: calc(12px * 10);
+                content: attr(title);
+                font-size: 0.7rem;
+                color: var(--dca-gray);
+            }
         }
     }
     button, [role="button"] {
@@ -149,6 +208,15 @@
             height: 1.2rem;
         }
     }
+    /* Allow to disable the full menubar */
+    [role="menubar"].disabled {
+        button, [role="button"] {
+            cursor: not-allowed;
+            pointer-events: none;
+            color: var(--dca-gray-light);
+        }
+    }
+
     .dropdown-content {
         color: var(--dca-black, var(--body-fg));
         border-radius: 0;

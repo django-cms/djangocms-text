@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-27 20:34+0100\n"
+"POT-Creation-Date: 2024-12-22 01:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,191 +25,211 @@ msgstr "You do not have permission to add a plugin."
 msgid "Unable to process your request. Invalid token."
 msgstr "Unable to process your request. Invalid token."
 
-#: cms_toolbars.py:58
+#: cms_toolbars.py:60
 msgid "Toggle inline editing mode for text plugins"
 msgstr "Toggle inline editing mode for text plugins"
 
-#: editors.py:31
+#: editors.py:32
 msgid "Undo"
 msgstr "Undo"
 
-#: editors.py:35
+#: editors.py:36
 msgid "Redo"
 msgstr "Redo"
 
-#: editors.py:39
+#: editors.py:40
 msgid "Bold"
 msgstr "Bold"
 
-#: editors.py:45
+#: editors.py:46
 msgid "Italic"
 msgstr "Italic"
 
-#: editors.py:51
+#: editors.py:52
 msgid "Underline"
 msgstr "Underline"
 
-#: editors.py:57
+#: editors.py:58
 msgid "Strike"
 msgstr "Strike"
 
-#: editors.py:61
+#: editors.py:62
 msgid "Subscript"
 msgstr "Subscript"
 
-#: editors.py:67
+#: editors.py:68
 msgid "Superscript"
 msgstr "Superscript"
 
-#: editors.py:73
+#: editors.py:74
 msgid "Remove formatting"
 msgstr "Remove formatting"
 
-#: editors.py:86
+#: editors.py:87
 msgid "Align left"
 msgstr "Align left"
 
-#: editors.py:92
+#: editors.py:93
 msgid "Align center"
 msgstr "Align center"
 
-#: editors.py:98
+#: editors.py:99
 msgid "Align right"
 msgstr "Align right"
 
-#: editors.py:104
+#: editors.py:105
 msgid "Justify"
 msgstr "Justify"
 
-#: editors.py:110
+#: editors.py:111
 msgid "Horizontal rule"
 msgstr "Horizontal rule"
 
-#: editors.py:116
+#: editors.py:117
 msgid "Numbered list"
 msgstr "Numbered list"
 
-#: editors.py:123
+#: editors.py:124
 msgid "Bullet list"
 msgstr "Bullet list"
 
-#: editors.py:129
+#: editors.py:130
 msgid "Outdent"
 msgstr "Outdent"
 
-#: editors.py:136
+#: editors.py:137
 msgid "Indent"
 msgstr "Indent"
 
-#: editors.py:143
+#: editors.py:144
 msgid "Blockquote"
 msgstr "Blockquote"
 
-#: editors.py:149
+#: editors.py:150
 msgid "Link"
 msgstr "Link"
 
-#: editors.py:158
+#: editors.py:170
 #, fuzzy
 #| msgid "Type URL or search for a page"
 msgid "Type URL or search for a destination"
 msgstr "Type URL or search for a page"
 
-#: editors.py:159
+#: editors.py:171
 msgid "URL or search"
 msgstr "URL or search"
 
-#: editors.py:184
+#: editors.py:178
+msgid "Link options"
+msgstr "Link options"
+
+#: editors.py:182
+msgid "Target"
+msgstr "Target"
+
+#: editors.py:186
+msgid "New window"
+msgstr "New window"
+
+#: editors.py:187
+msgid "Same window"
+msgstr "Same window"
+
+#: editors.py:188
+msgid "Parent window"
+msgstr "Parent window"
+
+#: editors.py:201
 msgid "Unlink"
 msgstr "Unlink"
 
-#: editors.py:192
+#: editors.py:209
 msgid "Table"
 msgstr "Table"
 
-#: editors.py:196
+#: editors.py:213
 msgid "Code"
 msgstr "Code"
 
-#: editors.py:202
+#: editors.py:219
 msgid "Small"
 msgstr "Small"
 
-#: editors.py:205
+#: editors.py:222
 msgid "Keyboard input"
 msgstr "Keyboard input"
 
-#: editors.py:211
+#: editors.py:228
 msgid "Code block"
 msgstr "Code block"
 
-#: editors.py:218
+#: editors.py:235
 msgid "Heading 1"
 msgstr "Heading 1"
 
-#: editors.py:224
+#: editors.py:241
 msgid "Heading 2"
 msgstr "Heading 2"
 
-#: editors.py:230
+#: editors.py:247
 msgid "Heading 3"
 msgstr "Heading 3"
 
-#: editors.py:236
+#: editors.py:253
 msgid "Heading 4"
 msgstr "Heading 4"
 
-#: editors.py:242
+#: editors.py:259
 msgid "Heading 5"
 msgstr "Heading 5"
 
-#: editors.py:248
+#: editors.py:265
 msgid "Heading 6"
 msgstr "Heading 6"
 
-#: editors.py:254
+#: editors.py:271
 msgid "Paragraph"
 msgstr "Paragraph"
 
-#: editors.py:260
+#: editors.py:277
 msgid "Anchor"
 msgstr "Anchor"
 
-#: editors.py:263
+#: editors.py:280
 #, fuzzy
 #| msgid "Blockquote"
 msgid "Block format"
 msgstr "Blockquote"
 
-#: editors.py:267
+#: editors.py:284
 msgid "Styles"
 msgstr "Styles"
 
-#: editors.py:271
+#: editors.py:288
 msgid "Font"
 msgstr "Font"
 
-#: editors.py:274
+#: editors.py:291
 msgid "Font size"
 msgstr "Font size"
 
-#: editors.py:277 editors.py:278 widgets.py:183 widgets.py:186
+#: editors.py:294 editors.py:295 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
 msgstr "CMS Plugins"
 
-#: editors.py:279 widgets.py:185
+#: editors.py:296 widgets.py:242
 msgid "Edit CMS Plugin"
 msgstr "Edit CMS Plugin"
 
-#: editors.py:280 widgets.py:184
+#: editors.py:297 widgets.py:241
 msgid "Add CMS Plugin"
 msgstr "Add CMS Plugin"
 
-#: models.py:51
+#: models.py:50
 msgid "body"
 msgstr "body"
 
-#: models.py:52
+#: models.py:51
 msgid "json"
 msgstr "JSON"
 

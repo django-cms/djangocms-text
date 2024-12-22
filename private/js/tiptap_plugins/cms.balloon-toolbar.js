@@ -52,8 +52,7 @@ export default class CmsBalloonToolbar {
                 this.form = null;
             } else {
                 // Add the form dialog only if it is not already open
-                this.form = new CmsForm(this.editor.options.element, () => {
-                });
+                this.form = new CmsForm(this.editor.options.element, () => {});
                 const rect = this.toolbar.getBoundingClientRect();
                 const options = {
                     x: (rect.left + rect.right) / 2,

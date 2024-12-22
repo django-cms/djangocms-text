@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-27 21:26+0100\n"
+"POT-Creation-Date: 2024-12-22 01:08+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Bengali (https://www.transifex.com/divio/teams/58664/bn/)\n"
@@ -29,187 +29,207 @@ msgstr ""
 msgid "Unable to process your request. Invalid token."
 msgstr ""
 
-#: cms_toolbars.py:58
+#: cms_toolbars.py:60
 msgid "Toggle inline editing mode for text plugins"
 msgstr ""
 
-#: editors.py:31
+#: editors.py:32
 msgid "Undo"
 msgstr ""
 
-#: editors.py:35
+#: editors.py:36
 msgid "Redo"
 msgstr ""
 
-#: editors.py:39
+#: editors.py:40
 msgid "Bold"
 msgstr ""
 
-#: editors.py:45
+#: editors.py:46
 msgid "Italic"
 msgstr ""
 
-#: editors.py:51
+#: editors.py:52
 msgid "Underline"
 msgstr ""
 
-#: editors.py:57
+#: editors.py:58
 msgid "Strike"
 msgstr ""
 
-#: editors.py:61
+#: editors.py:62
 msgid "Subscript"
 msgstr ""
 
-#: editors.py:67
+#: editors.py:68
 msgid "Superscript"
 msgstr ""
 
-#: editors.py:73
+#: editors.py:74
 msgid "Remove formatting"
 msgstr ""
 
-#: editors.py:86
+#: editors.py:87
 msgid "Align left"
 msgstr ""
 
-#: editors.py:92
+#: editors.py:93
 msgid "Align center"
 msgstr ""
 
-#: editors.py:98
+#: editors.py:99
 msgid "Align right"
 msgstr ""
 
-#: editors.py:104
+#: editors.py:105
 msgid "Justify"
 msgstr ""
 
-#: editors.py:110
+#: editors.py:111
 msgid "Horizontal rule"
 msgstr ""
 
-#: editors.py:116
+#: editors.py:117
 msgid "Numbered list"
 msgstr ""
 
-#: editors.py:123
+#: editors.py:124
 msgid "Bullet list"
 msgstr ""
 
-#: editors.py:129
+#: editors.py:130
 msgid "Outdent"
 msgstr ""
 
-#: editors.py:136
+#: editors.py:137
 msgid "Indent"
 msgstr ""
 
-#: editors.py:143
+#: editors.py:144
 msgid "Blockquote"
 msgstr ""
 
-#: editors.py:149
+#: editors.py:150
 msgid "Link"
 msgstr ""
 
-#: editors.py:158
+#: editors.py:170
 msgid "Type URL or search for a destination"
 msgstr ""
 
-#: editors.py:159
+#: editors.py:171
 msgid "URL or search"
 msgstr ""
 
-#: editors.py:184
+#: editors.py:178
+msgid "Link options"
+msgstr ""
+
+#: editors.py:182
+msgid "Target"
+msgstr ""
+
+#: editors.py:186
+msgid "New window"
+msgstr ""
+
+#: editors.py:187
+msgid "Same window"
+msgstr ""
+
+#: editors.py:188
+msgid "Parent window"
+msgstr ""
+
+#: editors.py:201
 msgid "Unlink"
 msgstr ""
 
-#: editors.py:192
+#: editors.py:209
 msgid "Table"
 msgstr ""
 
-#: editors.py:196
+#: editors.py:213
 msgid "Code"
 msgstr ""
 
-#: editors.py:202
+#: editors.py:219
 msgid "Small"
 msgstr ""
 
-#: editors.py:205
+#: editors.py:222
 msgid "Keyboard input"
 msgstr ""
 
-#: editors.py:211
+#: editors.py:228
 msgid "Code block"
 msgstr ""
 
-#: editors.py:218
+#: editors.py:235
 msgid "Heading 1"
 msgstr ""
 
-#: editors.py:224
+#: editors.py:241
 msgid "Heading 2"
 msgstr ""
 
-#: editors.py:230
+#: editors.py:247
 msgid "Heading 3"
 msgstr ""
 
-#: editors.py:236
+#: editors.py:253
 msgid "Heading 4"
 msgstr ""
 
-#: editors.py:242
+#: editors.py:259
 msgid "Heading 5"
 msgstr ""
 
-#: editors.py:248
+#: editors.py:265
 msgid "Heading 6"
 msgstr ""
 
-#: editors.py:254
+#: editors.py:271
 msgid "Paragraph"
 msgstr ""
 
-#: editors.py:260
+#: editors.py:277
 msgid "Anchor"
 msgstr ""
 
-#: editors.py:263
+#: editors.py:280
 msgid "Block format"
 msgstr ""
 
-#: editors.py:267
+#: editors.py:284
 msgid "Styles"
 msgstr ""
 
-#: editors.py:271
+#: editors.py:288
 msgid "Font"
 msgstr ""
 
-#: editors.py:274
+#: editors.py:291
 msgid "Font size"
 msgstr ""
 
-#: editors.py:277 editors.py:278 widgets.py:183 widgets.py:186
+#: editors.py:294 editors.py:295 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
 msgstr ""
 
-#: editors.py:279 widgets.py:185
+#: editors.py:296 widgets.py:242
 msgid "Edit CMS Plugin"
 msgstr ""
 
-#: editors.py:280 widgets.py:184
+#: editors.py:297 widgets.py:241
 msgid "Add CMS Plugin"
 msgstr ""
 
-#: models.py:51
+#: models.py:50
 msgid "body"
 msgstr "বিষয়বস্তু"
 
-#: models.py:52
+#: models.py:51
 msgid "json"
 msgstr ""
 

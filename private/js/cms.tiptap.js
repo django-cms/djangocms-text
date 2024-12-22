@@ -10,24 +10,25 @@ import CmsDynLink from './tiptap_plugins/cms.dynlink';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
-import Table from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import { TextAlign, TextAlignOptions } from '@tiptap/extension-text-align';
-import { CmsPluginNode, CmsBlockPluginNode } from './tiptap_plugins/cms.plugin';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
+import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
+import {CmsPluginNode, CmsBlockPluginNode} from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 import {StarterKit} from "@tiptap/starter-kit";
 
-import { InlineColors, Small, Var, Kbd, Samp } from "./tiptap_plugins/cms.styles";
+import {InlineColors, Small, Var, Kbd, Samp} from "./tiptap_plugins/cms.styles";
 import CmsBalloonToolbar from "./tiptap_plugins/cms.balloon-toolbar";
 import FormExtension from "./tiptap_plugins/cms.formextension";
 
-import { formToHtml, populateForm } from './cms.dialog';
-import LinkField from "./cms.linkfield";
+import {formToHtml, populateForm} from './cms.dialog';
+import LinkField from './cms.linkfield';
 
-import "../css/cms.tiptap.css";
-import "../css/cms.linkfield.css";
+import '../css/cms.tiptap.css';
+import '../css/cms.linkfield.css';
+
 
 
 class CMSTipTapPlugin {
@@ -51,9 +52,7 @@ class CMSTipTapPlugin {
                 TableRow,
                 TableHeader,
                 TableCell,
-                CmsDynLink.extend({
-                    inclusive: false,
-                }),
+                CmsDynLink,
                 Small, Var, Kbd, Samp,
                 CmsPluginNode,
                 CmsBlockPluginNode,
@@ -64,12 +63,12 @@ class CMSTipTapPlugin {
             ],
             toolbar_HTMLField: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat']
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
                 ['Undo', 'Redo'],
             ],
             toolbar_CMS: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat']
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
                 ['Undo', 'Redo'],
             ],
         };
@@ -139,10 +138,11 @@ class CMSTipTapPlugin {
                 }
             });
             this._editors[el.id] = editor;
-            const el_rect = el.getBoundingClientRect();
+            editor.cmsPlugin = this;
 
-            if (el.tagName === 'TEXTAREA' || el_rect.x < 32) {
-                // Not inline
+            const el_rect = el.getBoundingClientRect();
+            if (el.tagName === 'TEXTAREA' || el_rect.x < 28) {
+                // Not inline or too close to the left edge to see the block toolbar
                 this._createTopToolbar(editorElement, editor, options);
                 if (el.rows && !el.closest('body.app-djangocms_text.change-form')) {
                     editorElement.querySelector('.tiptap').style.height = el.rows * 1.5 + 'em';
@@ -227,7 +227,7 @@ class CMSTipTapPlugin {
     }
 
     _createBlockToolbar(el, editor, options) {
-        const toolbar = this._populateToolbar(editor,options.toolbar || this.options.toolbar_HTMLField, 'block');
+        const toolbar = this._populateToolbar(editor, options.toolbar || this.options.toolbar_HTMLField, 'block');
         const ballonToolbar = new CmsBalloonToolbar(editor, toolbar,
             (event) => this._handleToolbarClick(event, editor),
             (el) => this._updateToolbar(editor, el));
@@ -315,7 +315,7 @@ class CMSTipTapPlugin {
         event.stopPropagation();
         event.preventDefault();
         const button = event.target.closest('button, .dropdown');
-        if (button && !button.disabled) {
+        if (button && !button.disabled && !editor.options.el.querySelector('dialog.cms-form-dialog')) {
             const action = button.dataset.action;
             if (button.classList.contains('dropdown')) {
                 // Open dropdown
@@ -353,14 +353,14 @@ class CMSTipTapPlugin {
 
     }
 
-   // Blur editor event
+    // Blur editor event
     _blurEditor(editor, event) {
         // Let the editor process clicks on the toolbar first
         // This hopefully prevents race conditions
         setTimeout(() => {
             // Allow toolbar and other editor widgets to process the click first
             // They need to refocus the editor to avoid a save
-            if (!editor.options.element.contains(document.activeElement)) {
+            if(!editor.options.el.contains(document.activeElement)) {
                 // hide the toolbar
                 editor.options.element.querySelectorAll('[role="menubar"], [role="button"]')
                     .forEach((el) => el.classList.remove('show'));
@@ -398,13 +398,20 @@ class CMSTipTapPlugin {
                     html += group + this.separator_markup;
                 }
             } else if (item.constructor === Object) {
-                const dropdown = this._populateToolbar(editor, item.items, filter);
-                // Are there any items in the dropdown?
-                if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length > 0) {
-                    const title = item.title && item.icon ? `title='${item.title}' ` : '';
-                    const icon = item.icon || item.title;
-                    html += `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+                let dropdown;
+
+                if (typeof item.items === 'string') {
+                    dropdown = item.items;
+                } else {
+                    dropdown = this._populateToolbar(editor, item.items, filter);
+                    // Are there any items in the dropdown?
+                    if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length === 0) {
+                        continue;
+                    }
                 }
+                const title = item.title && item.icon ? `title='${item.title}' ` : '';
+                const icon = item.icon || item.title;
+                html += `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
             } else {
                 switch (item) {
                     case '|':
@@ -530,6 +537,7 @@ class CMSTipTapPlugin {
             if (action) {
                 if (TiptapToolbar[action]) {
                     const toolbarItem = this._getRepresentation(action);
+                    button.disabled = !toolbarItem.enabled(editor, button);
                     try {
                         button.disabled = !toolbarItem.enabled(editor, button);
                         try {

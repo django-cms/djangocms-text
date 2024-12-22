@@ -2,7 +2,20 @@
 /* jshint esversion: 6 */
 /* global document, window, console */
 
-"use strict";
+'use strict';
+
+
+function generateButtonArray(rows, cols) {
+    let buttons = '<div class="tt-create-table">';
+    for (let j= 0; j < rows; j++) {
+        for (let i = 0; i < cols; i++) {
+            buttons += `<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`;
+        }
+    }
+    buttons += '<div class="tt-selection"></div>'
+    buttons += '</div>';
+    return buttons;
+}
 
 
 const TiptapToolbar = {
@@ -117,7 +130,13 @@ const TiptapToolbar = {
         type: 'block',
     },
     Link: {
-        action: (editor) => editor.commands.openCmsForm('Link'),
+        action: (editor) => {
+            if (editor.isActive('link')) {
+                // If the user is currently editing a link, update the whole link
+                editor.commands.extendMarkRange('link');
+            }
+            editor.commands.openCmsForm('Link');
+        },
         formAction: (editor, data) => {
             if (data) {
                 const link = {
@@ -125,15 +144,10 @@ const TiptapToolbar = {
                     'data-cms-href': data.get('href_select') || null,
                     'target': data.get('target') || null,
                 };
-                if (editor.isActive('link')) {
-                    // If the user is currently editing a link, update the whole link
-                    editor.chain().focus().extendMarkRange('link').setLink(link).run();
-                } else {
-                    editor.chain().focus().setLink(link).run();
-                }
+                editor.commands.setLink(link);
             }
         },
-        enabled: (editor) => editor.can().setLink(),
+        enabled: (editor) => editor.can().setLink({href: '#'}),
         active: (editor) => editor.isActive('link'),
         attributes: (editor) => {
             let attrs = editor.getAttributes('link');
@@ -149,9 +163,14 @@ const TiptapToolbar = {
         type: 'mark',
     },
     TipTapTable: {
-        action: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run(),
-        enabled: (editor) => editor.can().insertTable(),
-        type: 'block',
+        action: (editor, button) => {
+            const rows = parseInt(button.dataset.rows);
+            const cols = parseInt(button.dataset.cols);
+            editor.chain().focus().insertTable({ rows: rows, cols: cols }).run();
+        },
+        enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
+        type: 'mark',
+        items: generateButtonArray(10,10),
     },
     Code: {
         action: (editor) => editor.chain().focus().toggleCode().run(),

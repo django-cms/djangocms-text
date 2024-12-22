@@ -5,6 +5,8 @@
 
 class LinkField {
     constructor(element, options) {
+        const hasFocus = element.contains(document.activeElement);
+
         this.options = options;
         this.urlElement = element;
         this.form = element.closest("form");
@@ -12,13 +14,13 @@ class LinkField {
         if (this.selectElement) {
             this.urlElement.setAttribute('type', 'hidden');  // Two input types?
             this.selectElement.setAttribute('type', 'hidden');  // Make hidden and add common input
-            this.createInput();
+            this.createInput(hasFocus);
             this.registerEvents();
         }
         this.populateField();
     }
 
-    createInput() {
+    createInput(hasFocus = false) {
         this.inputElement = document.createElement('input');
         this.inputElement.setAttribute('type', 'text');
         this.inputElement.setAttribute('autocomplete', 'off');
@@ -40,7 +42,9 @@ class LinkField {
         }
         this.wrapper.appendChild(this.inputElement);
         this.wrapper.appendChild(this.dropdown);
-
+        if (hasFocus) {
+            this.inputElement.focus();
+        }
     }
 
     populateField() {
@@ -161,10 +165,10 @@ class LinkField {
     }
 
     openDropdown(event) {
-        if (this.dropdown.style.visibility === 'visible') {
+        if (this.dropdown.style.visibility !== 'hidden') {
             return;
         }
-        this.dropdown.style.visibility = 'visible';
+        this.dropdown.style.visibility = '';
         document.addEventListener('click', this.closeDropdown.bind(this));
     }
 

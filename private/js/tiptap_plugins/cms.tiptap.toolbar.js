@@ -6,15 +6,14 @@
 
 
 function generateButtonArray(rows, cols) {
-    let buttons = '';
-    for (let i= 0; i < rows; i++) {
-        buttons += '<div class="table-row">';
-
-        for (let j = 0; j < cols; j++) {
-            buttons += `<button title="${i+1}x${j+1}" data-action="Table" data-rows="${j+1}" data-cols="${i+1}"></button>`;
+    let buttons = '<div class="tt-create-table">';
+    for (let j= 0; j < rows; j++) {
+        for (let i = 0; i < cols; i++) {
+            buttons += `<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`;
         }
-        buttons += '</div>';
     }
+    buttons += '<div class="tt-selection"></div>'
+    buttons += '</div>';
     return buttons;
 }
 
@@ -164,10 +163,10 @@ const TiptapToolbar = {
         type: 'mark',
     },
     TipTapTable: {
-        action: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run(),
-            const rows = parseInt(button.dataset.rows || 3);
-            const cols = parseInt(button.dataset.cols || 3);
-            editor.chain().focus().insertTable({ rows: rows, cols: cols }).run()
+        action: (editor, button) => {
+            const rows = parseInt(button.dataset.rows);
+            const cols = parseInt(button.dataset.cols);
+            editor.chain().focus().insertTable({ rows: rows, cols: cols }).run();
         },
         enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
         type: 'mark',

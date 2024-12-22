@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-21 10:36+0100\n"
+"POT-Creation-Date: 2024-12-22 01:08+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Japanese (https://www.transifex.com/divio/teams/58664/ja/)\n"
@@ -123,6 +123,10 @@ msgstr ""
 
 #: editors.py:178
 msgid "Link options"
+msgstr ""
+
+#: editors.py:182
+msgid "Target"
 msgstr ""
 
 #: editors.py:186

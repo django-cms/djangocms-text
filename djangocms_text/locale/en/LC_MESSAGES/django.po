@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-21 10:36+0100\n"
+"POT-Creation-Date: 2024-12-22 01:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -122,6 +122,10 @@ msgstr "URL or search"
 #: editors.py:178
 msgid "Link options"
 msgstr "Link options"
+
+#: editors.py:182
+msgid "Target"
+msgstr "Target"
 
 #: editors.py:186
 msgid "New window"

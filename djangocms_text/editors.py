@@ -179,7 +179,7 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
                 "content": [
                     {
                         "name": "target",
-                        "label": "Target",
+                        "label": _("Target"),
                         "type": "select",
                         "options": [
                             {"value": "", "label": "-----"},

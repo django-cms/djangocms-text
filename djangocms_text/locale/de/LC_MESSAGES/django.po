@@ -2,23 +2,23 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 # Translators:
 # Fabian Braun <fsbraun@gmx.de>, 2024
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-21 10:36+0100\n"
+"POT-Creation-Date: 2024-12-22 01:08+0100\n"
 "PO-Revision-Date: 2024-02-15 10:49+0000\n"
 "Last-Translator: Fabian Braun <fsbraun@gmx.de>, 2024\n"
 "Language-Team: German (https://app.transifex.com/divio/teams/58664/de/)\n"
-"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: cms_plugins.py:370
@@ -113,17 +113,17 @@ msgstr "Blockzitat"
 msgid "Link"
 msgstr "Link"
 
-#: editors.py:170
-msgid "Type URL or search for a destination"
-msgstr "URL oder Suchbegriff eintippen"
-
 #: editors.py:171
 msgid "URL or search"
 msgstr "URL oder Suche"
 
 #: editors.py:178
 msgid "Link options"
-msgstr "Linkoptionen"
+msgstr "Link-Optionen"
+
+#: editors.py:182
+msgid "Target"
+msgstr "Ziel"
 
 #: editors.py:186
 msgid "New window"
@@ -193,10 +193,6 @@ msgstr "Absatz"
 msgid "Anchor"
 msgstr "Anker"
 
-#: editors.py:280
-msgid "Block format"
-msgstr "Blockformat"
-
 #: editors.py:284
 msgid "Styles"
 msgstr "Stile"
@@ -236,3 +232,9 @@ msgstr "Text"
 #: settings.py:40
 msgid "Generic"
 msgstr "Generisch"
+
+#~ msgid "Image"
+#~ msgstr "Bild"
+
+#~ msgid "Format"
+#~ msgstr "Format"

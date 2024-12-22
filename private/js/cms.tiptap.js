@@ -44,7 +44,7 @@ class CMSTipTapPlugin {
                 Subscript,
                 Superscript,
                 Table.configure({
-                    resizable: false,
+                    resizable: true,
                     HTMLAttributes: {
                         class: 'table',
                     },

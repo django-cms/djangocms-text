@@ -67,6 +67,11 @@
                 box-shadow: 0 0 2px Highlight;
             }
         }
+        &.ProseMirror-focused {
+            td, th {
+                outline: Highlight solid 0.5px;
+            }
+        }
         & cms-plugin {
             pointer-events: auto;
             a {

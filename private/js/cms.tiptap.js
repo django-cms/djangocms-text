@@ -387,7 +387,10 @@ class CMSTipTapPlugin {
                 item = TiptapToolbar[item].insitu;
             } else if (item in TiptapToolbar && TiptapToolbar[item].items) {
                 // Create submenu
-                const repr = this._getRepresentation(item);
+                const repr = this._getRepresentation(item, filter);
+                if (!repr) {
+                    continue;
+                }
                 item = TiptapToolbar[item];
                 item.title = repr.title;
                 item.icon = repr.icon;
@@ -400,14 +403,14 @@ class CMSTipTapPlugin {
             } else if (item.constructor === Object) {
                 let dropdown;
 
-                if (typeof item.items === 'string') {
-                    dropdown = item.items;
+                if (typeof item.items === 'function') {
+                    dropdown = item.items(editor, (items) => this._populateToolbar(editor, items, filter));
                 } else {
                     dropdown = this._populateToolbar(editor, item.items, filter);
                     // Are there any items in the dropdown?
-                    if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length === 0) {
-                        continue;
-                    }
+                }
+                if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length === 0) {
+                    continue;
                 }
                 const title = item.title && item.icon ? `title='${item.title}' ` : '';
                 const icon = item.icon || item.title;

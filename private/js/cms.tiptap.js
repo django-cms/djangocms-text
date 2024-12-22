@@ -1,12 +1,14 @@
-/* eslint-env es6 */
-/* jshint esversion: 6 */
+/* eslint-env es11 */
+/* jshint esversion: 11 */
 /* global document, window, console */
 
 import {Editor} from '@tiptap/core';
+import {StarterKit} from "@tiptap/starter-kit";
 import Underline from '@tiptap/extension-underline';
 import CharacterCount from '@tiptap/extension-character-count';
-import Image from '@tiptap/extension-image';
 import CmsDynLink from './tiptap_plugins/cms.dynlink';
+import {CmsPluginNode, CmsBlockPluginNode} from './tiptap_plugins/cms.plugin';
+import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
@@ -15,9 +17,7 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
-import {CmsPluginNode, CmsBlockPluginNode} from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
-import {StarterKit} from "@tiptap/starter-kit";
 
 import {InlineColors, Small, Var, Kbd, Samp} from "./tiptap_plugins/cms.styles";
 import CmsBalloonToolbar from "./tiptap_plugins/cms.balloon-toolbar";
@@ -360,7 +360,10 @@ class CMSTipTapPlugin {
         setTimeout(() => {
             // Allow toolbar and other editor widgets to process the click first
             // They need to refocus the editor to avoid a save
-            if(!editor.options.el.contains(document.activeElement)) {
+            const id = editor.options.el.id;
+            const cms_dialog = document.querySelector(`#cms-top .cms-dialog[data-editor="${id}"]`);
+            console.log(cms_dialog, cms_dialog?.open);
+            if(!editor.options.el.contains(document.activeElement) && !cms_dialog) {
                 // hide the toolbar
                 editor.options.element.querySelectorAll('[role="menubar"], [role="button"]')
                     .forEach((el) => el.classList.remove('show'));

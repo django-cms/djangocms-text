@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 01:08+0100\n"
+"POT-Creation-Date: 2024-12-22 23:13+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Romanian (https://www.transifex.com/divio/teams/58664/ro/)\n"
@@ -151,78 +151,110 @@ msgid "Table"
 msgstr ""
 
 #: editors.py:213
-msgid "Code"
+msgid "Add row before"
+msgstr ""
+
+#: editors.py:216
+msgid "Add row after"
 msgstr ""
 
 #: editors.py:219
-msgid "Small"
+msgid "Add column before"
 msgstr ""
 
 #: editors.py:222
-msgid "Keyboard input"
+msgid "Add column after"
+msgstr ""
+
+#: editors.py:225
+msgid "Delete row"
 msgstr ""
 
 #: editors.py:228
+msgid "Delete column"
+msgstr ""
+
+#: editors.py:231
+msgid "Delete table"
+msgstr ""
+
+#: editors.py:234
+msgid "Merge or split cells"
+msgstr ""
+
+#: editors.py:237
+msgid "Code"
+msgstr ""
+
+#: editors.py:243
+msgid "Small"
+msgstr ""
+
+#: editors.py:246
+msgid "Keyboard input"
+msgstr ""
+
+#: editors.py:252
 msgid "Code block"
 msgstr ""
 
-#: editors.py:235
+#: editors.py:259
 msgid "Heading 1"
 msgstr ""
 
-#: editors.py:241
+#: editors.py:265
 msgid "Heading 2"
 msgstr ""
 
-#: editors.py:247
+#: editors.py:271
 msgid "Heading 3"
 msgstr ""
 
-#: editors.py:253
+#: editors.py:277
 msgid "Heading 4"
 msgstr ""
 
-#: editors.py:259
+#: editors.py:283
 msgid "Heading 5"
 msgstr ""
 
-#: editors.py:265
+#: editors.py:289
 msgid "Heading 6"
 msgstr ""
 
-#: editors.py:271
+#: editors.py:295
 msgid "Paragraph"
 msgstr ""
 
-#: editors.py:277
+#: editors.py:301
 msgid "Anchor"
 msgstr ""
 
-#: editors.py:280
+#: editors.py:304
 msgid "Block format"
 msgstr ""
 
-#: editors.py:284
+#: editors.py:308
 msgid "Styles"
 msgstr ""
 
-#: editors.py:288
+#: editors.py:312
 msgid "Font"
 msgstr ""
 
-#: editors.py:291
+#: editors.py:315
 msgid "Font size"
 msgstr ""
 
-#: editors.py:294 editors.py:295 widgets.py:240 widgets.py:243
+#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
 msgstr ""
 
-#: editors.py:296 widgets.py:242
+#: editors.py:320 widgets.py:242
 msgid "Edit CMS Plugin"
 msgstr ""
 
-#: editors.py:297 widgets.py:241
+#: editors.py:321 widgets.py:241
 msgid "Add CMS Plugin"
 msgstr ""
 

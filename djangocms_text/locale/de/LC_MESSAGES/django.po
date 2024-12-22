@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 01:08+0100\n"
+"POT-Creation-Date: 2024-12-22 23:13+0100\n"
 "PO-Revision-Date: 2024-02-15 10:49+0000\n"
 "Last-Translator: Fabian Braun <fsbraun@gmx.de>, 2024\n"
 "Language-Team: German (https://app.transifex.com/divio/teams/58664/de/)\n"
@@ -146,74 +146,106 @@ msgid "Table"
 msgstr "Tabelle"
 
 #: editors.py:213
+msgid "Add row before"
+msgstr "Neue Zeile oberhalb"
+
+#: editors.py:216
+msgid "Add row after"
+msgstr "Neue Zeile unterhalb"
+
+#: editors.py:219
+msgid "Add column before"
+msgstr "Neue Spalte links"
+
+#: editors.py:222
+msgid "Add column after"
+msgstr "Neue Spalte rechts"
+
+#: editors.py:225
+msgid "Delete row"
+msgstr "Zeile löschen"
+
+#: editors.py:228
+msgid "Delete column"
+msgstr "Spalte löschen"
+
+#: editors.py:231
+msgid "Delete table"
+msgstr "Tabelle löschen"
+
+#: editors.py:234
+msgid "Merge or split cells"
+msgstr "Zellen verbinden oder spalten"
+
+#: editors.py:237
 msgid "Code"
 msgstr "Code"
 
-#: editors.py:219
+#: editors.py:243
 msgid "Small"
 msgstr "Klein"
 
-#: editors.py:222
+#: editors.py:246
 msgid "Keyboard input"
 msgstr "Tastatureingabe"
 
-#: editors.py:228
+#: editors.py:252
 msgid "Code block"
 msgstr "Codeblock"
 
-#: editors.py:235
+#: editors.py:259
 msgid "Heading 1"
 msgstr "Überschrift 1"
 
-#: editors.py:241
+#: editors.py:265
 msgid "Heading 2"
 msgstr "Überschrift 2"
 
-#: editors.py:247
+#: editors.py:271
 msgid "Heading 3"
 msgstr "Überschrift 3"
 
-#: editors.py:253
+#: editors.py:277
 msgid "Heading 4"
 msgstr "Überschrift 4"
 
-#: editors.py:259
+#: editors.py:283
 msgid "Heading 5"
 msgstr "Überschrift 5"
 
-#: editors.py:265
+#: editors.py:289
 msgid "Heading 6"
 msgstr "Überschrift 6"
 
-#: editors.py:271
+#: editors.py:295
 msgid "Paragraph"
 msgstr "Absatz"
 
-#: editors.py:277
+#: editors.py:301
 msgid "Anchor"
 msgstr "Anker"
 
-#: editors.py:284
+#: editors.py:308
 msgid "Styles"
 msgstr "Stile"
 
-#: editors.py:288
+#: editors.py:312
 msgid "Font"
 msgstr "Schriftart"
 
-#: editors.py:291
+#: editors.py:315
 msgid "Font size"
 msgstr "Schriftgröße"
 
-#: editors.py:294 editors.py:295 widgets.py:240 widgets.py:243
+#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
 msgstr "CMS-Bausteine"
 
-#: editors.py:296 widgets.py:242
+#: editors.py:320 widgets.py:242
 msgid "Edit CMS Plugin"
 msgstr "Baustein bearbeiten"
 
-#: editors.py:297 widgets.py:241
+#: editors.py:321 widgets.py:241
 msgid "Add CMS Plugin"
 msgstr "Baustein hinzufügen"
 

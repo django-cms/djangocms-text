@@ -129,6 +129,13 @@
             inset-inline-start: 0;
         }
     }
+    div.table-row button {
+        width: 9px !important;
+        height: 8px !important;
+        padding: 0  !important;
+        margin: 1px  !important;
+        border: 1px solid var(--dca-gray-lighter, var(--hairline-color)) !important;
+    }
     button, [role="button"] {
         width: auto  !important;  /* for djangocms-admin-style */
         position: relative;

@@ -5,6 +5,20 @@
 'use strict';
 
 
+function generateButtonArray(rows, cols) {
+    let buttons = '';
+    for (let i= 0; i < rows; i++) {
+        buttons += '<div class="table-row">';
+
+        for (let j = 0; j < cols; j++) {
+            buttons += `<button title="${i+1}x${j+1}" data-action="Table" data-rows="${j+1}" data-cols="${i+1}"></button>`;
+        }
+        buttons += '</div>';
+    }
+    return buttons;
+}
+
+
 const TiptapToolbar = {
     Undo: {
         action: (editor) => editor.chain().focus().undo().run(),
@@ -151,8 +165,13 @@ const TiptapToolbar = {
     },
     TipTapTable: {
         action: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run(),
+            const rows = parseInt(button.dataset.rows || 3);
+            const cols = parseInt(button.dataset.cols || 3);
+            editor.chain().focus().insertTable({ rows: rows, cols: cols }).run()
+        },
         enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
-        type: 'block',
+        type: 'mark',
+        items: generateButtonArray(10,10),
     },
     Code: {
         action: (editor) => editor.chain().focus().toggleCode().run(),

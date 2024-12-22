@@ -406,7 +406,7 @@ class CMSTipTapPlugin {
                     dropdown = this._populateToolbar(editor, item.items, filter);
                     // Are there any items in the dropdown?
                     if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length === 0) {
-                        continue
+                        continue;
                     }
                 }
                 const title = item.title && item.icon ? `title='${item.title}' ` : '';

@@ -121,19 +121,19 @@ msgstr "URL or search"
 
 #: editors.py:178
 msgid "Link options"
-msgstr ""
+msgstr "Link options"
 
 #: editors.py:186
 msgid "New window"
-msgstr ""
+msgstr "New window"
 
 #: editors.py:187
 msgid "Same window"
-msgstr ""
+msgstr "Same window"
 
 #: editors.py:188
 msgid "Parent window"
-msgstr ""
+msgstr "Parent window"
 
 #: editors.py:201
 msgid "Unlink"

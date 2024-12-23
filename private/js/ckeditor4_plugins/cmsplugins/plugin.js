@@ -109,7 +109,6 @@ import CmsDialog from "../../cms.dialog";
 
                 // this is called when creating the dropdown list
                 onBlock: function (panel, block) {
-					console.log("onBlock", editor.plugins);
                     block.element.setHtml(editor.plugins.CMSPlugins.setupDropdown(editor));
 
                     var anchors = $(block.element.$).find('.cke_panel_listItem a');

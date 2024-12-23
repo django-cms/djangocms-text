@@ -362,7 +362,6 @@ class CMSTipTapPlugin {
             // They need to refocus the editor to avoid a save
             const id = editor.options.el.id;
             const cms_dialog = document.querySelector(`#cms-top .cms-dialog[data-editor="${id}"]`);
-            console.log(cms_dialog, cms_dialog?.open);
             if(!editor.options.el.contains(document.activeElement) && !cms_dialog) {
                 // hide the toolbar
                 editor.options.element.querySelectorAll('[role="menubar"], [role="button"]')

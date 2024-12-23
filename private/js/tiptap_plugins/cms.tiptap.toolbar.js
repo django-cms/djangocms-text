@@ -29,7 +29,6 @@ const _tableMenu = [
 ];
 
 function generateTableMenu(editor, builder) {
-    console.log(builder(_tableMenu));
     return generateButtonArray(10, 10) + builder(_tableMenu);
 }
 

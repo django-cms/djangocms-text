@@ -67,6 +67,11 @@
                 box-shadow: 0 0 2px Highlight;
             }
         }
+        &.ProseMirror-focused {
+            td, th {
+                outline: Highlight solid 0.5px;
+            }
+        }
         & cms-plugin {
             pointer-events: auto;
             a {
@@ -129,33 +134,48 @@
             inset-inline-start: 0;
         }
     }
-    div.tt-create-table {
-        display: block;
-        position: relative;
-        width: calc(12px * 10);
-        height: calc(12px * 10 + 1rem);
-        button {
-            position: absolute;
-            top: 0;
-            inset-inline-start: 0;
-            padding: 4px !important; /* needed for djangocms-admin-style */
-            margin: 0px 2px !important;
-            border: 1px solid var(--dca-gray-lighter, var(--hairline-color)) !important;
-            margin-inline-start: var(--mx)  !important;
-            margin-top: var(--my) !important;
-            &:hover {
-                background-color: Highlight;
+    .tt-table {
+        &:has(> button:not([disabled])) {
+            --all-disabled: none;
+            --not-all-disabled: inline-flex;
+        }
+        > button {
+            display: var(--not-all-disabled, none);
+        }
+        > .separator {
+            display: var(--not-all-disabled, none);
+        }
+        div.tt-create-table {
+            &[disabled] {
+                display: none;
             }
-            &:hover::after {
+            display: var(--all-disabled, block);
+            position: relative;
+            width: calc(12px * 10);
+            height: calc(12px * 10 + 1rem);
+            button {
                 position: absolute;
-                top: calc(124px - var(--my));
-                inset-inline-start: calc(-1 * var(--mx));
-                text-align: center;
-                height: 2rem;
-                width: calc(12px * 10);
-                content: attr(title);
-                font-size: 0.7rem;
-                color: var(--dca-gray);
+                top: 0;
+                inset-inline-start: 0;
+                padding: 4px !important; /* needed for djangocms-admin-style */
+                margin: 0px 2px !important;
+                border: 1px solid var(--dca-gray-lighter, var(--hairline-color)) !important;
+                margin-inline-start: var(--mx)  !important;
+                margin-top: var(--my) !important;
+                &:hover {
+                    background-color: Highlight;
+                }
+                &:hover::after {
+                    position: absolute;
+                    top: calc(124px - var(--my));
+                    inset-inline-start: calc(-1 * var(--mx));
+                    text-align: center;
+                    height: 2rem;
+                    width: calc(12px * 10);
+                    content: attr(title);
+                    font-size: 0.7rem;
+                    color: var(--dca-gray);
+                }
             }
         }
     }

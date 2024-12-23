@@ -12,9 +12,24 @@ function generateButtonArray(rows, cols) {
             buttons += `<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`;
         }
     }
-    buttons += '<div class="tt-selection"></div>'
     buttons += '</div>';
     return buttons;
+}
+
+const _tableMenu = [
+    'addColumnBefore',
+    'addColumnAfter',
+    'deleteColumn',
+    '|',
+    'addRowBefore',
+    'addRowAfter',
+    'deleteRow',
+    '|',
+    'mergeOrSplit',
+];
+
+function generateTableMenu(editor, builder) {
+    return generateButtonArray(10, 10) + builder(_tableMenu);
 }
 
 
@@ -162,7 +177,7 @@ const TiptapToolbar = {
         enabled: (editor) => editor.can().unsetLink(),
         type: 'mark',
     },
-    TipTapTable: {
+    Table: {
         action: (editor, button) => {
             const rows = parseInt(button.dataset.rows);
             const cols = parseInt(button.dataset.cols);
@@ -170,7 +185,43 @@ const TiptapToolbar = {
         },
         enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
         type: 'mark',
-        items: generateButtonArray(10,10),
+        items: generateTableMenu,
+        class: 'tt-table',
+    },
+    addColumnBefore: {
+        action: (editor, button) => editor.chain().focus().addColumnBefore().run(),
+        enabled: (editor) => editor.can().addColumnBefore(),
+        type: 'mark',
+    },
+    addColumnAfter: {
+        action: (editor, button) => editor.chain().focus().addColumnAfter().run(),
+        enabled: (editor) => editor.can().addColumnAfter(),
+        type: 'mark',
+    },
+    deleteColumn: {
+        action: (editor, button) => editor.chain().focus().deleteColumn().run(),
+        enabled: (editor) => editor.can().deleteColumn(),
+        type: 'mark',
+    },
+    addRowBefore: {
+        action: (editor, button) => editor.chain().focus().addRowBefore().run(),
+        enabled: (editor) => editor.can().addRowBefore(),
+        type: 'mark',
+    },
+    addRowAfter: {
+        action: (editor, button) => editor.chain().focus().addRowAfter().run(),
+        enabled: (editor) => editor.can().addRowAfter(),
+        type: 'mark',
+    },
+    deleteRow: {
+        action: (editor, button) => editor.chain().focus().deleteRow().run(),
+        enabled: (editor) => editor.can().deleteRow(),
+        type: 'mark',
+    },
+    mergeOrSplit: {
+        action: (editor, button) => editor.chain().focus().mergeOrSplit().run(),
+        enabled: (editor) => editor.can().mergeOrSplit(),
+        type: 'mark',
     },
     Code: {
         action: (editor) => editor.chain().focus().toggleCode().run(),

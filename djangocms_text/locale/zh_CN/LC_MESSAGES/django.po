@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 01:08+0100\n"
+"POT-Creation-Date: 2024-12-22 23:13+0100\n"
 "PO-Revision-Date: 2024-02-15 10:49+0000\n"
 "Last-Translator: Scott Jiang, 2024\n"
 "Language-Team: Chinese (China) (https://app.transifex.com/divio/teams/58664/"
@@ -153,80 +153,112 @@ msgid "Table"
 msgstr "表格"
 
 #: editors.py:213
+msgid "Add row before"
+msgstr ""
+
+#: editors.py:216
+msgid "Add row after"
+msgstr ""
+
+#: editors.py:219
+msgid "Add column before"
+msgstr ""
+
+#: editors.py:222
+msgid "Add column after"
+msgstr ""
+
+#: editors.py:225
+msgid "Delete row"
+msgstr ""
+
+#: editors.py:228
+msgid "Delete column"
+msgstr ""
+
+#: editors.py:231
+msgid "Delete table"
+msgstr ""
+
+#: editors.py:234
+msgid "Merge or split cells"
+msgstr ""
+
+#: editors.py:237
 msgid "Code"
 msgstr "代码"
 
-#: editors.py:219
+#: editors.py:243
 msgid "Small"
 msgstr "小的"
 
-#: editors.py:222
+#: editors.py:246
 msgid "Keyboard input"
 msgstr "键盘输入"
 
-#: editors.py:228
+#: editors.py:252
 msgid "Code block"
 msgstr "代码引用区"
 
-#: editors.py:235
+#: editors.py:259
 msgid "Heading 1"
 msgstr "标题 1 格式"
 
-#: editors.py:241
+#: editors.py:265
 msgid "Heading 2"
 msgstr "标题 2 格式"
 
-#: editors.py:247
+#: editors.py:271
 msgid "Heading 3"
 msgstr "标题 3 格式"
 
-#: editors.py:253
+#: editors.py:277
 msgid "Heading 4"
 msgstr "标题 4 格式"
 
-#: editors.py:259
+#: editors.py:283
 msgid "Heading 5"
 msgstr "标题 5 格式"
 
-#: editors.py:265
+#: editors.py:289
 msgid "Heading 6"
 msgstr "标题 6 格式"
 
-#: editors.py:271
+#: editors.py:295
 msgid "Paragraph"
 msgstr "段落"
 
-#: editors.py:277
+#: editors.py:301
 msgid "Anchor"
 msgstr "基点"
 
-#: editors.py:280
+#: editors.py:304
 #, fuzzy
 #| msgid "Blockquote"
 msgid "Block format"
 msgstr "引用区"
 
-#: editors.py:284
+#: editors.py:308
 msgid "Styles"
 msgstr "样式"
 
-#: editors.py:288
+#: editors.py:312
 msgid "Font"
 msgstr "字体"
 
-#: editors.py:291
+#: editors.py:315
 msgid "Font size"
 msgstr "字体大小"
 
-#: editors.py:294 editors.py:295 widgets.py:240 widgets.py:243
+#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
 msgstr "CMS 的插件组"
 
-#: editors.py:296 widgets.py:242
+#: editors.py:320 widgets.py:242
 msgid "Edit CMS Plugin"
 msgstr "编辑 CMS 插件"
 
-#: editors.py:297 widgets.py:241
+#: editors.py:321 widgets.py:241
 msgid "Add CMS Plugin"
 msgstr "添加 CMS 插件"
 

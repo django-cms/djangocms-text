@@ -1,12 +1,14 @@
-/* eslint-env es6 */
-/* jshint esversion: 6 */
+/* eslint-env es11 */
+/* jshint esversion: 11 */
 /* global document, window, console */
 
 import {Editor} from '@tiptap/core';
+import {StarterKit} from "@tiptap/starter-kit";
 import Underline from '@tiptap/extension-underline';
 import CharacterCount from '@tiptap/extension-character-count';
-import Image from '@tiptap/extension-image';
 import CmsDynLink from './tiptap_plugins/cms.dynlink';
+import {CmsPluginNode, CmsBlockPluginNode} from './tiptap_plugins/cms.plugin';
+import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
@@ -15,9 +17,7 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
-import {CmsPluginNode, CmsBlockPluginNode} from './tiptap_plugins/cms.plugin';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
-import {StarterKit} from "@tiptap/starter-kit";
 
 import {InlineColors, Small, Var, Kbd, Samp} from "./tiptap_plugins/cms.styles";
 import CmsBalloonToolbar from "./tiptap_plugins/cms.balloon-toolbar";
@@ -44,7 +44,7 @@ class CMSTipTapPlugin {
                 Subscript,
                 Superscript,
                 Table.configure({
-                    resizable: false,
+                    resizable: true,
                     HTMLAttributes: {
                         class: 'table',
                     },
@@ -360,7 +360,9 @@ class CMSTipTapPlugin {
         setTimeout(() => {
             // Allow toolbar and other editor widgets to process the click first
             // They need to refocus the editor to avoid a save
-            if(!editor.options.el.contains(document.activeElement)) {
+            const {id} = editor.options.el;
+            const cms_dialog = document.querySelector(`#cms-top .cms-dialog[data-editor="${id}"]`);
+            if(!editor.options.el.contains(document.activeElement) && !cms_dialog) {
                 // hide the toolbar
                 editor.options.element.querySelectorAll('[role="menubar"], [role="button"]')
                     .forEach((el) => el.classList.remove('show'));
@@ -387,7 +389,10 @@ class CMSTipTapPlugin {
                 item = TiptapToolbar[item].insitu;
             } else if (item in TiptapToolbar && TiptapToolbar[item].items) {
                 // Create submenu
-                const repr = this._getRepresentation(item);
+                const repr = this._getRepresentation(item, filter);
+                if (!repr) {
+                    continue;
+                }
                 item = TiptapToolbar[item];
                 item.title = repr.title;
                 item.icon = repr.icon;
@@ -400,14 +405,14 @@ class CMSTipTapPlugin {
             } else if (item.constructor === Object) {
                 let dropdown;
 
-                if (typeof item.items === 'string') {
-                    dropdown = item.items;
+                if (typeof item.items === 'function') {
+                    dropdown = item.items(editor, (items) => this._populateToolbar(editor, items, filter));
                 } else {
                     dropdown = this._populateToolbar(editor, item.items, filter);
                     // Are there any items in the dropdown?
-                    if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length === 0) {
-                        continue;
-                    }
+                }
+                if (dropdown.replaceAll(this.separator_markup, '').replaceAll(this.space_markup, '').length === 0) {
+                    continue;
                 }
                 const title = item.title && item.icon ? `title='${item.title}' ` : '';
                 const icon = item.icon || item.title;

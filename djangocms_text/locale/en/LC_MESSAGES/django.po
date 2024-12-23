@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 01:08+0100\n"
+"POT-Creation-Date: 2024-12-22 23:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -148,80 +148,112 @@ msgid "Table"
 msgstr "Table"
 
 #: editors.py:213
+msgid "Add row before"
+msgstr "Add row before"
+
+#: editors.py:216
+msgid "Add row after"
+msgstr "Add row after"
+
+#: editors.py:219
+msgid "Add column before"
+msgstr "Add column before"
+
+#: editors.py:222
+msgid "Add column after"
+msgstr "Add column after"
+
+#: editors.py:225
+msgid "Delete row"
+msgstr "Delete row"
+
+#: editors.py:228
+msgid "Delete column"
+msgstr "Delete column"
+
+#: editors.py:231
+msgid "Delete table"
+msgstr "Delete table"
+
+#: editors.py:234
+msgid "Merge or split cells"
+msgstr "Merge or split cells"
+
+#: editors.py:237
 msgid "Code"
 msgstr "Code"
 
-#: editors.py:219
+#: editors.py:243
 msgid "Small"
 msgstr "Small"
 
-#: editors.py:222
+#: editors.py:246
 msgid "Keyboard input"
 msgstr "Keyboard input"
 
-#: editors.py:228
+#: editors.py:252
 msgid "Code block"
 msgstr "Code block"
 
-#: editors.py:235
+#: editors.py:259
 msgid "Heading 1"
 msgstr "Heading 1"
 
-#: editors.py:241
+#: editors.py:265
 msgid "Heading 2"
 msgstr "Heading 2"
 
-#: editors.py:247
+#: editors.py:271
 msgid "Heading 3"
 msgstr "Heading 3"
 
-#: editors.py:253
+#: editors.py:277
 msgid "Heading 4"
 msgstr "Heading 4"
 
-#: editors.py:259
+#: editors.py:283
 msgid "Heading 5"
 msgstr "Heading 5"
 
-#: editors.py:265
+#: editors.py:289
 msgid "Heading 6"
 msgstr "Heading 6"
 
-#: editors.py:271
+#: editors.py:295
 msgid "Paragraph"
 msgstr "Paragraph"
 
-#: editors.py:277
+#: editors.py:301
 msgid "Anchor"
 msgstr "Anchor"
 
-#: editors.py:280
+#: editors.py:304
 #, fuzzy
 #| msgid "Blockquote"
 msgid "Block format"
 msgstr "Blockquote"
 
-#: editors.py:284
+#: editors.py:308
 msgid "Styles"
 msgstr "Styles"
 
-#: editors.py:288
+#: editors.py:312
 msgid "Font"
 msgstr "Font"
 
-#: editors.py:291
+#: editors.py:315
 msgid "Font size"
 msgstr "Font size"
 
-#: editors.py:294 editors.py:295 widgets.py:240 widgets.py:243
+#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
 msgstr "CMS Plugins"
 
-#: editors.py:296 widgets.py:242
+#: editors.py:320 widgets.py:242
 msgid "Edit CMS Plugin"
 msgstr "Edit CMS Plugin"
 
-#: editors.py:297 widgets.py:241
+#: editors.py:321 widgets.py:241
 msgid "Add CMS Plugin"
 msgstr "Add CMS Plugin"
 

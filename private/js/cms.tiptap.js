@@ -360,7 +360,7 @@ class CMSTipTapPlugin {
         setTimeout(() => {
             // Allow toolbar and other editor widgets to process the click first
             // They need to refocus the editor to avoid a save
-            const id = editor.options.el.id;
+            const {id} = editor.options.el;
             const cms_dialog = document.querySelector(`#cms-top .cms-dialog[data-editor="${id}"]`);
             if(!editor.options.el.contains(document.activeElement) && !cms_dialog) {
                 // hide the toolbar

@@ -531,7 +531,7 @@ function _submitToolbarForm(event, editor) {
     const form = event.target.closest('form');
     if (form.reportValidity()) {
         _closeAllDropdowns(event, editor);
-        const action = form.closest('[role=button]').dataset.action;
+        const {action} = form.closest('[role=button]').dataset;
         if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, event.target.closest('button, [role="button"]'), new FormData(form));
         }

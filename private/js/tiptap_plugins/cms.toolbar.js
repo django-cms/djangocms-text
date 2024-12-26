@@ -480,7 +480,7 @@ function _createToolbarButton(editor, itemName, filter) {
             </form>`;
         }
         return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}" role="button">
-                        ${repr.icon ? repr.icon : repr.title}${form}
+                        ${repr.icon || repr.title}${form}
                     </button>`;
     }
     return '';

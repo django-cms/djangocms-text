@@ -25,6 +25,8 @@ const _tableMenu = [
     'addRowAfter',
     'deleteRow',
     '|',
+    'toggleHeaderColumn',
+    'toggleHeaderRow',
     'mergeOrSplit',
 ];
 
@@ -189,6 +191,18 @@ const TiptapToolbar = {
         type: 'mark',
         items: generateTableMenu,
         class: 'tt-table',
+    },
+    toggleHeaderColumn: {
+        action: (editor, button) => editor.commands.toggleHeaderColumn(),
+        enabled: (editor) => editor.can().toggleHeaderColumn(),
+        active: (editor) => editor.isActive('headerColumn'),
+        type: 'mark',
+    },
+    toggleHeaderRow: {
+        action: (editor, button) => editor.commands.toggleHeaderRow(),
+        enabled: (editor) => editor.can().toggleHeaderRow(),
+        active: (editor) => editor.isActive('headerRow'),
+        type: 'mark',
     },
     addColumnBefore: {
         action: (editor, button) => editor.commands.addColumnBefore(),

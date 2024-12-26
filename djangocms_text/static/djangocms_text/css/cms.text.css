@@ -175,6 +175,6 @@ form.cms-form {
 }
 
 cms-plugin.cms-editor-inline-wrapper:focus {
-    outline: 3px solid Highlight;
+    outline: 3px solid AccentColor;
     outline-offset: 2px;
 }

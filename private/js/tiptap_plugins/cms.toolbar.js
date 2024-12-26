@@ -50,7 +50,7 @@ function _createBlockToolbarPlugin(editor) {
                 return this.getState(state);
             },
             handleDOMEvents: {
-                mousedown (view, event) {
+                mousedowxn (view, event) {
                     if (editor.options.blockToolbar?.contains(event.target)) {
                         event.preventDefault();
                         return true;
@@ -107,12 +107,13 @@ function _createBlockToolbar(editor, blockToolbar) {
 
     toolbar.classList.add('cms-block-toolbar');
     toolbar.style.zIndex = editor.options.baseFloatZIndex || 1000000;  //
-    toolbar.innerHTML = `${_menu_icon}<div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`;
+    toolbar.innerHTML = `${_drag_icon}<div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`;
 
     toolbar.draggable = true;
     toolbar.addEventListener("dragstart", (event) => {
         toolbar.classList.remove('show');
-        const {block, depth} = editor.options.blockToolbar.dataset;
+        const {resolvedPos, depth} = _getResolvedPos(editor.view.state);
+        const block = resolvedPos.start(depth);
         if (depth >= 0) {
             const { state, dispatch } = editor.view;
             const nodeSelection = NodeSelection.create(state.doc, block);
@@ -162,6 +163,11 @@ function updateBlockToolbar(editor, state) {
         const ref = editor.options.el.getBoundingClientRect();
         editor.options.blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
         editor.options.blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
+        let title = resolvedPos.node(1).type.name;
+        for (let i= 2; i <= depth; i++) {
+            title += ` > ${resolvedPos.node(i).type.name}`;
+        }
+        editor.options.blockToolbar.title = title;
     } else {
         editor.options.blockToolbar.draggable = false;
     }
@@ -196,7 +202,7 @@ function _updateToolbarIcon (editor, node) {
     if (type in _node_icons) {
         _replaceIcon(editor.options.blockToolbar.firstElementChild, _node_icons[type]);
     } else {
-        _replaceIcon(editor.options.blockToolbar.firstElementChild, _menu_icon);
+        _replaceIcon(editor.options.blockToolbar.firstElementChild, _drag_icon);
     }
 }
 
@@ -315,7 +321,6 @@ function _handleToolbarClick(event, editor) {
                 _closeAllDropdowns(event, editor);
                 button.classList.add('show');
                 content.style.top = button.offsetHeight + 'px';
-                content.style.zIndex = button.closest('button, [role="menubar"]').style.zIndex + 10;
                 if (button.offsetLeft + content.offsetWidth > window.innerWidth) {
                     content.style.left = (window.innerWidth - content.offsetWidth - button.offsetLeft - 25) + 'px';
                 }
@@ -395,7 +400,7 @@ function _populateToolbar(editor, array, filter) {
             }
             const title = item.title && item.icon ? `title='${item.title}' ` : '';
             const icon = item.icon || item.title;
-            html += `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+            html += `<span ${title}class="dropdown" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
         } else {
             switch (item) {
                 case '|':
@@ -493,11 +498,10 @@ function _updateToolbar(editor, toolbar) {
         if (action) {
             if (TiptapToolbar[action]) {
                 const toolbarItem = window.cms_editor_plugin._getRepresentation(action);
-                button.disabled = !toolbarItem.enabled(editor, button);
                 try {
-                    button.disabled = !toolbarItem.enabled(editor, button);
+                    button.disabled = !toolbarItem?.enabled(editor, button);
                     try {
-                        if (toolbarItem.active(editor, button)) {
+                        if (toolbarItem?.active(editor, button)) {
                             button.classList.add('active');
                         } else {
                             button.classList.remove('active');

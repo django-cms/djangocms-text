@@ -1,11 +1,22 @@
 .cms-editor-inline-wrapper {
+    .ProseMirror-focused [role="menubar"] {
+        /* show toolbar if editor is focused */
+        visibility: visible;
+        [role="button"].show {
+            z-index: 10;
+            > .dropdown-content {
+                visibility: visible;
+                height: auto;
+            }
+        }
+    }
+    &:has(dialog.cms-form-dialog) [role="menubar"] {
+        /* show toolbar if form dialog is open */
+        visibility: visible;
+    }
+
     [role="menubar"] {
         bottom: calc(100% - 1px);
-
-        [role="button"].show > .dropdown-content {
-            visibility: visible;
-            height: auto;
-        }
         padding: 2px 0.4rem;
         /* border-radius: 3px; */
         margin: 0 !important;
@@ -34,6 +45,13 @@
         display: block;
         top: 0;
         visibility: visible;
+        [role="button"].show {
+            z-index: 10;
+            > .dropdown-content {
+                visibility: visible;
+                height: auto;
+            }
+        }
         position: static;
         width: 100%;
         box-sizing: border-box;
@@ -48,7 +66,7 @@
         padding-right: 0;
         .dropdown-content {
             inset-block-start: 100%;
-            inset-inline-start: 0;
+            inset-inline-start: -2px;
         }
     }
     .tt-table {

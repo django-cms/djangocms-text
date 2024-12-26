@@ -34,10 +34,6 @@
     }
     position: relative;
 
-    &:has(dialog.cms-form-dialog) [role="menubar"] {
-        /* show toolbar if form dialog is open */
-        visibility: visible;
-    }
     .tiptap {
         &.ProseMirror-focused {
             /* Safari: Only outline the editor div, not toolbar etc. */
@@ -73,7 +69,7 @@
         }
         &.ProseMirror-focused {
             td, th {
-                outline: AccentColor solid 0.5px;
+                outline: Highlight solid 0.5px;
             }
         }
         & cms-plugin {
@@ -85,10 +81,6 @@
                 outline: 2px solid #fad507;
                 outline-offset: 2px;
             }
-        }
-        &.ProseMirror-focused [role="menubar"] {
-            /* show toolbar if editor is focused */
-            visibility: visible;
         }
     }
 }

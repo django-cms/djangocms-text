@@ -498,7 +498,7 @@ function _updateToolbar(editor, toolbar) {
         selector = 'button, [role="button"]';
     }
     for (const button of toolbar.querySelectorAll(selector)) {
-        const action = button.dataset.action;
+        const {action} = button.dataset;
         if (action) {
             if (TiptapToolbar[action]) {
                 const toolbarItem = window.cms_editor_plugin._getRepresentation(action);

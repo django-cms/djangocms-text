@@ -37,10 +37,12 @@ const TiptapToolbar = {
     Undo: {
         action: (editor) => editor.chain().focus().undo().run(),
         enabled: (editor) => editor.can().undo(),
+        type: 'mark',
     },
     Redo:{
         action: (editor) => editor.chain().focus().redo().run(),
         enabled: (editor) => editor.can().redo(),
+        type: 'mark',
     },
     Bold: {
         action: (editor) => editor.chain().focus().toggleBold().run(),

@@ -75,7 +75,6 @@ class CMSTipTapPlugin {
         this.debounceTime = props.debounceTime || 200;
         // the time to wait after the editor loses focus before saving the content
         // this is to prevent saving when the user is still interacting with the editor
-        // (e.g. clicking on the toolbar)
         this.separator_markup = props.separator_markup || '<span class="tiptap-separator"></span>';
         this.space_markup = props.space_markup || '<span class="tiptap-space"></span>';
         this.options = props.options || this.defaultOptions();
@@ -215,7 +214,7 @@ class CMSTipTapPlugin {
 
     // Blur editor event
     _blurEditor(editor, event) {
-        // Let the editor process clicks on the toolbar first
+        // Let the editor process clicks first
         // This hopefully prevents race conditions
         setTimeout(() => {
             // Allow toolbar and other editor widgets to process the click first

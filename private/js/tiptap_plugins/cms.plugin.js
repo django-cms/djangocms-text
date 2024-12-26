@@ -201,7 +201,6 @@ const cmsPluginNodes = {
 
             // Capture and stop click events
             dom.addEventListener('click', (event) => {
-                event.stopPropagation();
                 event.preventDefault();
             });
             dom.addEventListener('dblclick', (event) => {

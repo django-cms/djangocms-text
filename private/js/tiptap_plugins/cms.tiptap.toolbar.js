@@ -154,7 +154,7 @@ const TiptapToolbar = {
                 // If the user is currently editing a link, update the whole link
                 editor.commands.extendMarkRange('link');
             }
-            editor.commands.openCmsForm('Link');
+            setTimeout(() => editor.commands.openCmsForm('Link'), 0);
         },
         formAction: (editor, data) => {
             if (data) {

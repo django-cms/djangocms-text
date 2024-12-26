@@ -66,10 +66,9 @@ function clearFakeSelection(view) {
 const CmsFormExtension = Extension.create({
     name: 'formExtension',
     addCommands() {
-        'use strict';
         return {
-            openCmsForm: (action, target) => ({editor, commands}) => {
-                if (editor.options.topToolbar.querySelector(`dialog.${action}-form`)) {
+            openCmsForm: (action, target) => ({editor}) => {
+                if (editor.options.el.querySelector(`dialog.${action}-form`)) {
                     return false;
                 }
                 let options;
@@ -96,9 +95,8 @@ const CmsFormExtension = Extension.create({
                     };
 
                 }
-                editor.options.topToolbar.focus();
                 const dialog = new CmsForm(
-                    editor.options.el,
+                    editor.options.element,
                     data => {
                         TiptapToolbar[action].formAction(editor, data);
                         editor.commands.closeCmsForm();

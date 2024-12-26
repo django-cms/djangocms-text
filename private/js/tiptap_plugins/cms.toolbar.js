@@ -91,7 +91,6 @@ function _createBlockToolbarPlugin(editor) {
                     tr.docChanged || oldState.selection.eq(newState.selection) === false;
 
                 if (selectionChanged) {
-                    console.log(newState);
                     updateBlockToolbar(editor, newState);
                 }
                 return value;
@@ -240,6 +239,7 @@ function _createTopToolbarPlugin(editor, filter) {
         },
         state: {
             init(_, {doc}) {
+                this.handleSelectionChange = () => _updateToolbar(editor);
                 return DecorationSet.create(doc, [
                     Decoration.widget(0, () => {
                         const topToolbar = _createToolbar(
@@ -257,6 +257,11 @@ function _createTopToolbarPlugin(editor, filter) {
                 ]);
             },
             apply(tr, value, oldState, newState) {
+                const selectionChanged = tr.docChanged || oldState.selection.eq(newState.selection) === false;
+
+                if (selectionChanged) {
+                    setTimeout(this.handleSelectionChange, 0);
+                }
                 return value;
             }
         }
@@ -301,7 +306,6 @@ function _createToolbar(editor, toolbar, filter) {
         // Limit its width to the available space
         toolbarElement.style.maxWidth = (window.innerWidth - toolbarElement.getBoundingClientRect().left - 16) + 'px';
     }
-    editor.on('selectionUpdate', ({editor}) => _updateToolbar(editor));
     return toolbarElement;
 }
 

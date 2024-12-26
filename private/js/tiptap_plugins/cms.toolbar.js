@@ -306,7 +306,7 @@ function _handleToolbarClick(event, editor) {
     event.preventDefault();
     const button = event.target.closest('button, .dropdown');
     if (button && !button.disabled && !editor.options.el.querySelector('dialog.cms-form-dialog')) {
-        const action = button.dataset.action;
+        const {action} = button.dataset;
         if (button.classList.contains('dropdown')) {
             // Open dropdown
             const content = button.querySelector('.dropdown-content');
@@ -469,7 +469,7 @@ function _createToolbarButton(editor, itemName, filter) {
             </form>`;
         }
         return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}" role="button">
-                        ${repr.icon ? repr.icon : repr.title}${form}
+                        ${repr.icon || repr.title}${form}
                     </button>`;
     }
     return '';
@@ -488,28 +488,26 @@ function _updateToolbar(editor, toolbar) {
         querySelector = toolbar.querySelectorAll('button, [role="button"]');
     }
     for (const button of querySelector) {
-        const action = button.dataset.action;
-        if (action) {
-            if (TiptapToolbar[action]) {
-                const toolbarItem = window.cms_editor_plugin._getRepresentation(action);
-                try {
-                    button.disabled = !toolbarItem?.enabled(editor, button);
-                    try {
-                        if (toolbarItem?.active(editor, button)) {
-                            button.classList.add('active');
-                        } else {
-                            button.classList.remove('active');
-                        }
-                        if (TiptapToolbar[action].attributes) {
-                            populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);
-                        }
-                    } catch (e) {
-                    }
-                } catch (e) {
-                    console.warn(e);
-                    button.remove();
-                }
-            }
+        const {action} = button.dataset;
+        if (action && TiptapToolbar[action]) {
+              const toolbarItem = window.cms_editor_plugin._getRepresentation(action);
+              try {
+                  button.disabled = !toolbarItem?.enabled(editor, button);
+                  try {
+                      if (toolbarItem?.active(editor, button)) {
+                          button.classList.add('active');
+                      } else {
+                          button.classList.remove('active');
+                      }
+                      if (TiptapToolbar[action].attributes) {
+                          populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);
+                      }
+                  } catch (e) {
+                  }
+              } catch (e) {
+                  console.warn(e);
+                  button.remove();
+              }
         }
     }
     editor.options.el.dataset.selecting = 'false';
@@ -522,7 +520,7 @@ function _submitToolbarForm(event, editor) {
     const form = event.target.closest('form');
     if (form.reportValidity()) {
         _closeAllDropdowns(event, editor);
-        const action = form.closest('[role=button]').dataset.action;
+        const {action} = form.closest('[role=button]').dataset;
         if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, event.target.closest('button, [role="button"]'), new FormData(form));
         }

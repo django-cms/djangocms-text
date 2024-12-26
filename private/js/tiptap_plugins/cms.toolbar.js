@@ -499,28 +499,27 @@ function _updateToolbar(editor, toolbar) {
     }
     for (const button of toolbar.querySelectorAll(selector)) {
         const {action} = button.dataset;
-        if (action) {
-            if (TiptapToolbar[action]) {
-                const toolbarItem = window.cms_editor_plugin._getRepresentation(action);
-                try {
-                    button.disabled = !toolbarItem?.enabled(editor, button);
-                    try {
-                        if (toolbarItem?.active(editor, button)) {
-                            button.classList.add('active');
-                        } else {
-                            button.classList.remove('active');
-                        }
-                        if (TiptapToolbar[action].attributes) {
-                            populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);
-                        }
-                    } catch (e) {
-                    }
-                } catch (e) {
-                    console.warn(e);
-                    button.remove();
-                }
-            }
+        if (action && TiptapToolbar[action]) {
+              const toolbarItem = window.cms_editor_plugin._getRepresentation(action);
+              try {
+                  button.disabled = !toolbarItem?.enabled(editor, button);
+                  try {
+                      if (toolbarItem?.active(editor, button)) {
+                          button.classList.add('active');
+                      } else {
+                          button.classList.remove('active');
+                      }
+                      if (TiptapToolbar[action].attributes) {
+                          populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);
+                      }
+                  } catch (e) {
+                  }
+              } catch (e) {
+                  console.warn(e);
+                  button.remove();
+              }
         }
+
     }
     editor.options.el.dataset.selecting = 'false';
 }

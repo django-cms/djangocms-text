@@ -317,7 +317,7 @@ function _handleToolbarClick(event, editor) {
     event.preventDefault();
     const button = event.target.closest('button, .dropdown');
     if (button && !button.disabled && !editor.options.el.querySelector('dialog.cms-form-dialog')) {
-        const action = button.dataset.action;
+        const {action} = button.dataset;
         if (button.classList.contains('dropdown')) {
             // Open dropdown
             const content = button.querySelector('.dropdown-content');

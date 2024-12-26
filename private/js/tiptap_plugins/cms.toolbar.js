@@ -50,13 +50,7 @@ function _createBlockToolbarPlugin(editor) {
                 return this.getState(state);
             },
             handleDOMEvents: {
-                mousedowxn (view, event) {
-                    if (editor.options.blockToolbar?.contains(event.target)) {
-                        event.preventDefault();
-                        return true;
-                    }
-                    return false;
-                },
+                // Mousedown not captured to allow start of drag event
                 click (view, event) {
                     const {blockToolbar} = editor.options;
                     if (blockToolbar?.contains(event.target)) {
@@ -65,7 +59,6 @@ function _createBlockToolbarPlugin(editor) {
                             _handleToolbarClick(event, editor);
                             return true;
                         }
-                        console.log("Toolbar toggle pressed");
                         blockToolbar.classList.add('show');
                         return true;
                     }
@@ -116,9 +109,7 @@ function _createBlockToolbar(editor, blockToolbar) {
         if (depth >= 0) {
             const { state, dispatch } = editor.view;
             const nodeSelection = NodeSelection.create(state.doc, block);
-            console.log("dragstart", nodeSelection);
             const domNode = editor.view.domAtPos(block).node;
-            console.log(domNode);
             event.dataTransfer.setDragImage(domNode, 0, 0);
             dispatch(state.tr.setSelection(nodeSelection));
         } else {
@@ -150,9 +141,7 @@ function _createBlockToolbar(editor, blockToolbar) {
 
 function updateBlockToolbar(editor, state) {
     'use strict';
-    console.log("updateBlockToolbar");
-    state = state || editor.state;
-    const {resolvedPos, depth} = _getResolvedPos(state);
+    const {resolvedPos, depth} = _getResolvedPos(state || editor.state);
     if (depth > 0) {
         _updateToolbarIcon(editor, resolvedPos.node(depth));
         const startPos = resolvedPos.start(depth);
@@ -489,15 +478,16 @@ function _createToolbarButton(editor, itemName, filter) {
 // update the toolbar button states
 function _updateToolbar(editor, toolbar) {
     'use strict';
-    let selector;
+    let querySelector;
     if (!toolbar) {
-        toolbar = editor.options.element;
-        selector = '.cms-toolbar button, .cms-toolbar [role="button"], ' +
-            '.cms-block-toolbar button, .cms-block-toolbar [role="button"]';
+        querySelector = editor.options.element.querySelectorAll(
+            '.cms-toolbar button, .cms-toolbar [role="button"], ' +
+            '.cms-block-toolbar button, .cms-block-toolbar [role="button"]'
+        );
     } else {
-        selector = 'button, [role="button"]';
+        querySelector = toolbar.querySelectorAll('button, [role="button"]');
     }
-    for (const button of toolbar.querySelectorAll(selector)) {
+    for (const button of querySelector) {
         const action = button.dataset.action;
         if (action) {
             if (TiptapToolbar[action]) {

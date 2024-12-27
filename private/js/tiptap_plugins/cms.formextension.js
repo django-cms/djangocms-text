@@ -41,13 +41,6 @@ const _fakeSelectionPlugin = new Plugin({
 });
 
 
-const fakeSelectionPlugin = Extension.create({
-    addProseMirrorPlugins() {
-        return [_fakeSelectionPlugin];
-    },
-});
-
-
 function addFakeSelection(view) {
     const {state, dispatch} = view;
     const tr = state.tr;
@@ -70,12 +63,11 @@ function clearFakeSelection(view) {
 
 
 
-const FormExtension = Extension.create({
+const CmsFormExtension = Extension.create({
     name: 'formExtension',
     addCommands() {
-        'use strict';
         return {
-            openCmsForm: (action, target) => ({editor, commands}) => {
+            openCmsForm: (action, target) => ({editor}) => {
                 if (editor.options.el.querySelector(`dialog.${action}-form`)) {
                     return false;
                 }
@@ -111,6 +103,7 @@ const FormExtension = Extension.create({
                     },
                     () => editor.commands.closeCmsForm()
                 );
+                // editor.commands.focus();
                 const formRepresentation = window.cms_editor_plugin._getRepresentation(action);
                 const formElement = dialog.formDialog(formToHtml(formRepresentation.form), options);
 
@@ -139,4 +132,4 @@ const FormExtension = Extension.create({
     },
 });
 
-export default FormExtension;
+export default CmsFormExtension;

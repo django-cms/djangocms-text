@@ -48,24 +48,26 @@
     inset-inline-end: 50%;
 }
 
-dialog.cms-form-dialog {
+dialog.cms-form-dialog, .cms-editor-inline-wrapper .cms-block-dropdown {
     &::before {
         position: absolute;
         background: var(--dca-white);
         border: 1px solid var(--dca-gray-light);
         box-shadow: 0 0 10px rgba(var(--dca-shadow), .25);
         height: 10px;
-        width:  10px;
+        width: 10px;
         left: 24px;
-        top: 8px;
+        top: 7px;
         transform: rotate(-135deg);
         transform-origin: 0 0;
         content: "";
     }
+
     &.right::before {
         right: 24px;
         left: auto;
     }
+
     &::after {
         position: absolute;
         background: var(--dca-white);
@@ -75,10 +77,13 @@ dialog.cms-form-dialog {
         width: 40px;
         content: "";
     }
+
     &.right::after {
         right: 10px;
         left: auto;
     }
+}
+dialog.cms-form-dialog {
     .dropback {
         position: fixed;
         top: 0;
@@ -167,4 +172,9 @@ form.cms-form {
             zoom: 1.2;
         }
     }
+}
+
+cms-plugin.cms-editor-inline-wrapper:focus {
+    outline: 3px solid AccentColor;
+    outline-offset: 2px;
 }

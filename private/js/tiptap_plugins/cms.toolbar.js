@@ -52,7 +52,7 @@ function _createBlockToolbarPlugin(editor) {
             handleDOMEvents: {
                 // Mousedown not captured to allow start of drag event
                 click (view, event) {
-                    const {blockToolbar} = editor.options;
+                    const blockToolbar = editor.options?.blockToolbar;
                     if (blockToolbar?.contains(event.target)) {
                         if (blockToolbar.lastElementChild?.contains(event.target)) {
                             // clicked somewhere in dropdown?

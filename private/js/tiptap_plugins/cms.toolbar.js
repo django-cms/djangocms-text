@@ -80,10 +80,7 @@ function _createBlockToolbarPlugin(editor) {
                     })
                 ]);            },
             apply(tr, value, oldState, newState) {
-                const selectionChanged =
-                    tr.docChanged || oldState.selection.eq(newState.selection) === false;
-
-                if (selectionChanged) {
+                if (!oldState.doc.eq(newState.doc) || oldState.selection.eq(newState.selection) === false) {
                     updateBlockToolbar(editor, newState);
                 }
                 return value;
@@ -251,9 +248,7 @@ function _createTopToolbarPlugin(editor, filter) {
                 ]);
             },
             apply(tr, value, oldState, newState) {
-                const selectionChanged = tr.docChanged || oldState.selection.eq(newState.selection) === false;
-
-                if (selectionChanged) {
+                if (!oldState.doc.eq(newState.doc) || oldState.selection.eq(newState.selection) === false) {
                     setTimeout(this.handleSelectionChange, 0);
                 }
                 return value;

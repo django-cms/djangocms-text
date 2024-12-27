@@ -4,7 +4,7 @@
 
 import {Extension} from "@tiptap/core";
 
-import {NodeSelection} from "@tiptap/pm/state";
+import {NodeSelection, TextSelection} from "@tiptap/pm/state";
 import {Decoration, DecorationSet} from "@tiptap/pm/view";
 import {Plugin} from "@tiptap/pm/state";
 import TiptapToolbar from "./cms.tiptap.toolbar";
@@ -104,15 +104,19 @@ function _createBlockToolbar(editor, blockToolbar) {
     toolbar.draggable = true;
     toolbar.addEventListener("dragstart", (event) => {
         toolbar.classList.remove('show');
-        const {resolvedPos, depth} = _getResolvedPos(editor.view.state);
-        const block = resolvedPos.start(depth);
-        if (depth >= 0) {
-            const { state, dispatch } = editor.view;
-            const nodeSelection = NodeSelection.create(state.doc, block);
-            const domNode = editor.view.domAtPos(block).node;
+        const start = parseInt(editor.options.blockToolbar.dataset.start);
+        const end = parseInt(editor.options.blockToolbar.dataset.end);
+        const depth = parseInt(editor.options.blockToolbar.dataset.depth);
+        // const {resolvedPos, depth} = _getResolvedPos(editor.view.state);
+        if (depth >= 0 && start >= 0 && end >= 0) {
+            // const block = resolvedPos.start(depth);
+            const {state, dispatch} = editor.view;
+            const textSelection = TextSelection.create(state.doc, start, end-1);
+            const domNode = editor.view.domAtPos(start).node;
             event.dataTransfer.setDragImage(domNode, 0, 0);
-            dispatch(state.tr.setSelection(nodeSelection));
-        } else {
+            dispatch(state.tr.setSelection(textSelection));
+        }
+         else {
             event.preventDefault();
         }
     });
@@ -145,19 +149,21 @@ function updateBlockToolbar(editor, state) {
     if (depth > 0) {
         _updateToolbarIcon(editor, resolvedPos.node(depth));
         const startPos = resolvedPos.start(depth);
-        editor.options.blockToolbar.dataset.block = startPos;
+        editor.options.blockToolbar.dataset.start = startPos;
+        editor.options.blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
         editor.options.blockToolbar.dataset.depth = depth;
         const pos = editor.view.coordsAtPos(startPos);
         const ref = editor.options.el.getBoundingClientRect();
         editor.options.blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
         editor.options.blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
-        let title = resolvedPos.node(1).type.name;
+        let title = resolvedPos.node(1)?.type.name;
         for (let i= 2; i <= depth; i++) {
-            title += ` > ${resolvedPos.node(i).type.name}`;
+            title += ` > ${resolvedPos.node(i)?.type.name}`;
         }
         editor.options.blockToolbar.title = title;
     } else {
         editor.options.blockToolbar.draggable = false;
+        _replaceIcon(editor.options.blockToolbar.firstElementChild, _menu_icon);
     }
     // TODO: Set the size of the balloon according to the fontsize
     // this.toolbar.style.setProperty('--size', this.editor.view. ...)
@@ -165,20 +171,19 @@ function updateBlockToolbar(editor, state) {
 
 function _getResolvedPos(state) {
     'use strict';
-    const {head} = state.selection;
-    const resolvedPos = state.doc.resolve(head);
-    let minDepth = resolvedPos.depth;
-    for (let depth = minDepth; depth > 0; depth--) {
-        const node = resolvedPos.node(depth);
-        if (node.type.isBlock) {
-            // found a block node, do something with it
-            minDepth = depth;
-            if (depth <= 1 ||resolvedPos.node(depth-1).type.name !== 'listItem') {
-                break;
-            }
+
+    const {$anchor, $head} = state.selection;
+    const maxDepth = $anchor.depth < $head.depth ? $anchor.depth : $head.depth;
+    let lastBlockDepth = 0;
+    for (let depth = 0; depth <= maxDepth; depth++) {
+        if ($anchor.start(depth) !== $head.start(depth)) {
+            return {resolvedPos: $anchor, depth: lastBlockDepth};
+        }
+        if ($anchor.node(depth).type.isBlock) {
+            lastBlockDepth = depth;
         }
     }
-    return {resolvedPos, depth: minDepth};
+    return {resolvedPos: $anchor, depth: lastBlockDepth};
 }
 
 function _updateToolbarIcon (editor, node) {
@@ -260,36 +265,12 @@ function _createTopToolbarPlugin(editor, filter) {
 function _createToolbar(editor, toolbar, filter) {
     'use strict';
 
-    console.log('_createToolbar');
     const toolbarElement = document.createElement('div');
     toolbarElement.setAttribute('role', 'menubar');
     toolbarElement.classList.add('cms-toolbar');
 
     // create the toolbar html from the settings
     toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${_populateToolbar(editor, toolbar, filter)}`;
-
-    // Add form submits and cancels
-    // toolbarElement.querySelectorAll('.cms-form-buttons .submit')
-    //     .forEach((el) => {
-    //         el.addEventListener('click', (event) => this._submitToolbarForm(event, editor));
-    //     }, this);
-    // toolbarElement.querySelectorAll('form.cms-form')
-    //     .forEach((el) => {
-    //         el.addEventListener('submit', (event) => this._submitToolbarForm(event, editor));
-    //     }, this);
-    // toolbarElement.querySelectorAll('.cms-form-buttons .cancel')
-    //     .forEach((el) => {
-    //         el.addEventListener('click', (event) => {
-    //             this._closeAllDropdowns(event, editor);
-    //             editor.commands.focus();
-    //         });
-    //     }, this);
-    // toolbarElement.querySelectorAll('form.cms-form .js-linkfield')
-    //     .forEach((el) => {
-    //         new LinkField(el, {
-    //             url: editor.options.settings.url_endpoint || '',
-    //         });
-    //     }, this);
 
     if (!editor.options.element.classList.contains('fixed')) {
         // Limit its width to the available space
@@ -302,7 +283,6 @@ function _createToolbar(editor, toolbar, filter) {
 // the button's data-action attribute is used to determine the action
 function _handleToolbarClick(event, editor) {
     'use strict';
-    console.log('handleToolbarClick', event);
     event.preventDefault();
     const button = event.target.closest('button, .dropdown');
     if (button && !button.disabled && !editor.options.el.querySelector('dialog.cms-form-dialog')) {
@@ -327,7 +307,6 @@ function _handleToolbarClick(event, editor) {
                 button.classList.remove('show');
             }
         } else if (TiptapToolbar[action]) {
-            console.log('action', action);
             TiptapToolbar[action].action(editor, button);
             _updateToolbar(editor);
             // Close dropdowns after command execution
@@ -340,7 +319,6 @@ function _handleToolbarClick(event, editor) {
 function _closeAllDropdowns(event, editor) {
     'use strict';
     let count = 0;
-    console.log("close all dropdowns");
     document.documentElement.querySelectorAll('.cms-editor-inline-wrapper .cms-block-toolbar.show')
         .forEach((el) => {
             el.classList.remove('show');
@@ -545,7 +523,6 @@ const CmsToolbarPlugin = Extension.create({
         'use strict';
         const {el} = this.editor.options;
         const el_rect = el.getBoundingClientRect();
-        console.log('CmsToolbarPlugin', el, el_rect);
         if (el.tagName === 'TEXTAREA' || el_rect.x < 28) {
             // Not inline or too close to the left edge to see the block toolbar
             return [_createTopToolbarPlugin(this.editor)];

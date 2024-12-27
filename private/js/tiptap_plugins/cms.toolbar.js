@@ -332,82 +332,57 @@ function _closeAllDropdowns(event, editor) {
     return count;
 }
 
+function _createDropdown(editor, item, filter) {
+    'use strict';
+    const dropdown = typeof item.items === 'function' ?
+        item.items(editor, (items) => _populateToolbar(editor, items, filter)) :
+        _populateToolbar(editor, item.items, filter);
+
+    // Are there any items in the dropdown?
+    if (dropdown.replaceAll(editor.options.separator_markup, '').replaceAll(editor.options.space_markup, '').length === 0) {
+        return '';
+    }
+    const title = item.title && item.icon ? `title='${item.title}' ` : '';
+    const icon = item.icon || item.title;
+    return `<span ${title}class="dropdown" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+}
+
+function _populateGroup(editor, array, filter) {
+    'use strict';
+
+    const group = _populateToolbar(editor, array, filter);
+    return group.length > 0 ? group + editor.options.separator_markup : '';
+}
+
 function _populateToolbar(editor, array, filter) {
     'use strict';
-    let html = '';
 
-    for (let item of array) {
-        if (item === undefined) {
-            continue;
-        }
+    let html = array.map(item => {
         if (item in TiptapToolbar && TiptapToolbar[item].insitu) {
-            item = TiptapToolbar[item].insitu;
-        } else if (item in TiptapToolbar && TiptapToolbar[item].items) {
+            return _populateGroup(editor, TiptapToolbar[item].insitu, filter);
+        }
+        if (Array.isArray(item)) {
+            return _populateGroup(editor, item, filter);
+        }
+        if (item in TiptapToolbar && TiptapToolbar[item].items) {
             // Create submenu
             const repr = window.cms_editor_plugin._getRepresentation(item, filter);
             if (!repr) {
-                continue;
+                return '';
             }
             item = TiptapToolbar[item];
             item.title = repr.title;
             item.icon = repr.icon;
         }
-        if (Array.isArray(item)) {
-            const group = _populateToolbar(editor, item, filter);
-            if (group.length > 0) {
-                html += group + editor.options.separator_markup;
-            }
-        } else if (item.constructor === Object) {
-            let dropdown;
-
-            if (typeof item.items === 'function') {
-                dropdown = item.items(editor, (items) => _populateToolbar(editor, items, filter));
-            } else {
-                dropdown = _populateToolbar(editor, item.items, filter);
-                // Are there any items in the dropdown?
-            }
-            if (dropdown.replaceAll(editor.options.separator_markup, '').replaceAll(editor.options.space_markup, '').length === 0) {
-                continue;
-            }
-            const title = item.title && item.icon ? `title='${item.title}' ` : '';
-            const icon = item.icon || item.title;
-            html += `<span ${title}class="dropdown" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
-        } else {
-            switch (item) {
-                case '|':
-                    // vertical separator
-                    if (html.endsWith(editor.options.space_markup)) {
-                        // Remove trailing space if there is one
-                        html = html.slice(0, -editor.options.space_markup.length);
-                    }
-                    if (html.length > 0 && !html.endsWith(editor.options.separator_markup)) {
-                        // Add separator if there is not already a vertical separator
-                        html += editor.options.separator_markup;
-                    }
-                    break;
-                case '-':
-                    // additional horizontal space
-                    if (html.length > 0 && !html.endsWith(editor.options.space_markup) && !html.endsWith(editor.options.separator_markup)) {
-                        html += editor.options.space_markup;
-                    }
-                    break;
-                case '/':
-                    // line break
-                    if (html.length > 0 && !html.endsWith('<br>') && !filter) {
-                        html += '<br>';
-                    }
-                    break;
-                default:
-                    // Button
-                    if (item in TiptapToolbar && TiptapToolbar[item].render) {
-                        html += TiptapToolbar[item].render(editor, TiptapToolbar[item], filter);
-                    } else {
-                        html += _createToolbarButton(editor, item, filter);
-                    }
-                    break;
-            }
+        if (item.constructor === Object) {
+            return _createDropdown(editor, item, filter);
         }
-    }
+        if (item in TiptapToolbar && TiptapToolbar[item].render) {
+            return TiptapToolbar[item].render(editor, TiptapToolbar[item], filter);
+        }
+        return _createToolbarButton(editor, item, filter);
+    }).join('');
+
     // Remove trailing separator or space
     if (html.endsWith(editor.options.separator_markup)) {
         html = html.slice(0, -editor.options.separator_markup.length);

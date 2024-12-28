@@ -9,10 +9,12 @@
         flex-flow: column;
         height: 100%;
         width: 100%;
-        max-width: 100%;  /* for djangocms-admin-style */
+        max-width: 100%; /* for djangocms-admin-style */
+
         .ProseMirror {
             overflow-y: scroll;
             padding: 0 0.5rem;
+
             &:focus-visible {
                 outline: none;
             }
@@ -27,11 +29,13 @@
         min-height: 3rem;
         border-radius: 3px;
     }
+
     &.textarea.fixed .tiptap {
         padding-top: 0;
         resize: vertical;
         overflow-y: auto;
     }
+
     position: relative;
 
     .tiptap {
@@ -40,23 +44,29 @@
             outline: 3px solid AccentColor;
             outline-offset: 2px;
         }
+
         &.resize-cursor {
             /* Table resizable? */
             cursor: col-resize;
         }
+
         a[href] {
             cursor: pointer;
         }
+
         .fake-selection {
             background-color: Highlight;
         }
+
         table {
             th, td {
                 position: relative;
             }
+
             .selectedCell {
                 background: Highlight;
             }
+
             .column-resize-handle {
                 top: 0;
                 bottom: 0;
@@ -67,20 +77,54 @@
                 box-shadow: 0 0 2px AccentColor;
             }
         }
+
         &.ProseMirror-focused {
             td, th {
                 outline: Highlight solid 0.5px;
             }
         }
+
         & cms-plugin {
             pointer-events: auto;
+
             a {
-                pointer-events: none;  /* for text-enabled link plugins */
+                pointer-events: none; /* for text-enabled link plugins */
             }
+
             &.ProseMirror-selectednode > * {
                 outline: 2px solid #fad507;
                 outline-offset: 2px;
             }
         }
     }
+}
+
+.prosemirror-dropcursor-block {
+    position: absolute;
+    background-color: AccentColor !important;
+    height: 3px !important;
+}
+
+.prosemirror-dropcursor-block::before,
+.prosemirror-dropcursor-block::after {
+    content: '';
+    height: 0  !important;
+    position: absolute;
+    border-style: solid;
+}
+
+/* Triangle at the left of the dropcursor */
+.prosemirror-dropcursor-block::before {
+    right: 0; /* Position to the left of the dropcursor */
+    top: -5px; /* Adjust to center vertically */
+    border-color: transparent AccentColor transparent transparent; /* Triangle pointing left */
+    border-width: 7px 7px 7px 0; /* Adjust border widths for proper triangle shape */
+}
+
+/* Triangle at the bottom of the dropcursor */
+.prosemirror-dropcursor-block::after {
+    left: 0; /* Position to the right of the dropcursor */
+    top: -5px; /* Adjust to center vertically */
+    border-color: transparent transparent transparent AccentColor; /* Triangle pointing right */
+    border-width: 7px 0 7px 7px; /* Adjust border widths for proper triangle shape */
 }

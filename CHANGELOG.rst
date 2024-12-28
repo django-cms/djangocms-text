@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.5.0 (28-12-2024)
+==================
+
+* feat: Add table support for TipTap editor by @fsbraun in https://github.com/django-cms/djangocms-text/pull/42
+* feat: Improved dynamic link ui for tiptap editor by @fsbraun in https://github.com/django-cms/djangocms-text/pull/41
+* feat: Improve tiptap-integration of toolbars for better UX by @fsbraun in https://github.com/django-cms/djangocms-text/pull/43
+* fix: Clean up ckeditor4 vendor files by @fsbraun in https://github.com/django-cms/djangocms-text/pull/39
+* fix: remove cke5 code by @fsbraun in https://github.com/django-cms/djangocms-text/pull/40
+
 0.4.0 (11-12-2024)
 ==================
 

@@ -53,5 +53,5 @@ def test_editor_saves(live_server, page, text_plugin, superuser, use_ckeditor4):
     save_button = page.locator('input[type="submit"]')
     save_button.click()
 
-    messagelist = page.locator(".messagelist")
+    messagelist = page.locator("div.messagelist")
     assert '<div class="success"></div>' in messagelist.inner_html().strip()

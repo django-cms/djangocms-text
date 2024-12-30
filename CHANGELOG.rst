@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.5.1 (30-12-2024)
+==================
+
+* fix: Proper registration of third-party RTE (CKEditor4 or 5, or other) by @fsbraun in https://github.com/django-cms/djangocms-text/pull/47
+
 0.5.0 (28-12-2024)
 ==================
 

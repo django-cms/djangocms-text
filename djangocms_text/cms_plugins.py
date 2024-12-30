@@ -49,7 +49,7 @@ from cms.utils.urlutils import admin_reverse
 from . import settings
 from .forms import ActionTokenValidationForm, RenderPluginForm, TextForm
 from .html import render_dynamic_attributes
-from .models import Text
+from .models import Text, _MAX_RTE_LENGTH
 from .utils import (
     OBJ_ADMIN_WITH_CONTENT_RE_PATTERN,
     _plugin_tags_to_html,
@@ -712,7 +712,7 @@ class TextPlugin(CMSPluginBase):
                 # subclassing cms_plugin_instance (one to one relation)
                 value = getattr(self.cms_plugin_instance, field.name)
                 setattr(obj, field.name, value)
-        obj.rte = rte_config.name
+        obj.rte = rte_config.name[:_MAX_RTE_LENGTH]
         super().save_model(request, obj, form, change)
         # This must come after calling save
         # If `clean_plugins()` deletes child plugins, django-treebeard will call

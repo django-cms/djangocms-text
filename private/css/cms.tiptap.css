@@ -12,6 +12,7 @@
         max-width: 100%; /* for djangocms-admin-style */
 
         .ProseMirror {
+            height: 100%;
             overflow-y: scroll;
             padding: 0 0.5rem;
 

@@ -7,6 +7,10 @@ from django.utils.html import strip_tags
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
+
+_MAX_RTE_LENGTH = 16
+
+
 if apps.is_installed("cms"):
     from cms.models import CMSPlugin
 
@@ -52,7 +56,7 @@ if apps.is_installed("cms"):
         rte = models.CharField(
             default="",
             blank=True,
-            max_length=16,
+            max_length=_MAX_RTE_LENGTH,
             help_text="The rich text editor used to create this text. JSON formats vary between editors.",
         )
 

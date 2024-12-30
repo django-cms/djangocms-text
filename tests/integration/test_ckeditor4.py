@@ -37,3 +37,19 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
     expect(page.locator(".cke_button.cke_button__bold")).to_be_visible()  # a button in the menu bar
 
     assert not console_errors, f"Console errors found: {console_errors}"
+
+
+@pytest.mark.django_db
+@pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
+def test_editor_saves(live_server, page, text_plugin, superuser, use_ckeditor4):
+    """Test that tiptap editor loads and initializes properly"""
+    # Navigate to the text plugin add view
+    login(live_server, page, superuser)
+
+    page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
+
+    save_button = page.locator('input[type="submit"]')
+    save_button.click()
+
+    messagelist = page.locator("div.messagelist")
+    assert '<div class="success"></div>' in messagelist.inner_html().strip()

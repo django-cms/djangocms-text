@@ -485,14 +485,15 @@ def get_editor_config(editor: Optional[str] = None) -> RTEConfig:
     """
 
     config = editor or getattr(settings, "TEXT_EDITOR", "tiptap")
-    if "." in config and config not in configuration:
+    config_name = config.rsplit(".", 1)[-1]
+    if config_name not in configuration:
         # Load the configuration from the module
         module = __import__(config.rsplit(".", 1)[0], fromlist=[""])
-        rte_config_instance = getattr(module, config.rsplit(".", 1)[-1])
+        rte_config_instance = getattr(module, config_name)
         # Cache editor configuration
-        rte_config_instance.name = config
+        rte_config_instance.name = config_name
         register(rte_config_instance)
-    return configuration[config]
+    return configuration[config_name]
 
 
 def get_editor_base_config(editor: Optional[str] = None) -> dict:

@@ -39,8 +39,6 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
     assert not console_errors, f"Console errors found: {console_errors}"
 
 
-
-
 @pytest.mark.django_db
 @pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
 def test_editor_saves(live_server, page, text_plugin, superuser, use_ckeditor4):

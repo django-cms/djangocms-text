@@ -10,6 +10,6 @@ class TextEditorWidget(NewTextEditorWidget):  # pragma: no cover
             "djangocms_text_ckeditor.widgets.TextEditorWidget is deprecated. "
             "Use djangocms_text.widgets.TextEditorWidget instead.",
             DeprecationWarning,
-            stacklevel=2,
+            stacklevel=3,
         )
         super().__init__(*args, **kwargs)

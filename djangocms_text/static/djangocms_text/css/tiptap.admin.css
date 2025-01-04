@@ -1,0 +1,77 @@
+.cms-admin {
+    .text-secondary {
+        color: gray;
+    }
+
+    .text-primary {
+        color: mediumblue;
+    }
+
+    .text-success {
+        color: green;
+    }
+
+    .text-danger {
+        color: red;
+    }
+
+    .text-warning {
+        color: orange;
+    }
+
+    .text-info {
+        color: deepskyblue;
+    }
+
+    .text-light {
+        color: lightgrey;
+    }
+
+    .text-dark {
+        color: black;
+    }
+
+    .text-body {
+        color: var(--body-fg);
+    }
+
+    .text-muted {
+        color: dimgrey;
+    }
+
+    .text-secondary {
+        color: gray;
+    }
+
+    .bg-primary {
+        background-color: mediumblue;
+    }
+
+    .bg-success {
+        background-color: green;
+    }
+
+    .bg-danger {
+        background-color: red;
+    }
+
+    .bg-warning {
+        background-color: orange;
+    }
+
+    .bg-info {
+        background-color: deepskyblue;
+    }
+
+    .bg-light {
+        background-color: lightgrey;
+    }
+
+    .bg-dark {
+        background-color: black;
+    }
+
+    .bg-body {
+        background-color: var(--body-bg);
+    }
+}

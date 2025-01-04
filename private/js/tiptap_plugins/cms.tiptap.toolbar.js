@@ -1,5 +1,5 @@
-/* eslint-env es6 */
-/* jshint esversion: 6 */
+/* eslint-env es11 */
+/* jshint esversion: 11 */
 /* global document, window, console */
 
 'use strict';
@@ -34,6 +34,15 @@ function generateTableMenu(editor, builder) {
     return generateButtonArray(10, 10) + builder(_tableMenu);
 }
 
+function generateColorMenu(editor, builder) {
+    let items = '';
+    const mark = editor.extensionManager.extensions.find(extension => extension.name === 'textcolor');
+    for (const [cls, def] of Object.entries(mark.options?.textColors || {})) {
+        items += `<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`;
+    }
+    return items;
+
+}
 
 const TiptapToolbar = {
     Undo: {
@@ -82,6 +91,51 @@ const TiptapToolbar = {
         action: (editor) => editor.commands.toggleSuperscript(),
         enabled: (editor) => editor.can().toggleSuperscript(),
         active: (editor) => editor.isActive('superscript'),
+        type: 'mark',
+    },
+    TextColor: {
+        action: (editor, button)     => {
+            if (editor.isActive('textcolor')) {
+                // If the user is currently changing a text color, update the whole colored section
+                editor.commands.extendMarkRange('textcolor');
+            }
+            editor.commands.toggleTextColor(button.dataset?.class);
+        },
+        enabled: (editor, button) => editor.can().toggleTextColor(button.dataset?.class),
+        active: (editor, button) => editor.isActive('textcolor', {class: button.dataset?.class}),
+        items: generateColorMenu,
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-fonts" viewBox="0 0 16 16"><path d="M12.258 3h-8.51l-.083 2.46h.479c.26-1.544.758-1.783 2.693-1.845l.424-.013v7.827c0 .663-.144.82-1.3.923v.52h4.082v-.52c-1.162-.103-1.306-.26-1.306-.923V3.602l.431.013c1.934.062 2.434.301 2.693 1.846h.479z"/></svg>',
+        type: 'mark',
+    },
+    InlineQuote: {
+        action: (editor) => {
+            if (editor.isActive('Q')) {
+                editor.chain().extendMarkRange('Q').unsetMark('Q').run();
+            } else {
+                editor.commands.setMark('Q');
+            }
+        },
+        enabled: (editor) => editor.can().toggleMark('Q'),
+        active: (editor) => editor.isActive('Q'),
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-quote" viewBox="0 0 16 16">' +
+            '<path d="M12 12a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1h-1.388q0-.527.062-1.054.093-.558.31-.992t.559-.683q.34-.279.868-.279V3q-.868 0-1.52.372a3.3 3.3 0 0 0-1.085.992 4.9 4.9 0 0 0-.62 1.458A7.7 7.7 0 0 0 9 7.558V11a1 1 0 0 0 1 1zm-6 0a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1H4.612q0-.527.062-1.054.094-.558.31-.992.217-.434.559-.683.34-.279.868-.279V3q-.868 0-1.52.372a3.3 3.3 0 0 0-1.085.992 4.9 4.9 0 0 0-.62 1.458A7.7 7.7 0 0 0 3 7.558V11a1 1 0 0 0 1 1z"/>' +
+            '</svg>',
+        type: 'mark',
+    },
+    Highlight: {
+        action: (editor) => {
+            // "Mark" is already used by TipTap...
+            if (editor.isActive('Highlight')) {
+                editor.chain().extendMarkRange('Highlight').unsetMark('Highlight').run();
+            } else {
+                editor.commands.setMark('Highlight');
+            }
+        },
+        enabled: (editor) => editor.can().toggleMark('Highlight'),
+        active: (editor) => editor.isActive('Highlight'),
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-highlighter" viewBox="0 0 16 16">\n' +
+            '  <path fill-rule="evenodd" d="M11.096.644a2 2 0 0 1 2.791.036l1.433 1.433a2 2 0 0 1 .035 2.791l-.413.435-8.07 8.995a.5.5 0 0 1-.372.166h-3a.5.5 0 0 1-.234-.058l-.412.412A.5.5 0 0 1 2.5 15h-2a.5.5 0 0 1-.354-.854l1.412-1.412A.5.5 0 0 1 1.5 12.5v-3a.5.5 0 0 1 .166-.372l8.995-8.07zm-.115 1.47L2.727 9.52l3.753 3.753 7.406-8.254zm3.585 2.17.064-.068a1 1 0 0 0-.017-1.396L13.18 1.387a1 1 0 0 0-1.396-.018l-.068.065zM5.293 13.5 2.5 10.707v1.586L3.707 13.5z"/>\n' +
+            '</svg>',
         type: 'mark',
     },
     RemoveFormat: {
@@ -263,24 +317,16 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('codeBlock'),
         type: 'block',
     },
-
-    // Alert: {
-    //     action: (editor) => editor.commands.toggleExtension({type: 'alert'}),
-    //     enabled: (editor) => editor.can().toggleExtension({type: 'alert'}),
-    //     type: 'block',
-    // },
-    // Badge: {
-    //     action: (editor) => editor.commands.toggleExtension({type: 'badge'}),
-    //     enabled: (editor) => editor.can().toggleExtension({type: 'badge'}),
-    //     type: 'inline',
-    // },
     HardBreak: {
         action: (editor) => editor.commands.setHardBreak(),
         enabled: (editor) => editor.can().setHardBreak(),
     },
     Format: {
         insitu: ['Paragraph', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5', 'Heading6', '|'],
-        type: 'block'
+        iconx: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type" viewBox="0 0 16 16">\n' +
+            '  <path d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081zm2.7-7.923L6.34 9.314H3.51l1.4-4.156zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.011zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.115h1.805v.834c0 .896-.752 1.525-1.757 1.525"/>\n' +
+            '</svg>',
+        type: 'block',
     },
     Heading1: {
         action: (editor) => editor.commands.setHeading({ level: 1 }),
@@ -339,14 +385,5 @@ const TiptapToolbar = {
         type: 'mark',
     }
 };
-
-['primary', 'secondary', 'success', 'danger', 'warning', 'light', 'info', 'dark', 'muted'].forEach((style) => {
-    TiptapToolbar[style] = {
-        action: (editor) => editor.commands.setStyle(style),
-        enabled: (editor) => editor.can().toggleStyle(style),
-        title: `<span class="text-${style}">${style.charAt(0).toUpperCase() + style.slice(1)}</span>`,
-        type: 'mark',
-    };
-});
 
 export default TiptapToolbar;

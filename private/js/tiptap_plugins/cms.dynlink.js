@@ -11,8 +11,15 @@ function DynLinkClickHandler(editor) {
     return new Plugin({
         props: {
             handleDOMEvents: {
-                click(view, event) {
-                    console.log(view);
+                click (view, event) {
+                    const target = event.target.closest('a[href]');
+                    if (target) {
+                        event.preventDefault();
+                        return true;
+                    }
+                    return false;
+                },
+                dblclick(view, event) {
                     const target = event.target.closest('a[href]');
                     if (target) {
                         event.preventDefault();

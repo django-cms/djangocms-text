@@ -453,7 +453,6 @@ function _updateToolbar(editor, toolbar) {
                           populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);
                       }
                   } catch (e) {
-                      console.log(e);
                   }
               } catch (e) {
                   console.warn(e);

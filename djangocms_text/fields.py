@@ -65,7 +65,7 @@ class HTMLField(models.TextField):
         # override the admin widget
         if defaults["widget"] == admin_widgets.AdminTextareaWidget:
             # In the admin the URL endpoint is available
-            defaults["widget"] = TextEditorWidget(configuration=self.configuration)
+            defaults["widget"] = TextEditorWidget(configuration=self.configuration, add_admin_css=True)
         return super().formfield(**defaults)
 
     def clean(self, value, model_instance):

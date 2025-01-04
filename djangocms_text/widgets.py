@@ -88,13 +88,16 @@ class TextEditorWidget(forms.Textarea):
     @property
     def media(self):
         rte_config = get_editor_config()
+        rte_css = rte_config.css.get("all", ())
+        if self.add_admin_css:
+            rte_css += rte_config.admin_css
         return forms.Media(
             css={
                 **rte_config.css,
                 "all": (
                     "djangocms_text/css/cms.text.css",
                     "djangocms_text/css/cms.normalize.css",
-                    *rte_config.css.get("all", ()),
+                    *rte_css,
                 ),
             },
             js=(
@@ -120,6 +123,7 @@ class TextEditorWidget(forms.Textarea):
         action_token: str = None,
         revert_on_cancel: bool = False,
         body_css_classes: str = "",
+        add_admin_css: bool = False,
     ):
         """
         Create a widget for editing text + plugins.
@@ -156,6 +160,7 @@ class TextEditorWidget(forms.Textarea):
         self.action_token = action_token  # specific
         self.revert_on_cancel = revert_on_cancel
         self.body_css_classes = body_css_classes if body_css_classes else self.configuration.get("bodyClass", "")
+        self.add_admin_css = add_admin_css
 
     def render_textarea(self, name, value, attrs=None, renderer=None):
         return super().render(name, value, attrs, renderer)

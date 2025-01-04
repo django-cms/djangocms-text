@@ -438,6 +438,7 @@ class RTEConfig:
         config: str,
         js: Iterable[str] = None,
         css: dict = None,
+        admin_css: dict = None,
         inline_editing: bool = False,
         child_plugin_support: bool = False,
     ):
@@ -446,6 +447,7 @@ class RTEConfig:
         self.config = config
         self.js = js or []
         self.css = css or {}
+        self.admin_css = admin_css or ()
         self.inline_editing = inline_editing
         self.child_plugin_support = child_plugin_support
 
@@ -510,7 +512,8 @@ register(
         name="tiptap",
         config="TIPTAP",
         js=("djangocms_text/bundles/bundle.tiptap.min.js",),
-        css={"all": ("djangocms_text/css/bundle.tiptap.min.css", "djangocms_text/css/tiptap.admin.css")},
+        css={"all": ("djangocms_text/css/bundle.tiptap.min.css", )},
+        admin_css = ("djangocms_text/css/tiptap.admin.css",),
         inline_editing=True,
         child_plugin_support=True,
     )

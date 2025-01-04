@@ -70,6 +70,15 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
         + '  <path d="m4.266 12.496.96-2.853H8.76l.96 2.853H11L7.62 3H6.38L3 12.496zm2.748-8.063 1.419 4.23h-2.88l1.426-4.23zm5.132-1.797v-.075c0-.332.234-.618.619-.618.354 0 .618.256.618.58 0 .362-.271.649-.52.898l-1.788 1.832V6h3.59v-.958h-1.923v-.045l.973-1.04c.415-.438.867-.845.867-1.547 0-.8-.701-1.41-1.787-1.41C11.565 1 11 1.8 11 2.576v.06z"/>\n'
         + "</svg>",
     },
+    "TextColor": {
+        "title": _("Text color"),
+    },
+    "InlineQuote": {
+        "title": _("Inline quote"),
+    },
+    "Highlight": {
+        "title": _("Mark"),
+    },
     "RemoveFormat": {
         "title": _("Remove formatting"),
         "icon": '<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" '
@@ -149,17 +158,6 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
     "Link": {
         "title": _("Link"),
         "form": [
-            # {
-            #     "type": "link",
-            #     "url": '#',
-            #     "label": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" '
-            #              'class="bi bi-box-arrow-up-left" viewBox="0 0 16 16">'
-            #              '<path fill-rule="evenodd" d="M7.364 3.5a.5.5 0 0 1 .5-.5H14.5A1.5 1.5 0 0 1 16 4.5v10a1.5 '
-            #              '1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 3 14.5V7.864a.5.5 0 1 1 1 0V14.5a.5.5 0 0 0 .5.5h10a.5.5 '
-            #              '0 0 0 .5-.5v-10a.5.5 0 0 0-.5-.5H7.864a.5.5 0 0 1-.5-.5"/><path fill-rule="evenodd" '
-            #              'd="M0 .5A.5.5 0 0 1 .5 0h5a.5.5 0 0 1 0 1H1.707l8.147 8.146a.5.5 0 0 1-.708.708L1 '
-            #              '1.707V5.5a.5.5 0 0 1-1 0z"/></svg>',
-            # },
             {
                 "name": "href_select",
                 "type": "hidden",
@@ -316,12 +314,10 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
         "title": _("Anchor"),
     },
     "Format": {
-        "title": _("Block format"),
-        "class": "vertical",
+        "title": _("Format"),
     },
     "Styles": {
         "title": _("Styles"),
-        "menu": [],
     },
     "Font": {
         "title": _("Font"),
@@ -371,13 +367,14 @@ DEFAULT_TOOLBAR_CMS = [
     ["Undo", "Redo"],
     ["CMSPlugins", "cmswidget", "-", "ShowBlocks"],
     ["Format", "Styles"],
-    ["TextColor", "BGColor", "-", "PasteText", "PasteFromWord"],
+    ["TextColor", "Highlight", "BGColor", "-", "PasteText", "PasteFromWord"],
     ["Maximize"],
     [
         "Bold",
         "Italic",
         "Underline",
         "-",
+        "InlineQuote",
         "Code",
         "-",
         "Subscript",
@@ -396,13 +393,14 @@ DEFAULT_TOOLBAR_HTMLField = [
     ["Undo", "Redo"],
     ["ShowBlocks"],
     ["Format", "Styles"],
-    ["TextColor", "BGColor", "-", "PasteText", "PasteFromWord"],
+    ["TextColor", "Highlight", "BGColor", "-", "PasteText", "PasteFromWord"],
     ["Maximize"],
     [
         "Bold",
         "Italic",
         "Underline",
         "-",
+        "InlineQuote",
         "Code",
         "-",
         "Subscript",
@@ -512,7 +510,7 @@ register(
         name="tiptap",
         config="TIPTAP",
         js=("djangocms_text/bundles/bundle.tiptap.min.js",),
-        css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
+        css={"all": ("djangocms_text/css/bundle.tiptap.min.css", "djangocms_text/css/tiptap.admin.css")},
         inline_editing=True,
         child_plugin_support=True,
     )

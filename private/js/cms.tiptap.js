@@ -19,7 +19,7 @@ import TableRow from '@tiptap/extension-table-row';
 import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 
-import {InlineColors, Small, Var, Kbd, Samp} from "./tiptap_plugins/cms.styles";
+import {TextColor, Small, Var, Kbd, Samp, Highlight, InlineQuote} from "./tiptap_plugins/cms.styles";
 import CmsFormExtension from "./tiptap_plugins/cms.formextension";
 import CmsToolbarPlugin from "./tiptap_plugins/cms.toolbar";
 
@@ -35,7 +35,7 @@ class CMSTipTapPlugin {
                 Underline,
                 CharacterCount,
                 Image,
-                InlineColors,
+                TextColor,
                 Placeholder,
                 Subscript,
                 Superscript,
@@ -49,7 +49,7 @@ class CMSTipTapPlugin {
                 TableHeader,
                 TableCell,
                 CmsDynLink,
-                Small, Var, Kbd, Samp,
+                Small, Var, Kbd, Samp, Highlight, InlineQuote,
                 TextAlign.configure({
                     types: ['heading', 'paragraph'],
                 }),

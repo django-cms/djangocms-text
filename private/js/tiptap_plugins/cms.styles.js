@@ -5,16 +5,18 @@
 
 import {Mark, mergeAttributes,} from '@tiptap/core';
 
-'use strict';
-
 
 const _markElement = {
     addOptions() {
+        'use strict';
+
         return {
             HTMLAttributes: {},
         };
     },
     parseHTML() {
+        'use strict';
+
         return [
             {
                 tag: this.name.toLowerCase()
@@ -24,6 +26,7 @@ const _markElement = {
     renderHTML({ HTMLAttributes }) {
         return [this.name.toLowerCase(), mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
     },
+
     addCommands() {
         'use strict';
         let commands = {};
@@ -61,65 +64,122 @@ const Samp = Mark.create({
     ..._markElement,
 });
 
+const InlineQuote = Mark.create({
+    name: 'Q',
+    ..._markElement,
+});
 
-const InlineColors = Mark.create({
-    name: 'inlinestyle',
+const Highlight = Mark.create({
+    name: 'Highlight',
+    parseHTML() {
+        'use strict';
+        return [{tag: 'mark'}];
+    },
+    renderHTML({ HTMLAttributes }) {
+        return ['mark', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+    },
+});
+
+const TextColor = Mark.create({
+    name: 'textcolor',
     addOptions() {
+        'use strict';
         return {
-            styles: {
-                primary: {"class": "text-primary"},
-                secondary: {"class": "text-secondary"},
-                success: {"class": "text-success"},
-                danger: {"class": "text-danger"},
-                warning: {"class": "text-warning"},
-                info: {"class": "text-info"},
-                light: {"class": "text-light"},
-                dark: {"class": "text-dark"},
-                body: {"class": "text-body"},
-                muted: {"class": "text-muted"},
+            textColors: {
+                'text-primary': {name: "Primary"},
+                'text-secondary': {name: "Secondary"},
+                'text-success': {name: "Success"},
+                'text-danger': {name: "Danger"},
+                'text-warning': {name: "Warning"},
+                'text-info': {name: "Info"},
+                'text-light': {name: "Light"},
+                'text-dark': {name: "Dark"},
+                'text-body': {name: "Body"},
+                'text-muted': {name: "Muted"},
             },
         };
     },
+
+    onCreate() {
+        'use strict';
+
+        if (this.editor.options.textColors) {
+            // Let editor options overwrite the default colors
+            this.options.textColors = this.editor.options.textColors;
+        }
+    },
+
     addAttributes() {
+        'use strict';
+
         return {
             class: {
                 default: null,
             },
+            style: {
+                default: null,
+            }
         };
     },
 
-    parseHTML: element => [
-        {
-            tag: 'style',
-            getAttrs: node => node.classList.filter((item) => item in this.options.styles)
-        },
-    ],
+    parseHTML() {
+        'use strict';
+
+        return [
+            {
+                tag: '*',
+                getAttrs: (node) => {
+                    for (const cls of Object.keys(this.options?.textColors || {})) {
+                        if (node.classList.contains(cls)) {
+                            return {class: cls};
+                        }
+                    }
+                    return false;
+                }
+            },
+            {
+                tag: '*',
+                getAttrs: node => {
+                    if (node.style.color) {
+                        return {style: node.style.color};
+                    }
+                    return false;
+                }
+            }
+        ];
+    },
+
     renderHTML: attributes => {
-        return ['span',  mergeAttributes({}, attributes.HTMLAttributes), 0]
+        'use strict';
+        return ['span',  mergeAttributes({}, attributes.HTMLAttributes), 0];
     },
 
     addCommands() {
+        'use strict';
         return {
-            setStyle: (style) => ({commands}) => {
-                if (!this.options.styles.hasOwnProperty(style)) {
+            setTextColor: (cls) => ({commands}) => {
+                if (!(cls in this.options.textColors)) {
                     return false;
                 }
-                return commands.setMark(this.name, this.options.styles[style] );
+                return commands.setMark(this.name, {"class": cls} );
             },
-            toggleStyle: (style) => ({commands}) => {
-                if (!this.options.styles.hasOwnProperty(style)) {
+            toggleTextColor: (cls) => ({commands}) => {
+                if (!cls) {
+                    cls = Object.keys(this.options.textColors)[0];
+                }
+                if (!(cls in this.options.textColors)) {
                     return false;
                 }
-                return commands.toggleMark(this.name, this.options.styles[style] );
+                return commands.toggleMark(this.name, {"class": cls} );
             },
-            unsetStyle: (style) => ({commands}) => {
-                if (!this.options.styles.hasOwnProperty(style)) {
+            unsetTextColor: (cls) => ({commands}) => {
+                if (!(cls in this.options.textColors)) {
                     return false;
                 }
-                return commands.unsetMark(this.name, this.options.styles[style] );
+                return commands.unsetMark(this.name, {"class": cls} );
             },
         };
     }
 });
 
-export {InlineColors, Small, Var, Kbd, Samp, InlineColors as default};
+export {TextColor, Small, Var, Kbd, Samp, Highlight, InlineQuote, TextColor as default};

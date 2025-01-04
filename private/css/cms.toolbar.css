@@ -136,7 +136,7 @@
         &:active, &.active {
             background: var(--dca-gray-lighter, var(--selected-bg))  !important;
         }
-        &:hover:not(:disabled),&.show {
+        &:hover:not(:disabled):not([data-action="TextColor"]),&.show {
             color: var(--dca-white, var(--button-fg)) !important;
             background: var(--dca-primary, var(--button-bg))  !important;
         }
@@ -151,8 +151,27 @@
             &:after{
                 content: "▼";
                 margin-block-start: 3px;
-                margin-inline-start: 6px;
+                margin-inline-start: 2px;
+                margin-inline-end: 4px;
                 font-size: 0.8rem;
+            }
+            span {
+                margin-top: 0.1rem;
+            }
+            &:has([data-action="TextColor"]) > svg {
+                border-bottom: 2px solid currentColor;
+            }
+            button[data-action="TextColor"] {
+                background: currentColor;
+                border: 1px solid var(--dca-gray-lighter, var(--hairline-color)) !important;
+                margin-inline-end: 0.5rem;
+                width: 1.6rem !important;
+                height: 1.2rem;
+                &:hover, &.active {
+                    background-color: currentColor !important;
+                    outline: 3px solid var(--dca-primary, var(--primary));
+                };
+
             }
         }
         svg {
@@ -306,6 +325,4 @@
             }
         }
     }
-
 }
-

@@ -104,9 +104,8 @@ function _createBlockToolbar(editor, blockToolbar) {
         const start = parseInt(editor.options.blockToolbar.dataset.start);
         const end = parseInt(editor.options.blockToolbar.dataset.end);
         const depth = parseInt(editor.options.blockToolbar.dataset.depth);
-        // const {resolvedPos, depth} = _getResolvedPos(editor.view.state);
+
         if (depth >= 0 && start >= 0 && end >= 0) {
-            // const block = resolvedPos.start(depth);
             const {state, dispatch} = editor.view;
             const textSelection = TextSelection.create(state.doc, start, end-1);
             const domNode = editor.view.domAtPos(start).node;
@@ -338,7 +337,7 @@ function _createDropdown(editor, item, filter) {
         return '';
     }
     const title = item.title && item.icon ? `title='${item.title}' ` : '';
-    const icon = item.icon || item.title;
+    const icon = item.icon || `<span>${item.title}</span>`;
     return `<span ${title}class="dropdown" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
 }
 
@@ -351,15 +350,14 @@ function _populateGroup(editor, array, filter) {
 
 function _populateToolbar(editor, array, filter) {
     'use strict';
-
     let html = array.map(item => {
-        if (item in TiptapToolbar && TiptapToolbar[item].insitu) {
+        if (item in TiptapToolbar && TiptapToolbar[item].insitu && filter === 'block') {
             return _populateGroup(editor, TiptapToolbar[item].insitu, filter);
         }
         if (Array.isArray(item)) {
             return _populateGroup(editor, item, filter);
         }
-        if (item in TiptapToolbar && TiptapToolbar[item].items) {
+        if (item in TiptapToolbar && (TiptapToolbar[item].items || TiptapToolbar[item].insitu)) {
             // Create submenu
             const repr = window.cms_editor_plugin._getRepresentation(item, filter);
             if (!repr) {
@@ -368,6 +366,9 @@ function _populateToolbar(editor, array, filter) {
             item = TiptapToolbar[item];
             item.title = repr.title;
             item.icon = repr.icon;
+            if (!item.items) {
+                item.items = item.insitu;
+            }
         }
         if (item.constructor === Object) {
             return _createDropdown(editor, item, filter);
@@ -416,8 +417,9 @@ function _createToolbarButton(editor, itemName, filter) {
                 </div>
             </form>`;
         }
+        const content = repr.icon || `<span>${repr.title}</span>`;
         return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}" role="button">
-                        ${repr.icon || repr.title}${form}
+                        ${content}${form}
                     </button>`;
     }
     return '';
@@ -442,7 +444,7 @@ function _updateToolbar(editor, toolbar) {
               try {
                   button.disabled = !toolbarItem?.enabled(editor, button);
                   try {
-                      if (toolbarItem?.active(editor, button)) {
+                      if (toolbarItem.active && toolbarItem.active(editor, button)) {
                           button.classList.add('active');
                       } else {
                           button.classList.remove('active');

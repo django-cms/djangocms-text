@@ -30,5 +30,6 @@ def test_editor_loads(live_server, page, text_plugin, superuser):
     expect(page.locator('div[role="menubar"]')).to_be_visible()  # its menu bar
     expect(page.locator('button[title="Bold"]')).to_be_visible()  # a button in the menu bar
 
-    assert tiptap.inner_text() == "Test content"
+    content = tiptap.locator("> :not(div)")  # only look at content
+    assert content.inner_text() == "Test content"
     assert not console_errors, f"Console errors found: {console_errors}"

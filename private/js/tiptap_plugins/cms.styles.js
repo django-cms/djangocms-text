@@ -164,6 +164,9 @@ const TextColor = Mark.create({
                 return commands.setMark(this.name, {"class": cls} );
             },
             toggleTextColor: (cls) => ({commands}) => {
+                if (!cls) {
+                    cls = Object.keys(this.options.textColors)[0];
+                }
                 if (!(cls in this.options.textColors)) {
                     return false;
                 }

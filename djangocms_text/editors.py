@@ -512,8 +512,8 @@ register(
         name="tiptap",
         config="TIPTAP",
         js=("djangocms_text/bundles/bundle.tiptap.min.js",),
-        css={"all": ("djangocms_text/css/bundle.tiptap.min.css", )},
-        admin_css = ("djangocms_text/css/tiptap.admin.css",),
+        css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
+        admin_css=("djangocms_text/css/tiptap.admin.css",),
         inline_editing=True,
         child_plugin_support=True,
     )

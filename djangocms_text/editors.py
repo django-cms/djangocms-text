@@ -1,4 +1,5 @@
-from typing import Optional
+from __future__ import annotations
+
 from collections.abc import Iterable
 
 from django.conf import settings
@@ -436,8 +437,9 @@ class RTEConfig:
         self,
         name: str,
         config: str,
-        js: Iterable[str] = None,
-        css: dict = None,
+        js: Iterable[str] | None = None,
+        css: dict | None = None,
+        admin_css: dict | None = None,
         inline_editing: bool = False,
         child_plugin_support: bool = False,
     ):
@@ -446,6 +448,7 @@ class RTEConfig:
         self.config = config
         self.js = js or []
         self.css = css or {}
+        self.admin_css = admin_css or ()
         self.inline_editing = inline_editing
         self.child_plugin_support = child_plugin_support
 
@@ -474,7 +477,7 @@ def register(editor: RTEConfig):
     configuration[editor.name] = editor
 
 
-def get_editor_config(editor: Optional[str] = None) -> RTEConfig:
+def get_editor_config(editor: str | None = None) -> RTEConfig:
     """
     Returns the editor configuration.
 
@@ -494,7 +497,7 @@ def get_editor_config(editor: Optional[str] = None) -> RTEConfig:
     return configuration[config_name]
 
 
-def get_editor_base_config(editor: Optional[str] = None) -> dict:
+def get_editor_base_config(editor: str | None = None) -> dict:
     """
     Returns the base configuration for the editor.
 
@@ -510,7 +513,8 @@ register(
         name="tiptap",
         config="TIPTAP",
         js=("djangocms_text/bundles/bundle.tiptap.min.js",),
-        css={"all": ("djangocms_text/css/bundle.tiptap.min.css", "djangocms_text/css/tiptap.admin.css")},
+        css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
+        admin_css=("djangocms_text/css/tiptap.admin.css",),
         inline_editing=True,
         child_plugin_support=True,
     )

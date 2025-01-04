@@ -249,6 +249,7 @@ class TextPlugin(CMSPluginBase):
                 action_token=action_token,
                 revert_on_cancel=settings.TEXT_CHILDREN_ENABLED and rte_config.child_plugin_support,
                 body_css_classes=self._get_body_css_classes_from_parent_plugins(plugin),
+                add_admin_css=True,
             )
         else:
             widget = TextEditorWidget(

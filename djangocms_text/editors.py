@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 from collections.abc import Iterable
 
@@ -436,9 +438,9 @@ class RTEConfig:
         self,
         name: str,
         config: str,
-        js: Iterable[str] = None,
-        css: dict = None,
-        admin_css: dict = None,
+        js: Iterable[str] | None = None,
+        css: dict | None = None,
+        admin_css: dict | None = None,
         inline_editing: bool = False,
         child_plugin_support: bool = False,
     ):

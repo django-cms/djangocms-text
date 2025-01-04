@@ -478,7 +478,7 @@ def register(editor: RTEConfig):
     configuration[editor.name] = editor
 
 
-def get_editor_config(editor: Optional[str] = None) -> RTEConfig:
+def get_editor_config(editor: str | None = None) -> RTEConfig:
     """
     Returns the editor configuration.
 
@@ -498,7 +498,7 @@ def get_editor_config(editor: Optional[str] = None) -> RTEConfig:
     return configuration[config_name]
 
 
-def get_editor_base_config(editor: Optional[str] = None) -> dict:
+def get_editor_base_config(editor: str | None = None) -> dict:
     """
     Returns the base configuration for the editor.
 

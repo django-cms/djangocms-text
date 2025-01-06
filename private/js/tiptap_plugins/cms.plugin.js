@@ -127,6 +127,9 @@ TiptapToolbar.CMSPlugins.render = renderCmsPluginMenu;
 
 // Common node properties for both inline and block nodes
 const cmsPluginNodes = {
+    atom: true,
+    draggable: true,
+
     addAttributes() {
         'use strict';
         return {
@@ -143,10 +146,6 @@ const cmsPluginNodes = {
             editor: null,
         };
     },
-
-    atom: true,
-
-    draggable: true,
 
     parseHTML() {
         'use strict';

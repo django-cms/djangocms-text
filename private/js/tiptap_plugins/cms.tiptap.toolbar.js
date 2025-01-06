@@ -6,14 +6,14 @@
 
 
 function generateButtonArray(rows, cols) {
-    let buttons = '<div class="tt-create-table">';
+    const buttons = ['<div class="tt-create-table">'];
     for (let j= 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
-            buttons += `<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`;
+            buttons.push(`<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`);
         }
     }
-    buttons += '</div>';
-    return buttons;
+    buttons.push('</div>');
+    return buttons.join('');
 }
 
 const _tableMenu = [
@@ -34,15 +34,6 @@ function generateTableMenu(editor, builder) {
     return generateButtonArray(10, 10) + builder(_tableMenu);
 }
 
-function generateColorMenu(editor, builder) {
-    let items = '';
-    const mark = editor.extensionManager.extensions.find(extension => extension.name === 'textcolor');
-    for (const [cls, def] of Object.entries(mark.options?.textColors || {})) {
-        items += `<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`;
-    }
-    return items;
-
-}
 
 const TiptapToolbar = {
     Undo: {
@@ -103,9 +94,9 @@ const TiptapToolbar = {
         },
         enabled: (editor) => editor.can().toggleTextColor(),
         active: (editor, button) => editor.isActive('textcolor', {class: button.dataset?.class}),
-        items: generateColorMenu,
         icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-fonts" viewBox="0 0 16 16"><path d="M12.258 3h-8.51l-.083 2.46h.479c.26-1.544.758-1.783 2.693-1.845l.424-.013v7.827c0 .663-.144.82-1.3.923v.52h4.082v-.52c-1.162-.103-1.306-.26-1.306-.923V3.602l.431.013c1.934.062 2.434.301 2.693 1.846h.479z"/></svg>',
         type: 'mark',
+        class: 'js-set-active-class',
     },
     InlineQuote: {
         action: (editor) => {
@@ -137,6 +128,23 @@ const TiptapToolbar = {
             '  <path fill-rule="evenodd" d="M11.096.644a2 2 0 0 1 2.791.036l1.433 1.433a2 2 0 0 1 .035 2.791l-.413.435-8.07 8.995a.5.5 0 0 1-.372.166h-3a.5.5 0 0 1-.234-.058l-.412.412A.5.5 0 0 1 2.5 15h-2a.5.5 0 0 1-.354-.854l1.412-1.412A.5.5 0 0 1 1.5 12.5v-3a.5.5 0 0 1 .166-.372l8.995-8.07zm-.115 1.47L2.727 9.52l3.753 3.753 7.406-8.254zm3.585 2.17.064-.068a1 1 0 0 0-.017-1.396L13.18 1.387a1 1 0 0 0-1.396-.018l-.068.065zM5.293 13.5 2.5 10.707v1.586L3.707 13.5z"/>\n' +
             '</svg>',
         type: 'mark',
+    },
+    InlineStyles: {
+        type: 'mark',
+        class: 'vertical js-set-active-text',
+        action: (editor, button) => {
+            editor.commands.toggleInlineStyle(button?.dataset?.id ||0);
+        },
+        enabled: (editor, button) => editor.can().toggleInlineStyle(button?.dataset?.id || 0),
+        active: (editor, button) => editor.commands.activeInlineStyle(button?.dataset?.id || 0),
+
+    },
+    BlockStyles: {
+        type: 'mark',
+        class: 'vertical js-set-active-text',
+        action: (editor, button) => editor.commands.toggleBlockStyle(button?.dataset?.id || 0),
+        enabled: (editor, button) => editor.can().toggleBlockStyle(button?.dataset?.id || 0),
+        active: (editor, button) => editor.commands.activeBlockStyle(button?.dataset?.id || 0),
     },
     RemoveFormat: {
         action: (editor) => editor.commands.unsetAllMarks(),
@@ -299,18 +307,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('code'),
         type: 'mark',
     },
-    Small: {
-        action: (editor) => editor.commands.toggleSmall(),
-        enabled: (editor) => editor.can().toggleSmall(),
-        active: (editor) => editor.isActive('Small'),
-        type: 'mark',
-    },
-    Kbd: {
-        action: (editor) => editor.commands.toggleKbd(),
-        enabled: (editor) => editor.can().toggleKbd(),
-        active: (editor) => editor.isActive('Kbd'),
-        type: 'mark',
-    },
     CodeBlock: {
         action: (editor) => editor.commands.toggleCodeBlock(),
         enabled: (editor) => editor.can().toggleCodeBlock(),
@@ -331,7 +327,7 @@ const TiptapToolbar = {
     Heading1: {
         action: (editor) => editor.commands.setHeading({ level: 1 }),
         enabled: (editor) => editor.can().setHeading({ level: 1 }),
-        active: (editor) => editor.isActive('heading', {level: 1}),
+        active: (editor) => editor.isActive('heading', { level: 1 }),
         type: 'block',
     },
     Heading2: {

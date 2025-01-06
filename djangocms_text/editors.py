@@ -320,6 +320,12 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
     "Styles": {
         "title": _("Styles"),
     },
+    "InlineStyles": {
+        "title": _("Styles"),
+    },
+    "BlockStyles": {
+        "title": _("Blocks"),
+    },
     "Font": {
         "title": _("Font"),
     },
@@ -367,7 +373,7 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
 DEFAULT_TOOLBAR_CMS = [
     ["Undo", "Redo"],
     ["CMSPlugins", "cmswidget", "-", "ShowBlocks"],
-    ["Format", "Styles"],
+    ["Format", "Styles", "BlockStyles", "InlineStyles"],
     ["TextColor", "Highlight", "BGColor", "-", "PasteText", "PasteFromWord"],
     ["Maximize"],
     [
@@ -393,7 +399,7 @@ DEFAULT_TOOLBAR_CMS = [
 DEFAULT_TOOLBAR_HTMLField = [
     ["Undo", "Redo"],
     ["ShowBlocks"],
-    ["Format", "Styles"],
+    ["Format", "Styles", "BlockStyles", "InlineStyles"],
     ["TextColor", "Highlight", "BGColor", "-", "PasteText", "PasteFromWord"],
     ["Maximize"],
     [
@@ -439,7 +445,7 @@ class RTEConfig:
         config: str,
         js: Iterable[str] | None = None,
         css: dict | None = None,
-        admin_css: dict | None = None,
+        admin_css: Iterable[str] | None = None,
         inline_editing: bool = False,
         child_plugin_support: bool = False,
     ):

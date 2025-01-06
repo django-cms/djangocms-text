@@ -174,7 +174,9 @@ function validateAttributes(node, styleAttributes) {
     if (!styleAttributes) {
         return true;
     }
-
+    if (!node?.classList) {
+        return false;
+    }
     if (styleAttributes.class) {
         const requiredClasses = styleAttributes.class.split(' ');
         if (!requiredClasses.every(cls => node.classList.contains(cls))) {

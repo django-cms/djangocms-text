@@ -6,14 +6,14 @@
 
 
 function generateButtonArray(rows, cols) {
-    let buttons = '<div class="tt-create-table">';
+    const buttons = ['<div class="tt-create-table">'];
     for (let j= 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
-            buttons += `<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`;
+            buttons.push(`<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`);
         }
     }
-    buttons += '</div>';
-    return buttons;
+    buttons.push('</div>');
+    return buttons.join('');
 }
 
 const _tableMenu = [

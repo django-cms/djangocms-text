@@ -122,6 +122,7 @@ class CMSTipTapPlugin {
                 toolbar: options.toolbar || options.toolbar_HTMLField,
                 inlineStyles: options.inlineStyles,
                 blockStyles: options.blockStyles,
+                textColors: options.textColors,
                 separator_markup: this.separator_markup,
                 space_markup: this.space_markup,
             });

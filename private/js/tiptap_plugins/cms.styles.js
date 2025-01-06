@@ -57,13 +57,13 @@ const Highlight = Mark.create({
 });
 
 
-function generateColorMenu(editor, builder) {
-    let items = '';
+function renderColorMenu(editor, builder) {
+    const items = [];
     const mark = editor.extensionManager.extensions.find(extension => extension.name === 'textcolor');
     for (const [cls, def] of Object.entries(mark.options?.textColors || {})) {
-        items += `<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`;
+        items.push(`<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`);
     }
-    return items;
+    return items.join('');
 
 }
 
@@ -163,29 +163,29 @@ const blockTags = ((str) => str.toUpperCase().substring(1, str.length-1).split("
 );
 
 function renderStyleMenu(styles, editor, defaultTag = 'span') {
-    if (!styles) {
-        styles = InlineStyle.options.styles;
+    const allStyles = styles || InlineStyle.options.styles;
+    const menu = [];
+    for (let i = 0; i < allStyles.length; i++) {
+        const action = blockTags.includes((allStyles[i].element || defaultTag).toUpperCase()) ? 'BlockStyles' : 'InlineStyles';
+        menu.push(`<button data-action="${action}" data-id="${i}">${allStyles[i].name}</button>`);
     }
-    let menu = '';
-    for (let i = 0; i < styles.length; i++) {
-        const action = blockTags.includes((styles[i].element || defaultTag).toUpperCase()) ? 'BlockStyles' : 'InlineStyles';
-        menu += `<button data-action="${action}" data-id="${i}">${styles[i].name}</button>`;
-    }
-    return menu;
+    return menu.join('');
 }
 
 function validateAttributes(node, styleAttributes) {
-    for (const [key, value] of Object.entries(styleAttributes || {})) {
-        if (key === 'class') {
-            if (!(styleAttributes?.class || '').split(' ').every(cls => node.classList.contains(cls))) {
-                return false;
-            }
-        } else if (node.getAttribute(key) !== value) {
+    if (!styleAttributes) {
+        return true;
+    }
+
+    if (styleAttributes.class) {
+        const requiredClasses = styleAttributes.class.split(' ');
+        if (!requiredClasses.every(cls => node.classList.contains(cls))) {
             return false;
         }
     }
-    return true;
- }
+    return Object.entries(styleAttributes)
+        .every(([key, value]) => key === 'class' || node.getAttribute(key) === value);
+}
 
 
 /**
@@ -224,30 +224,22 @@ const Style = {
     },
 
     parseHTML() {
-        if (this.name === 'blockstyle') {
-            if (this.editor.options.blockStyles) {
-                // Let editor options overwrite the default styles
-                this.options.styles = this.editor.options.blockStyles;
-            }
+        const styles = this.name === 'blockstyle' ?
+            this.editor.options.blockStyles :
+            this.editor.options.inlineStyles;
+        if (styles) {
+            this.options.styles = styles;
+        }
 
-        } else if (this.editor.options.inlineStyles) {
-            // Let editor options overwrite the default styles,
-            this.options.styles = this.editor.options.inlineStyles;
-        }
-        if (!this.options.styles) {
-            return [];
-        }
-        return this.options.styles.map(style => {
-            return {
-                tag: style.element || '*',
-                getAttrs: node => {
-                    if (!validateAttributes(node, style.attributes)) {
-                        return false;
-                    }
-                    return style.element ?
-                        {tag: style.element, attributes: style.attributes} :
-                        {attributes: style.attributes};                }
-            };
+       return (this.options.styles || []).map(style => {
+           return {
+               tag: style.element || '*',
+               getAttrs: node => validateAttributes(node, style.attributes) && (
+                   style.element ?
+                       {tag: style.element, attributes: style.attributes} :
+                       {attributes: style.attributes}
+               )
+           };
         });
     },
 
@@ -382,6 +374,6 @@ const BlockStyle = Node.create({
 
 TiptapToolbar.InlineStyles.items = (editor, builder) => renderStyleMenu(editor.options.inlineStyles, editor, 'span');
 TiptapToolbar.BlockStyles.items = (editor, builder) => renderStyleMenu(editor.options.blockStyles || [], editor, 'div');
-TiptapToolbar.TextColor.items = generateColorMenu;
+TiptapToolbar.TextColor.items = renderColorMenu;
 
 export {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle, TextColor as default};

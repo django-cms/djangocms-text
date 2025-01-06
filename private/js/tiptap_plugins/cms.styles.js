@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {Mark, Node, mergeAttributes, getAttributes,} from '@tiptap/core';
+import {Mark, Node, mergeAttributes} from '@tiptap/core';
 import TiptapToolbar from "./cms.tiptap.toolbar";
 
 
@@ -40,26 +40,6 @@ const _markElement = {
         return commands;
     },
 };
-
-const Small = Mark.create({
-    name: 'Small',
-    ..._markElement,
-});
-
-const Kbd = Mark.create({
-    name: 'Kbd',
-    ..._markElement,
-});
-
-const Var = Mark.create({
-    name: 'Var',
-    ..._markElement,
-});
-
-const Samp = Mark.create({
-    name: 'Samp',
-    ..._markElement,
-});
 
 const InlineQuote = Mark.create({
     name: 'Q',
@@ -194,6 +174,20 @@ function renderStyleMenu(styles, editor, defaultTag = 'span') {
     return menu;
 }
 
+function validateAttributes(node, styleAttributes) {
+    for (const [key, value] of Object.entries(styleAttributes || {})) {
+        if (key === 'class') {
+            if (!(styleAttributes?.class || '').split(' ').every(cls => node.classList.contains(cls))) {
+                return false;
+            }
+        } else if (node.getAttribute(key) !== value) {
+            return false;
+        }
+    }
+    return true;
+ }
+
+
 /**
  * Represents a utility or configuration object for managing and applying styles.
  * Provides methods for adding options and attributes, parsing HTML styles, and rendering
@@ -247,20 +241,12 @@ const Style = {
             return {
                 tag: style.element || '*',
                 getAttrs: node => {
-                    for (const [key, value] of Object.entries(style.attributes || {})) {
-                        if (key === 'class') {
-                            if (!(style.attributes?.class || '').split(' ').every(cls => node.classList.contains(cls))) {
-                                return false;
-                            }
-                        } else if (node.getAttribute(key) !== value) {
-                            return false;
-                        }
+                    if (!validateAttributes(node, style.attributes)) {
+                        return false;
                     }
-                    if (style.element) {
-                        return {tag: style.element, attributes: style.attributes};
-                    }
-                    return {attributes: style.attributes};
-                }
+                    return style.element ?
+                        {tag: style.element, attributes: style.attributes} :
+                        {attributes: style.attributes};                }
             };
         });
     },
@@ -314,7 +300,11 @@ const InlineStyle = Mark.create({
                 if (!style) {
                     return false;
                 }
-                return commands.toggleMark(this.name, {
+                if (commands.activeInlineStyle(id)) {
+                    commands.extendMarkRange(this.name, {tag: style.element});
+                    return commands.unsetMark(this.name);
+                }
+                return commands.setMark(this.name, {
                     tag: style.element || this.defaultTag,
                     attributes: style.attributes,
                 });
@@ -392,6 +382,6 @@ const BlockStyle = Node.create({
 
 TiptapToolbar.InlineStyles.items = (editor, builder) => renderStyleMenu(editor.options.inlineStyles, editor, 'span');
 TiptapToolbar.BlockStyles.items = (editor, builder) => renderStyleMenu(editor.options.blockStyles || [], editor, 'div');
-TiptapToolbar.TextColor.items = generateColorMenu
+TiptapToolbar.TextColor.items = generateColorMenu;
 
 export {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle, TextColor as default};

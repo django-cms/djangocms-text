@@ -57,10 +57,9 @@ const Highlight = Mark.create({
 });
 
 
-function renderColorMenu(editor, builder) {
+function renderColorMenu(editor) {
     const items = [];
-    const mark = editor.extensionManager.extensions.find(extension => extension.name === 'textcolor');
-    for (const [cls, def] of Object.entries(mark.options?.textColors || {})) {
+    for (const [cls, def] of Object.entries(editor.options?.textColors || TextColor.options.textColors)) {
         items.push(`<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`);
     }
     return items.join('');
@@ -70,6 +69,7 @@ function renderColorMenu(editor, builder) {
 const TextColor = Mark.create({
     name: 'textcolor',
     addOptions() {
+        console.log(this.editor);
         return {
             textColors: {
                 'text-primary': {name: "Primary"},
@@ -86,13 +86,6 @@ const TextColor = Mark.create({
         };
     },
 
-    onCreate() {
-        if (this.editor.options.textColors) {
-            // Let editor options overwrite the default colors
-            this.options.textColors = this.editor.options.textColors;
-        }
-    },
-
     addAttributes() {
         return {
             class: { default: null },
@@ -101,6 +94,11 @@ const TextColor = Mark.create({
     },
 
     parseHTML() {
+        if (this.editor.options.textColors) {
+            // Let editor options overwrite the default colors
+            this.options.textColors = this.editor.options.textColors;
+        }
+
         return [
             {
                 tag: '*',
@@ -372,8 +370,8 @@ const BlockStyle = Node.create({
 });
 
 
-TiptapToolbar.InlineStyles.items = (editor, builder) => renderStyleMenu(editor.options.inlineStyles, editor, 'span');
-TiptapToolbar.BlockStyles.items = (editor, builder) => renderStyleMenu(editor.options.blockStyles || [], editor, 'div');
+TiptapToolbar.InlineStyles.items = (editor) => renderStyleMenu(editor.options.inlineStyles, editor, 'span');
+TiptapToolbar.BlockStyles.items = (editor) => renderStyleMenu(editor.options.blockStyles || [], editor, 'div');
 TiptapToolbar.TextColor.items = renderColorMenu;
 
 export {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle, TextColor as default};

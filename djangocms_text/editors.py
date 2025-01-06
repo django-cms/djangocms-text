@@ -373,7 +373,7 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
 DEFAULT_TOOLBAR_CMS = [
     ["Undo", "Redo"],
     ["CMSPlugins", "cmswidget", "-", "ShowBlocks"],
-    ["Format", "Styles", "InlineStyles", "BlockStyles"],
+    ["Format", "Styles", "BlockStyles", "InlineStyles"],
     ["TextColor", "Highlight", "BGColor", "-", "PasteText", "PasteFromWord"],
     ["Maximize"],
     [
@@ -399,7 +399,7 @@ DEFAULT_TOOLBAR_CMS = [
 DEFAULT_TOOLBAR_HTMLField = [
     ["Undo", "Redo"],
     ["ShowBlocks"],
-    ["Format", "Styles", "InlineStyles", "BlockStyles"],
+    ["Format", "Styles", "BlockStyles", "InlineStyles"],
     ["TextColor", "Highlight", "BGColor", "-", "PasteText", "PasteFromWord"],
     ["Maximize"],
     [

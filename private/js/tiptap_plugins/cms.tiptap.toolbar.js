@@ -34,15 +34,6 @@ function generateTableMenu(editor, builder) {
     return generateButtonArray(10, 10) + builder(_tableMenu);
 }
 
-function generateColorMenu(editor, builder) {
-    let items = '';
-    const mark = editor.extensionManager.extensions.find(extension => extension.name === 'textcolor');
-    for (const [cls, def] of Object.entries(mark.options?.textColors || {})) {
-        items += `<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`;
-    }
-    return items;
-
-}
 
 const TiptapToolbar = {
     Undo: {
@@ -103,9 +94,9 @@ const TiptapToolbar = {
         },
         enabled: (editor) => editor.can().toggleTextColor(),
         active: (editor, button) => editor.isActive('textcolor', {class: button.dataset?.class}),
-        items: generateColorMenu,
         icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-fonts" viewBox="0 0 16 16"><path d="M12.258 3h-8.51l-.083 2.46h.479c.26-1.544.758-1.783 2.693-1.845l.424-.013v7.827c0 .663-.144.82-1.3.923v.52h4.082v-.52c-1.162-.103-1.306-.26-1.306-.923V3.602l.431.013c1.934.062 2.434.301 2.693 1.846h.479z"/></svg>',
         type: 'mark',
+        class: 'js-set-active-class',
     },
     InlineQuote: {
         action: (editor) => {
@@ -140,28 +131,20 @@ const TiptapToolbar = {
     },
     InlineStyles: {
         type: 'mark',
-        class: 'vertical',
+        class: 'vertical js-set-active-text',
         action: (editor, button) => {
-            if (editor.isActive('inlinestyle')) {
-                editor.chain().extendMarkRange('inlinestyle').unsetInlineStyle().run();
-            } else {
-                editor.commands.setInlineStyle(button.dataset?.id ||0);
-            }
+            editor.commands.toggleInlineStyle(button?.dataset?.id ||0);
         },
-        enabled: (editor, button) => editor.can().setInlineStyle(button.dataset?.id || 0),
-        active: (editor, button) => editor.commands.activeInlineStyle(button.dataset?.id || 0),
+        enabled: (editor, button) => editor.can().toggleInlineStyle(button?.dataset?.id || 0),
+        active: (editor, button) => editor.commands.activeInlineStyle(button?.dataset?.id || 0),
 
     },
     BlockStyles: {
         type: 'mark',
-        class: 'vertical',
-        action: (editor, button) => editor.commands.toggleBlockStyle(button.dataset?.id || 0),
-        enabled: (editor, button) => editor.can().toggleBlockStyle(button.dataset?.id || 0),
-        active: (editor, button) => editor.commands.blockStyleActive(button.dataset?.id || 0),
-    },
-    Styles: {
-        type: 'mark',
-        class: 'vertical',
+        class: 'vertical js-set-active-text',
+        action: (editor, button) => editor.commands.toggleBlockStyle(button?.dataset?.id || 0),
+        enabled: (editor, button) => editor.can().toggleBlockStyle(button?.dataset?.id || 0),
+        active: (editor, button) => editor.commands.activeBlockStyle(button?.dataset?.id || 0),
     },
     RemoveFormat: {
         action: (editor) => editor.commands.unsetAllMarks(),
@@ -322,18 +305,6 @@ const TiptapToolbar = {
         action: (editor) => editor.commands.toggleCode(),
         enabled: (editor) => editor.can().toggleCode(),
         active: (editor) => editor.isActive('code'),
-        type: 'mark',
-    },
-    Small: {
-        action: (editor) => editor.commands.toggleSmall(),
-        enabled: (editor) => editor.can().toggleSmall(),
-        active: (editor) => editor.isActive('Small'),
-        type: 'mark',
-    },
-    Kbd: {
-        action: (editor) => editor.commands.toggleKbd(),
-        enabled: (editor) => editor.can().toggleKbd(),
-        active: (editor) => editor.isActive('Kbd'),
         type: 'mark',
     },
     CodeBlock: {

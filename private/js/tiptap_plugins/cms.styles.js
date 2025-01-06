@@ -76,6 +76,17 @@ const Highlight = Mark.create({
     },
 });
 
+
+function generateColorMenu(editor, builder) {
+    let items = '';
+    const mark = editor.extensionManager.extensions.find(extension => extension.name === 'textcolor');
+    for (const [cls, def] of Object.entries(mark.options?.textColors || {})) {
+        items += `<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`;
+    }
+    return items;
+
+}
+
 const TextColor = Mark.create({
     name: 'textcolor',
     addOptions() {
@@ -104,12 +115,8 @@ const TextColor = Mark.create({
 
     addAttributes() {
         return {
-            class: {
-                default: null,
-            },
-            style: {
-                default: null,
-            }
+            class: { default: null },
+            style: { default: null}
         };
     },
 
@@ -175,10 +182,13 @@ const blockTags = ((str) => str.toUpperCase().substring(1, str.length-1).split("
     "<h1><h2><h3><h4><h5><h6><header><hr><li><main><nav><noscript><ol><p><pre><section><table><tfoot><ul><video>"
 );
 
-function renderStyleMenu(styles, editor) {
+function renderStyleMenu(styles, editor, defaultTag = 'span') {
+    if (!styles) {
+        styles = InlineStyle.options.styles;
+    }
     let menu = '';
     for (let i = 0; i < styles.length; i++) {
-        const action = blockTags.includes(styles[i].element.toUpperCase()) ? 'BlockStyles' : 'InlineStyles';
+        const action = blockTags.includes((styles[i].element || defaultTag).toUpperCase()) ? 'BlockStyles' : 'InlineStyles';
         menu += `<button data-action="${action}" data-id="${i}">${styles[i].name}</button>`;
     }
     return menu;
@@ -221,23 +231,23 @@ const Style = {
 
     parseHTML() {
         if (this.name === 'blockstyle') {
-            if (this.editor.options.stylesSet || this.editor.options.blockStyles) {
-                // Let editor options overwrite the default styles, stylesSet has preference
-                this.options.styles = this.editor.options.stylesSet || this.editor.options.blockStyles;
+            if (this.editor.options.blockStyles) {
+                // Let editor options overwrite the default styles
+                this.options.styles = this.editor.options.blockStyles;
             }
 
-        } else if (this.editor.options.stylesSet || this.editor.options.inlineStyles) {
-            // Let editor options overwrite the default styles, inlineStyles has preference
-            this.options.styles = this.editor.options.inlineStyles || this.editor.options.stylesSet;
-            console.log("Inline", this.options.styles);
-
+        } else if (this.editor.options.inlineStyles) {
+            // Let editor options overwrite the default styles,
+            this.options.styles = this.editor.options.inlineStyles;
         }
-
+        if (!this.options.styles) {
+            return [];
+        }
         return this.options.styles.map(style => {
             return {
                 tag: style.element || '*',
                 getAttrs: node => {
-                    for (const [key, value] of Object.entries(style.attributes)) {
+                    for (const [key, value] of Object.entries(style.attributes || {})) {
                         if (key === 'class') {
                             if (!(style.attributes?.class || '').split(' ').every(cls => node.classList.contains(cls))) {
                                 return false;
@@ -249,7 +259,7 @@ const Style = {
                     if (style.element) {
                         return {tag: style.element, attributes: style.attributes};
                     }
-                    return {attributes: style.attributes}
+                    return {attributes: style.attributes};
                 }
             };
         });
@@ -261,29 +271,53 @@ const Style = {
 };
 
 
+/**
+ * InlineStyle is an extension for defining inline styles as marks in an editor.
+ * It allows toggling and checking the activation state of specific inline styles.
+ * The extension creates customizable inline styles applied via specified HTML elements
+ * or attributes.
+ *
+ * Properties:
+ * - `name`: Specifies the name of the mark, "inlinestyle".
+ * - `defaultTag`: Defines the default HTML element tag ("span") used when no specific tag is provided.
+ * - `styles`: A set of predefined inline styles with names and corresponding HTML elements or attributes
+ *   (e.g., "Small" mapped to `<small>`).
+ *
+ * Methods:
+ * - `addOptions`: Provides configuration options for the extension, including the predefined styles and their mappings.
+ * - `addCommands`: Adds custom commands for managing inline styles:
+ *    - `toggleInlineStyle(id)`: Toggles the inline style based on the provided ID. Applies the corresponding tag
+ *      and attributes if the style exists.
+ *    - `activeInlineStyle(id)`: Checks if the specified inline style is currently active in the editor
+ *      by evaluating the tag and attributes against the style definition.
+ */
 const InlineStyle = Mark.create({
     name: 'inlinestyle',
     defaultTag: 'span',
     ...Style,
 
-    renderHTML: ({HTMLAttributes}) => {
-        return [HTMLAttributes.tag || 'span',  mergeAttributes({}, HTMLAttributes.attributes), 0];
+    addOptions() {
+        return {
+            styles: [
+                { name: 'Small', element: 'small' },
+                { name: 'Kbd', element: 'kbd' },
+                { name: 'Var', element: 'var' },
+                { name: 'Samp', element: 'samp' },
+            ]
+        };
     },
 
     addCommands() {
         return {
-            setInlineStyle: (id) => ({commands}) => {
+            toggleInlineStyle: (id) => ({commands}) => {
                 const style = this.options.styles[id];
                 if (!style) {
                     return false;
                 }
-                return commands.setMark(this.name, {
+                return commands.toggleMark(this.name, {
                     tag: style.element || this.defaultTag,
                     attributes: style.attributes,
                 });
-            },
-            unsetInlineStyle: () => ({commands}) => {
-                return commands.unsetMark(this.name);
             },
             activeInlineStyle: (id) => ({editor}) => {
                 const style = this.options.styles[id];
@@ -304,6 +338,30 @@ const InlineStyle = Mark.create({
     }
 });
 
+/**
+ * BlockStyle is a custom node extension used in a content editor framework.
+ * It defines a block-level node that can contain other block-level nodes and
+ * provides functionality for applying and managing custom styles on block elements.
+ *
+ * Properties:
+ * - `name`: The name identifier for this node extension, used in editor schema.
+ * - `group`: Specifies the category or group for the node, classified under "block".
+ * - `content`: Defines the content model, allowing inclusion of one or more block nodes.
+ * - `defaultTag`: Sets the default HTML tag for this node, which is "div".
+ * - `options.styles`: Expects an object containing custom style definitions, where each
+ *   style includes information like the HTML tag (`element`) and any associated attributes.
+ *
+ * Methods:
+ * - `addCommands`: Provides custom commands for interacting with the node. Includes:
+ *     - `toggleBlockStyle(id)`: Toggles the styling of the block based on the provided style ID.
+ *        Requires the presence of a matching style in `options.styles`. Utilizes `toggleWrap`
+ *        to update the editor state with the specified tag and attributes.
+ *     - `activeBlockStyle(id)`: Checks if the current block is active with a specific style,
+ *        based on the tag and attributes defined in the style ID.
+ *
+ * This extension is designed to work in conjunction with style configurations and allows
+ * for easy application of predefined block styles in a WYSIWYG editor.
+ */
 const BlockStyle = Node.create({
     name: 'blockstyle',
     group: 'block',
@@ -315,22 +373,14 @@ const BlockStyle = Node.create({
         return {
             toggleBlockStyle: (id) => ({commands}) => {
                 const style = this.options.styles[id];
-                if (!style) {
-                    console.warn("Block style not found");
-                    return false;
-                }
-                console.log(style);
-                return commands.toggleWrap(this.name, {
-                        tag: style.element || 'div',
+                return style && commands.toggleWrap(this.name, {
+                        tag: style.element,
                         attributes: style.attributes,
                     });
             },
-            blockStyleActive: (id) => ({editor}) => {
+            activeBlockStyle: (id) => ({editor}) => {
                 const style = this.options.styles[id];
-                if (!style) {
-                    return false;
-                }
-                return editor.isActive(this.name, {
+                return style && editor.isActive(this.name, {
                     tag: style.element,
                     attributes: style.attributes,
                 });
@@ -339,8 +389,9 @@ const BlockStyle = Node.create({
     }
 });
 
-TiptapToolbar.Styles.items = (editor, builder) => renderStyleMenu(editor.options.stylesSet || [], editor);
-TiptapToolbar.InlineStyles.items = (editor, builder) => renderStyleMenu(editor.options.inlineStyles || editor.options.stylesSet || [], editor);
-TiptapToolbar.BlockStyles.items = (editor, builder) => renderStyleMenu(editor.options.blockStyles || editor.options.stylesSet || [], editor);
 
-export {TextColor, Small, Var, Kbd, Samp, Highlight, InlineQuote, InlineStyle, BlockStyle, TextColor as default};
+TiptapToolbar.InlineStyles.items = (editor, builder) => renderStyleMenu(editor.options.inlineStyles, editor, 'span');
+TiptapToolbar.BlockStyles.items = (editor, builder) => renderStyleMenu(editor.options.blockStyles || [], editor, 'div');
+TiptapToolbar.TextColor.items = generateColorMenu
+
+export {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle, TextColor as default};

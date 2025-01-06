@@ -41,7 +41,6 @@ function DynLinkClickHandler(editor) {
 
 const CmsDynLink = Link.extend({
     addAttributes() {
-        'use strict';
         return {
             'data-cms-href': {
                 default: null

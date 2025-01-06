@@ -19,7 +19,7 @@ import TableRow from '@tiptap/extension-table-row';
 import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 
-import {TextColor, Small, Var, Kbd, Samp, Highlight, InlineQuote} from "./tiptap_plugins/cms.styles";
+import {TextColor, Small, Var, Kbd, Samp, Highlight, InlineQuote, InlineStyle, BlockStyle} from "./tiptap_plugins/cms.styles";
 import CmsFormExtension from "./tiptap_plugins/cms.formextension";
 import CmsToolbarPlugin from "./tiptap_plugins/cms.toolbar";
 
@@ -50,6 +50,7 @@ class CMSTipTapPlugin {
                 TableCell,
                 CmsDynLink,
                 Small, Var, Kbd, Samp, Highlight, InlineQuote,
+                InlineStyle, BlockStyle,
                 TextAlign.configure({
                     types: ['heading', 'paragraph'],
                 }),
@@ -119,6 +120,9 @@ class CMSTipTapPlugin {
                 save_callback: save_callback,
                 settings: settings,
                 toolbar: options.toolbar || options.toolbar_HTMLField,
+                stylesSet: options.stylesSet,
+                inlineStyles: options.inlineStyles || [],
+                blockStyles: options.blockStyles || [],
                 separator_markup: this.separator_markup,
                 space_markup: this.space_markup,
             });

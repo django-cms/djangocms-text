@@ -2,21 +2,19 @@
 /* jshint esversion: 11 */
 /* global document, window, console */
 
+'use strict';
 
-import {Mark, mergeAttributes,} from '@tiptap/core';
+import {Mark, Node, mergeAttributes, getAttributes,} from '@tiptap/core';
+import TiptapToolbar from "./cms.tiptap.toolbar";
 
 
 const _markElement = {
     addOptions() {
-        'use strict';
-
         return {
             HTMLAttributes: {},
         };
     },
     parseHTML() {
-        'use strict';
-
         return [
             {
                 tag: this.name.toLowerCase()
@@ -28,7 +26,6 @@ const _markElement = {
     },
 
     addCommands() {
-        'use strict';
         let commands = {};
 
         commands[`set${this.name}`] = () => ({ commands }) => {
@@ -72,7 +69,6 @@ const InlineQuote = Mark.create({
 const Highlight = Mark.create({
     name: 'Highlight',
     parseHTML() {
-        'use strict';
         return [{tag: 'mark'}];
     },
     renderHTML({ HTMLAttributes }) {
@@ -83,7 +79,6 @@ const Highlight = Mark.create({
 const TextColor = Mark.create({
     name: 'textcolor',
     addOptions() {
-        'use strict';
         return {
             textColors: {
                 'text-primary': {name: "Primary"},
@@ -101,8 +96,6 @@ const TextColor = Mark.create({
     },
 
     onCreate() {
-        'use strict';
-
         if (this.editor.options.textColors) {
             // Let editor options overwrite the default colors
             this.options.textColors = this.editor.options.textColors;
@@ -110,8 +103,6 @@ const TextColor = Mark.create({
     },
 
     addAttributes() {
-        'use strict';
-
         return {
             class: {
                 default: null,
@@ -123,8 +114,6 @@ const TextColor = Mark.create({
     },
 
     parseHTML() {
-        'use strict';
-
         return [
             {
                 tag: '*',
@@ -150,12 +139,10 @@ const TextColor = Mark.create({
     },
 
     renderHTML: attributes => {
-        'use strict';
         return ['span',  mergeAttributes({}, attributes.HTMLAttributes), 0];
     },
 
     addCommands() {
-        'use strict';
         return {
             setTextColor: (cls) => ({commands}) => {
                 if (!(cls in this.options.textColors)) {
@@ -182,4 +169,178 @@ const TextColor = Mark.create({
     }
 });
 
-export {TextColor, Small, Var, Kbd, Samp, Highlight, InlineQuote, TextColor as default};
+
+const blockTags = ((str) => str.toUpperCase().substring(1, str.length-1).split("><"))(
+    "<address><article><aside><blockquote><canvas><dd><div><dl><dt><fieldset><figcaption><figure><footer><form>" +
+    "<h1><h2><h3><h4><h5><h6><header><hr><li><main><nav><noscript><ol><p><pre><section><table><tfoot><ul><video>"
+);
+
+function renderStyleMenu(styles, editor) {
+    let menu = '';
+    for (let i = 0; i < styles.length; i++) {
+        const action = blockTags.includes(styles[i].element.toUpperCase()) ? 'BlockStyles' : 'InlineStyles';
+        menu += `<button data-action="${action}" data-id="${i}">${styles[i].name}</button>`;
+    }
+    return menu;
+}
+
+/**
+ * Represents a utility or configuration object for managing and applying styles.
+ * Provides methods for adding options and attributes, parsing HTML styles, and rendering
+ * HTML with specific styles and attributes.
+ *
+ * @type {Object}
+ *
+ * @property {Function} addOptions
+ *     Adds configuration options for styles. Returns an object with an array of styles.
+ *
+ * @property {Function} addAttributes
+ *     Adds default attributes for tags. Returns an object containing default settings
+ *     for `tag` and `attributes`.
+ *
+ * @property {Function} parseHTML
+ *     Parses the HTML to match and apply styles based on the context (block or inline).
+ *     Adjusts styles using editor options and validates them against node attributes.
+ *     Returns a mapped array of style objects, including tag and attribute configurations.
+ *
+ * @property {Function} renderHTML
+ *     Renders the HTML by merging provided attributes with the default ones. Outputs
+ *     a structured array containing the tag, merged attributes, and content placeholder.
+ */
+const Style = {
+    addOptions() {
+        return { styles: [] };
+    },
+
+    addAttributes() {
+        return {
+            tag: { default: null },
+            attributes: { default: {} },
+        };
+    },
+
+    parseHTML() {
+        if (this.name === 'blockstyle') {
+            if (this.editor.options.stylesSet || this.editor.options.blockStyles) {
+                // Let editor options overwrite the default styles, stylesSet has preference
+                this.options.styles = this.editor.options.stylesSet || this.editor.options.blockStyles;
+            }
+
+        } else if (this.editor.options.stylesSet || this.editor.options.inlineStyles) {
+            // Let editor options overwrite the default styles, inlineStyles has preference
+            this.options.styles = this.editor.options.inlineStyles || this.editor.options.stylesSet;
+            console.log("Inline", this.options.styles);
+
+        }
+
+        return this.options.styles.map(style => {
+            return {
+                tag: style.element || '*',
+                getAttrs: node => {
+                    for (const [key, value] of Object.entries(style.attributes)) {
+                        if (key === 'class') {
+                            if (!(style.attributes?.class || '').split(' ').every(cls => node.classList.contains(cls))) {
+                                return false;
+                            }
+                        } else if (node.getAttribute(key) !== value) {
+                            return false;
+                        }
+                    }
+                    if (style.element) {
+                        return {tag: style.element, attributes: style.attributes};
+                    }
+                    return {attributes: style.attributes}
+                }
+            };
+        });
+    },
+
+   renderHTML({HTMLAttributes}) {
+        return [HTMLAttributes.tag || this.defaultTag,  mergeAttributes({}, HTMLAttributes.attributes), 0];
+    }
+};
+
+
+const InlineStyle = Mark.create({
+    name: 'inlinestyle',
+    defaultTag: 'span',
+    ...Style,
+
+    renderHTML: ({HTMLAttributes}) => {
+        return [HTMLAttributes.tag || 'span',  mergeAttributes({}, HTMLAttributes.attributes), 0];
+    },
+
+    addCommands() {
+        return {
+            setInlineStyle: (id) => ({commands}) => {
+                const style = this.options.styles[id];
+                if (!style) {
+                    return false;
+                }
+                return commands.setMark(this.name, {
+                    tag: style.element || this.defaultTag,
+                    attributes: style.attributes,
+                });
+            },
+            unsetInlineStyle: () => ({commands}) => {
+                return commands.unsetMark(this.name);
+            },
+            activeInlineStyle: (id) => ({editor}) => {
+                const style = this.options.styles[id];
+                if (!style || !editor.isActive(this.name)) {
+                    return false;
+                }
+
+                const activeAttr = editor.getAttributes(this.name);
+                if ((activeAttr.tag || style.element) && activeAttr.tag !== style.element) {
+                    return false;
+                }
+                if (activeAttr.attributes === style.attributes || !style.attributes) {
+                    return true;
+                }
+                return JSON.stringify(activeAttr.attributes) === JSON.stringify(style.attributes);
+            }
+        };
+    }
+});
+
+const BlockStyle = Node.create({
+    name: 'blockstyle',
+    group: 'block',
+    content: 'block+',
+    defaultTag: 'div',
+    ...Style,
+
+    addCommands() {
+        return {
+            toggleBlockStyle: (id) => ({commands}) => {
+                const style = this.options.styles[id];
+                if (!style) {
+                    console.warn("Block style not found");
+                    return false;
+                }
+                console.log(style);
+                return commands.toggleWrap(this.name, {
+                        tag: style.element || 'div',
+                        attributes: style.attributes,
+                    });
+            },
+            blockStyleActive: (id) => ({editor}) => {
+                const style = this.options.styles[id];
+                if (!style) {
+                    return false;
+                }
+                return editor.isActive(this.name, {
+                    tag: style.element,
+                    attributes: style.attributes,
+                });
+            }
+        };
+    }
+});
+
+TiptapToolbar.Styles.items = (editor, builder) => renderStyleMenu(editor.options.stylesSet || [], editor);
+TiptapToolbar.InlineStyles.items = (editor, builder) => renderStyleMenu(editor.options.inlineStyles || editor.options.stylesSet || [], editor);
+TiptapToolbar.BlockStyles.items = (editor, builder) => renderStyleMenu(editor.options.blockStyles || editor.options.stylesSet || [], editor);
+
+export {TextColor, Small, Var, Kbd, Samp, Highlight, InlineQuote, InlineStyle, BlockStyle, TextColor as default};

@@ -138,6 +138,31 @@ const TiptapToolbar = {
             '</svg>',
         type: 'mark',
     },
+    InlineStyles: {
+        type: 'mark',
+        class: 'vertical',
+        action: (editor, button) => {
+            if (editor.isActive('inlinestyle')) {
+                editor.chain().extendMarkRange('inlinestyle').unsetInlineStyle().run();
+            } else {
+                editor.commands.setInlineStyle(button.dataset?.id ||0);
+            }
+        },
+        enabled: (editor, button) => editor.can().setInlineStyle(button.dataset?.id || 0),
+        active: (editor, button) => editor.commands.activeInlineStyle(button.dataset?.id || 0),
+
+    },
+    BlockStyles: {
+        type: 'mark',
+        class: 'vertical',
+        action: (editor, button) => editor.commands.toggleBlockStyle(button.dataset?.id || 0),
+        enabled: (editor, button) => editor.can().toggleBlockStyle(button.dataset?.id || 0),
+        active: (editor, button) => editor.commands.blockStyleActive(button.dataset?.id || 0),
+    },
+    Styles: {
+        type: 'mark',
+        class: 'vertical',
+    },
     RemoveFormat: {
         action: (editor) => editor.commands.unsetAllMarks(),
         enabled: (editor) => editor.can().unsetAllMarks(),
@@ -331,7 +356,7 @@ const TiptapToolbar = {
     Heading1: {
         action: (editor) => editor.commands.setHeading({ level: 1 }),
         enabled: (editor) => editor.can().setHeading({ level: 1 }),
-        active: (editor) => editor.isActive('heading', {level: 1}),
+        active: (editor) => editor.isActive('heading', { level: 1 }),
         type: 'block',
     },
     Heading2: {

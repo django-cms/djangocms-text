@@ -439,10 +439,12 @@ function _updateToolbar(editor, toolbar) {
     }
     for (const button of querySelector) {
         const {action} = button.dataset;
-        if (action && TiptapToolbar[action]) {
+        if (TiptapToolbar[action]) {
               const toolbarItem = window.cms_editor_plugin._getRepresentation(action);
               try {
-                  button.disabled = !toolbarItem?.enabled(editor, button);
+                  if (toolbarItem.enabled !== undefined) {
+                      button.disabled = !toolbarItem.enabled(editor, button);
+                  }
                   try {
                       if (toolbarItem.active && toolbarItem.active(editor, button)) {
                           button.classList.add('active');

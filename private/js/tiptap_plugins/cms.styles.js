@@ -69,7 +69,6 @@ function renderColorMenu(editor) {
 const TextColor = Mark.create({
     name: 'textcolor',
     addOptions() {
-        console.log(this.editor);
         return {
             textColors: {
                 'text-primary': {name: "Primary"},

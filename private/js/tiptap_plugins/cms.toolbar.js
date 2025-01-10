@@ -81,7 +81,8 @@ function _createBlockToolbarPlugin(editor) {
                 ]);            },
             apply(tr, value, oldState, newState) {
                 if (!oldState.doc.eq(newState.doc) || oldState.selection.eq(newState.selection) === false) {
-                    updateBlockToolbar(editor, newState);
+                    // Let the editor execute the dom update before updating the toolbar
+                    setTimeout(() => updateBlockToolbar(editor, newState), 0);
                 }
                 return value;
             }
@@ -338,7 +339,7 @@ function _createDropdown(editor, item, filter) {
     }
     const title = item.title && item.icon ? `title='${item.title}' ` : '';
     const icon = item.icon || `<span>${item.title}</span>`;
-    return `<span ${title}class="dropdown" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+    return `<span ${title}class="dropdown" tabindex="-1" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
 }
 
 function _populateGroup(editor, array, filter) {
@@ -418,7 +419,7 @@ function _createToolbarButton(editor, itemName, filter) {
             </form>`;
         }
         const content = repr.icon || `<span>${repr.title}</span>`;
-        return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}" role="button">
+        return `<button tabindex="-1" data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}">
                         ${content}${form}
                     </button>`;
     }

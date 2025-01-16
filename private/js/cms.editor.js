@@ -473,7 +473,10 @@ class CMSEditor {
                             return;
                         }
                     }
-                    if (this.CMS.settings.version < "4") {
+                    // Additional content for the page disrupts inline editing and needs to be removed
+                    delete this.CMS.API.Helpers.dataBridge.content;
+
+                    if (this.CMS.settings.version.startsWith('3.')) {
                         /* Reflect dirty flag in django CMS < 4 */
                         try {
                             /* For some reason, in v3 this fails if the structure board is not open */

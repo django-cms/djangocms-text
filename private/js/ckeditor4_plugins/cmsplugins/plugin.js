@@ -1,7 +1,7 @@
 import CmsDialog from "../../cms.dialog";
 
 (function ($) {
-    if (CKEDITOR && CKEDITOR.plugins && CKEDITOR.plugins.registered && CKEDITOR.plugins.registered.cmsplugins) {
+    if (CKEDITOR && CKEDITOR.plugins && CKEDITOR.plugins.registered && CKEDITOR.plugins.registered.CMSPlugins) {
         return;
     }
 
@@ -109,7 +109,7 @@ import CmsDialog from "../../cms.dialog";
 
                 // this is called when creating the dropdown list
                 onBlock: function (panel, block) {
-                    block.element.setHtml(editor.plugins.CMSPlugins.setupDropdown(editor));
+                    block.element.setHtml(that.setupDropdown(editor));
 
                     var anchors = $(block.element.$).find('.cke_panel_listItem a');
 
@@ -137,7 +137,7 @@ import CmsDialog from "../../cms.dialog";
             });
 
             // handle edit event on double click
-            // if event is a jQuery event (touchend), than we mutate
+            // if event is a jQuery event (touchend), then we mutate
             // event a bit so we make the payload similar to what ckeditor.event produces
             var handleEdit = function (event) {
                 event.stop();
@@ -273,7 +273,7 @@ import CmsDialog from "../../cms.dialog";
             editor.addMenuGroup('cmspluginsGroup');
             editor.addMenuItem('cmspluginsItem', {
                 label: settings.lang.CMSPlugins.editLabel,
-                icon: settings.static_url + '/ckeditor_plugins/cmsplugins/icons/cmsplugins.svg',
+                icon: settings.static_url + '/icons/cmsplugins.svg',
                 command: 'cmspluginsEdit',
                 group: 'cmspluginsGroup'
             });

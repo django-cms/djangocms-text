@@ -8,7 +8,6 @@
 /* global document, window, console */
 
 
-import './ckeditor4_plugins/cmsdialog/plugin';
 import './ckeditor4_plugins/cmsplugins/plugin';
 import './ckeditor4_plugins/cmsresize/plugin';
 import './ckeditor4_plugins/cmswidget/plugin';
@@ -28,7 +27,7 @@ window.cms_editor_plugin = {
         skin: 'moono-lisa',
         toolbar_CMS: [
             ['Undo', 'Redo'],
-            ['cmsplugins', 'cmswidget', '-', 'ShowBlocks'],
+            ['CMSPlugins', 'cmswidget', '-', 'ShowBlocks'],
             ['Format', 'Styles'],
             ['TextColor', 'BGColor', '-', 'PasteText', 'PasteFromWord'],
             ['Scayt'],
@@ -69,7 +68,7 @@ window.cms_editor_plugin = {
 
         // add extra plugins that we absolutely must have
         all_options.extraPlugins = all_options.extraPlugins +=
-            ',CMSPlugins,cmswidget,cmsdialog,cmsresize,widget';
+            ',CMSPlugins,cmswidget,cmsresize,widget';
 
         if (typeof all_options.toolbar === 'string' && ('toolbar_' + all_options.toolbar) in all_options) {
             all_options.toolbar = all_options['toolbar_' + all_options.toolbar];
@@ -86,7 +85,7 @@ window.cms_editor_plugin = {
 
             // add additional plugins (autoloads plugins.js)
             CKEDITOR.skin.addIcon('CMSPlugins', settings.static_url +
-                '/ckeditor_plugins/cmsplugins/icons/cmsplugins.svg');
+                '/icons/cmsplugins.svg');
             CKEDITOR.disableAutoInline = true
         };
         if (!(el.id in this._editors)) {

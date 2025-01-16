@@ -17,7 +17,7 @@ def test_editor_loads(live_server, page, text_plugin, superuser):
 
     def handle_console_message(msg):
         if msg.type == "error":
-            console_errors.append(msg.text)
+            console_errors.append(f"{msg.text}: {msg.location} - {msg.args}")
 
     page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
 

@@ -24,7 +24,7 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
 
     def handle_console_message(msg):
         if msg.type == "error":
-            console_errors.append(msg.text)
+            console_errors.append(f"{msg.text}: {msg.location} - {msg.args}")
 
     page.on("console", handle_console_message)
 
@@ -32,6 +32,9 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
 
     editor = page.locator(".cke.cke_reset")
     expect(editor).to_be_visible()  # Editor
+
+    cms_plugins_dropdown = page.locator("span.cke_button_label.cke_button__cmsplugins_label")
+    expect(cms_plugins_dropdown).to_be_visible()  # CMS Plugins dropdown
 
     expect(page.locator(".cke_top.cke_reset_all")).to_be_visible()  # its menu bar
     expect(page.locator(".cke_button.cke_button__bold")).to_be_visible()  # a button in the menu bar

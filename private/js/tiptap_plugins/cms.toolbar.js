@@ -4,7 +4,7 @@
 
 import {Extension} from "@tiptap/core";
 
-import {NodeSelection, TextSelection} from "@tiptap/pm/state";
+import {TextSelection} from "@tiptap/pm/state";
 import {Decoration, DecorationSet} from "@tiptap/pm/view";
 import {Plugin} from "@tiptap/pm/state";
 import TiptapToolbar from "./cms.tiptap.toolbar";
@@ -127,17 +127,6 @@ function _createBlockToolbar(editor, blockToolbar) {
     }
     return toolbar;
 }
-
-
-
- // Add the form dialog only if it is not already open
-// this.form = new CmsForm(this.editor.options.el, () => {});
-// const rect = this.toolbar.getBoundingClientRect();
-// const options = {
-//     x: (rect.left + rect.right) / 2,
-//     y: rect.bottom,
-//     toolbar: true
-// };
 
 
 function updateBlockToolbar(editor, state) {
@@ -271,6 +260,11 @@ function _createToolbar(editor, toolbar, filter) {
         // Limit its width to the available space
         toolbarElement.style.maxWidth = (window.innerWidth - toolbarElement.getBoundingClientRect().left - 16) + 'px';
     }
+    setTimeout(() => {
+        if (toolbarElement.contains(document.activeElement)) {
+            editor.commands.focus();
+        }
+    }, 10);
     return toolbarElement;
 }
 

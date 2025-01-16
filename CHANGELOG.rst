@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.5.2 (16-01-2025)
+==================
+
+* fix: Update CKEditor4 vendor files to work with CMS plugins
+* fix: Update icon paths for CKEditor4
+
 0.5.1 (30-12-2024)
 ==================
 

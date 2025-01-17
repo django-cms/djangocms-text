@@ -208,8 +208,8 @@ class CMSEditor {
 
                 if (plugin[1].type === 'plugin' && plugin[1].plugin_type === 'TextPlugin') {
                     // Text plugin
-                    const elements = document.querySelectorAll('.cms-plugin.cms-plugin-' + id);
-                    wrapper = this._initInlineRichText(elements, url, id);
+                    const elements = document.querySelectorAll('.cms-plugin.' + plugin[0]);
+                    wrapper = this._initInlineRichText(elements, url, id, plugin[0]);
                     if (wrapper) {
                         wrapper.dataset.cmsPluginId = id;
                         wrapper.dataset.cmsType = 'TextPlugin';
@@ -224,7 +224,7 @@ class CMSEditor {
                         const search_key = `${generic_class[2]}-${generic_class[3]}-${edit_fields}`;
                         if (generic_inline_fields[search_key]) {
                             // Inline editable?
-                            wrapper = this._initInlineRichText(document.getElementsByClassName(plugin[0]), url, id);
+                            wrapper = this._initInlineRichText(document.getElementsByClassName(plugin[0]), url, id, plugin[0]);
                             if (wrapper) {
                                 wrapper.dataset.cmsCsrfToken = this.CMS.config.csrf;
                                 wrapper.dataset.cmsField = edit_fields;
@@ -271,7 +271,7 @@ class CMSEditor {
         });
     }
 
-    _initInlineRichText(elements, url, id) {
+    _initInlineRichText(elements, url, id, cls) {
         let wrapper;
 
         if (elements.length > 0) {
@@ -282,6 +282,7 @@ class CMSEditor {
             } else {  // no, wrap now!
                 wrapper = document.createElement('div');
                 wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
+                wrapper.classList.add('cms-plugin', cls);
                 wrapper = this._wrapAll(elements, wrapper);
             }
             wrapper.dataset.cmsEditUrl = url;
@@ -611,7 +612,6 @@ class CMSEditor {
 
     // CMS Editor: resetInlineEditors
     _resetInlineEditors () {
-        this.destroyAll();
         this.initAll();
     }
 

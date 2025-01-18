@@ -15,10 +15,9 @@ class CMSEditor {
     // CMS Editor: constructor
     // Initialize the editor object
     constructor() {
-        this._editors = [];
-        this._generic_editors = [];
         this._global_settings = {};
         this._editor_settings = {};
+        this._generic_editors = {};
         this._admin_selector = 'textarea.CMS_Editor';
         this._admin_add_row_selector = 'body.change-form .add-row a';
         this._inline_admin_selector = 'body.change-form .form-row';
@@ -94,22 +93,154 @@ class CMSEditor {
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
-        let content;
 
-        // Get content: json > textarea > innerHTML
-        if (el.dataset.json) {
-            content = JSON.parse(el.dataset.json);
-        } else  {
-            content = el.innerHTML;
-        }
-        if (el.tagName === 'TEXTAREA') {
-            el.visible = false;
-            content = el.value;
-            // el = el.insertAdjacentElement('afterend', document.createElement('div'));
-        }
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }
+        if (el.id in this._editor_settings) {
+            // Already initialized - happens when an inline editor is scrolled back into the viewport
+            return;
+        }
+        // Create editor
+        if (!el.dataset.cmsType || el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
+            this._createRTE(el);
+        } else if (el.dataset.cmsType === 'CharField') {
+            // Creat simple generic text editor
+            this._generic_editors[el.id] = new CmsTextEditor(el, {
+                    spellcheck: el.dataset.spellcheck || 'false',
+                },
+                (el) => this.saveData(el)
+            );
+        }
+    }
+
+    // CMS Editor: initInlineEditors
+    // Register all plugins on the page for inline editing
+    // This is called from init_all
+    initInlineEditors() {
+        if (this.CMS === undefined || this.CMS._plugins === undefined) {
+            // Check the CMS frontend for plugins
+            // no plugins -> no inline editors
+            return;
+        }
+
+        this.observer = this.observer || new IntersectionObserver( (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    this.init(entry.target);
+                }
+            }, this);
+        }, {
+            root: null,
+            threshold: 0.05
+        });
+
+        let generic_inline_fields = document.getElementById('cms-generic-inline-fields') || {};
+        if (generic_inline_fields) {
+            generic_inline_fields = JSON.parse(generic_inline_fields.textContent || '{}');
+        }
+
+        this.CMS._plugins.forEach(function (plugin) {
+            if (plugin[1].type === 'plugin' || plugin[1].type === 'generic') {
+                // Either plugin or frontend editable element
+                const url = plugin[1].urls.edit_plugin;
+                const id = plugin[1].plugin_id;
+                let wrapper;
+
+                if (plugin[1].type === 'plugin' && plugin[1].plugin_type === 'TextPlugin') {
+                    // Text plugin
+                    const elements = document.querySelectorAll('.cms-plugin.' + plugin[0]);
+                    wrapper = this._initInlineRichText(elements, url, plugin[0]);
+                    if (wrapper) {
+                        wrapper.dataset.cmsPluginId = id;
+                        wrapper.dataset.cmsType = 'TextPlugin';
+                    }
+                } else if (plugin[1].type === 'generic') {
+                    // Frontend editable element
+                    const edit_fields = new URL(url.replace('&amp;', '&'), 'https://random-base.org')
+                        .searchParams.get('edit_fields');  // Get the edit_fields parameter from the URL
+                    if (edit_fields && edit_fields.indexOf(',') === -1 && edit_fields !== 'changelist') {
+                        // Single field
+                        const generic_class = plugin[0].split('-');
+                        const search_key = `${generic_class[2]}-${generic_class[3]}-${edit_fields}`;
+                        if (generic_inline_fields[search_key]) {
+                            // Inline editable?
+                            wrapper = this._initInlineRichText(document.getElementsByClassName(plugin[0]), url, plugin[0]);
+                            if (wrapper) {
+                                wrapper.dataset.cmsCsrfToken = this.CMS.config.csrf;
+                                wrapper.dataset.cmsField = edit_fields;
+                                wrapper.dataset.cmsType = (
+                                    generic_inline_fields[search_key] === 'HTMLFormField' ?
+                                        'HTMLField' : generic_inline_fields[search_key]
+                                );
+                                wrapper.dataset.settings = 'cms-cfg-htmlfield-inline';
+                            }
+                        }
+                    }
+                }
+
+                if (wrapper) {
+                    // Catch CMS single click event to highlight the plugin
+                    // Catch CMS double click event if present, since double click is needed by Editor
+                    if (!Array.from(this.observer.root?.children || []).includes(wrapper)) {
+                        // Only add to the observer if not already observed (e.g., if the page only was update partially)
+                        this.observer.observe(wrapper);
+                        if (this.CMS) {
+                            // Remove django CMS core's double click event handler which opens an edit dialog
+                            this.CMS.$(wrapper).off('dblclick.cms.plugin')
+                                .on('dblclick.cms-editor', function (event) {
+                                    event.stopPropagation();
+                                });
+                            wrapper.addEventListener('focusin', () => {
+                                this._highlightTextplugin(id);
+                            }, true);
+                            // Prevent tooltip on hover
+                            this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
+                                .on('pointerover.cms-editor', function (event) {
+                                    window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
+                                    event.stopPropagation();
+                                });
+                        }
+                    }
+                }
+            }
+        }, this);
+
+        window.addEventListener('beforeunload', (event) =>  {
+            if (document.querySelector('.cms-editor-inline-wrapper[data-changed="true"]')) {
+                event.preventDefault();
+                event.returnValue = true;
+                return 'Do you really want to leave this page?';
+            }
+        });
+    }
+
+    _initInlineRichText(elements, url, cls) {
+        let wrapper;
+
+        if (elements.length > 0) {
+            if (elements.length === 1 && (
+                elements[0].tagName === 'DIV' || // Single wrapping div
+                elements[0].tagName === 'CMS-PLUGIN' ||  // Single wrapping cms-plugin tag
+                elements[0].classList.contains('cms-editor-inline-wrapper')  // already wrapped
+            )) {
+                // already wrapped?
+                wrapper = elements[0];
+                wrapper.classList.add('cms-editor-inline-wrapper');
+            } else {  // no, wrap now!
+                wrapper = document.createElement('div');
+                wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
+                wrapper.classList.add('cms-plugin', cls);
+                wrapper = this._wrapAll(elements, wrapper);
+            }
+            wrapper.dataset.cmsEditUrl = url;
+            return wrapper;
+        }
+        // No elements found
+        return undefined;
+    }
+
+    _createRTE(el) {
         const settings = this.getSettings(el);
         // Element options overwrite
         settings.options = Object.assign({},
@@ -153,142 +284,27 @@ class CMSEditor {
         const inModal = !!document.querySelector(
             '.app-djangocms_text.model-text.change-form #' + el.id
         );
+        // Get content: json > textarea > innerHTML
+        let content;
 
-        // Create editor
-        if (!el.dataset.cmsType ||el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
-            window.cms_editor_plugin.create(
-                el,
-                inModal,
-                content, settings,
-                el.tagName !== 'TEXTAREA' ? () => this.saveData(el) : () => {
-                }
-            );
-        } else if (el.dataset.cmsType === 'CharField') {
-            this._generic_editors.push(new CmsTextEditor(el, {
-                    spellcheck: el.dataset.spellcheck || 'false',
-                },
-                (el) => this.saveData(el)
-            ));
+        if (el.dataset.json) {
+            content = JSON.parse(el.dataset.json);
+        } else  {
+            content = el.innerHTML;
         }
-        this._editors.push(el);
-    }
-
-    // CMS Editor: initInlineEditors
-    // Register all plugins on the page for inline editing
-    // This is called from init_all
-    initInlineEditors() {
-        if (this.CMS === undefined || this.CMS._plugins === undefined) {
-            // Check the CMS frontend for plugins
-            // no plugins -> no inline editors
-            return;
+        if (el.tagName === 'TEXTAREA') {
+            el.visible = false;
+            content = el.value;
+            // el = el.insertAdjacentElement('afterend', document.createElement('div'));
         }
 
-        this.observer = this.observer || new IntersectionObserver( (entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    this.init(entry.target);
-                }
-            }, this);
-        }, {
-            root: null,
-            threshold: 0.05
-        });
-
-        let generic_inline_fields = document.getElementById('cms-generic-inline-fields') || {};
-        if (generic_inline_fields) {
-            generic_inline_fields = JSON.parse(generic_inline_fields.textContent || '{}');
-        }
-
-        this.CMS._plugins.forEach(function (plugin) {
-            if (plugin[1].type === 'plugin' || plugin[1].type === 'generic') {
-                // Either plugin or frontend editable element
-                const url = plugin[1].urls.edit_plugin;
-                const id = plugin[1].plugin_id;
-                let wrapper;
-
-                if (plugin[1].type === 'plugin' && plugin[1].plugin_type === 'TextPlugin') {
-                    // Text plugin
-                    const elements = document.querySelectorAll('.cms-plugin.cms-plugin-' + id);
-                    wrapper = this._initInlineRichText(elements, url, id);
-                    if (wrapper) {
-                        wrapper.dataset.cmsPluginId = id;
-                        wrapper.dataset.cmsType = 'TextPlugin';
-                    }
-                } else if (plugin[1].type === 'generic') {
-                    // Frontend editable element
-                    const edit_fields = new URL(url.replace('&amp;', '&'), 'https://random-base.org')
-                        .searchParams.get('edit_fields');  // Get the edit_fields parameter from the URL
-                    if (edit_fields && edit_fields.indexOf(',') === -1 && edit_fields !== 'changelist') {
-                        // Single field
-                        const generic_class = plugin[0].split('-');
-                        const search_key = `${generic_class[2]}-${generic_class[3]}-${edit_fields}`;
-                        if (generic_inline_fields[search_key]) {
-                            // Inline editable?
-                            wrapper = this._initInlineRichText(document.getElementsByClassName(plugin[0]), url, id);
-                            if (wrapper) {
-                                wrapper.dataset.cmsCsrfToken = this.CMS.config.csrf;
-                                wrapper.dataset.cmsField = edit_fields;
-                                wrapper.dataset.cmsType = (
-                                    generic_inline_fields[search_key] === 'HTMLFormField' ?
-                                        'HTMLField' : generic_inline_fields[search_key]
-                                );
-                                wrapper.dataset.settings = 'cms-cfg-htmlfield-inline';
-                            }
-                        }
-                    }
-                }
-
-                if (wrapper) {
-                    // Catch CMS single click event to highlight the plugin
-                    // Catch CMS double click event if present, since double click is needed by Editor
-                    this.observer.observe(wrapper);
-                    if (this.CMS) {
-                        // Remove django CMS core's double click event handler which opens an edit dialog
-                        this.CMS.$(wrapper).off('dblclick.cms.plugin')
-                            .on('dblclick.cms-editor', function (event) {
-                            event.stopPropagation();
-                        });
-                        wrapper.addEventListener('focusin.cms-editor', () => {
-                            this._highlightTextplugin(id);
-                        }, true);
-                        // Prevent tooltip on hover
-                        this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
-                            .on('pointerover.cms-editor', function (event) {
-                                window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
-                                event.stopPropagation();
-                            });
-                    }
-                }
+        window.cms_editor_plugin.create(
+            el,
+            inModal,
+            content, settings,
+            el.tagName !== 'TEXTAREA' ? () => this.saveData(el) : () => {
             }
-        }, this);
-
-        window.addEventListener('beforeunload', (event) =>  {
-            if (document.querySelector('.cms-editor-inline-wrapper[data-changed="true"]')) {
-                event.preventDefault();
-                event.returnValue = true;
-                return 'Do you really want to leave this page?';
-            }
-        });
-    }
-
-    _initInlineRichText(elements, url, id) {
-        let wrapper;
-
-        if (elements.length > 0) {
-            if (elements.length === 1 && elements[0].tagName === 'DIV' || elements[0].tagName === 'CMS-PLUGIN') {
-                // already wrapped?
-                wrapper = elements[0];
-                wrapper.classList.add('cms-editor-inline-wrapper');
-            } else {  // no, wrap now!
-                wrapper = document.createElement('div');
-                wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
-                wrapper = this._wrapAll(elements, wrapper);
-            }
-            wrapper.dataset.cmsEditUrl = url;
-            return wrapper;
-        }
-        // No elements found
-        return undefined;
+        );
     }
 
     /**
@@ -315,11 +331,15 @@ class CMSEditor {
             this._editor_settings[el.id] = Object.assign(
                 {},
                 this._global_settings,
-                JSON.parse(settings_el.textContent) || {}
+                JSON.parse(settings_el.textContent || '{}')
             );
-            return this._editor_settings[el.id];
+        } else {
+            this._editor_settings[el.id] = Object.assign(
+                {},
+                this._global_settings,
+            );
         }
-        return {};
+        return this._editor_settings[el.id];
     }
 
     /**
@@ -336,11 +356,16 @@ class CMSEditor {
 
     // CMS Editor: destroy
     destroyAll() {
-        while (this._editors.length) {
-            const el = this._editors.pop();
-            this.destroyGenericEditor(el);
+        this.destroyRTE();
+        this.destroyGenericEditor();
+    }
+
+    destroyRTE() {
+        for (const el of Object.keys(this._editor_settings)) {
+            const element = document.getElementById(el);
             window.cms_editor_plugin.destroyEditor(el);
         }
+        this._editor_settings = {};
     }
 
     // CMS Editor: destroyGenericEditor
@@ -611,7 +636,6 @@ class CMSEditor {
 
     // CMS Editor: resetInlineEditors
     _resetInlineEditors () {
-        this.destroyAll();
         this.initAll();
     }
 
@@ -627,7 +651,7 @@ class CMSEditor {
     }
 
     _highlightTextplugin (pluginId) {
-        const HIGHLIGHT_TIMEOUT = 800;
+        const HIGHLIGHT_TIMEOUT = 100;
 
         if (this.CMS) {
             const $ = this.CMS.$;
@@ -683,5 +707,5 @@ class CMSEditor {
 
 
 // Create global editor object
-window.CMS_Editor = new CMSEditor();
+window.CMS_Editor = window.CMS_Editor || new CMSEditor();
 

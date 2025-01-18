@@ -1,3 +1,7 @@
+/* eslint-env es11 */
+/* jshint esversion: 11 */
+/* global window, document, fetch, IntersectionObserver, URLSearchParams, console */
+
 import TiptapToolbar from "../../private/js/tiptap_plugins/cms.tiptap.toolbar";
 import CMSEditor from '../../private/js/cms.editor';
 import CMSTipTapPlugin from '../../private/js/cms.tiptap';
@@ -7,7 +11,7 @@ describe('Tiptap toolbar items', () => {
 
     beforeEach(() => {
         document.body.innerHTML = `
-            <div id="cms-editor-cfg">{"some": "config"}</div>
+            <script id="cms-editor-cfg" type="application/json">{"some": "config"}</script>
             <textarea class="CMS_Editor" id="editor1"></textarea>
         `;
         editor = window.CMS_Editor;
@@ -20,7 +24,7 @@ describe('Tiptap toolbar items', () => {
     it('initializes a single editor', () => {
         const el = document.getElementById('editor1');
         editor.init(el);
-        expect(editor._editors.length).toBe(1);
+        expect(Object.keys(editor._editor_settings).length).toBe(1);
     });
 
     it('can execute all commands', () => {

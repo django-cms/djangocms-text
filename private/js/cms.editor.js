@@ -15,10 +15,9 @@ class CMSEditor {
     // CMS Editor: constructor
     // Initialize the editor object
     constructor() {
-        this._editors = [];
-        this._generic_editors = [];
         this._global_settings = {};
         this._editor_settings = {};
+        this._generic_editors = {};
         this._admin_selector = 'textarea.CMS_Editor';
         this._admin_add_row_selector = 'body.change-form .add-row a';
         this._inline_admin_selector = 'body.change-form .form-row';
@@ -94,87 +93,25 @@ class CMSEditor {
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
-        let content;
 
-        if (this._editors.includes(el)) {
-            // Already initialized - happens when an inline editor is scrolled back into the viewport
-            return;
-        }
-        // Get content: json > textarea > innerHTML
-        if (el.dataset.json) {
-            content = JSON.parse(el.dataset.json);
-        } else  {
-            content = el.innerHTML;
-        }
-        if (el.tagName === 'TEXTAREA') {
-            el.visible = false;
-            content = el.value;
-            // el = el.insertAdjacentElement('afterend', document.createElement('div'));
-        }
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }
-        const settings = this.getSettings(el);
-        // Element options overwrite
-        settings.options = Object.assign({},
-            settings.options || {},
-            JSON.parse(el.dataset.options || '{}')
-        );
-
-        // Add event listener to delete data on modal cancel
-        if (settings.revert_on_cancel) {
-            const CMS = this.CMS;
-            const csrf = CMS.config?.csrf || document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-            CMS.API.Helpers.addEventListener(
-                'modal-close.text-plugin.text-plugin-' + settings.plugin_id,
-                function(e, opts) {
-                    if (!settings.revert_on_cancel || !settings.cancel_plugin_url) {
-                        return;
-                    }
-                    CMS.$.ajax({
-                        method: 'POST',
-                        url: settings.cancel_plugin_url,
-                        data: {
-                            token: settings.action_token,
-                            csrfmiddlewaretoken: csrf
-                        },
-                    }).done(function () {
-                        CMS.API.Helpers.removeEventListener(
-                            'modal-close.text-plugin.text-plugin-' + settings.plugin_id
-                        );
-                        opts.instance.close();
-                    }).fail(function (res) {
-                        CMS.API.Messages.open({
-                            message: res.responseText + ' | ' + res.status + ' ' + res.statusText,
-                            delay: 0,
-                            error: true
-                        });
-                    });
-
-                }
-            );
+        if (el.id in this._editor_settings) {
+            // Already initialized - happens when an inline editor is scrolled back into the viewport
+            return;
         }
-        const inModal = !!document.querySelector(
-            '.app-djangocms_text.model-text.change-form #' + el.id
-        );
-
         // Create editor
-        if (!el.dataset.cmsType ||el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
-            window.cms_editor_plugin.create(
-                el,
-                inModal,
-                content, settings,
-                el.tagName !== 'TEXTAREA' ? () => this.saveData(el) : () => {
-                }
-            );
+        if (!el.dataset.cmsType || el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
+            this._createRTE(el);
         } else if (el.dataset.cmsType === 'CharField') {
-            this._generic_editors.push(new CmsTextEditor(el, {
+            // Creat simple generic text editor
+            this._generic_editors[el.id] = new CmsTextEditor(el, {
                     spellcheck: el.dataset.spellcheck || 'false',
                 },
                 (el) => this.saveData(el)
-            ));
+            );
         }
-        this._editors.push(el);
     }
 
     // CMS Editor: initInlineEditors
@@ -245,7 +182,7 @@ class CMSEditor {
                 if (wrapper) {
                     // Catch CMS single click event to highlight the plugin
                     // Catch CMS double click event if present, since double click is needed by Editor
-                    if (!Array.from(observer.root?.children || []).includes(wrapper)) {
+                    if (!Array.from(this.observer.root?.children || []).includes(wrapper)) {
                         // Only add to the observer if not already observed (e.g., if the page only was update partially)
                         this.observer.observe(wrapper);
                         if (this.CMS) {
@@ -303,6 +240,73 @@ class CMSEditor {
         return undefined;
     }
 
+    _createRTE(el) {
+        const settings = this.getSettings(el);
+        // Element options overwrite
+        settings.options = Object.assign({},
+            settings.options || {},
+            JSON.parse(el.dataset.options || '{}')
+        );
+
+        // Add event listener to delete data on modal cancel
+        if (settings.revert_on_cancel) {
+            const CMS = this.CMS;
+            const csrf = CMS.config?.csrf || document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            CMS.API.Helpers.addEventListener(
+                'modal-close.text-plugin.text-plugin-' + settings.plugin_id,
+                function(e, opts) {
+                    if (!settings.revert_on_cancel || !settings.cancel_plugin_url) {
+                        return;
+                    }
+                    CMS.$.ajax({
+                        method: 'POST',
+                        url: settings.cancel_plugin_url,
+                        data: {
+                            token: settings.action_token,
+                            csrfmiddlewaretoken: csrf
+                        },
+                    }).done(function () {
+                        CMS.API.Helpers.removeEventListener(
+                            'modal-close.text-plugin.text-plugin-' + settings.plugin_id
+                        );
+                        opts.instance.close();
+                    }).fail(function (res) {
+                        CMS.API.Messages.open({
+                            message: res.responseText + ' | ' + res.status + ' ' + res.statusText,
+                            delay: 0,
+                            error: true
+                        });
+                    });
+
+                }
+            );
+        }
+        const inModal = !!document.querySelector(
+            '.app-djangocms_text.model-text.change-form #' + el.id
+        );
+        // Get content: json > textarea > innerHTML
+        let content;
+
+        if (el.dataset.json) {
+            content = JSON.parse(el.dataset.json);
+        } else  {
+            content = el.innerHTML;
+        }
+        if (el.tagName === 'TEXTAREA') {
+            el.visible = false;
+            content = el.value;
+            // el = el.insertAdjacentElement('afterend', document.createElement('div'));
+        }
+
+        window.cms_editor_plugin.create(
+            el,
+            inModal,
+            content, settings,
+            el.tagName !== 'TEXTAREA' ? () => this.saveData(el) : () => {
+            }
+        );
+    }
+
     /**
      * Retrieves the settings for the given editor.
      * If the element is a string, it will be treated as an element's ID.
@@ -327,11 +331,15 @@ class CMSEditor {
             this._editor_settings[el.id] = Object.assign(
                 {},
                 this._global_settings,
-                JSON.parse(settings_el.textContent) || {}
+                JSON.parse(settings_el.textContent || '{}')
             );
-            return this._editor_settings[el.id];
+        } else {
+            this._editor_settings[el.id] = Object.assign(
+                {},
+                this._global_settings,
+            );
         }
-        return {};
+        return this._editor_settings[el.id];
     }
 
     /**
@@ -348,11 +356,16 @@ class CMSEditor {
 
     // CMS Editor: destroy
     destroyAll() {
-        while (this._editors.length) {
-            const el = this._editors.pop();
-            this.destroyGenericEditor(el);
+        this.destroyRTE();
+        this.destroyGenericEditor();
+    }
+
+    destroyRTE() {
+        for (const el of Object.keys(this._editor_settings)) {
+            const element = document.getElementById(el);
             window.cms_editor_plugin.destroyEditor(el);
         }
+        this._editor_settings = {};
     }
 
     // CMS Editor: destroyGenericEditor
@@ -694,5 +707,5 @@ class CMSEditor {
 
 
 // Create global editor object
-window.CMS_Editor = new CMSEditor();
+window.CMS_Editor = window.CMS_Editor || new CMSEditor();
 

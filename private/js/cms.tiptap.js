@@ -285,4 +285,4 @@ class CMSTipTapPlugin {
 }
 
 
-window.cms_editor_plugin = new CMSTipTapPlugin({});
+window.cms_editor_plugin = window.cms_editor_plugin || new CMSTipTapPlugin({});

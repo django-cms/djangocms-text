@@ -1,3 +1,7 @@
+/* eslint-env es11 */
+/* jshint esversion: 11 */
+/* global window, document, fetch, IntersectionObserver, URLSearchParams, console */
+
 import CMSEditor from '../../private/js/cms.editor';
 import CMSTipTapPlugin from '../../private/js/cms.tiptap';
 
@@ -18,32 +22,42 @@ describe('CMSEditor', () => {
 
     beforeEach(() => {
         document.body.innerHTML = `
-            <div id="cms-editor-cfg">{"some": "config"}</div>
+            <script id="cms-editor-cfg" type="application/json">{"some": "config"}</script>
             <textarea class="CMS_Editor" id="editor1"></textarea>
             <textarea class="CMS_Editor" id="editor2"></textarea>
         `;
+
+        window.dispatchEvent(new Event('DOMContentLoaded'));
+
         editor = window.CMS_Editor;
+        editor._editor_settings = {};
+
     });
 
     afterEach(() => {
         editor.destroyAll();
     });
 
+    it('reads global settings', () => {
+        editor.initAll();
+        expect(window.CMS_Editor._global_settings).toEqual({some: 'config'});
+    });
+
     it('initializes all editors on the page', () => {
         editor.initAll();
-        expect(editor._editors.length).toBe(2);
+        expect(Object.keys(editor._editor_settings).length).toBe(2);
     });
 
     it('initializes a single editor', () => {
         const el = document.getElementById('editor1');
         editor.init(el);
-        expect(editor._editors.length).toBe(1);
+        expect(Object.keys(editor._editor_settings).length).toBe(1);
     });
 
     it('destroys all editors', () => {
         editor.initAll();
         editor.destroyAll();
-        expect(editor._editors.length).toBe(0);
+        expect(Object.keys(editor._editor_settings).length).toBe(0);
     });
 
     it('handles plugin form loading', (done) => {
@@ -68,7 +82,7 @@ describe('CMSEditor', () => {
     it('resets inline editors', () => {
         editor.initAll();
         editor._resetInlineEditors();
-        expect(editor._editors.length).toBe(2);
+        expect(Object.keys(editor._editor_settings).length).toBe(2);
     });
 
     it('highlights text plugin', () => {

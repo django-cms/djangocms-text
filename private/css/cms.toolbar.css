@@ -17,6 +17,8 @@
 
     [role="menubar"] {
         bottom: calc(100% - 1px);
+        min-width: 375px;
+        z-index: 1;
         padding: 2px 0.4rem;
         /* border-radius: 3px; */
         margin: 0 !important;

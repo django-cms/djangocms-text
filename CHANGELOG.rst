@@ -2,9 +2,17 @@
 Changelog
 =========
 
+0.5.3 (18-01-2025)
+==================
+* fix: Markup error disabled the block toolbar in inline editing
+* fix: Handle partial page updates
+
 0.5.2 (16-01-2025)
 ==================
 
+* feat: Add text color from list of options by @fsbraun in https://github.com/django-cms/djangocms-text/pull/48
+* feat: allows an ``admin_css: tuple`` in ``RTEConfig`` for a list of CSS files only to be loaded into the admin for the editor by @fsbraun in https://github.com/django-cms/djangocms-text/pull/49
+* feat: Add configurable block and inline styles for Tiptap by @fsbraun in https://github.com/django-cms/djangocms-text/pull/51
 * fix: Update CKEditor4 vendor files to work with CMS plugins
 * fix: Update icon paths for CKEditor4
 

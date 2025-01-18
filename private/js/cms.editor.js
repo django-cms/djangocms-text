@@ -96,6 +96,10 @@ class CMSEditor {
     init (el) {
         let content;
 
+        if (this._editors.includes(el)) {
+            // Already initialized - happens when an inline editor is scrolled back into the viewport
+            return;
+        }
         // Get content: json > textarea > innerHTML
         if (el.dataset.json) {
             content = JSON.parse(el.dataset.json);
@@ -241,22 +245,25 @@ class CMSEditor {
                 if (wrapper) {
                     // Catch CMS single click event to highlight the plugin
                     // Catch CMS double click event if present, since double click is needed by Editor
-                    this.observer.observe(wrapper);
-                    if (this.CMS) {
-                        // Remove django CMS core's double click event handler which opens an edit dialog
-                        this.CMS.$(wrapper).off('dblclick.cms.plugin')
-                            .on('dblclick.cms-editor', function (event) {
-                            event.stopPropagation();
-                        });
-                        wrapper.addEventListener('focusin.cms-editor', () => {
-                            this._highlightTextplugin(id);
-                        }, true);
-                        // Prevent tooltip on hover
-                        this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
-                            .on('pointerover.cms-editor', function (event) {
-                                window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
-                                event.stopPropagation();
-                            });
+                    if (!Array.from(observer.root?.children || []).includes(wrapper)) {
+                        // Only add to the observer if not already observed (e.g., if the page only was update partially)
+                        this.observer.observe(wrapper);
+                        if (this.CMS) {
+                            // Remove django CMS core's double click event handler which opens an edit dialog
+                            this.CMS.$(wrapper).off('dblclick.cms.plugin')
+                                .on('dblclick.cms-editor', function (event) {
+                                    event.stopPropagation();
+                                });
+                            wrapper.addEventListener('focusin', () => {
+                                this._highlightTextplugin(id);
+                            }, true);
+                            // Prevent tooltip on hover
+                            this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
+                                .on('pointerover.cms-editor', function (event) {
+                                    window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
+                                    event.stopPropagation();
+                                });
+                        }
                     }
                 }
             }
@@ -275,7 +282,11 @@ class CMSEditor {
         let wrapper;
 
         if (elements.length > 0) {
-            if (elements.length === 1 && elements[0].tagName === 'DIV' || elements[0].tagName === 'CMS-PLUGIN') {
+            if (elements.length === 1 && (
+                elements[0].tagName === 'DIV' || // Single wrapping div
+                elements[0].tagName === 'CMS-PLUGIN' ||  // Single wrapping cms-plugin tag
+                elements[0].classList.contains('cms-editor-inline-wrapper')  // already wrapped
+            )) {
                 // already wrapped?
                 wrapper = elements[0];
                 wrapper.classList.add('cms-editor-inline-wrapper');
@@ -627,7 +638,7 @@ class CMSEditor {
     }
 
     _highlightTextplugin (pluginId) {
-        const HIGHLIGHT_TIMEOUT = 800;
+        const HIGHLIGHT_TIMEOUT = 100;
 
         if (this.CMS) {
             const $ = this.CMS.$;

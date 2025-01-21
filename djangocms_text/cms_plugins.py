@@ -1,6 +1,7 @@
 import json
 import operator
 import re
+from functools import lru_cache
 
 from django.apps import apps
 from django.contrib.admin.utils import unquote
@@ -576,6 +577,7 @@ class TextPlugin(CMSPluginBase):
         )
 
     @classmethod
+    @lru_cache
     def get_child_plugin_candidates(cls, slot, page):
         """
 
@@ -617,9 +619,10 @@ class TextPlugin(CMSPluginBase):
         if not plugin or not TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support:
             return []
         get_plugin = plugin_pool.get_plugin
+        page = self.placeholder.page if hasattr(self.placeholder, "page") else None
         child_plugin_types = self.get_child_classes(
             slot=plugin.placeholder.slot,
-            page=self.page,
+            page=page,
         )
         child_plugins = (get_plugin(name) for name in child_plugin_types)
         template = getattr(self.page, "template", None)

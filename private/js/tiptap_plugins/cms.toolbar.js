@@ -413,9 +413,7 @@ function _createToolbarButton(editor, itemName, filter) {
             </form>`;
         }
         const content = repr.icon || `<span>${repr.title}</span>`;
-        return `<button tabindex="-1" data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}">
-                        ${content}${form}
-                    </button>`;
+        return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}">${content}${form}</button>`;
     }
     return '';
 }

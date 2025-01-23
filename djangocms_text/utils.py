@@ -5,8 +5,17 @@ from functools import WRAPPER_ASSIGNMENTS, wraps
 from django.template.defaultfilters import force_escape
 from django.template.loader import render_to_string
 
-from cms import __version__
-from cms.utils.urlutils import admin_reverse
+try:
+    from cms import __version__
+    from cms.utils.urlutils import admin_reverse
+except ModuleNotFoundError:
+    from django.urls import reverse
+
+    __version__ = "0"
+
+    def admin_reverse(viewname, args=None, kwargs=None, current_app=None):
+        return reverse(f"admin:{viewname}", args, kwargs, current_app)
+
 
 from classytags.utils import flatten_context
 from packaging.version import Version

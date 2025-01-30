@@ -1,8 +1,10 @@
 import re
 from collections import OrderedDict
 from functools import WRAPPER_ASSIGNMENTS, wraps
+from typing import Optional
 
 from django.template.defaultfilters import force_escape
+from django.template import Context
 from django.template.loader import render_to_string
 
 try:
@@ -15,7 +17,6 @@ except ModuleNotFoundError:
 
     def admin_reverse(viewname, args=None, kwargs=None, current_app=None):
         return reverse(f"admin:{viewname}", args, kwargs, current_app)
-
 
 from classytags.utils import flatten_context
 from packaging.version import Version
@@ -33,11 +34,11 @@ else:
     cms_placeholder_add_plugin = "cms_page_add_plugin"
 
 
-def _render_cms_plugin(plugin, context):
+def _render_cms_plugin(plugin: CMSPlugin, context):
     context = flatten_context(context)
     context["plugin"] = plugin
 
-    # This my fellow ckeditor enthusiasts is a hack..
+    # This my fellow enthusiasts is a hack..
 
     # If I let djangoCMS render the plugin using {% render_plugin %}
     # it will wrap the output in the toolbar markup which we don't want.
@@ -56,7 +57,7 @@ def _render_cms_plugin(plugin, context):
     return response
 
 
-def random_comment_exempt(view_func):
+def random_comment_exempt(view_func: callable) -> callable:
     # Borrowed from
     # https://github.com/lpomfrey/django-debreach/blob/f778d77ffc417/debreach/decorators.py#L21
     # This is a no-op if django-debreach is not installed
@@ -68,7 +69,7 @@ def random_comment_exempt(view_func):
     return wraps(view_func, assigned=WRAPPER_ASSIGNMENTS)(wrapped_view)
 
 
-def plugin_to_tag(obj, content="", admin=False):
+def plugin_to_tag(obj: CMSPlugin, content: str = "", admin: bool = False):
     plugin_attrs = OrderedDict(
         id=obj.pk,
         icon_alt=force_escape(obj.get_instance_icon_alt()),
@@ -101,13 +102,16 @@ def plugin_tags_to_id_list(text, regex=OBJ_ADMIN_RE):
     return [int(_id) for _id in _find_plugins()]
 
 
-def _plugin_tags_to_html(text, output_func):
+def _plugin_tags_to_html(text: str, output_func: callable, child_plugin_instances: Optional[list[CMSPlugin]]) -> str:
     """
     Convert plugin object 'tags' into the form for public site.
 
     context is the template context to use, placeholder is the placeholder name
     """
-    plugins_by_id = get_plugins_from_text(text)
+    if child_plugin_instances is not None:
+        plugins_by_id = {plugin.pk: plugin for plugin in child_plugin_instances}
+    else:
+        plugins_by_id = get_plugins_from_text(text)
 
     def _render_tag(m):
         try:
@@ -124,29 +128,29 @@ def _plugin_tags_to_html(text, output_func):
     return OBJ_ADMIN_RE.sub(_render_tag, text)
 
 
-def plugin_tags_to_user_html(text, context):
+def plugin_tags_to_user_html(text: str, context: Context, child_plugin_instances: list[CMSPlugin]) -> str:
     def _render_plugin(obj, match):
         return _render_cms_plugin(obj, context)
 
-    return _plugin_tags_to_html(text, output_func=_render_plugin)
+    return _plugin_tags_to_html(text, output_func=_render_plugin, child_plugin_instances=child_plugin_instances)
 
 
-def plugin_tags_to_admin_html(text, context):
+def plugin_tags_to_admin_html(text: str, context: Context, child_plugin_instances: list[CMSPlugin]) -> str:
     def _render_plugin(obj, match):
         plugin_content = _render_cms_plugin(obj, context)
         return plugin_to_tag(obj, content=plugin_content, admin=True)
 
-    return _plugin_tags_to_html(text, output_func=_render_plugin)
+    return _plugin_tags_to_html(text, output_func=_render_plugin, child_plugin_instances=child_plugin_instances)
 
 
-def plugin_tags_to_db(text):
+def plugin_tags_to_db(text: str) -> str:
     def _strip_plugin_content(obj, match):
         return plugin_to_tag(obj).strip()
 
-    return _plugin_tags_to_html(text, output_func=_strip_plugin_content)
+    return _plugin_tags_to_html(text, output_func=_strip_plugin_content, child_plugin_instances=None)
 
 
-def replace_plugin_tags(text, id_dict, regex=OBJ_ADMIN_RE):
+def replace_plugin_tags(text: str, id_dict, regex: str = OBJ_ADMIN_RE) -> str:
     from cms.models import CMSPlugin
 
     plugins_by_id = CMSPlugin.objects.in_bulk(id_dict.values())

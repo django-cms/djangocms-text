@@ -317,6 +317,7 @@ class TextPlugin(CMSPluginBase):
             rendered_text = plugin_tags_to_admin_html(
                 text=instance.body,
                 context=context,
+                child_plugin_instances=instance.child_plugin_instances,
             )
         else:
             rendered_text = None
@@ -606,7 +607,8 @@ class TextPlugin(CMSPluginBase):
             ]
         return text_enabled_plugins
 
-    def render_plugin_icon(self, plugin):
+    @staticmethod
+    def render_plugin_icon(plugin):
         icon = getattr(plugin, "text_icon", None)
         if icon is None:
             return
@@ -683,7 +685,9 @@ class TextPlugin(CMSPluginBase):
 
             context.update(
                 {
-                    "body": plugin_tags_to_admin_html(body, context),
+                    "body": plugin_tags_to_admin_html(
+                        body, context, child_plugin_instances=instance.child_plugin_instances
+                    ),
                     "placeholder": placeholder,
                     "object": instance,
                     "editor_settings": editor_settings,
@@ -696,7 +700,9 @@ class TextPlugin(CMSPluginBase):
             body = render_dynamic_attributes(instance.body, admin_objects=False, remove_attr=True)
             context.update(
                 {
-                    "body": plugin_tags_to_user_html(body, context),
+                    "body": plugin_tags_to_user_html(
+                        body, context, child_plugin_instances=instance.child_plugin_instances
+                    ),
                     "placeholder": placeholder,
                     "object": instance,
                 }

@@ -685,7 +685,9 @@ class TextPlugin(CMSPluginBase):
 
             context.update(
                 {
-                    "body": plugin_tags_to_admin_html(body, context, child_plugin_instances=instance.child_plugin_instances),
+                    "body": plugin_tags_to_admin_html(
+                        body, context, child_plugin_instances=instance.child_plugin_instances
+                    ),
                     "placeholder": placeholder,
                     "object": instance,
                     "editor_settings": editor_settings,
@@ -698,7 +700,9 @@ class TextPlugin(CMSPluginBase):
             body = render_dynamic_attributes(instance.body, admin_objects=False, remove_attr=True)
             context.update(
                 {
-                    "body": plugin_tags_to_user_html(body, context, child_plugin_instances=instance.child_plugin_instances),
+                    "body": plugin_tags_to_user_html(
+                        body, context, child_plugin_instances=instance.child_plugin_instances
+                    ),
                     "placeholder": placeholder,
                     "object": instance,
                 }

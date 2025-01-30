@@ -62,7 +62,7 @@ def random_comment_exempt(view_func: callable) -> callable:
     return wraps(view_func, assigned=WRAPPER_ASSIGNMENTS)(wrapped_view)
 
 
-def plugin_to_tag(obj: CMSPlugin, content: str = "", admin:bool = False):
+def plugin_to_tag(obj: CMSPlugin, content: str = "", admin: bool = False):
     plugin_attrs = OrderedDict(
         id=obj.pk,
         icon_alt=force_escape(obj.get_instance_icon_alt()),
@@ -143,7 +143,7 @@ def plugin_tags_to_db(text: str) -> str:
     return _plugin_tags_to_html(text, output_func=_strip_plugin_content, child_plugin_instances=None)
 
 
-def replace_plugin_tags(text:str , id_dict, regex: str = OBJ_ADMIN_RE) -> str:
+def replace_plugin_tags(text: str, id_dict, regex: str = OBJ_ADMIN_RE) -> str:
     from cms.models import CMSPlugin
 
     plugins_by_id = CMSPlugin.objects.in_bulk(id_dict.values())

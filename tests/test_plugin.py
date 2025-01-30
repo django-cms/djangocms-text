@@ -576,7 +576,6 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
                 text_plugin.body,
                 new_plugin_content='<img src="">',
             )
-            print(overridden_text)
             endpoint = self.get_change_plugin_uri(text_plugin)
             response = self.client.post(endpoint, {"body": overridden_text})
             text_plugin.refresh_from_db()

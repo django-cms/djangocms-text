@@ -42,7 +42,7 @@ class CMSEditor {
                 this.CMS.$(window).on('cms-content-refresh', () => {
                     if (document.querySelector('template.cms-plugin')) {
                         // django CMS core does not wrap newly inserted inline editable fields
-                        this.CMS.API.Helpers.reloadBrowser();
+                        // this.CMS.API.Helpers.reloadBrowser();
                     } else {
                         this._resetInlineEditors();
                     }

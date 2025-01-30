@@ -99,7 +99,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         def _do_replace(obj, match):
             return plugin_to_tag(obj, content=new_plugin_content)
 
-        return _plugin_tags_to_html(text, output_func=_do_replace)
+        return _plugin_tags_to_html(text, output_func=_do_replace, child_plugin_instances=None)
 
     def add_plugin_to_text(self, text_plugin, plugin):
         text_plugin.body = f"{text_plugin.body} {plugin_to_tag(plugin)}"
@@ -488,6 +488,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             text_with_rendered_plugins = plugin_tags_to_admin_html(
                 text=text_plugin.body,
                 context=context,
+                child_plugin_instances=None,
             )
 
             endpoint = self.get_change_plugin_uri(text_plugin)
@@ -575,7 +576,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
                 text_plugin.body,
                 new_plugin_content='<img src="">',
             )
-
+            print(overridden_text)
             endpoint = self.get_change_plugin_uri(text_plugin)
             response = self.client.post(endpoint, {"body": overridden_text})
             text_plugin.refresh_from_db()
@@ -1144,7 +1145,7 @@ class TestGetChildPluginCandidates(BaseTestCase):
 
         with patch("djangocms_text.settings.TEXT_CHILDREN_WHITELIST", ["PluginA"]):
             candidates = TextPlugin.get_child_plugin_candidates(slot, page)
-            self.assertEqual(candidates, [plugin_a])
+            self.assertEqual(list(candidates), [plugin_a])
 
     @patch("cms.plugin_pool.plugin_pool.get_text_enabled_plugins")
     def test_get_child_plugin_candidates_blacklist(self, get_text_enabled_plugins_mock):
@@ -1157,7 +1158,7 @@ class TestGetChildPluginCandidates(BaseTestCase):
 
         with patch("djangocms_text.settings.TEXT_CHILDREN_BLACKLIST", ["PluginA"]):
             candidates = TextPlugin.get_child_plugin_candidates(slot, page)
-            self.assertEqual(candidates, [plugin_b])
+            self.assertEqual(list(candidates), [plugin_b])
 
     @patch("cms.plugin_pool.plugin_pool.get_text_enabled_plugins")
     def test_get_child_plugin_candidates_no_whitelist_blacklist(self, get_text_enabled_plugins_mock):
@@ -1171,4 +1172,4 @@ class TestGetChildPluginCandidates(BaseTestCase):
         with patch("djangocms_text.settings.TEXT_CHILDREN_WHITELIST", None):
             with patch("djangocms_text.settings.TEXT_CHILDREN_BLACKLIST", []):
                 candidates = TextPlugin.get_child_plugin_candidates(slot, page)
-                self.assertEqual(candidates, [plugin_a, plugin_b])
+                self.assertEqual(list(candidates), [plugin_a, plugin_b])

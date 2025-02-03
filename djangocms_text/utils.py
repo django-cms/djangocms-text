@@ -80,7 +80,7 @@ def plugin_to_tag(obj: CMSPlugin, content: str = "", admin: bool = False):
         plugin_attrs["preview"] = "true" if preview else "false"
         plugin_attrs["type"] = plugin_class.__name__
     else:
-        plugin_tag = '<cms-plugin alt="%(icon_alt)s" ' 'title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
+        plugin_tag = '<cms-plugin alt="%(icon_alt)s" title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
     return plugin_tag % plugin_attrs
 
 

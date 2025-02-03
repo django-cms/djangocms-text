@@ -135,7 +135,7 @@ class TextEditorWidget(forms.Textarea):
 
         self.editor_class = "CMS_Editor"
         if self.editor_class not in attrs.get("class", "").join(" "):
-            new_class = f'{attrs.get("class", "")} {self.editor_class}'
+            new_class = f"{attrs.get('class', '')} {self.editor_class}"
             attrs["class"] = new_class.strip()
         self.editor_settings_id = f"cms-cfg-{pk if pk else attrs.get('id', uuid.uuid4())}"
         self.global_settings_id = "cms-editor-cfg"

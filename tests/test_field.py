@@ -16,13 +16,13 @@ class HtmlFieldTestCase(BaseTestCase):
 
 class FieldTestCase(BaseTestCase):
     text_normal = "<p>some non malicious text</p>"
-    text_with_iframe = "<p>some non malicious text</p>" '<iframe src="http://www.w3schools.com"></iframe>'
+    text_with_iframe = '<p>some non malicious text</p><iframe src="http://www.w3schools.com"></iframe>'
     text_with_iframe_escaped = (
-        "<p>some non malicious text</p>&lt;iframe " 'src="http://www.w3schools.com"&gt;&lt;/iframe&gt;'
+        '<p>some non malicious text</p>&lt;iframe src="http://www.w3schools.com"&gt;&lt;/iframe&gt;'
     )
-    text_with_script = "<p>some non malicious text</p>" '<script>alert("Hello! I am an alert box!");</script>'
+    text_with_script = '<p>some non malicious text</p><script>alert("Hello! I am an alert box!");</script>'
     text_with_script_escaped = (
-        "<p>some non malicious text</p>&lt;script&gt;" 'alert("Hello! I am an alert box!");&lt;/script&gt;'
+        '<p>some non malicious text</p>&lt;script&gt;alert("Hello! I am an alert box!");&lt;/script&gt;'
     )
 
     def test_model_field_text_is_safe(self):

@@ -33,7 +33,7 @@
 
     &.textarea.fixed .tiptap {
         padding-top: 0;
-        resize: vertical;
+        resize: both;
         overflow-x: visible;
         overflow-y: auto;
     }

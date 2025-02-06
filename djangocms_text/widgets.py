@@ -19,10 +19,12 @@ from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_
 from .utils import admin_reverse, cms_placeholder_add_plugin
 
 try:
-    from cms.utils.urlutils import  static_with_version
-except ModuleNotFoundError:
+    from cms.utils.urlutils import static_with_version
+except ModuleNotFoundError:  # pragma: no cover
+
     def static_with_version(path):
         return path
+
 
 rte_config = get_editor_config()
 #: The configuration for the text editor widget
@@ -138,7 +140,7 @@ class TextEditorWidget(forms.Textarea):
 
         self.editor_class = "CMS_Editor"
         if self.editor_class not in attrs.get("class", "").join(" "):
-            new_class = f'{attrs.get("class", "")} {self.editor_class}'
+            new_class = f"{attrs.get('class', '')} {self.editor_class}"
             attrs["class"] = new_class.strip()
         self.editor_settings_id = f"cms-cfg-{pk if pk else attrs.get('id', uuid.uuid4())}"
         self.global_settings_id = "cms-editor-cfg"

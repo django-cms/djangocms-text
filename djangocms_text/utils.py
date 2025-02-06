@@ -11,7 +11,7 @@ try:
     from cms import __version__
     from cms.models import CMSPlugin
     from cms.utils.urlutils import admin_reverse
-except ModuleNotFoundError:
+except ModuleNotFoundError:  # pragma: no cover
     from django.db import Model as CMSPlugin
     from django.urls import reverse
 
@@ -19,6 +19,7 @@ except ModuleNotFoundError:
 
     def admin_reverse(viewname, args=None, kwargs=None, current_app=None):
         return reverse(f"admin:{viewname}", args, kwargs, current_app)
+
 
 from classytags.utils import flatten_context
 from packaging.version import Version
@@ -89,7 +90,7 @@ def plugin_to_tag(obj: CMSPlugin, content: str = "", admin: bool = False):
         plugin_attrs["preview"] = "true" if preview else "false"
         plugin_attrs["type"] = plugin_class.__name__
     else:
-        plugin_tag = '<cms-plugin alt="%(icon_alt)s" ' 'title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
+        plugin_tag = '<cms-plugin alt="%(icon_alt)s" title="%(icon_alt)s" id="%(id)d">%(content)s</cms-plugin>'
     return plugin_tag % plugin_attrs
 
 

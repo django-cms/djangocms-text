@@ -72,7 +72,7 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
                 f"The TEXT_ADDITIONAL_TAGS setting is deprecated and will be removed in a future release.\n"
                 f"{change_msg}",
                 f"TEXT_ADDITIONAL_ATTRIBUTES = "
-                f"""{{{', '.join([f'"{tag}": set()' for tag in settings.TEXT_ADDITIONAL_TAGS])}\"}}\n""",
+                f"""{{{", ".join([f'"{tag}": set()' for tag in settings.TEXT_ADDITIONAL_TAGS])}\"}}\n""",
                 id="text.W001",
                 obj="settings.TEXT_ADDITIONAL_TAGS",
             )

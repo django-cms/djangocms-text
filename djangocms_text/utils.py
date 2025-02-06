@@ -6,11 +6,13 @@ from typing import Optional
 from django.template.defaultfilters import force_escape
 from django.template import Context
 from django.template.loader import render_to_string
+from django.urls import NoReverseMatch
 
 try:
     from cms import __version__
     from cms.models import CMSPlugin
     from cms.utils.urlutils import admin_reverse
+    from classytags.utils import flatten_context
 except ModuleNotFoundError:  # pragma: no cover
     from django.db import Model as CMSPlugin
     from django.urls import reverse
@@ -18,10 +20,12 @@ except ModuleNotFoundError:  # pragma: no cover
     __version__ = "0"
 
     def admin_reverse(viewname, args=None, kwargs=None, current_app=None):
-        return reverse(f"admin:{viewname}", args, kwargs, current_app)
+        try:
+            return reverse(f"admin:{viewname}", args, kwargs, current_app)
+        except NoReverseMatch:
+            return ""
 
 
-from classytags.utils import flatten_context
 from packaging.version import Version
 
 

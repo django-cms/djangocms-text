@@ -14,7 +14,7 @@ try:
     from cms.utils.urlutils import admin_reverse
     from classytags.utils import flatten_context
 except ModuleNotFoundError:  # pragma: no cover
-    from django.db import Model as CMSPlugin
+    from django.db.models import Model as CMSPlugin
     from django.urls import reverse
 
     __version__ = "0"

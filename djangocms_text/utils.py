@@ -9,8 +9,10 @@ from django.template.loader import render_to_string
 
 try:
     from cms import __version__
+    from cms.models import CMSPlugin
     from cms.utils.urlutils import admin_reverse
 except ModuleNotFoundError:
+    from django.db import Model as CMSPlugin
     from django.urls import reverse
 
     __version__ = "0"

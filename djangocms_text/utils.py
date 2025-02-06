@@ -162,7 +162,7 @@ def replace_plugin_tags(text: str, id_dict, regex: str = OBJ_ADMIN_RE) -> str:
             plugin_id = int(m.groupdict()["pk"])
             new_id = id_dict[plugin_id]
             plugin = plugins_by_id[new_id]
-        except KeyError:
+        except KeyError:  # pragma nocover
             # Object must have been deleted.  It cannot be rendered to
             # end user, or edited, so just remove it from the HTML
             # altogether

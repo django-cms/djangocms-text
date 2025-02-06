@@ -19,8 +19,6 @@ pytest-playwright>=0.4.0
 coverage
 tox
 
-# IMPORTANT: latest easy-thumbnails causes error since it returns with
-# floating point, but the tests are not prepared for this and even the lib
 easy-thumbnails
 
 # In order to run skipped tests uncomment the next lines:

@@ -6,6 +6,7 @@ class TextConfig(AppConfig):
     name = "djangocms_text"
     verbose_name = "django CMS Rich Text"
     default_auto_field = "django.db.models.BigAutoField"
+    inline_models: dict[str, str] = {}
 
     def ready(self):
         self.inline_models = discover_inline_editable_models()
@@ -13,14 +14,14 @@ class TextConfig(AppConfig):
         register(check_no_cms_config)
 
 
-def discover_inline_editable_models():
+def discover_inline_editable_models() -> dict[str, str]:
     # Find frontend-editable models and plugins
 
     from django.contrib.admin import site
 
     registered_inline_fields = ["HTMLFormField", "CharField"]
-    inline_models = {}
-    blacklist_apps = []
+    inline_models: dict[str, str] = {}
+    blacklist_apps: list[str] = []
 
     for model, modeladmin in site._registry.items():
         if model._meta.app_label in blacklist_apps:
@@ -57,14 +58,14 @@ def discover_inline_editable_models():
     return inline_models
 
 
-def check_ckeditor_settings(app_configs, **kwargs):  # pragma: no cover
+def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
     from django.conf import settings
 
     change_msg = (
         "Please use the TEXT_ADDITIONAL_ATTRIBUTES setting with a dictionary instead. "
         "Have an entry for each tag and specify allowed attributes for the tag as a set."
     )
-    warnings = []
+    warnings: list[Warning] = []
     if getattr(settings, "TEXT_ADDITIONAL_TAGS", None):
         warnings.append(
             Warning(
@@ -89,7 +90,7 @@ def check_ckeditor_settings(app_configs, **kwargs):  # pragma: no cover
     return warnings
 
 
-def check_no_cms_config(app_configs, **kwargs):  # pragma: no cover
+def check_no_cms_config(app_configs, **kwargs) -> list:  # pragma: no cover
     from django.conf import settings
 
     if "cms" in settings.INSTALLED_APPS:

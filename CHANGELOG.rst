@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.6.0 (06-02-2025)
+==================
+
+* fix: Remove cms imports where not necessary by @fsbraun in  https://github.com/django-cms/djangocms-text/pull/56
+* fix: Avoid downcasting of text-enabled child plugins if plugins are already downcasted by @fsbraun in https://github.com/django-cms/djangocms-text/pull/58
+
 0.5.3 (18-01-2025)
 ==================
 * fix: Markup error disabled the block toolbar in inline editing

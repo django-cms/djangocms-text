@@ -14,11 +14,16 @@ from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from django.utils.translation.trans_real import get_language, gettext
 
-from cms.utils.urlutils import admin_reverse, static_with_version
-
 from . import settings as text_settings
 from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_base_config, get_editor_config
-from .utils import cms_placeholder_add_plugin
+from .utils import admin_reverse, cms_placeholder_add_plugin
+
+try:
+    from cms.utils.urlutils import static_with_version
+except ModuleNotFoundError:  # pragma: no cover
+
+    def static_with_version(path):
+        return path
 
 
 rte_config = get_editor_config()

@@ -7,9 +7,19 @@ from django.template.defaultfilters import force_escape
 from django.template import Context
 from django.template.loader import render_to_string
 
-from cms import __version__
-from cms.models import CMSPlugin
-from cms.utils.urlutils import admin_reverse
+try:
+    from cms import __version__
+    from cms.models import CMSPlugin
+    from cms.utils.urlutils import admin_reverse
+except ModuleNotFoundError:  # pragma: no cover
+    from django.db import Model as CMSPlugin
+    from django.urls import reverse
+
+    __version__ = "0"
+
+    def admin_reverse(viewname, args=None, kwargs=None, current_app=None):
+        return reverse(f"admin:{viewname}", args, kwargs, current_app)
+
 
 from classytags.utils import flatten_context
 from packaging.version import Version
@@ -153,7 +163,7 @@ def replace_plugin_tags(text: str, id_dict, regex: str = OBJ_ADMIN_RE) -> str:
             plugin_id = int(m.groupdict()["pk"])
             new_id = id_dict[plugin_id]
             plugin = plugins_by_id[new_id]
-        except KeyError:
+        except KeyError:  # pragma: no cover
             # Object must have been deleted.  It cannot be rendered to
             # end user, or edited, so just remove it from the HTML
             # altogether

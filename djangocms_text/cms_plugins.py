@@ -579,7 +579,7 @@ class TextPlugin(CMSPluginBase):
 
     @classmethod
     @lru_cache
-    def get_child_plugin_candidates(cls, slot, page):
+    def get_child_plugin_candidates(cls, slot:str, page=None, template=None):
         """
 
         This method is a class method that returns a list of child plugin candidates for a given slot and page.
@@ -608,7 +608,7 @@ class TextPlugin(CMSPluginBase):
         return text_enabled_plugins
 
     @staticmethod
-    def render_plugin_icon(plugin):
+    def render_plugin_icon(plugin: CMSPluginBase):
         icon = getattr(plugin, "text_icon", None)
         if icon is None:
             return

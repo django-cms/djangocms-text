@@ -42,7 +42,7 @@ class CMSEditor {
                 this.CMS.$(window).on('cms-content-refresh', () => {
                     if (document.querySelector('template.cms-plugin')) {
                         // django CMS core does not wrap newly inserted inline editable fields
-                        // this.CMS.API.Helpers.reloadBrowser();
+                        this.CMS.API.Helpers.reloadBrowser();
                     } else {
                         this._resetInlineEditors();
                     }
@@ -499,7 +499,7 @@ class CMSEditor {
                         }
                     }
                     // Additional content for the page disrupts inline editing and needs to be removed
-                    delete this.CMS.API.Helpers.dataBridge.content;
+                    delete this.CMS.API.Helpers.dataBridge.structure.content;
 
                     if (this.CMS.settings.version.startsWith('3.')) {
                         /* Reflect dirty flag in django CMS < 4 */

@@ -230,7 +230,7 @@ class CMSEditor {
             } else {  // no, wrap now!
                 wrapper = document.createElement('div');
                 wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
-                wrapper.classList.add('cms-plugin', cls);
+                wrapper.classList.add('cms-plugin', cls, 'cms-plugin-start', 'cms-plugin-end');
                 wrapper = this._wrapAll(elements, wrapper);
             }
             wrapper.dataset.cmsEditUrl = url;

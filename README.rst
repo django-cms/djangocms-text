@@ -59,7 +59,7 @@ Upgrading from djangocms-text-ckeditor
 --------------------------------------
 
 djangocms-text's migrations automatically migrate existing text plugins
-from djangocms-text-ckeditor and clean up old tables. All you have to do is:
+from djangocms-text-ckeditor, and clean up old tables. All you have to do is:
 
 * uninstall ``djangocms-text-ckeditor``
 * remove ``djangocms_text_ckeditor`` from ``INSTALLED_APPS``

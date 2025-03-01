@@ -74,7 +74,6 @@ class CMSEditor {
             setTimeout(() => {
                 for (const el of document.querySelectorAll(this._admin_add_row_selector)) {
                     el.addEventListener('click', (event) => {
-                        console.log('add-row click', event);
                         setTimeout(() => {
                             document.querySelectorAll(this._admin_selector).forEach(
                                 (el) => this.init(el), this

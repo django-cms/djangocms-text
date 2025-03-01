@@ -41,7 +41,21 @@ const topLevelBlocks = {
 
 let _node_icons = null;
 
-
+/**
+ * Creates a ProseMirror Plugin for handling a block toolbar in the editor.
+ *
+ * @param {Object} editor - The editor instance.
+ * @returns {Plugin} - A ProseMirror Plugin instance.
+ *
+ * @property {Object} props - Plugin properties.
+ * @property {Function} props.decorations - Function to get the current state of decorations.
+ * @property {Object} props.handleDOMEvents - Object containing DOM event handlers.
+ * @property {Function} props.handleDOMEvents.click - Click event handler for the block toolbar.
+ *
+ * @property {Object} state - Plugin state.
+ * @property {Function} state.init - Initializes the plugin state with decorations.
+ * @property {Function} state.apply - Applies state changes and updates the block toolbar.
+ */
 function _createBlockToolbarPlugin(editor) {
     'use strict';
     return new Plugin({
@@ -78,7 +92,8 @@ function _createBlockToolbarPlugin(editor) {
                         ignoreSelection: true,
                         key: "blockToolbar",
                     })
-                ]);            },
+                ]);
+            },
             apply(tr, value, oldState, newState) {
                 if (!oldState.doc.eq(newState.doc) || oldState.selection.eq(newState.selection) === false) {
                     // Let the editor execute the dom update before updating the toolbar
@@ -90,6 +105,17 @@ function _createBlockToolbarPlugin(editor) {
     });
 }
 
+/**
+ * Creates a block toolbar for the editor. The block toolbar is a floating toolbar that appears at
+ * the start side of the block that is currently selected. It contains a dropdown menu with block
+ * actions that can be performed on the block.
+ *
+ * Blocks can be dragged by the toolbar to change their position in the document.
+ *
+ * @param {Object} editor - The editor instance.
+ * @param {Object} blockToolbar - The block toolbar configuration.
+ * @returns {HTMLDivElement} The created block toolbar element.
+ */
 function _createBlockToolbar(editor, blockToolbar) {
     'use strict';
 
@@ -129,6 +155,12 @@ function _createBlockToolbar(editor, blockToolbar) {
 }
 
 
+/**
+ * Updates the block toolbar based on the current editor state.
+ *
+ * @param {Object} editor - The editor instance.
+ * @param {Object} [state] - The optional state to use instead of the editor's current state.
+ */
 function updateBlockToolbar(editor, state) {
     'use strict';
     const {resolvedPos, depth} = _getResolvedPos(state || editor.state);
@@ -192,6 +224,17 @@ function _replaceIcon(node, string) {
     node.replaceWith(icon.firstElementChild);
 }
 
+/**
+ * Creates a ProseMirror plugin for a top toolbar in the editor. The top toolbar is used for both
+ * inline editing and HTMLField editing. It contains buttons for text formatting, links, and other
+ * actions that can be performed on the editor content.
+ *
+ * If there is no block toolbar, it also hold block actions.
+ *
+ * @param {Editor} editor - The editor instance.
+ * @param {Function} filter - A filter function to customize the toolbar.
+ * @returns {Plugin} - A ProseMirror plugin instance.
+ */
 function _createTopToolbarPlugin(editor, filter) {
     'use strict';
     return new Plugin({
@@ -246,6 +289,15 @@ function _createTopToolbarPlugin(editor, filter) {
     });
 }
 
+/**
+ * Creates a toolbar element for the editor.
+ * A toolbar is a div element with role="toolbar" and class cms-toolbar.
+ *
+ * @param {Object} editor - The editor instance.
+ * @param {Object} toolbar - The toolbar configuration.
+ * @param {Function} filter - A filter function to customize the toolbar items.
+ * @returns {HTMLElement} The created toolbar element.
+ */
 function _createToolbar(editor, toolbar, filter) {
     'use strict';
 
@@ -268,8 +320,14 @@ function _createToolbar(editor, toolbar, filter) {
     return toolbarElement;
 }
 
-// handle a click on a toolbar button
-// the button's data-action attribute is used to determine the action
+/**
+ * Handles the toolbar click event. The action is determined by the clicked button's data-action
+ * attribute.
+ *
+ * @param {Event} event - The click event.
+ * @param {Object} editor - The editor instance.
+ * @private
+ */
 function _handleToolbarClick(event, editor) {
     'use strict';
     event.preventDefault();
@@ -384,7 +442,14 @@ function _populateToolbar(editor, array, filter) {
     return html;
 }
 
-// create the html for a toolbar button
+/**
+ * Creates a toolbar button for the editor.
+ *
+ * @param {Object} editor - The editor instance.
+ * @param {string} itemName - The name of the item to create a button for.
+ * @param {Function} filter - A filter function to apply to the item.
+ * @returns {string} The HTML string for the toolbar button.
+ */
 function _createToolbarButton(editor, itemName, filter) {
     'use strict';
 
@@ -418,7 +483,13 @@ function _createToolbarButton(editor, itemName, filter) {
     return '';
 }
 
-// update the toolbar button states
+/**
+ * Updates the toolbar buttons based on the editor's state and the toolbar configuration.
+ * This is used to highlight active buttons and disable buttons that are not applicable.
+ *
+ * @param {Object} editor - The editor instance.
+ * @param {HTMLElement} [toolbar] - The toolbar element. If not provided, the function will query the editor's element for toolbar buttons.
+ */
 function _updateToolbar(editor, toolbar) {
     'use strict';
     let querySelector;

@@ -18,14 +18,6 @@ from . import settings as text_settings
 from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_base_config, get_editor_config
 from .utils import admin_reverse, cms_placeholder_add_plugin
 
-try:
-    from cms.utils.urlutils import static_with_version
-except ModuleNotFoundError:  # pragma: no cover
-
-    def static_with_version(path):
-        return path
-
-
 rte_config = get_editor_config()
 #: The configuration for the text editor widget
 
@@ -106,7 +98,6 @@ class TextEditorWidget(forms.Textarea):
                 ),
             },
             js=(
-                static_with_version("cms/js/dist/bundle.admin.base.min.js"),
                 "djangocms_text/bundles/bundle.editor.min.js",
                 *rte_config.js,
             ),

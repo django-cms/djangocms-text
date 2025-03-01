@@ -37,15 +37,10 @@ class CMSEditor {
                 this.CMS = window.parent.CMS;
             }
 
-            if (this.CMS) {
+            if (this.mainWindow) {
                 // Only needs to happen on the main window.
-                this.CMS.$(window).on('cms-content-refresh', () => {
-                    if (document.querySelector('template.cms-plugin')) {
-                        // django CMS core does not wrap newly inserted inline editable fields
-                        // this.CMS.API.Helpers.reloadBrowser();
-                    } else {
-                        this._resetInlineEditors();
-                    }
+                this.mainWindow.addEventListener('load', () => {
+                    this._resetInlineEditors();
                 });
             }
 
@@ -128,6 +123,7 @@ class CMSEditor {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                     this.init(entry.target);
+                    this.observer.unobserve(entry.target);  // Only init once
                 }
             }, this);
         }, {
@@ -230,7 +226,7 @@ class CMSEditor {
             } else {  // no, wrap now!
                 wrapper = document.createElement('div');
                 wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
-                wrapper.classList.add('cms-plugin', cls);
+                wrapper.classList.add('cms-plugin', cls, 'cms-plugin-start', 'cms-plugin-end');
                 wrapper = this._wrapAll(elements, wrapper);
             }
             wrapper.dataset.cmsEditUrl = url;
@@ -499,7 +495,7 @@ class CMSEditor {
                         }
                     }
                     // Additional content for the page disrupts inline editing and needs to be removed
-                    delete this.CMS.API.Helpers.dataBridge.content;
+                    delete this.CMS.API.Helpers.dataBridge.structure.content;
 
                     if (this.CMS.settings.version.startsWith('3.')) {
                         /* Reflect dirty flag in django CMS < 4 */

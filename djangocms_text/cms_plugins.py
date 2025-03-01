@@ -579,9 +579,8 @@ class TextPlugin(CMSPluginBase):
 
     @classmethod
     @lru_cache
-    def get_child_plugin_candidates(cls, slot: str, page=None, template=None):
+    def get_child_plugin_candidates(cls, *args, **kwargs):
         """
-
         This method is a class method that returns a list of child plugin candidates for a given slot and page.
 
         Parameters:
@@ -591,10 +590,7 @@ class TextPlugin(CMSPluginBase):
         Returns:
         - A list of text-enabled plugins that can be used as child plugins for the given slot and page.
         """
-        text_enabled_plugins = plugin_pool.get_text_enabled_plugins(
-            placeholder=slot,
-            page=page,
-        )
+        text_enabled_plugins = plugin_pool.get_text_enabled_plugins(*args, **kwargs)  # Just pass on arguments
         # Filter out plugins that are not in the whitelist if given
         if settings.TEXT_CHILDREN_WHITELIST is not None:
             text_enabled_plugins = [

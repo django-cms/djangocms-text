@@ -135,6 +135,7 @@ class CmsDialog {
         if (heading) {
             this.dialog.querySelector(".cms-modal-title-suffix").textContent = heading.textContent;
         }
+        this.open();
         // If form is big (i.e., scrollbars appear), make the dialog bigger
         if (content.documentElement.scrollHeight > content.documentElement.clientHeight) {
             this.dialog.style.height = "60%";
@@ -154,7 +155,6 @@ class CmsDialog {
                 }
             }
         }
-        this.open();
     }
 
     _dialogSaved(el, content, data) {

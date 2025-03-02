@@ -216,7 +216,7 @@ const TiptapToolbar = {
                 // If the user is currently editing a link, update the whole link
                 editor.commands.extendMarkRange('link');
             }
-            setTimeout(() => editor.chain().focus().openCmsForm('Link'), 0);
+            setTimeout(() => editor.commands.openCmsForm('Link'), 0);
         },
         formAction: (editor, data) => {
             if (data) {
@@ -228,7 +228,7 @@ const TiptapToolbar = {
                 editor.chain().focus().setLink(link).run();
             }
         },
-        enabled: (editor) => editor.can().setLink({href: '#'}).run(),
+        enabled: (editor) => editor.can().setLink({href: '#'}),
         active: (editor) => editor.isActive('link'),
         attributes: (editor) => {
             let attrs = editor.getAttributes('link');

@@ -39,7 +39,7 @@ class CMSEditor {
 
             if (this.mainWindow) {
                 // Only needs to happen on the main window.
-                this.mainWindow.addEventListener('load', () => {
+                this.CMS.$(window).on('cms-content-refresh', () => {
                     this._resetInlineEditors();
                 });
             }
@@ -49,7 +49,7 @@ class CMSEditor {
                 this._admin_selector = this._inline_admin_selector + ':not(.empty-form) ' + this._admin_selector;
             }
             this.initAll();
-        });
+        }, { once: true });
     }
 
     // CMS Editor: init_all
@@ -92,10 +92,6 @@ class CMSEditor {
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }
-        if (el.id in this._editor_settings) {
-            // Already initialized - happens when an inline editor is scrolled back into the viewport
-            return;
-        }
         // Create editor
         if (!el.dataset.cmsType || el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
             this._createRTE(el);
@@ -122,14 +118,15 @@ class CMSEditor {
         this.observer = this.observer || new IntersectionObserver( (entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                    this.init(entry.target);
                     this.observer.unobserve(entry.target);  // Only init once
+                    this.init(entry.target);
                 }
             }, this);
         }, {
             root: null,
             threshold: 0.05
         });
+        this.observer.disconnect();
 
         let generic_inline_fields = document.getElementById('cms-generic-inline-fields') || {};
         if (generic_inline_fields) {
@@ -495,7 +492,7 @@ class CMSEditor {
                         }
                     }
                     // Additional content for the page disrupts inline editing and needs to be removed
-                    delete this.CMS.API.Helpers.dataBridge.structure.content;
+                    delete this.CMS.API.Helpers.dataBridge.structure?.content;
 
                     if (this.CMS.settings.version.startsWith('3.')) {
                         /* Reflect dirty flag in django CMS < 4 */
@@ -632,7 +629,7 @@ class CMSEditor {
 
     // CMS Editor: resetInlineEditors
     _resetInlineEditors () {
-        this.initAll();
+        this.initInlineEditors();
     }
 
     // CMS Editor: loadToolbar

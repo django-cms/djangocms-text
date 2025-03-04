@@ -37,7 +37,7 @@ class CMSEditor {
                 this.CMS = window.parent.CMS;
             }
 
-            if (this.mainWindow) {
+            if (this.CMS) {
                 // Only needs to happen on the main window.
                 this.CMS.$(window).on('cms-content-refresh', () => {
                     this._resetInlineEditors();
@@ -55,6 +55,7 @@ class CMSEditor {
     // CMS Editor: init_all
     // Initialize all editors on the page
     initAll () {
+        console.log("initialize all editors");
         // Get global options from script element
         try {
             this._global_settings = JSON.parse(document.getElementById('cms-editor-cfg').textContent);

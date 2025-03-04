@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.7.1 (04-03-2025)
+==================
+
+* fix: Fix issue failing intiialization of HTMLFields in the admin by @fsbraun
+
 0.7.0 (02-03-2025)
 ==================
 

@@ -55,7 +55,6 @@ class CMSEditor {
     // CMS Editor: init_all
     // Initialize all editors on the page
     initAll () {
-        console.log("initialize all editors");
         // Get global options from script element
         try {
             this._global_settings = JSON.parse(document.getElementById('cms-editor-cfg').textContent);

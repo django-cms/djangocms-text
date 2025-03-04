@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.7.0 (02-03-2025)
+==================
+
+* fix: Avoid downcasting of text-enabled child plugins if plugins are already downcasted by @fsbraun in https://github.com/django-cms/djangocms-text/pull/58
+* fix: ModuleNotFoundError when CMS is not installed by @fsbraun in https://github.com/django-cms/djangocms-text/pull/56
+* fix: Chrome focus issue, django CMS 5 support by @fsbraun in https://github.com/django-cms/djangocms-text/pull/64
+
 0.6.0 (06-02-2025)
 ==================
 

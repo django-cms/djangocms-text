@@ -2,10 +2,12 @@
     .ProseMirror-focused [role="menubar"] {
         /* show toolbar if editor is focused */
         visibility: visible;
+        transition: visibility 150ms;
         [role="button"].show {
             z-index: 10;
             > .dropdown-content {
                 visibility: visible;
+                transition: visibility 150ms;
                 height: auto;
             }
         }
@@ -25,6 +27,7 @@
         font-size: 1rem;
         font-weight: normal;
         visibility: hidden;
+        transition: visibility 150ms;
         position: absolute;
         pointer-events: all;
         display: flex;
@@ -47,6 +50,7 @@
         display: block;
         top: 0;
         visibility: visible;
+        transition: visibility 150ms;
         [role="button"].show {
             z-index: 10;
             > .dropdown-content {
@@ -195,6 +199,7 @@
         color: var(--dca-black, var(--body-fg));
         border-radius: 0;
         visibility: hidden;
+        transition: visibility 150ms;
         height: 0;
         overflow-y: hidden;
         position: absolute;
@@ -268,8 +273,10 @@
     .ProseMirror-focused .cms-block-toolbar, &:has(dialog.cms-form-dialog) .cms-block-toolbar {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
+        transition: visibility 150ms;
         &.show .cms-block-dropdown {
             visibility: visible;
+            transition: visibility 150ms;
         }
     }
 
@@ -277,6 +284,7 @@
         --size: 1rem;
         position: absolute;
         visibility: hidden;
+        transition: visibility 150ms;
         box-sizing: border-box;
         border-width: 0;
         border-style: solid;
@@ -320,6 +328,7 @@
             box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
             border: 1px solid var(--dca-gray-light);
             visibility: hidden;
+            transition: visibility 150ms;
             display: flex;
             svg {
                 width: calc(1.2 * var(--size));

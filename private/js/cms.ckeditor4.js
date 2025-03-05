@@ -51,7 +51,6 @@ window.cms_editor_plugin = {
             ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
             ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
             ['HorizontalRule'],
-            ['Link', 'Unlink'],
             ['NumberedList', 'BulletedList'],
             ['Outdent', 'Indent', '-', 'Blockquote', '-', 'Link', 'Unlink', '-', 'Table'],
             ['Source']

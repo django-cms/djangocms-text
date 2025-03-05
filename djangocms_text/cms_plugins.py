@@ -581,7 +581,6 @@ class TextPlugin(CMSPluginBase):
     @lru_cache
     def get_child_plugin_candidates(cls, *args, **kwargs):
         """
-
         This method is a class method that returns a list of child plugin candidates for a given slot and page.
 
         Parameters:

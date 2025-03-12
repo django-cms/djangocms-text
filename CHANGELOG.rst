@@ -2,6 +2,18 @@
 Changelog
 =========
 
+0.8.0 (12-03-2025)
+==================
+
+* fix(settings): Remove duplication of Link and Unlink from HTMLField default settings by @DmytroLitvinov in https://github.com/django-cms/djangocms-text/pull/67
+* fix: add migration to remove old ckeditor table by @earthcomfy in https://github.com/django-cms/djangocms-text/pull/61
+* fix: InlineAdmin signals were missed by @fsbraun
+* fix: Leaner event management by @fsbraun
+
+**New Contributors**
+* @DmytroLitvinov made their first contribution in https://github.com/django-cms/djangocms-text/pull/67
+* @earthcomfy made their first contribution in https://github.com/django-cms/djangocms-text/pull/61
+
 0.7.1 (04-03-2025)
 ==================
 

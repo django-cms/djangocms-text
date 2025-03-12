@@ -37,7 +37,7 @@ class CMSEditor {
                 this.CMS = window.parent.CMS;
             }
 
-            if (this.mainWindow) {
+            if (this.CMS) {
                 // Only needs to happen on the main window.
                 this.CMS.$(window).on('cms-content-refresh', () => {
                     this._resetInlineEditors();

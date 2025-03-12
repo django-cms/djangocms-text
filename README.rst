@@ -59,12 +59,16 @@ Upgrading from djangocms-text-ckeditor
 --------------------------------------
 
 djangocms-text's migrations automatically migrate existing text plugins
-from djangocms-text-ckeditor. All you have to do is:
+from djangocms-text-ckeditor, and clean up old tables. All you have to do is:
 
 * uninstall ``djangocms-text-ckeditor``
 * remove ``djangocms_text_ckeditor`` from ``INSTALLED_APPS``
 * add ``djangocms_text`` to ``INSTALLED_APPS`` (see above)
 * run ``python -m manage migrate djangocms_text``
+
+**Attention**: The migration command also deletes djangocms-text-ckeditor's 
+tables from the database (to avoid referential integrity issues). To be on
+the safe side, make a backup of its content.
 
 When transitioning from CKEditor4 to Tiptap as the rich text editor in your
 project, consider the following points:

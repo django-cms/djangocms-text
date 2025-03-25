@@ -91,7 +91,7 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
     return warnings
 
 
-def check_ckeditor_settings_dict(settings: object) -> list:
+def check_ckeditor_settings_dict(settings: object) -> list:  # pragma: no cover
     def recursive_replace(config_list: list, old: str, new: str):
         changed = False
         for index, item in enumerate(config_list):

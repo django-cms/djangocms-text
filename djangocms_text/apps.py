@@ -86,8 +86,41 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
                 obj="settings.TEXT_ADDITIONAL_ATTRIBUTES",
             )
         )
+    warnings += check_ckeditor_settings_dict(settings)
 
     return warnings
+
+
+def check_ckeditor_settings_dict(settings: object) -> list:
+    def recursive_replace(config_list: list, old: str, new: str):
+        changed = False
+        for index, item in enumerate(config_list):
+            if isinstance(item, list):
+                changed = changed or recursive_replace(item, old, new)
+            elif isinstance(item, dict) and "items" in item:
+                changed = changed or recursive_replace(item["items"], old, new)
+            elif item == old:
+                config_list[index] = new
+                changed = True
+        return changed
+
+    if hasattr(settings, "CKEDITOR_SETTINGS"):
+        ckeditor_settings = settings.CKEDITOR_SETTINGS
+        change_required = False
+
+        for key, value in ckeditor_settings.items():
+            if "toolbar" in key and isinstance(value, list):
+                change_required = recursive_replace(ckeditor_settings[key], "cmsplugins", "CMSPlugins")
+
+        if change_required:
+            return [
+                Warning(
+                    "The CKEDITOR_SETTINGS toolbar setting has changed: Instead of 'cmsplugins' use 'CMSPlugins'.",
+                    hint="Replace 'cmspluings' by 'CMSPlugins' in CKEDITOR_SETTINGS.",
+                    id="text.W003",
+                )
+            ]
+        return []
 
 
 def check_no_cms_config(app_configs, **kwargs) -> list:  # pragma: no cover

@@ -93,6 +93,7 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
 
 def check_ckeditor_settings_dict(settings: object) -> list:  # pragma: no cover
     def recursive_replace(config_list: list, old: str, new: str):
+        """Replace target string in toolbar lists and return True if any change occurred."""
         changed = False
         for index, item in enumerate(config_list):
             if isinstance(item, list):

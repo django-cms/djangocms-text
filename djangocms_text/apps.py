@@ -86,12 +86,19 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
                 obj="settings.TEXT_ADDITIONAL_ATTRIBUTES",
             )
         )
-    warnings += check_ckeditor_settings_dict(settings)
+    if check_ckeditor_cms_plugin_settings(settings):
+        warnings.append(
+            Warning(
+                "The CKEDITOR_SETTINGS toolbar setting has changed: Instead of 'cmsplugins' use 'CMSPlugins'.",
+                hint="Replace 'cmspluings' by 'CMSPlugins' in CKEDITOR_SETTINGS.",
+                id="text.W003",
+            )
+        )
 
     return warnings
 
 
-def check_ckeditor_settings_dict(settings: object) -> list:  # pragma: no cover
+def check_ckeditor_cms_plugin_settings(settings: object) -> list:  # pragma: no cover
     def recursive_replace(config_list: list, old: str, new: str):
         """Replace target string in toolbar lists and return True if any change occurred."""
         changed = False
@@ -111,17 +118,11 @@ def check_ckeditor_settings_dict(settings: object) -> list:  # pragma: no cover
 
         for key, value in ckeditor_settings.items():
             if "toolbar" in key and isinstance(value, list):
-                change_required = recursive_replace(ckeditor_settings[key], "cmsplugins", "CMSPlugins")
-
-        if change_required:
-            return [
-                Warning(
-                    "The CKEDITOR_SETTINGS toolbar setting has changed: Instead of 'cmsplugins' use 'CMSPlugins'.",
-                    hint="Replace 'cmspluings' by 'CMSPlugins' in CKEDITOR_SETTINGS.",
-                    id="text.W003",
+                change_required = change_required or recursive_replace(
+                    ckeditor_settings[key], "cmsplugins", "CMSPlugins"
                 )
-            ]
-        return []
+        return change_required
+    return False
 
 
 def check_no_cms_config(app_configs, **kwargs) -> list:  # pragma: no cover

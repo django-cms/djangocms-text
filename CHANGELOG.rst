@@ -2,10 +2,11 @@
 Changelog
 =========
 
-0.8.1 (26-03-2025)
+0.8.2 (26-03-2025)
 ==================
 
 * fix: Add warning due to changed CKEditor 4 setting by @fsbraun in https://github.com/django-cms/djangocms-text/pull/68
+* fix: Checks at startup crashed
 
 
 0.8.0 (12-03-2025)

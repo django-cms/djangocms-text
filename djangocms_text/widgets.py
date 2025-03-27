@@ -119,7 +119,7 @@ class TextEditorWidget(forms.Textarea):
         action_token: str = None,
         revert_on_cancel: bool = False,
         body_css_classes: str = "",
-        add_admin_css: bool = False,
+        add_admin_css: bool = True,
     ):
         """
         Create a widget for editing text + plugins.
@@ -135,9 +135,9 @@ class TextEditorWidget(forms.Textarea):
             attrs["class"] = new_class.strip()
         self.editor_settings_id = f"cms-cfg-{pk if pk else attrs.get('id', uuid.uuid4())}"
         self.global_settings_id = "cms-editor-cfg"
+        self.add_admin_css = add_admin_css
         attrs["data-settings"] = self.editor_settings_id
         super().__init__(attrs)
-
         self.installed_plugins = installed_plugins or []  # general
         self.pk = pk  # specific
         self.placeholder = placeholder.pk if isinstance(placeholder, models.Model) else placeholder  # specific
@@ -156,7 +156,6 @@ class TextEditorWidget(forms.Textarea):
         self.action_token = action_token  # specific
         self.revert_on_cancel = revert_on_cancel
         self.body_css_classes = body_css_classes if body_css_classes else self.configuration.get("bodyClass", "")
-        self.add_admin_css = add_admin_css
 
     def render_textarea(self, name, value, attrs=None, renderer=None):
         return super().render(name, value, attrs, renderer)

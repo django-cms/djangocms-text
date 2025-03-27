@@ -6,6 +6,7 @@ Changelog
 ==================
 
 * fix: Redraw errors with django CMS 5
+* fix: Shopw text colors in admin panel
 * fix: z-index of top toolbar to hover above rest of UI
 
 0.8.2 (26-03-2025)

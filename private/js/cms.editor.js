@@ -649,7 +649,7 @@ class CMSEditor {
 
     _initInlineRichText(elements, url, cls) {
         let wrapper;
-        console.log("init", elements, url, cls);
+
         if (elements.length > 0) {
             if (elements.length === 1 && (
                 elements[0].tagName === 'DIV' || // Single wrapping div

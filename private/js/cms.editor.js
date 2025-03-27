@@ -88,7 +88,6 @@ class CMSEditor {
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
-
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }

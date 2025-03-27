@@ -360,7 +360,7 @@ Acknowledgments
     :target: https://www.djangoproject.com/
 .. |djangocms| image:: https://img.shields.io/badge/django%20CMS-3.11%2B-blue.svg
     :target: https://www.django-cms.org/
-.. |djangocms4| image:: https://img.shields.io/badge/django%20CMS-4-blue.svg
+.. |djangocms4| image:: https://img.shields.io/badge/django%20CMS-4%2F5-blue.svg
     :target: https://www.django-cms.org/
 .. |precommit| image:: https://results.pre-commit.ci/badge/github/django-cms/djangocms-text/main.svg
    :target: https://results.pre-commit.ci/latest/github/django-cms/djangocms-text/main

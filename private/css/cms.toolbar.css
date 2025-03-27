@@ -2,12 +2,12 @@
     .ProseMirror-focused [role="menubar"] {
         /* show toolbar if editor is focused */
         visibility: visible;
-        transition: visibility 500ms ease;
+        transition: visibility 200ms ease;
         [role="button"].show {
             z-index: 10;
             > .dropdown-content {
                 visibility: visible;
-                transition: visibility 500ms ease;
+                transition: visibility 200ms ease;
                 height: auto;
             }
         }
@@ -27,7 +27,7 @@
         font-size: 1rem;
         font-weight: normal;
         visibility: hidden;
-        transition: visibility 500ms ease;
+        transition: visibility 200ms ease;
         position: absolute;
         pointer-events: all;
         display: flex;
@@ -50,7 +50,7 @@
         display: block;
         top: 0;
         visibility: visible;
-        transition: visibility 500ms ease;
+        transition: visibility 200ms ease;
         [role="button"].show {
             z-index: 10;
             > .dropdown-content {
@@ -199,7 +199,7 @@
         color: var(--dca-black, var(--body-fg));
         border-radius: 0;
         visibility: hidden;
-        transition: visibility 500ms ease;
+        transition: visibility 200ms ease;
         height: 0;
         overflow-y: hidden;
         position: absolute;
@@ -273,10 +273,10 @@
     .ProseMirror-focused .cms-block-toolbar, &:has(dialog.cms-form-dialog) .cms-block-toolbar {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
-        transition: visibility 500ms ease;
+        transition: visibility 200ms ease;
         &.show .cms-block-dropdown {
             visibility: visible;
-            transition: visibility 500ms ease;
+            transition: visibility 200ms ease;
         }
     }
 
@@ -284,7 +284,7 @@
         --size: 1rem;
         position: absolute;
         visibility: hidden;
-        transition: visibility 500ms ease;
+        transition: visibility 200ms ease;
         box-sizing: border-box;
         border-width: 0;
         border-style: solid;
@@ -328,7 +328,7 @@
             box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
             border: 1px solid var(--dca-gray-light);
             visibility: hidden;
-            transition: visibility 500ms ease;
+            transition: visibility 200ms ease;
             display: flex;
             svg {
                 width: calc(1.2 * var(--size));

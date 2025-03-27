@@ -304,6 +304,7 @@ function _createToolbar(editor, toolbar, filter) {
     const toolbarElement = document.createElement('div');
     toolbarElement.setAttribute('role', 'menubar');
     toolbarElement.classList.add('cms-toolbar');
+    toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 1000000;  //
 
     // create the toolbar html from the settings
     toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${_populateToolbar(editor, toolbar, filter)}`;

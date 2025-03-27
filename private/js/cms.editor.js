@@ -88,7 +88,6 @@ class CMSEditor {
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
-
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }
@@ -158,7 +157,7 @@ class CMSEditor {
                         const search_key = `${generic_class[2]}-${generic_class[3]}-${edit_fields}`;
                         if (generic_inline_fields[search_key]) {
                             // Inline editable?
-                            wrapper = this._initInlineRichText(document.getElementsByClassName(plugin[0]), url, plugin[0]);
+                            wrapper = this._initInlineRichText(document.querySelectorAll(`.${plugin[0]}`), url, plugin[0]);
                             if (wrapper) {
                                 wrapper.dataset.cmsCsrfToken = this.CMS.config.csrf;
                                 wrapper.dataset.cmsField = edit_fields;
@@ -206,31 +205,6 @@ class CMSEditor {
                 return 'Do you really want to leave this page?';
             }
         });
-    }
-
-    _initInlineRichText(elements, url, cls) {
-        let wrapper;
-
-        if (elements.length > 0) {
-            if (elements.length === 1 && (
-                elements[0].tagName === 'DIV' || // Single wrapping div
-                elements[0].tagName === 'CMS-PLUGIN' ||  // Single wrapping cms-plugin tag
-                elements[0].classList.contains('cms-editor-inline-wrapper')  // already wrapped
-            )) {
-                // already wrapped?
-                wrapper = elements[0];
-                wrapper.classList.add('cms-editor-inline-wrapper');
-            } else {  // no, wrap now!
-                wrapper = document.createElement('div');
-                wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
-                wrapper.classList.add('cms-plugin', cls, 'cms-plugin-start', 'cms-plugin-end');
-                wrapper = this._wrapAll(elements, wrapper);
-            }
-            wrapper.dataset.cmsEditUrl = url;
-            return wrapper;
-        }
-        // No elements found
-        return undefined;
     }
 
     _createRTE(el) {
@@ -673,20 +647,44 @@ class CMSEditor {
         }
     }
 
+    _initInlineRichText(elements, url, cls) {
+        let wrapper;
+
+        if (elements.length > 0) {
+            if (elements.length === 1 && (
+                elements[0].tagName === 'DIV' || // Single wrapping div
+                elements[0].tagName === 'CMS-PLUGIN' ||  // Single wrapping cms-plugin tag
+                elements[0].classList.contains('cms-editor-inline-wrapper')  // already wrapped
+            )) {
+                // already wrapped?
+                wrapper = elements[0];
+                wrapper.classList.add('cms-editor-inline-wrapper');
+            } else {  // no, wrap now!
+                wrapper = document.createElement('div');
+                wrapper.classList.add('cms-editor-inline-wrapper', 'wrapped');
+                wrapper.classList.add('cms-plugin', cls, 'cms-plugin-start', 'cms-plugin-end');
+                wrapper = this._wrapAll(elements, wrapper, cls);
+            }
+            wrapper.dataset.cmsEditUrl = url;
+            return wrapper;
+        }
+        // No elements found
+        return undefined;
+    }
+
     // Wrap wrapper around nodes
     // Just pass a collection of nodes, and a wrapper element
-    _wrapAll (nodes, wrapper) {
+    _wrapAll (nodes, wrapper, cls) {
         // Cache the current parent and previous sibling of the first node.
         const parent = nodes[0].parentNode;
         const previousSibling = nodes[0].previousSibling;
 
         // Place each node in wrapper.
-        //  - If nodes is an array, we must increment the index we grab from
-        //    after each loop.
-        //  - If nodes is a NodeList, each node is automatically removed from
-        //    the NodeList when it is removed from its parent with appendChild.
-        for (let i = 0; nodes.length - i; wrapper.firstChild === nodes[0] && i++) {
-            wrapper.appendChild(nodes[i]);
+        for (const node of nodes) {
+            // Remove class markers
+            node.classList.remove('cms-plugin', cls, 'cms-plugin-start', 'cms-plugin-end');
+            // ... and add to wrapper
+            wrapper.appendChild(node);
         }
 
         // Place the wrapper just after the cached previousSibling,

@@ -122,7 +122,7 @@ function _createBlockToolbar(editor, blockToolbar) {
     const toolbar = document.createElement('div');
 
     toolbar.classList.add('cms-block-toolbar');
-    toolbar.style.zIndex = editor.options.baseFloatZIndex || 10000000;  //
+    toolbar.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
     toolbar.innerHTML = `${_drag_icon}<div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`;
 
     toolbar.draggable = true;
@@ -304,7 +304,7 @@ function _createToolbar(editor, toolbar, filter) {
     const toolbarElement = document.createElement('div');
     toolbarElement.setAttribute('role', 'menubar');
     toolbarElement.classList.add('cms-toolbar');
-    toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 10000000;  //
+    toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
 
     // create the toolbar html from the settings
     toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${_populateToolbar(editor, toolbar, filter)}`;

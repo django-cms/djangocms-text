@@ -58,7 +58,7 @@
                 height: auto;
             }
         }
-        position: static;
+        position: sticky;
         width: 100%;
         box-sizing: border-box;
         outline: none;

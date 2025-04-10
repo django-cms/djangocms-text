@@ -26,7 +26,7 @@
             overflow: auto;
             inset-inline-start: 0;
             inset-block-start: 100%;
-            border: 1px solid var(--dca-gray-lighter, var(--boder-color, #ccc));
+            border: 1px solid var(--dca-gray-lighter, var(--border-color, #ccc));
             background: var(--dca-white, var(--body-bg, #fff));
             inline-size: 120%;
             resize: both;

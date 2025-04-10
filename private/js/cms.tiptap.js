@@ -22,6 +22,7 @@ import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 import {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle} from "./tiptap_plugins/cms.styles";
 import CmsFormExtension from "./tiptap_plugins/cms.formextension";
 import CmsToolbarPlugin from "./tiptap_plugins/cms.toolbar";
+import ExtendedTable from "./tiptap_plugins/cms.table";
 
 import '../css/cms.tiptap.css';
 
@@ -39,11 +40,8 @@ class CMSTipTapPlugin {
                 Placeholder,
                 Subscript,
                 Superscript,
-                Table.configure({
+                ExtendedTable.configure({
                     resizable: false,
-                    HTMLAttributes: {
-                        class: 'table',
-                    },
                 }),
                 TableRow,
                 TableHeader,

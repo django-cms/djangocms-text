@@ -5,11 +5,11 @@
 'use strict';
 
 
-function generateButtonArray(rows, cols) {
+function generateButtonArray(rows, cols, classes) {
     const buttons = ['<div class="tt-create-table">'];
     for (let j= 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
-            buttons.push(`<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`);
+            buttons.push(`<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}" data-class="${classes}"></button>`);
         }
     }
     buttons.push('</div>');
@@ -31,7 +31,7 @@ const _tableMenu = [
 ];
 
 function generateTableMenu(editor, builder) {
-    return generateButtonArray(10, 10) + builder(_tableMenu);
+    return generateButtonArray(10, 10, editor.options.table_classes) + builder(_tableMenu);
 }
 
 
@@ -247,7 +247,8 @@ const TiptapToolbar = {
         action: (editor, button) => {
             const rows = parseInt(button?.dataset?.rows ||3);
             const cols = parseInt(button?.dataset?.cols || 3);
-            editor.chain().focus().insertTable({ rows: rows, cols: cols }).run();
+            const classes = button?.dataset?.class || 'table';
+            editor.chain().focus().insertTable({ rows: rows, cols: cols}).updateAttributes('table', { class: classes }).run();
         },
         enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
         type: 'mark',

@@ -44,8 +44,8 @@ class NH3Parser:
         self.ALLOWED_ATTRIBUTES: dict[str, set[str]] = deepcopy(nh3.ALLOWED_ATTRIBUTES)
         self.generic_attribute_prefixes: set[str] = generic_attribute_prefixes or set()
         additional_attributes = {
-            **settings.TEXT_ADDITIONAL_ATTRIBUTES,
             **(additional_attributes or {}),
+            **settings.TEXT_ADDITIONAL_ATTRIBUTES,
         }
         if additional_attributes:
             self.ALLOWED_TAGS |= set(additional_attributes.keys())
@@ -55,7 +55,7 @@ class NH3Parser:
     def __call__(self) -> dict[str, Union[dict[str, set[str]], set[str], None]]:
         """
         Return a dictionary containing the attributes, tags, generic_attribute_prefixes, and link_rel values for
-        immidiate passing to the nh3.clean function.
+        immediate passing to the nh3.clean function.
 
         :return: A dictionary with the following keys:
             - "attributes": A dictionary containing the allowed attributes setting.

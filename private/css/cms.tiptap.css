@@ -57,6 +57,7 @@
 
         .fake-selection {
             background-color: Highlight;
+            color: HighlightText;
         }
 
         table {

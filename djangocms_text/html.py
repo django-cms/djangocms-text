@@ -13,10 +13,16 @@ import nh3
 from lxml import etree
 from lxml.etree import Element
 
-from . import settings
+from djangocms_text import settings
 
 
 dyn_attr_pattern = re.compile(r"<[^>]*data-cms-[^>]*>")
+cms_additional_attributes = {
+    "a": {"href", "target", "rel"},
+    "cms-plugin": {"id", "title", "name", "alt", "render-plugin", "type"},
+    "*": {"style", "class", "role"},
+}
+cms_generic_attribute_prefixes = {"data-", "aria-"}
 
 
 class NH3Parser:
@@ -40,15 +46,24 @@ class NH3Parser:
         additional_attributes: Optional[dict[str, set[str]]] = None,
         generic_attribute_prefixes: Optional[set[str]] = None,
     ):
+        if additional_attributes is None:
+            additional_attributes = cms_additional_attributes
+        if generic_attribute_prefixes is None:
+            generic_attribute_prefixes = cms_generic_attribute_prefixes
+
         self.ALLOWED_TAGS: set[str] = deepcopy(nh3.ALLOWED_TAGS)
         self.ALLOWED_ATTRIBUTES: dict[str, set[str]] = deepcopy(nh3.ALLOWED_ATTRIBUTES)
-        self.generic_attribute_prefixes: set[str] = generic_attribute_prefixes or set()
-        additional_attributes = {
-            **(additional_attributes or {}),
-            **settings.TEXT_ADDITIONAL_ATTRIBUTES,
-        }
+        self.ALLOWED_URL_SCHEMES: set[str] = deepcopy(nh3.ALLOWED_URL_SCHEMES) | set(settings.TEXT_ADDITIONAL_PROTOCOLS)
+        self.generic_attribute_prefixes: set[str] = generic_attribute_prefixes
+
+        for tag, attributes in settings.TEXT_ADDITIONAL_ATTRIBUTES.items():
+            if tag in additional_attributes:
+                additional_attributes[tag] = additional_attributes[tag] | attributes
+            else:
+                additional_attributes[tag] = attributes
+
         if additional_attributes:
-            self.ALLOWED_TAGS |= set(additional_attributes.keys())
+            self.ALLOWED_TAGS |= {key for key in additional_attributes.keys() if key != "*"}
             for tag, attributes in additional_attributes.items():
                 self.ALLOWED_ATTRIBUTES[tag] = self.ALLOWED_ATTRIBUTES.get(tag, set()) | attributes
 
@@ -71,34 +86,31 @@ class NH3Parser:
             "attributes": self.ALLOWED_ATTRIBUTES,
             "tags": self.ALLOWED_TAGS,
             "generic_attribute_prefixes": self.generic_attribute_prefixes,
+            "url_schemes": self.ALLOWED_URL_SCHEMES,
             "link_rel": None,
         }
 
 
-cms_parser: NH3Parser = NH3Parser(
-    additional_attributes={
-        "a": {"href", "target", "rel"},
-        "cms-plugin": {"id", "title", "name", "alt", "render-plugin", "type"},
-        "*": {"style", "class"},
-    },
-    generic_attribute_prefixes={"data-"},
-)
+cms_parser: NH3Parser = NH3Parser()
 #: An instance of NH3Parser with the default configuration for CMS text content.
 
 
-def clean_html(data: str, full: bool = False, cleaner: NH3Parser = cms_parser) -> str:
+def clean_html(data: str, full: bool = False, cleaner: NH3Parser = None) -> str:
     """
     Cleans HTML from XSS vulnerabilities using nh3
     If full is False, only the contents inside <body> will be returned (without
     the <body> tags).
     """
 
-    if full is not False:
-        warnings.warn(
-            "full argument is deprecated and will be removed",
-            category=DeprecationWarning,
-            stacklevel=2,
-        )
+    if settings.TEXT_HTML_SANITIZE is False:
+        return data
+
+    warnings.warn(
+        "full argument is deprecated and will be removed",
+        category=DeprecationWarning,
+        stacklevel=2,
+    )
+    cleaner = cleaner or cms_parser
     return nh3.clean(data, **cleaner())
 
 

@@ -1,4 +1,3 @@
-from unittest import skipIf
 from unittest.mock import patch, MagicMock
 
 from cms.api import create_page, add_plugin
@@ -19,11 +18,9 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
             full=False,
             cleaner=NH3Parser(),
         )
-        self.assertNotIn(
-            "iframe", NH3Parser().ALLOWED_TAGS
-        )
+        self.assertNotIn("iframe", NH3Parser().ALLOWED_TAGS)
         self.assertEqual(
-            '',
+            "",
             text,
         )
 
@@ -77,11 +74,7 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
 
     def test_custom_protocol_enabled(self):
         settings.TEXT_ADDITIONAL_PROTOCOLS = ["rtmp"]
-        text = html.clean_html(
-            '<source src="rtmp://testurl.com/">',
-            full=False,
-            cleaner=NH3Parser()
-        )
+        text = html.clean_html('<source src="rtmp://testurl.com/">', full=False, cleaner=NH3Parser())
         self.assertEqual('<source src="rtmp://testurl.com/">', text)
 
     def test_clean_html_with_sanitize_enabled(self):

@@ -63,7 +63,7 @@ class NH3Parser:
                 additional_attributes[tag] = attributes
 
         if additional_attributes:
-            self.ALLOWED_TAGS |= set(key for key in additional_attributes.keys() if key != "*")
+            self.ALLOWED_TAGS |= {key for key in additional_attributes.keys() if key != "*"}
             for tag, attributes in additional_attributes.items():
                 self.ALLOWED_ATTRIBUTES[tag] = self.ALLOWED_ATTRIBUTES.get(tag, set()) | attributes
 

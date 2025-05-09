@@ -2,6 +2,17 @@
 Changelog
 =========
 
+0.8.4 (09-05-2025)
+==================
+
+* fix: Make toolbar sticky in modal by @fsbraun in https://github.com/django-cms/djangocms-text/pull/71
+* fix(nh3): By default allow for data- and aria- attributes in HTML by @fsbraun in https://github.com/django-cms/djangocms-text/pull/84
+* fix(nh3): Dictionary unpacking issue by @DmytroLitvinov in https://github.com/django-cms/djangocms-text/pull/77
+* fix: Add patched moona-lisa theme supporting dark-mdoe by @fsbraun in https://github.com/django-cms/djangocms-text/pull/80
+* fix: Typo in warning by @wfehr in https://github.com/django-cms/djangocms-text/pull/81
+* fix: Add styling for bare django admin by @fsbraun in https://github.com/django-cms/djangocms-text/pull/75
+
+
 0.8.3 (27-03-2025)
 ==================
 

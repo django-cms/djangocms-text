@@ -171,3 +171,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 TEXT_SAVE_IMAGE_FUNCTION = "tests.test_html.save_image"
+
+TEXT_ADDITIONAL_ATTRIBUTES = {
+    "source": {"src"},
+}

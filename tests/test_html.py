@@ -1,3 +1,4 @@
+from unittest import skipIf
 from unittest.mock import patch, MagicMock
 
 from cms.api import create_page, add_plugin
@@ -6,38 +7,44 @@ from django.test import TestCase
 from lxml.etree import Element
 
 from djangocms_text import html, settings
-from djangocms_text.html import dynamic_href, dynamic_src, render_dynamic_attributes
+from djangocms_text.html import NH3Parser, dynamic_href, dynamic_src, render_dynamic_attributes
 from tests.fixtures import DJANGO_CMS4, TestFixture
 
 
-class HtmlSanitizerAdditionalProtocolsTests:
-    def test_default_tag_escaping(self):
-        settings.TEXT_ADDITIONAL_TAGS = []
+class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
+    def test_default_tag_removal(self):
+        settings.TEXT_ADDITIONAL_ATTRIBUTES = {}
         text = html.clean_html(
             '<iframe src="rtmp://testurl.com/"></iframe>',
             full=False,
+            cleaner=NH3Parser(),
+        )
+        self.assertNotIn(
+            "iframe", NH3Parser().ALLOWED_TAGS
         )
         self.assertEqual(
-            '&lt;iframe src="rtmp://testurl.com/"&gt;&lt;/iframe&gt;',
+            '',
             text,
         )
 
     def test_custom_tag_enabled(self):
-        settings.TEXT_ADDITIONAL_TAGS = ["iframe"]
         text = html.clean_html(
-            '<iframe src="rtmp://testurl.com/"></iframe>',
+            '<iframe src="https://testurl.com/"></iframe>',
             full=False,
+            cleaner=NH3Parser(
+                additional_attributes={"iframe": {"src"}},
+            ),
         )
         self.assertEqual(
-            '<iframe src="rtmp://testurl.com/"></iframe>',
+            '<iframe src="https://testurl.com/"></iframe>',
             text,
         )
 
     def test_default_attribute_escaping(self):
-        settings.TEXT_ADDITIONAL_ATTRIBUTES = []
         text = html.clean_html(
             '<span test-attr="2">foo</span>',
             full=False,
+            cleaner=NH3Parser(),
         )
         self.assertEqual(
             "<span>foo</span>",
@@ -45,21 +52,26 @@ class HtmlSanitizerAdditionalProtocolsTests:
         )
 
     def test_custom_attribute_enabled(self):
-        settings.TEXT_ADDITIONAL_ATTRIBUTES = ["test-attr"]
         text = html.clean_html(
             '<span test-attr="2">foo</span>',
             full=False,
+            cleaner=NH3Parser(
+                additional_attributes={
+                    "span": {"test-attr"},
+                },
+            ),
         )
         self.assertEqual(
             '<span test-attr="2">foo</span>',
             text,
         )
 
-    def test_default_protocol_escaping(self):
+    def test_default_protocol_removal(self):
         settings.TEXT_ADDITIONAL_PROTOCOLS = []
         text = html.clean_html(
             '<source src="rtmp://testurl.com/">',
             full=False,
+            cleaner=NH3Parser(),
         )
         self.assertEqual("<source>", text)
 
@@ -68,6 +80,7 @@ class HtmlSanitizerAdditionalProtocolsTests:
         text = html.clean_html(
             '<source src="rtmp://testurl.com/">',
             full=False,
+            cleaner=NH3Parser()
         )
         self.assertEqual('<source src="rtmp://testurl.com/">', text)
 
@@ -89,7 +102,7 @@ class HtmlSanitizerAdditionalProtocolsTests:
         old_text_html_sanitize = settings.TEXT_HTML_SANITIZE
         settings.TEXT_HTML_SANITIZE = False
 
-        original = '<span test-attr="2">foo</span>'
+        original = '<span test-attr="2" onclick="alert();">foo</span>'
         cleaned = html.clean_html(
             original,
             full=False,
@@ -217,3 +230,22 @@ class DjangoCMSPictureIntegrationTestCase(CMSTestCase):
                 'P8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==">',
             )
             mock_save_image.assert_called_once()
+
+
+class SanitizerTestCase(TestCase):
+    def test_sanitizer(self):
+        body = '<span data-one="1" data-two="2">some text</span>'
+        body = html.clean_html(body)
+        self.assertTrue('data-one="1"' in body)
+        self.assertTrue('data-two="2"' in body)
+
+    def test_sanitizer_with_custom_token_parser(self):
+        cleaner = NH3Parser(additional_attributes={"span": {"donut"}})
+        body = '<span donut="yummy">some text</span>'
+        body = html.clean_html(body, cleaner=cleaner)
+        self.assertEqual('<span donut="yummy">some text</span>', body)
+
+    def test_sanitizer_without_token_parsers(self):
+        body = '<span data-one="1" data-two="2">some text</span>'
+        body = html.clean_html(body, cleaner=NH3Parser(generic_attribute_prefixes=set()))
+        self.assertEqual("<span>some text</span>", body)

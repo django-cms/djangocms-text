@@ -102,16 +102,16 @@ def clean_html(data: str, full: bool = False, cleaner: NH3Parser = None) -> str:
     the <body> tags).
     """
 
-    if full is not False:
-        warnings.warn(
-            "full argument is deprecated and will be removed",
-            category=DeprecationWarning,
-            stacklevel=2,
-        )
-    if settings.TEXT_HTML_SANITIZE:
-        cleaner = cleaner or cms_parser
-        return nh3.clean(data, **cleaner())
-    return data
+    if settings.TEXT_HTML_SANITIZE is False:
+        return data
+
+    warnings.warn(
+        "full argument is deprecated and will be removed",
+        category=DeprecationWarning,
+        stacklevel=2,
+    )
+    cleaner = cleaner or cms_parser
+    return nh3.clean(data, **cleaner())
 
 
 dynamic_attr_pool = {}

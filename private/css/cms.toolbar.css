@@ -18,6 +18,7 @@
     }
 
     [role="menubar"] {
+        font-family: var(--font-family-primary, Helvetica, Arial, sans-serif);
         bottom: calc(100% - 1px);
         min-width: 375px;
         z-index: 1;

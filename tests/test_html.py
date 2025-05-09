@@ -99,6 +99,30 @@ class HtmlSanitizerAdditionalProtocolsTests:
         finally:
             settings.TEXT_HTML_SANITIZE = old_text_html_sanitize
 
+    def test_clean_html_preserves_aria_attributes(self):
+        original = '<span aria-label="foo">foo</span>'
+        cleaned = html.clean_html(
+            original,
+            full=False,
+        )
+        self.assertHTMLEqual(original, cleaned)
+
+    def test_clean_html_preserves_data_attributes(self):
+        original = '<span data-test-attr="foo">foo</span>'
+        cleaned = html.clean_html(
+            original,
+            full=False,
+        )
+        self.assertHTMLEqual(original, cleaned)
+
+    def test_clean_html_preserves_role_attribute(self):
+        original = '<span role="button">foo</span>'
+        cleaned = html.clean_html(
+            original,
+            full=False,
+        )
+        self.assertHTMLEqual(original, cleaned)
+
 
 class HTMLDynamicAttriutesTest(TestFixture, CMSTestCase):
     def test_dynamic_link(self):

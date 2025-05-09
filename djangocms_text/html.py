@@ -81,7 +81,7 @@ cms_parser: NH3Parser = NH3Parser(
         "cms-plugin": {"id", "title", "name", "alt", "render-plugin", "type"},
         "*": {"style", "class"},
     },
-    generic_attribute_prefixes={"data-"},
+    generic_attribute_prefixes={"data-", "aria-", "role-"},
 )
 #: An instance of NH3Parser with the default configuration for CMS text content.
 

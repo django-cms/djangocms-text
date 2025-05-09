@@ -17,8 +17,8 @@
     }
 }
 
-#cms-top .cms-toolbar .cms-edit-toggle {
-    padding-top: 12.5%;
+#cms-top .cms-toolbar .cms-edit-toggle span.cms-icon {
+    line-height: 28px;;
 }
 
 #cms-top dialog.cms-dialog {

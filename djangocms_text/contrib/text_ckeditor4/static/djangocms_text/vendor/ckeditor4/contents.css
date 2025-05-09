@@ -11,10 +11,10 @@ body
 	font-size: 12px;
 
 	/* Text color */
-	color: #333;
+	color: var(--dca-black, var(--body-fg, #333));
 
 	/* Remove the background color to make it transparent. */
-	background-color: #fff;
+	background-color: var(--dca-white, var(--body-bg, #fff));
 
 	margin: 20px;
 }
@@ -34,7 +34,7 @@ blockquote
 	font-family: Georgia, Times, "Times New Roman", serif;
 	padding: 2px 0;
 	border-style: solid;
-	border-color: #ccc;
+	border-color: var(--dca-gray-lighter, var(--border-color, #ccc));
 	border-width: 0;
 }
 
@@ -54,7 +54,7 @@ blockquote
 
 a
 {
-	color: #0782C1;
+	color: var(--link-fg, #0782C1);
 }
 
 ol,ul,dl

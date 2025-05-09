@@ -11,7 +11,6 @@ from djangocms_text.html import NH3Parser, dynamic_href, dynamic_src, render_dyn
 from tests.fixtures import DJANGO_CMS4, TestFixture
 
 
-
 class SanitizerTestCase(TestCase):
     def test_sanitizer(self):
         body = '<span data-one="1" data-two="2">some text</span>'

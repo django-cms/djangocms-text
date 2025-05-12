@@ -4,7 +4,7 @@ source =
     djangocms_text
     djangocms_text_ckeditor
 omit =
-    migrations/*
+    djangocms_text/migrations/*
     tests/*
 
 [report]

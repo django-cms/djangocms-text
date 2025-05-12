@@ -7,7 +7,12 @@ def drop_table_if_exists(apps, schema_editor):
         if schema_editor.connection.vendor == "postgresql":
             schema_editor.execute("DROP TABLE IF EXISTS djangocms_text_ckeditor_text CASCADE;")
         else:
-            schema_editor.execute("DROP TABLE IF EXISTS djangocms_text_ckeditor_text;")
+            in_atomic_block = schema_editor.connection.in_atomic_block
+            schema_editor.connection.in_atomic_block = False
+            try:
+                schema_editor.execute("DROP TABLE IF EXISTS djangocms_text_ckeditor_text;")
+            finally:
+                schema_editor.connection.in_atomic_block = in_atomic_block
 
 
 class Migration(migrations.Migration):

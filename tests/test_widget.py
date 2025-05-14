@@ -28,7 +28,6 @@ class WidgetTestCase(TestFixture, BaseTestCase):
             body="some text",
         )
         endpoint = self.get_change_plugin_uri(plugin)
-
         with self.login_user_context(self.super_user):
             response = self.client.get(endpoint)
             self.assertContains(response, '"group": "Extra"')

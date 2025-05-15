@@ -623,7 +623,7 @@ class TextPlugin(CMSPluginBase):
             page=page,
         )
         child_plugins = (get_plugin(name) for name in child_plugin_types)
-        template = getattr(self.page, "template", None)
+        template = getattr(page, "template", None)
 
         modules = get_placeholder_conf("plugin_modules", plugin.placeholder.slot, template, default={})
         names = get_placeholder_conf("plugin_labels", plugin.placeholder.slot, template, default={})

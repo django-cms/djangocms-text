@@ -95,7 +95,7 @@ cms_parser: NH3Parser = NH3Parser()
 #: An instance of NH3Parser with the default configuration for CMS text content.
 
 
-def clean_html(data: str, full: bool = False, cleaner: NH3Parser = None) -> str:
+def clean_html(data: str, full: Optional[bool] = None, cleaner: NH3Parser = None) -> str:
     """
     Cleans HTML from XSS vulnerabilities using nh3
     If full is False, only the contents inside <body> will be returned (without
@@ -105,11 +105,12 @@ def clean_html(data: str, full: bool = False, cleaner: NH3Parser = None) -> str:
     if settings.TEXT_HTML_SANITIZE is False:
         return data
 
-    warnings.warn(
-        "full argument is deprecated and will be removed",
-        category=DeprecationWarning,
-        stacklevel=2,
-    )
+    if full is not None:
+        warnings.warn(
+            "full argument is deprecated and will be removed",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
     cleaner = cleaner or cms_parser
     return nh3.clean(data, **cleaner())
 

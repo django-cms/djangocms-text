@@ -53,7 +53,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         settings.TEXT_ADDITIONAL_ATTRIBUTES = {}
         text = html.clean_html(
             '<iframe src="rtmp://testurl.com/"></iframe>',
-            full=False,
             cleaner=NH3Parser(),
         )
         self.assertNotIn("iframe", NH3Parser().ALLOWED_TAGS)
@@ -65,7 +64,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
     def test_custom_tag_enabled(self):
         text = html.clean_html(
             '<iframe src="https://testurl.com/"></iframe>',
-            full=False,
             cleaner=NH3Parser(
                 additional_attributes={"iframe": {"src"}},
             ),
@@ -78,7 +76,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
     def test_default_attribute_escaping(self):
         text = html.clean_html(
             '<span test-attr="2">foo</span>',
-            full=False,
             cleaner=NH3Parser(),
         )
         self.assertEqual(
@@ -89,7 +86,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
     def test_custom_attribute_enabled(self):
         text = html.clean_html(
             '<span test-attr="2">foo</span>',
-            full=False,
             cleaner=NH3Parser(
                 additional_attributes={
                     "span": {"test-attr"},
@@ -105,14 +101,13 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         settings.TEXT_ADDITIONAL_PROTOCOLS = []
         text = html.clean_html(
             '<source src="rtmp://testurl.com/">',
-            full=False,
             cleaner=NH3Parser(),
         )
         self.assertEqual("<source>", text)
 
     def test_custom_protocol_enabled(self):
         settings.TEXT_ADDITIONAL_PROTOCOLS = ["rtmp"]
-        text = html.clean_html('<source src="rtmp://testurl.com/">', full=False, cleaner=NH3Parser())
+        text = html.clean_html('<source src="rtmp://testurl.com/">', cleaner=NH3Parser())
         self.assertEqual('<source src="rtmp://testurl.com/">', text)
 
     def test_clean_html_with_sanitize_enabled(self):
@@ -122,7 +117,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         original = '<span test-attr="2">foo</span>'
         cleaned = html.clean_html(
             original,
-            full=False,
         )
         try:
             self.assertHTMLEqual("<span>foo</span>", cleaned)
@@ -136,7 +130,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         original = '<span test-attr="2" onclick="alert();">foo</span>'
         cleaned = html.clean_html(
             original,
-            full=False,
         )
         try:
             self.assertHTMLEqual(original, cleaned)
@@ -147,7 +140,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         original = '<span aria-label="foo">foo</span>'
         cleaned = html.clean_html(
             original,
-            full=False,
         )
         self.assertHTMLEqual(original, cleaned)
 
@@ -155,7 +147,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         original = '<span data-test-attr="foo">foo</span>'
         cleaned = html.clean_html(
             original,
-            full=False,
         )
         self.assertHTMLEqual(original, cleaned)
 
@@ -163,7 +154,6 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         original = '<span role="button">foo</span>'
         cleaned = html.clean_html(
             original,
-            full=False,
         )
         self.assertHTMLEqual(original, cleaned)
 

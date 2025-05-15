@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.8.5 (15-05-2025)
+==================
+
+* fix: Quit atomic block for mysql migration by @fsbraun in https://github.com/django-cms/djangocms-text/pull/85
+* fix: Support django CMS 5 data bridge for text-enabled plugins by @fsbraun in https://github.com/django-cms/djangocms-text/pull/87
+
+
 0.8.4 (09-05-2025)
 ==================
 

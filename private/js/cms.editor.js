@@ -521,7 +521,7 @@ class CMSEditor {
             cms_history: 0,
         };
         const url = `${settings.add_plugin_url}?${new URLSearchParams(data).toString()}`;
-        return this.loadForm(url, iframe, el, onLoad, onSave);
+        return this.loadPluginForm(url, iframe, el, onLoad, onSave);
     }
 
     // CMS Editor: addPluginForm
@@ -535,10 +535,10 @@ class CMSEditor {
             cms_history: 0,
         };
         url = `${url}?${new URLSearchParams(data).toString()}`;
-        return this.loadForm(url, iframe, el, onLoad, onSave);
+        return this.loadPluginForm(url, iframe, el, onLoad, onSave);
     }
 
-    loadForm (url, iframe, el, onLoad, onSave) {
+    loadPluginForm (url, iframe, el, onLoad, onSave) {
         iframe.addEventListener('load', () => {
             const form = iframe.contentDocument;
             const heading = form.querySelector('#content h1');
@@ -565,9 +565,7 @@ class CMSEditor {
                 // Hook into the django CMS dataBridge to get the details of the newly created or saved
                 // plugin. For new plugins we need their id to get the content.
 
-                if (!this.CMS.API.Helpers.dataBridge) {
-                    this.processDataBridge(form);
-                }
+                this.processDataBridge(form);
                 // Needed to update StructureBoard
                 if (onSave && this.CMS.API.Helpers.dataBridge) {
                     onSave(el, form, this.CMS.API.Helpers.dataBridge);

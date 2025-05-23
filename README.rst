@@ -173,6 +173,7 @@ The ``TEXT_EDITOR`` setting points to a ``RTEConfig`` object. You can create you
 The default configuration is:
 
 .. code-block:: python
+
     RTEConfig(
         name="tiptap",
         config="TIPTAP",

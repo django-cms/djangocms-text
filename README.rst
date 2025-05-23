@@ -66,7 +66,7 @@ from djangocms-text-ckeditor, and clean up old tables. All you have to do is:
 * add ``djangocms_text`` to ``INSTALLED_APPS`` (see above)
 * run ``python -m manage migrate djangocms_text``
 
-**Attention**: The migration command also deletes djangocms-text-ckeditor's 
+**Attention**: The migration command also deletes djangocms-text-ckeditor's
 tables from the database (to avoid referential integrity issues). To be on
 the safe side, make a backup of its content.
 
@@ -156,7 +156,36 @@ Example::
 
     TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor4.ckeditor4"
 
+Rich text editor configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The ``TEXT_EDITOR`` setting points to a ``RTEConfig`` object. You can create your custom
+``RTEConfig`` instance.  The following attributes are available:
+
+- name (str): The name of the RTE configuration.
+- config (str): The configuration string.
+- js (Iterable[str]): An iterable of JavaScript files to include.
+- css (dict): A dictionary of CSS files to include.
+- admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
+- inline_editing (bool): Whether to enable inline editing.
+- child_plugin_support (bool): Whether to support child plugins.
+
+The default configuration is:
+
+.. code-block:: python
+
+    RTEConfig(
+        name="tiptap",
+        config="TIPTAP",
+        js=("djangocms_text/bundles/bundle.tiptap.min.js",),
+        css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
+        admin_css=("djangocms_text/css/tiptap.admin.css",),
+        inline_editing=True,
+        child_plugin_support=True,
+    )
+
+You can use the ``admin_css`` attribute to include CSS files that you need to be loaded into the
+dialog window, e.g., to declare custom colors or other styles.
 
 Inline editing feature
 ~~~~~~~~~~~~~~~~~~~~~~

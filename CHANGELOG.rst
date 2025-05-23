@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.8.6 (23-05-2025)
+==================
+
+* fix: Adding text-enabled plugins failed after adding first plugin by @fsbraun in https://github.com/django-cms/djangocms-text/pull/91
+* fix: Crashed if `STATIC_URL` was not set by @fsbraun
+
 0.8.5 (15-05-2025)
 ==================
 

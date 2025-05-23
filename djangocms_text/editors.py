@@ -433,12 +433,18 @@ class RTEConfig:
         config (str): The configuration string.
         js (Iterable[str]): An iterable of JavaScript files to include.
         css (dict): A dictionary of CSS files to include.
+        admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
+        inline_editing (bool): Whether to enable inline editing.
+        child_plugin_support (bool): Whether to support child plugins.
 
     Attributes:
         name (str): The name of the RTE configuration.
         config (str): The configuration string.
         js (Iterable[str]): An iterable of JavaScript files to include.
         css (dict): A dictionary of CSS files to include.
+        admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
+        inline_editing (bool): Whether to enable inline editing.
+        child_plugin_support (bool): Whether to support child plugins.
     """
 
     def __init__(

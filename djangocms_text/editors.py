@@ -436,7 +436,7 @@ class RTEConfig:
         admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
         inline_editing (bool): Whether to enable inline editing.
         child_plugin_support (bool): Whether to support child plugins.
-        additonal_context (dict | None): Additional context to pass to the editor's global setting.
+        additional_context (dict | None): Additional context to pass to the editor's global setting.
 
     Attributes:
         name (str): The name of the RTE configuration.

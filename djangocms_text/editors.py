@@ -436,6 +436,7 @@ class RTEConfig:
         admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
         inline_editing (bool): Whether to enable inline editing.
         child_plugin_support (bool): Whether to support child plugins.
+        additonal_context (dict | None): Additional context to pass to the editor's global setting.
 
     Attributes:
         name (str): The name of the RTE configuration.
@@ -445,6 +446,7 @@ class RTEConfig:
         admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
         inline_editing (bool): Whether to enable inline editing.
         child_plugin_support (bool): Whether to support child plugins.
+        additional_context (dict): Additional context to pass to the editor's global setting.
     """
 
     def __init__(
@@ -456,6 +458,7 @@ class RTEConfig:
         admin_css: Iterable[str] | None = None,
         inline_editing: bool = False,
         child_plugin_support: bool = False,
+        additional_context: dict | None = None,
     ):
         """ """
         self.name = name
@@ -465,6 +468,7 @@ class RTEConfig:
         self.admin_css = admin_css or ()
         self.inline_editing = inline_editing
         self.child_plugin_support = child_plugin_support
+        self.additional_context = additional_context or {}
 
     def process_base_config(self, base_config: dict) -> dict:
         """

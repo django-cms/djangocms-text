@@ -225,7 +225,9 @@ class TextEditorWidget(forms.Textarea):
         """The global settings are shared by all widgets and are the same for all instances. They only need
         to be loaded once."""
         # Get the toolbar setting
+        editor_config = get_editor_config()
         toolbar_setting = get_editor_base_config()
+        print(toolbar_setting)
         for plugin in self.installed_plugins:
             toolbar_setting[plugin["value"]] = {
                 "title": plugin["name"],
@@ -247,6 +249,7 @@ class TextEditorWidget(forms.Textarea):
             "render_plugin_url": self.render_plugin_url or "",
             "cancel_plugin_url": self.cancel_url or "",
             "messages_url": self.messages_url or "",
+            **editor_config.additional_context,
         }
 
     def render_additions(self, name, value, attrs=None, renderer=None):

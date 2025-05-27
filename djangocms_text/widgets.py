@@ -227,7 +227,6 @@ class TextEditorWidget(forms.Textarea):
         # Get the toolbar setting
         editor_config = get_editor_config()
         toolbar_setting = get_editor_base_config()
-        print(toolbar_setting)
         for plugin in self.installed_plugins:
             toolbar_setting[plugin["value"]] = {
                 "title": plugin["name"],

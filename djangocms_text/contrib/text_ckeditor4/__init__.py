@@ -21,7 +21,7 @@ ckeditor4 = RTEConfig(
     child_plugin_support=True,
     additional_context=dict(
         CKEDITOR_BASEPATH=getattr(
-            settings, "TEXT_CKEDITOR_BASE_PATH", lazy(static, str)("/djangocms_text/vendor/ckeditor4/")
+            settings, "TEXT_CKEDITOR_BASE_PATH", lazy(static, str)("djangocms_text/vendor/ckeditor4/")
         ),
     ),
 )

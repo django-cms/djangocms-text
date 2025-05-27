@@ -84,6 +84,7 @@ class TextEditorWidget(forms.Textarea):
 
     @property
     def media(self):
+        rte_config = get_editor_config()
         rte_css = rte_config.css.get("all", ())
         if self.add_admin_css:
             rte_css += rte_config.admin_css

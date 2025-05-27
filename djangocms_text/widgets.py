@@ -18,9 +18,6 @@ from . import settings as text_settings
 from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_base_config, get_editor_config
 from .utils import admin_reverse, cms_placeholder_add_plugin
 
-rte_config = get_editor_config()
-#: The configuration for the text editor widget
-
 
 @cache
 def get_url_endpoint():
@@ -224,6 +221,7 @@ class TextEditorWidget(forms.Textarea):
     def get_global_settings(self, language):
         """The global settings are shared by all widgets and are the same for all instances. They only need
         to be loaded once."""
+        rte_config = get_editor_config()
         # Get the toolbar setting
         toolbar_setting = get_editor_base_config()
         for plugin in self.installed_plugins:

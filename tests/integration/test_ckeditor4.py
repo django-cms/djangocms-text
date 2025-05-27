@@ -1,3 +1,4 @@
+import json
 import pytest
 from cms.utils.urlutils import admin_reverse
 from playwright.sync_api import expect
@@ -29,6 +30,13 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
     page.on("console", handle_console_message)
 
     page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
+
+    editor_config = json.loads(
+        page.locator("#cms-editor-cfg").text_content()
+    )  # Ensure the editor configuration is loaded
+    print(editor_config)  # Debugging output
+    assert "CKEDITOR_BASEPATH" in editor_config, "CKEDITOR_BASEPATH not found in editor configuration"
+    assert editor_config["CKEDITOR_BASEPATH"] == "/static/djangocms_text/vendor/ckeditor4/"
 
     editor = page.locator(".cke.cke_reset")
     expect(editor).to_be_visible()  # Editor

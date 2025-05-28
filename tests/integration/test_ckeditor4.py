@@ -30,6 +30,10 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
 
     page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
 
+    basepath = page.locator("script[data-ckeditor-basepath]").get_attribute("data-ckeditor-basepath")
+
+    assert basepath == "/static/djangocms_text/vendor/ckeditor4/"
+
     editor = page.locator(".cke.cke_reset")
     expect(editor).to_be_visible()  # Editor
 

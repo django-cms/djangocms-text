@@ -48,6 +48,7 @@ from cms.utils.placeholder import get_placeholder_conf
 from cms.utils.urlutils import admin_reverse
 
 from . import settings
+from .editors import get_editor_config
 from .forms import ActionTokenValidationForm, RenderPluginForm, TextForm
 from .html import render_dynamic_attributes
 from .models import Text, _MAX_RTE_LENGTH
@@ -62,7 +63,10 @@ from .utils import (
     random_comment_exempt,
     replace_plugin_tags,
 )
-from .widgets import TextEditorWidget, rte_config
+from .widgets import TextEditorWidget
+
+
+rte_config = get_editor_config()
 
 
 def post_add_plugin(operation, **kwargs):

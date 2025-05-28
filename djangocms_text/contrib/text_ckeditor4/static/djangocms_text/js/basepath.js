@@ -3,4 +3,5 @@
 // It's loaded in this script since we avoid inline scripts (to better support CSP headers) and it needs to be
 // set before the CKEditor script is loaded which in turn needs to be loaded before the integration script.
 
-window.CKEDITOR_BASEPATH = JSON.parse(document.getElementById('cms-editor-cfg').textContent).CKEDITOR_BASEPATH;
+window.CKEDITOR_BASEPATH = document.currentScript.dataset.ckeditorBasepath
+

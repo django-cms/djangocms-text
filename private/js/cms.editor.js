@@ -449,24 +449,13 @@ class CMSEditor {
                         }
 
                     }
-                    const script = dom.querySelector('script#data-bridge');
                     el.dataset.changed = 'false';
-                    if (script && script.textContent.length > 2) {
-                        this.CMS.API.Helpers.dataBridge = JSON.parse(script.textContent);
-                    } else {
-                        const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
-                        const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(body);
-                        if (regex1 && regex2 && this.CMS) {
-                            this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
-                            this.CMS.API.Helpers.dataBridge.structure = JSON.parse(regex2[1]);
-                        } else {
-                            // No databridge found: reload
-                            this.CMS.API.Helpers.reloadBrowser('REFRESH_PAGE');
-                            return;
-                        }
+                    this.processDataBridge(dom);
+                    if (!this.CMS.API.Helpers.dataBridge) {
+                        // No databridge found
+                        this.CMS.API.Helpers.reloadBrowser('REFRESH_PAGE');
+                        return;
                     }
-                    // Additional content for the page disrupts inline editing and needs to be removed
-                    delete this.CMS.API.Helpers.dataBridge.structure?.content;
 
                     if (this.CMS.settings.version.startsWith('3.')) {
                         /* Reflect dirty flag in django CMS < 4 */
@@ -497,6 +486,27 @@ class CMSEditor {
         }
     }
 
+    processDataBridge(dom) {
+        const script = dom.querySelector('script#data-bridge');
+
+        if (script && script.textContent.length > 2) {
+            this.CMS.API.Helpers.dataBridge = JSON.parse(script.textContent);
+        } else {
+            const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(dom.innerHTML);
+            const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(dom.innerHTML);
+
+            if (regex1 && regex2 && this.CMS) {
+                this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
+                this.CMS.API.Helpers.dataBridge.structure = JSON.parse(regex2[1]);
+            } else {
+                // No databridge found
+                this.CMS.API.Helpers.dataBridge = null;
+            }
+        }
+        // Additional content for the page disrupts inline editing and needs to be removed
+        delete this.CMS.API.Helpers.dataBridge.structure?.content;
+    }
+
     // CMS Editor: addPluginForm
     // Get form for a new child plugin
     addPluginForm (plugin_type, iframe, el , onLoad, onSave) {
@@ -511,7 +521,7 @@ class CMSEditor {
             cms_history: 0,
         };
         const url = `${settings.add_plugin_url}?${new URLSearchParams(data).toString()}`;
-        return this.loadForm(url, iframe, el, onLoad, onSave);
+        return this.loadPluginForm(url, iframe, el, onLoad, onSave);
     }
 
     // CMS Editor: addPluginForm
@@ -525,10 +535,10 @@ class CMSEditor {
             cms_history: 0,
         };
         url = `${url}?${new URLSearchParams(data).toString()}`;
-        return this.loadForm(url, iframe, el, onLoad, onSave);
+        return this.loadPluginForm(url, iframe, el, onLoad, onSave);
     }
 
-    loadForm (url, iframe, el, onLoad, onSave) {
+    loadPluginForm (url, iframe, el, onLoad, onSave) {
         iframe.addEventListener('load', () => {
             const form = iframe.contentDocument;
             const heading = form.querySelector('#content h1');
@@ -554,19 +564,11 @@ class CMSEditor {
                 el.dataset.changed = 'true';
                 // Hook into the django CMS dataBridge to get the details of the newly created or saved
                 // plugin. For new plugins we need their id to get the content.
-                if (!this.CMS.API.Helpers.dataBridge) {
-                    // The dataBridge sets a timer, so typically it will not yet be present
-                    setTimeout(() => {
-                        // Needed to update StructureBoard
-                        if (onSave) {
-                            onSave(el, form, this.CMS.API.Helpers.dataBridge);
-                        }
-                    }, 100);
-                } else {
-                    // Needed to update StructureBoard
-                    if (onSave) {
-                        onSave(el, form, this.CMS.API.Helpers.dataBridge);
-                    }
+
+                this.processDataBridge(form);
+                // Needed to update StructureBoard
+                if (onSave && this.CMS.API.Helpers.dataBridge) {
+                    onSave(el, form, this.CMS.API.Helpers.dataBridge);
                 }
                 //  Do callback
             } else if (onLoad) {

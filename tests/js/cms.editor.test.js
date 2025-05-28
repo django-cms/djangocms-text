@@ -65,7 +65,7 @@ describe('CMSEditor', () => {
         const el = document.getElementById('editor1');
         document.body.appendChild(iframe);
 
-        editor.loadForm('about:blank', iframe, el, () => {
+        editor.loadPluginForm('about:blank', iframe, el, () => {
             expect(iframe.contentDocument).toBeTruthy();
             done();
         });

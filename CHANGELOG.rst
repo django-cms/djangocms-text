@@ -2,6 +2,30 @@
 Changelog
 =========
 
+0.8.6 (23-05-2025)
+==================
+
+* fix: Adding text-enabled plugins failed after adding first plugin by @fsbraun in https://github.com/django-cms/djangocms-text/pull/91
+* fix: Crashed if `STATIC_URL` was not set by @fsbraun
+
+0.8.5 (15-05-2025)
+==================
+
+* fix: Quit atomic block for mysql migration by @fsbraun in https://github.com/django-cms/djangocms-text/pull/85
+* fix: Support django CMS 5 data bridge for text-enabled plugins by @fsbraun in https://github.com/django-cms/djangocms-text/pull/87
+
+
+0.8.4 (09-05-2025)
+==================
+
+* fix: Make toolbar sticky in modal by @fsbraun in https://github.com/django-cms/djangocms-text/pull/71
+* fix(nh3): By default allow for data- and aria- attributes in HTML by @fsbraun in https://github.com/django-cms/djangocms-text/pull/84
+* fix(nh3): Dictionary unpacking issue by @DmytroLitvinov in https://github.com/django-cms/djangocms-text/pull/77
+* fix: Add patched moona-lisa theme supporting dark-mdoe by @fsbraun in https://github.com/django-cms/djangocms-text/pull/80
+* fix: Typo in warning by @wfehr in https://github.com/django-cms/djangocms-text/pull/81
+* fix: Add styling for bare django admin by @fsbraun in https://github.com/django-cms/djangocms-text/pull/75
+
+
 0.8.3 (27-03-2025)
 ==================
 

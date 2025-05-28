@@ -17,6 +17,9 @@
     }
 }
 
+#cms-top .cms-toolbar .cms-edit-toggle span.cms-icon {
+    line-height: 28px;
+}
 
 #cms-top dialog.cms-dialog {
     padding: 0;
@@ -51,9 +54,9 @@
 dialog.cms-form-dialog, .cms-editor-inline-wrapper .cms-block-dropdown {
     &::before {
         position: absolute;
-        background: var(--dca-white);
-        border: 1px solid var(--dca-gray-light);
-        box-shadow: 0 0 10px rgba(var(--dca-shadow), .25);
+        background: var(--dca-white, var(--body-bg, #fff));
+        border: 1px solid var(--dca-gray-light, var(--close-button-bg, #888));
+        box-shadow: 0 0 10px rgba(var(--dca-shadow, var(--body-fg, #000)), .25);
         height: 10px;
         width: 10px;
         left: 24px;
@@ -70,7 +73,7 @@ dialog.cms-form-dialog, .cms-editor-inline-wrapper .cms-block-dropdown {
 
     &::after {
         position: absolute;
-        background: var(--dca-white);
+        background: var(--dca-white, var(--body-bg, #fff));
         height: 10px;
         left: 10px;
         top: 0;
@@ -93,6 +96,7 @@ dialog.cms-form-dialog {
         z-index: -1;
         cursor: unset;  /* browser default */
     }
+    font-family: var(--font-family-primary, Helvetica, Arial, sans-serif);
     z-index: 1001;
     position: absolute;
     margin: unset;
@@ -100,10 +104,10 @@ dialog.cms-form-dialog {
     transform: translate(-50%, -50%);
     min-width: 240px;
     padding: 10px 15px;
-    background-color: var(--dca-white);
-    border: 1px solid var(--dca-gray-light);
+    background-color: var(--dca-white, var(--body-bg, #fff));
+    border: 1px solid var(--dca-gray-light, var(--close-button-bg, #888));
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(var(--dca-shadow), .25);
+    box-shadow: 0 0 10px rgba(var(--dca-shadow, var(--body-fg, #000)), .25);
     form {
         display: flex;
         flex-flow: row;
@@ -145,7 +149,7 @@ form.cms-form {
         padding: 3px 6px !important;
     }
     select {  /* !important for djangocms-admin-style */
-        background: var(--dca-white) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16" fill="%23808080" viewBox="0 0 16 16"><path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>') no-repeat right center  !important;
+        background: var(--dca-white, var(--body-bg, #fff)) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16" fill="%23808080" viewBox="0 0 16 16"><path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>') no-repeat right center  !important;
         background-size: auto 1em  !important;
         appearance: none;
     }

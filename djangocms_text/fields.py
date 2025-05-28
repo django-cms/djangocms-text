@@ -23,7 +23,7 @@ class HTMLFormField(CharField):
     def clean(self, value):
         value = super().clean(value)
         value = render_dynamic_attributes(value, admin_objects=False, remove_attr=False)
-        clean_value = clean_html(value, full=False)
+        clean_value = clean_html(value)
 
         # We `mark_safe` here (as well as in the correct places) because Django
         # Parler cache's the value directly from the in-memory object as it

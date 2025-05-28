@@ -79,7 +79,7 @@ if apps.is_installed("cms"):
             super().save(*args, **kwargs)
             body = self.body
             body = extract_images(body, self)
-            body = clean_html(body, full=False)
+            body = clean_html(body)
             if settings.TEXT_AUTO_HYPHENATE:
                 try:
                     body = hyphenate(body, language=self.language)

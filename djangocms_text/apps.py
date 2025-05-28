@@ -90,7 +90,7 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
         warnings.append(
             Warning(
                 "The CKEDITOR_SETTINGS toolbar setting has changed: Instead of 'cmsplugins' use 'CMSPlugins'.",
-                hint="Replace 'cmspluings' by 'CMSPlugins' in CKEDITOR_SETTINGS.",
+                hint="Replace 'cmsplugins' by 'CMSPlugins' in CKEDITOR_SETTINGS.",
                 id="text.W003",
             )
         )

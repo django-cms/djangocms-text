@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.8.7 (30-05-2025)
+==================
+* fix: table icons of inline ckeditor respect dark mode by @PeterW-LWL in https://github.com/django-cms/djangocms-text/pull/92
+* feat: Add `CKEDITOR_BASEPATH` configuration for CKEditor 4 by @fsbraun in https://github.com/django-cms/djangocms-text/pull/94
+
+**New Contributor**
+
+@PeterW-LWL made their first contribution in https://github.com/django-cms/djangocms-text/pull/92
+
 0.8.6 (23-05-2025)
 ==================
 
@@ -48,6 +57,7 @@ Changelog
 * fix: Leaner event management by @fsbraun
 
 **New Contributors**
+
 * @DmytroLitvinov made their first contribution in https://github.com/django-cms/djangocms-text/pull/67
 * @earthcomfy made their first contribution in https://github.com/django-cms/djangocms-text/pull/61
 
@@ -175,8 +185,9 @@ Changelog
 * fix: Prepare css for drag / swipe in rtl mode by @fsbraun in https://github.com/django-cms/djangocms-text/pull/9
 * fix: Add bundles to build
 
-**New Contributors**
-* @MacLake made their first contribution in https://github.com/django-cms/djangocms-text/pull/11
+**New Contributor**
+
+@MacLake made their first contribution in https://github.com/django-cms/djangocms-text/pull/11
 
 0.1.0 (First alpha)
 ===================

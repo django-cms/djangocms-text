@@ -4,7 +4,7 @@ See PEP 440 (https://www.python.org/dev/peps/pep-0440/)
 Release logic:
  1. Increase version number (change __version__ below).
  2. Assure that all changes have been documented in CHANGELOG.rst.
- 3. In setup.py check that
+ 3. In ``pyproject.toml`` check that
    - versions from all third party packages are pinned in ``REQUIREMENTS``.
    - the list of ``CLASSIFIERS`` is up to date.
  4. git add djangocms_text_ckeditor/__init__.py CHANGELOG.rst setup.py

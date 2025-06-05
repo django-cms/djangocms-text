@@ -492,9 +492,9 @@ class CMSEditor {
         if (script && script.textContent.length > 2) {
             this.CMS.API.Helpers.dataBridge = JSON.parse(script.textContent);
         } else {
-            const body = dom.body.innerHTML;
-            const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
-            const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(body);
+            const html = dom.innerHTML;
+            const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(html);
+            const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(html);
 
             if (regex1 && regex2 && this.CMS) {
                 this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
@@ -566,7 +566,7 @@ class CMSEditor {
                 // Hook into the django CMS dataBridge to get the details of the newly created or saved
                 // plugin. For new plugins we need their id to get the content.
 
-                this.processDataBridge(form);
+                this.processDataBridge(form.body);
                 // Needed to update StructureBoard
                 if (onSave && this.CMS.API.Helpers.dataBridge) {
                     onSave(el, form, this.CMS.API.Helpers.dataBridge);

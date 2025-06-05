@@ -492,8 +492,9 @@ class CMSEditor {
         if (script && script.textContent.length > 2) {
             this.CMS.API.Helpers.dataBridge = JSON.parse(script.textContent);
         } else {
-            const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(dom.innerHTML);
-            const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(dom.innerHTML);
+            const body = dom.body.innerHTML;
+            const regex1 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\s=\s(.*?);$/gmu.exec(body);
+            const regex2 = /^\s*Window\.CMS\.API\.Helpers\.dataBridge\.structure\s=\s(.*?);$/gmu.exec(body);
 
             if (regex1 && regex2 && this.CMS) {
                 this.CMS.API.Helpers.dataBridge = JSON.parse(regex1[1]);
@@ -504,7 +505,7 @@ class CMSEditor {
             }
         }
         // Additional content for the page disrupts inline editing and needs to be removed
-        delete this.CMS.API.Helpers.dataBridge.structure?.content;
+        delete this.CMS.API.Helpers.dataBridge?.structure?.content;
     }
 
     // CMS Editor: addPluginForm

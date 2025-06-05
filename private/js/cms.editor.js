@@ -505,7 +505,9 @@ class CMSEditor {
             }
         }
         // Additional content for the page disrupts inline editing and needs to be removed
-        delete this.CMS.API.Helpers.dataBridge?.structure?.content;
+        if (this.CMS.API.Helpers.dataBridge?.structure?.content) {
+            delete this.CMS.API.Helpers.dataBridge.structure.content;
+        }
     }
 
     // CMS Editor: addPluginForm

@@ -2,6 +2,10 @@
 Changelog
 =========
 
+0.8.8 (05-06-2025)
+==================
+* fix: Text-enabled plugins could not be added in django CMS 3.x
+
 0.8.7 (30-05-2025)
 ==================
 * fix: table icons of inline ckeditor respect dark mode by @PeterW-LWL in https://github.com/django-cms/djangocms-text/pull/92

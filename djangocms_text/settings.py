@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 # See http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html
 # for all settings
 
-CKEDITOR_SETTINGS: dict[str, Union[str, list]] = {
+TEXT_EDITOR_SETTINGS: dict[str, Union[str, list]] = {
     "language": "{{ language }}",
     "toolbar": "CMS",
     "skin": "moono-lisa",
@@ -15,7 +15,7 @@ CKEDITOR_SETTINGS: dict[str, Union[str, list]] = {
     "toolbarCanCollapse": False,
     "removePlugins": ["flash"],
     **getattr(settings, "CKEDITOR_SETTINGS", {}),
-    **getattr(settings, "TEXT_CONFIG", {}),
+    **getattr(settings, "TEXT_EDITOR_SETTINGS", {}),
 }
 
 TEXT_SAVE_IMAGE_FUNCTION = getattr(settings, "TEXT_SAVE_IMAGE_FUNCTION", None)

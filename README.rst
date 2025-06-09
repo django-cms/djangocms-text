@@ -336,16 +336,17 @@ To completely disable the feature, set ``TEXT_HTML_SANITIZE = False``.
 Configuration for the frontend editor
 -------------------------------------
 
-Configuration to the frontend editor can be passed setting the ``TEXT_CONFIG`` setting.
+Configuration to the frontend editor can be passed setting the ``TEXT_EDITOR_SETTINGS`` setting.
 It needs to be a dictionary, the contents of which depend on the forntend editor used
 (TipTap, CKEditor 4, etc.). For backwards compatibility with ``djangocms-text-ckeditor``,
-``CKEDITOR_CONFIG`` is also passed on the the frontend editor (even if it is not CKEditor 4).
+``CKEDITOR_SETTINGS`` is also passed on the the frontend editor (even if it is not CKEditor 4).
 
 Here are some examples which also represent the default configuration for the editors:
 
 .. code-block:: python
+
     # TipTap configuration
-    TEXT_CONFIG = {
+    TEXT_EDITOR_SETTINGS = {
         "inlineStyles": [
                 { name: 'Small', element: 'small' },
                 { name: 'Kbd', element: 'kbd' },
@@ -390,6 +391,7 @@ This will prevent the creation of the model for the django CMS text plugin.
 Markdown-support
 ----------------
 The TipTap frontend supports some (minimal) Markdown support:
+
 * Markdown is converted to HTML when **pasting**. (To prevent XXS attacks, the
   pasted content might not be converted if it contains javascript scritps.)
 * When typing, **some** markdown syntax is converted on the fly, e.g., headings, bold, lists

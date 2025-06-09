@@ -141,11 +141,11 @@ class TextEditorWidget(forms.Textarea):
         self.plugin_language = plugin_language  # specific
         self.plugin_position = plugin_position  # specific
         if configuration and getattr(settings, configuration, False):
-            conf = deepcopy(text_settings.CKEDITOR_SETTINGS)
+            conf = deepcopy(text_settings.TEXT_EDITOR_SETTINGS)
             conf.update(getattr(settings, configuration))
             self.configuration = conf  # specific
         else:
-            self.configuration = text_settings.CKEDITOR_SETTINGS  # TODO: Change to TEXT_EDITOR_SETTINGS
+            self.configuration = text_settings.TEXT_EDITOR_SETTINGS
         self.cancel_url = cancel_url
         self.url_endpoint = url_endpoint
         self.render_plugin_url = render_plugin_url

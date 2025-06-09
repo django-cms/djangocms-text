@@ -446,7 +446,8 @@ class RTEConfig:
         admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
         inline_editing (bool): Whether to enable inline editing.
         child_plugin_support (bool): Whether to support child plugins.
-        additional_context (dict): Additional context to pass to the editor's global setting.
+        configuration (dict): A dictionary to hold additional globalboal editor configurations.
+        additional_context (dict): Additional context to pass to the editor's global setting object.
     """
 
     def __init__(
@@ -458,6 +459,7 @@ class RTEConfig:
         admin_css: Iterable[str] | None = None,
         inline_editing: bool = False,
         child_plugin_support: bool = False,
+        configuration: dict | None = None,
         additional_context: dict | None = None,
     ):
         """ """
@@ -468,6 +470,7 @@ class RTEConfig:
         self.admin_css = admin_css or ()
         self.inline_editing = inline_editing
         self.child_plugin_support = child_plugin_support
+        self.configuration = configuration or {}
         self.additional_context = additional_context or {}
 
     def process_base_config(self, base_config: dict) -> dict:
@@ -478,6 +481,15 @@ class RTEConfig:
         :type base_config: dict
         """
         return base_config
+
+    def get_base_config(self) -> dict:
+        """
+        Returns the base configuration for the editor.
+
+        :return: The base configuration for the editor.
+        :rtype: dict
+        """
+        return self.process_base_config(_EDITOR_TOOLBAR_BASE_CONFIG.copy())
 
 
 configuration = {}
@@ -515,25 +527,15 @@ def get_editor_config(editor: str | None = None) -> RTEConfig:
     return configuration[config_name]
 
 
-def get_editor_base_config(editor: str | None = None) -> dict:
-    """
-    Returns the base configuration for the editor.
-
-    :return: The base configuration for the editor.
-    :rtype: dict
-    """
-    editor_config = get_editor_config(editor)
-    return editor_config.process_base_config(_EDITOR_TOOLBAR_BASE_CONFIG.copy())
-
-
-register(
-    RTEConfig(
-        name="tiptap",
-        config="TIPTAP",
-        js=("djangocms_text/bundles/bundle.tiptap.min.js",),
-        css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
-        admin_css=("djangocms_text/css/tiptap.admin.css",),
-        inline_editing=True,
-        child_plugin_support=True,
-    )
+DEFAULT_EDITOR = RTEConfig(
+    name="tiptap",
+    config="TIPTAP",
+    js=("djangocms_text/bundles/bundle.tiptap.min.js",),
+    css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
+    admin_css=("djangocms_text/css/tiptap.admin.css",),
+    inline_editing=True,
+    child_plugin_support=True,
+    configuration={},
 )
+
+register(DEFAULT_EDITOR)

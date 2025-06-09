@@ -31,7 +31,7 @@ const _tableMenu = [
 ];
 
 function generateTableMenu(editor, builder, item) {
-    return generateButtonArray(10, 10, item.attr || editor.options.tableClasses) + builder(_tableMenu);
+    return generateButtonArray(10, 10, item.attr || editor.options.tableClasses || 'table') + builder(_tableMenu);
 }
 
 

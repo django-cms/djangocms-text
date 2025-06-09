@@ -156,8 +156,8 @@ Example::
 
     TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor4.ckeditor4"
 
-Rich text editor configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Rich text editor global configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``TEXT_EDITOR`` setting points to a ``RTEConfig`` object. You can create your custom
 ``RTEConfig`` instance.  The following attributes are available:
@@ -169,12 +169,14 @@ The ``TEXT_EDITOR`` setting points to a ``RTEConfig`` object. You can create you
 - admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
 - inline_editing (bool): Whether to enable inline editing.
 - child_plugin_support (bool): Whether to support child plugins.
+- configuration (dict): Additional configuration options for the RTE.
+- additional_context (dict): Additional context to pass to global editor configuration.
 
 The default configuration is:
 
 .. code-block:: python
 
-    RTEConfig(
+    DEFAULT_EDITOR = RTEConfig(
         name="tiptap",
         config="TIPTAP",
         js=("djangocms_text/bundles/bundle.tiptap.min.js",),
@@ -182,10 +184,50 @@ The default configuration is:
         admin_css=("djangocms_text/css/tiptap.admin.css",),
         inline_editing=True,
         child_plugin_support=True,
+        configuration={},  # Default configuration (see below)
     )
 
 You can use the ``admin_css`` attribute to include CSS files that you need to be loaded into the
 dialog window, e.g., to declare custom colors or other styles.
+
+Adding configuration to rich text editor frontend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configuration to the rich text editor frontend can be passed by adding entries to the
+``configuration`` property of the ``RTEConfig``. The contents depends on the rich text
+editor frontend (TipTap, CKEditor 4, etc.). For backwards compatibility with ``djangocms-text-ckeditor``,
+``CKEDITOR_SETTINGS`` is also passed on the the rich text editor frontend (even if it is not CKEditor 4).
+
+Here is an example for Tiptap which represents the default configuration:
+
+.. code-block:: python
+
+    # TipTap configuration
+    DEFAULT_EDITOR.configuration = {
+        "inlineStyles": [  # Styles menu, by default contains some rarer styles
+                { name: 'Small', element: 'small' },
+                { name: 'Kbd', element: 'kbd' },
+                { name: 'Var', element: 'var' },
+                { name: 'Samp', element: 'samp' },
+            ],
+        "blockStyles": [],
+        # Block styles menu, e.g., for paragraphs, etc.; empty by default
+        # Example entry: [{"name": "Lead", "element": "div", "attributes": {"class": "lead"}},]
+        "textColors": {  # Colors offered for the text color menu - the keys are CSS classes
+                'text-primary': {name: "Primary"},
+                'text-secondary': {name: "Secondary"},
+                'text-success': {name: "Success"},
+                'text-danger': {name: "Danger"},
+                'text-warning': {name: "Warning"},
+                'text-info': {name: "Info"},
+                'text-light': {name: "Light"},
+                'text-dark': {name: "Dark"},
+                'text-body': {name: "Body"},
+                'text-muted': {name: "Muted"},
+            },
+        "tableClasses": "table",  # Classes added to new(!) tables
+    }
+
 
 Inline editing feature
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -332,43 +374,6 @@ Django checks framework at server startup.
 rendering the above settings useless.
 
 To completely disable the feature, set ``TEXT_HTML_SANITIZE = False``.
-
-Configuration for the frontend editor
--------------------------------------
-
-Configuration to the frontend editor can be passed setting the ``TEXT_EDITOR_SETTINGS`` setting.
-It needs to be a dictionary, the contents of which depend on the forntend editor used
-(TipTap, CKEditor 4, etc.). For backwards compatibility with ``djangocms-text-ckeditor``,
-``CKEDITOR_SETTINGS`` is also passed on the the frontend editor (even if it is not CKEditor 4).
-
-Here are some examples which also represent the default configuration for the editors:
-
-.. code-block:: python
-
-    # TipTap configuration
-    TEXT_EDITOR_SETTINGS = {
-        "inlineStyles": [
-                { name: 'Small', element: 'small' },
-                { name: 'Kbd', element: 'kbd' },
-                { name: 'Var', element: 'var' },
-                { name: 'Samp', element: 'samp' },
-            ],
-        "blockStyles": [],  # Example entry: [{"name": "Lead", "element": "div", "attributes": {"class": "lead"}},]
-        "textColors": {
-                'text-primary': {name: "Primary"},
-                'text-secondary': {name: "Secondary"},
-                'text-success': {name: "Success"},
-                'text-danger': {name: "Danger"},
-                'text-warning': {name: "Warning"},
-                'text-info': {name: "Info"},
-                'text-light': {name: "Light"},
-                'text-dark': {name: "Dark"},
-                'text-body': {name: "Body"},
-                'text-muted': {name: "Muted"},
-            },
-        "tableClasses": "table",  # Classes added to new(!) tables
-    }
-
 
 Usage outside django CMS
 ------------------------

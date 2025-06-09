@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation.trans_real import get_language, gettext
 
 from . import settings as text_settings
-from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_base_config, get_editor_config
+from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_config
 from .utils import admin_reverse, cms_placeholder_add_plugin
 
 
@@ -81,13 +81,12 @@ class TextEditorWidget(forms.Textarea):
 
     @property
     def media(self):
-        rte_config = get_editor_config()
-        rte_css = rte_config.css.get("all", ())
+        rte_css = self.rte_config.css.get("all", ())
         if self.add_admin_css:
-            rte_css += rte_config.admin_css
+            rte_css += self.rte_config.admin_css
         return forms.Media(
             css={
-                **rte_config.css,
+                **self.rte_config.css,
                 "all": (
                     "djangocms_text/css/cms.text.css",
                     "djangocms_text/css/cms.normalize.css",
@@ -96,7 +95,7 @@ class TextEditorWidget(forms.Textarea):
             },
             js=(
                 "djangocms_text/bundles/bundle.editor.min.js",
-                *rte_config.js,
+                *self.rte_config.js,
             ),
         )
 
@@ -126,6 +125,7 @@ class TextEditorWidget(forms.Textarea):
         if attrs is None:
             attrs = {}
 
+        self.rte_config = get_editor_config()
         self.editor_class = "CMS_Editor"
         if self.editor_class not in attrs.get("class", "").join(" "):
             new_class = f"{attrs.get('class', '')} {self.editor_class}"
@@ -141,11 +141,12 @@ class TextEditorWidget(forms.Textarea):
         self.plugin_language = plugin_language  # specific
         self.plugin_position = plugin_position  # specific
         if configuration and getattr(settings, configuration, False):
-            conf = deepcopy(text_settings.TEXT_EDITOR_SETTINGS)
-            conf.update(getattr(settings, configuration))
-            self.configuration = conf  # specific
+            self.configuration = deepcopy(self.rte_config.configuration)
+            self.configuration.update(settings.TEXT_EDITOR_SETTINGS)
+            self.configuration.update(getattr(settings, configuration))
         else:
-            self.configuration = text_settings.TEXT_EDITOR_SETTINGS
+            self.configuration = deepcopy(self.rte_config.configuration)
+            self.configuration.update(text_settings.TEXT_EDITOR_SETTINGS)
         self.cancel_url = cancel_url
         self.url_endpoint = url_endpoint
         self.render_plugin_url = render_plugin_url
@@ -221,9 +222,8 @@ class TextEditorWidget(forms.Textarea):
     def get_global_settings(self, language):
         """The global settings are shared by all widgets and are the same for all instances. They only need
         to be loaded once."""
-        rte_config = get_editor_config()
         # Get the toolbar setting
-        toolbar_setting = get_editor_base_config()
+        toolbar_setting = self.rte_config.get_base_config()
         for plugin in self.installed_plugins:
             toolbar_setting[plugin["value"]] = {
                 "title": plugin["name"],
@@ -245,7 +245,7 @@ class TextEditorWidget(forms.Textarea):
             "render_plugin_url": self.render_plugin_url or "",
             "cancel_plugin_url": self.cancel_url or "",
             "messages_url": self.messages_url or "",
-            **rte_config.additional_context,
+            **self.rte_config.additional_context,
         }
 
     def render_additions(self, name, value, attrs=None, renderer=None):

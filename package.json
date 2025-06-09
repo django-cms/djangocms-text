@@ -64,6 +64,7 @@
     "@tiptap/pm": "^2.11.7",
     "@tiptap/starter-kit": "^2.11.7",
     "html-loader": "^5.1.0",
-    "quill": "^2.0.3"
+    "quill": "^2.0.3",
+    "showdown": "^2.1.0"
   }
 }

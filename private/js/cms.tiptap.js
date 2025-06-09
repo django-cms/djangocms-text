@@ -23,6 +23,7 @@ import {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle} from "./tipt
 import CmsFormExtension from "./tiptap_plugins/cms.formextension";
 import CmsToolbarPlugin from "./tiptap_plugins/cms.toolbar";
 import ExtendedTable from "./tiptap_plugins/cms.table";
+import markdownPasteHandler from './tiptap_plugins/cms.markdown';
 
 import '../css/cms.tiptap.css';
 
@@ -56,6 +57,7 @@ class CMSTipTapPlugin {
                 CmsBlockPluginNode,
                 CmsFormExtension,
                 CmsToolbarPlugin,
+                markdownPasteHandler,
             ],
             toolbar_HTMLField: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',

@@ -383,7 +383,7 @@ function _closeAllDropdowns(event, editor) {
 function _createDropdown(editor, item, filter) {
     'use strict';
     const dropdown = typeof item.items === 'function' ?
-        item.items(editor, (items) => _populateToolbar(editor, items, filter)) :
+        item.items(editor, (items) => _populateToolbar(editor, items, filter), item) :
         _populateToolbar(editor, item.items, filter);
 
     // Are there any items in the dropdown?
@@ -391,8 +391,9 @@ function _createDropdown(editor, item, filter) {
         return '';
     }
     const title = item.title && item.icon ? `title='${item.title}' ` : '';
+    const attr = item.attr ? `data-attr="${item.attr}" ` : '';
     const icon = item.icon || `<span>${item.title}</span>`;
-    return `<span ${title}class="dropdown" tabindex="-1" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+    return `<span ${title}${attr}class="dropdown" tabindex="-1" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
 }
 
 function _populateGroup(editor, array, filter) {
@@ -413,13 +414,10 @@ function _populateToolbar(editor, array, filter) {
         }
         if (item in TiptapToolbar && (TiptapToolbar[item].items || TiptapToolbar[item].insitu)) {
             // Create submenu
-            const repr = window.cms_editor_plugin._getRepresentation(item, filter);
-            if (!repr) {
+            item = window.cms_editor_plugin._getRepresentation(item, filter);
+            if (!item) {
                 return '';
             }
-            item = TiptapToolbar[item];
-            item.title = repr.title;
-            item.icon = repr.icon;
             if (!item.items) {
                 item.items = item.insitu;
             }
@@ -459,9 +457,11 @@ function _createToolbarButton(editor, itemName, filter) {
     const repr = window.cms_editor_plugin._getRepresentation(item, filter);
     if (repr) {
         repr.dataaction = repr.dataaction || item;
-        const title = repr && repr.icon ? `title='${repr.title}' ` : '';
+        const title = repr.icon ? `title='${repr.title}' ` : '';
         const position = repr.position ? `style="float :${repr.position};" ` : '';
         const cmsplugin = repr.cmsplugin ? `data-cmsplugin="${repr.cmsplugin}" ` : '';
+        const attr = repr.attr ? `data-attr="${repr.attr}" ` : '';
+
         let form = '';
         let classes = 'button';
         if (repr.toolbarForm) {
@@ -479,7 +479,7 @@ function _createToolbarButton(editor, itemName, filter) {
             </form>`;
         }
         const content = repr.icon || `<span>${repr.title}</span>`;
-        return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}">${content}${form}</button>`;
+        return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}${attr}class="${classes}">${content}${form}</button>`;
     }
     return '';
 }

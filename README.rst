@@ -333,6 +333,41 @@ rendering the above settings useless.
 
 To completely disable the feature, set ``TEXT_HTML_SANITIZE = False``.
 
+Configuration for the frontend editor
+-------------------------------------
+
+Configuration to the frontend editor can be passed setting the ``TEXT_CONFIG`` setting.
+It needs to be a dictionary, the contents of which depend on the forntend editor used
+(TipTap, CKEditor 4, etc.). For backwards compatibility with ``djangocms-text-ckeditor``,
+``CKEDITOR_CONFIG`` is also passed on the the frontend editor (even if it is not CKEditor 4).
+
+Here are some examples which also represent the default configuration for the editors:
+
+.. code-block:: python
+    # TipTap configuration
+    TEXT_CONFIG = {
+        "inlineStyles": [
+                { name: 'Small', element: 'small' },
+                { name: 'Kbd', element: 'kbd' },
+                { name: 'Var', element: 'var' },
+                { name: 'Samp', element: 'samp' },
+            ],
+        "blockStyles": [],  # Example entry: [{"name": "Lead", "element": "div", "attributes": {"class": "lead"}},]
+        "textColors": {
+                'text-primary': {name: "Primary"},
+                'text-secondary': {name: "Secondary"},
+                'text-success': {name: "Success"},
+                'text-danger': {name: "Danger"},
+                'text-warning': {name: "Warning"},
+                'text-info': {name: "Info"},
+                'text-light': {name: "Light"},
+                'text-dark': {name: "Dark"},
+                'text-body': {name: "Body"},
+                'text-muted': {name: "Muted"},
+            },
+        "tableClasses": "table",  # Classes added to new(!) tables
+    }
+
 
 Usage outside django CMS
 ------------------------

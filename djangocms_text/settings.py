@@ -15,6 +15,7 @@ CKEDITOR_SETTINGS: dict[str, Union[str, list]] = {
     "toolbarCanCollapse": False,
     "removePlugins": ["flash"],
     **getattr(settings, "CKEDITOR_SETTINGS", {}),
+    **getattr(settings, "TEXT_CONFIG", {}),
 }
 
 TEXT_SAVE_IMAGE_FUNCTION = getattr(settings, "TEXT_SAVE_IMAGE_FUNCTION", None)

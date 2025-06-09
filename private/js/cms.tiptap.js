@@ -121,6 +121,7 @@ class CMSTipTapPlugin {
                 inlineStyles: options.inlineStyles,
                 blockStyles: options.blockStyles,
                 textColors: options.textColors,
+                tableClasses: options.tableClasses,
                 separator_markup: this.separator_markup,
                 space_markup: this.space_markup,
             });

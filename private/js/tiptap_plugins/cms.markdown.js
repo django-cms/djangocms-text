@@ -28,7 +28,7 @@ const markdownPasteHandler = Extension.create({
     name: 'markdownPasteHandler',
 
     addProseMirrorPlugins() {
-        const editor = this.editor;
+        const {editor} = this;
 
         return [
             new Plugin({

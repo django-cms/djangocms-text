@@ -9,13 +9,13 @@ import showdown from "showdown";
 
 // Check for typical Markdown elements
 const markdownPatterns = [
-    /^#{1,6}\s/m,           // Headings: #, ##, ...
+    /^#{1,6}\s\p{L}/m,           // Headings: #, ##, ...
     /\*\*.*\*\*/m,          // Bold: **text**
     /\*.*\*/m,              // Italic: *text*
     /\[.*\]\(.*\)/m,        // Links: [text](url)
-    /^>\s/m,                // Blockquote: >
-    /^-\s/m,                // Lists: - item
-    /^(\d+\.)\s/m,          // Numbered lists: 1. item
+    /^>\s\p{L}/m,                // Blockquote: >
+    /^-\s\p{L}/m,                // Lists: - item
+    /^(\d+\.)\s\p{L}/m,          // Numbered lists: 1. item
     /`[^`]+`/m,             // Inline-Code: `code`
     /^```/m                 // Code blocks: ```
 ];

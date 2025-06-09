@@ -355,7 +355,8 @@ This will prevent the creation of the model for the django CMS text plugin.
 Markdown-support
 ----------------
 The TipTap frontend supports some (minimal) Markdown support:
-* Markdown is converted to HTML when **pasting**.
+* Markdown is converted to HTML when **pasting**. (To prevent XXS attacks, the
+  pasted content might not be converted if it contains javascript scritps.)
 * When typing, **some** markdown syntax is converted on the fly, e.g., headings, bold, lists
 
 

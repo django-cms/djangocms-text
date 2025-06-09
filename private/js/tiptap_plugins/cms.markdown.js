@@ -7,20 +7,20 @@ import {Extension} from "@tiptap/core";
 import {Plugin} from "@tiptap/pm/state";
 import showdown from "showdown";
 
+// Check for typical Markdown elements
+const markdownPatterns = [
+    /^#{1,6}\s/m,           // Headings: #, ##, ...
+    /\*\*.*\*\*/m,          // Bold: **text**
+    /\*.*\*/m,              // Italic: *text*
+    /\[.*\]\(.*\)/m,        // Links: [text](url)
+    /^>\s/m,                // Blockquote: >
+    /^-\s/m,                // Lists: - item
+    /^(\d+\.)\s/m,          // Numbered lists: 1. item
+    /`[^`]+`/m,             // Inline-Code: `code`
+    /^```/m                 // Code blocks: ```
+];
 
 function isProbablyMarkdown(text) {
-    // Check for typical Markdown elements
-    const markdownPatterns = [
-        /^#{1,6}\s/m,           // Headings: #, ##, ...
-        /\*\*.*\*\*/m,          // Bold: **text**
-        /\*.*\*/m,              // Italic: *text*
-        /\[.*\]\(.*\)/m,        // Links: [text](url)
-        /^>\s/m,                // Blockquote: >
-        /^-\s/m,                // Lists: - item
-        /^(\d+\.)\s/m,          // Numbered lists: 1. item
-        /`[^`]+`/m,             // Inline-Code: `code`
-        /^```/m                 // Code blocks: ```
-    ];
     return text && markdownPatterns.some(pattern => pattern.test(text));
 }
 

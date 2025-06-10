@@ -2,7 +2,7 @@
 Changelog
 =========
 
-0.9.0 (10.06.2025)
+0.9.0 (10-06-2025)
 ==================
 * feat: Add support for pasting Markdown by @fsbraun in https://github.com/django-cms/djangocms-text/pull/100
 * feat: extend tiptap table to have a (configurable) class attribute by fsbraun in https://github.com/django-cms/djangocms-text/pull/76

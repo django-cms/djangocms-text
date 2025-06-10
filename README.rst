@@ -24,29 +24,12 @@ Features
 Installation
 ------------
 
-Install ``djangocms-text`` using pip: ``pip install djangocms-text``.
+1. Install: ``pip install djangocms-text``
+2. Add to ``INSTALLED_APPS``: ``INSTALLED_APPS = [..., "djangocms_text", ...]``
+3. Run migrations: ``python manage.py migrate djangocms_text``
+4. Start your server and add a Text plugin!
 
-Build latest development branch using git:
-
-.. code-block:: bash
-
-    git clone git@github.com:fsbraun/djangocms-text.git
-    cd djangocms-text
-    nvm use
-    npm install
-    npx webpack --mode development
-
-You then can install the cloned repo using ``pip install -e
-/path/to/the/repo/djangocms-text``.
-
-Finally, add ``djangocms_text`` to your ``INSTALLED_APPS`` in your Django project
-settings:
-
-.. code-block:: python
-
-    INSTALLED_APPS = [..., "djangocms_text", ...]
-
-Add an editor frontend to your installed apps (if different from the
+Optionally, add an editor frontend to your installed apps (if different from the
 default TipTap frontend), and set the editor you want to use:
 
 .. code-block:: python
@@ -91,20 +74,9 @@ project, consider the following points:
   provided with djangocms-text. This allows you to retain the familiar
   CKEditor4 behavior while benefiting from other updates.
 
-Using ckeditor4
----------------
-
-You can continue to use ckeditor4. Compared to djangocms-text-ckeditor, the
+**You can continue to use ckeditor4.** Compared to djangocms-text-ckeditor, the
 ckeditor4 sources have moved to ``static/djangocms_text/vendor/ckeditor4``.
 Please reflect this if you use custom ckeditor4 plugins.
-
-Usage
------
-
-After installation, ``djangocms-text`` can be used as your rich text editor in Django
-CMS. It can be used as a drop-in for `djangocms-text-ckeditor
-<https://github.com/django-cms/djangocms-text-ckeditor>`_. Detailed documentation on
-usage and customization will be provided.
 
 Editors
 -------
@@ -125,18 +97,6 @@ needed. The following editors are currently supported:
   `separate package <https://github.com/django-cms/djangocms-text-ckeditor5>`_
   ``djangocms-text-ckeditor5`` which provides CKEditor 5 as a rich text editor.
 
-
-Contributing
-------------
-
-Contributions to ``djangocms-text`` are welcome! Please read our contributing guidelines
-to get started.
-
-License
--------
-
-This project is licensed under the BSD-3-Clause License - see the LICENSE file for
-details.
 
 Configuration
 -------------
@@ -196,8 +156,13 @@ Adding configuration to rich text editor frontend
 
 Configuration to the rich text editor frontend can be passed by adding entries to the
 ``configuration`` property of the ``RTEConfig``. The contents depends on the rich text
-editor frontend (TipTap, CKEditor 4, etc.). For backwards compatibility with ``djangocms-text-ckeditor``,
-``CKEDITOR_SETTINGS`` is also passed on the the rich text editor frontend (even if it is not CKEditor 4).
+editor frontend (TipTap, CKEditor 4, etc.).
+
+The preferred method to add configuration to rich text editor frontend. Some configuration
+can be done using the ``TEXT_EDITOR_SETTINGS`` which is a dictionary that corresponds
+to the ``configuration`` property of the ``RTEConfig``. For backwards compatibility with
+``djangocms-text-ckeditor``, ``CKEDITOR_SETTINGS`` is also passed on the the rich text
+editor frontend (even if it is not CKEditor 4).
 
 Here is an example for Tiptap which represents the default configuration:
 
@@ -227,6 +192,19 @@ Here is an example for Tiptap which represents the default configuration:
                 'text-muted': {name: "Muted"},
             },
         "tableClasses": "table",  # Classes added to new(!) tables
+    }
+
+Here's an example to configre the classes which should be added to new tables::
+
+    # Option 1:
+    # Modify the default editor configuration and point the ``TEXT_EDITOR`` setting to it`
+    from djangocms_text.editors import DEFAULT_EDITOR
+
+    DEFAULT_EDITOR.configuration["tableClasses"] = "table ui"
+
+    # Option 2:
+    TEXT_EDITOR_SETTINGS = {
+        "tableClasses": "table ui",
     }
 
 
@@ -403,8 +381,12 @@ The TipTap frontend supports some (minimal) Markdown support:
 * When typing, **some** markdown syntax is converted on the fly, e.g., headings, bold, lists
 
 
-Development
-===========
+Contributing
+------------
+
+Contributions to ``djangocms-text`` are welcome! Please read our
+`contributing guidelines <https://docs.django-cms.org/en/stable/contributing/index.html>`_
+to get started.
 
 pre-commit hooks
 ----------------
@@ -427,6 +409,11 @@ Acknowledgments
 - Special thanks to the Django CMS community and all contributors to the
   ``djangocms-text-ckeditor`` project.
 
+License
+-------
+
+This project is licensed under the BSD-3-Clause License - see the LICENSE file for
+details.
 
 
 .. |pypi| image:: https://badge.fury.io/py/djangocms-text.svg

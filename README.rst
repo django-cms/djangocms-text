@@ -389,25 +389,29 @@ Contributions to ``djangocms-text`` are welcome! Please read our
 to get started.
 
 pre-commit hooks
-----------------
+~~~~~~~~~~~~~~~~
 
 The repo uses pre-commit git hooks to run tools which ensure code quality.
 
 To utilise this, run ``pip install pre-commit`` and then ``pre-commit install``.
 
 Building the JavaScript
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 ``djangocms-text`` distributes a javascript bundle required for the plugin to work,
 which contains frontend editors themselves and all the necessary plugins for functioning
 within CMS. To build the bundle you need to have to install dependencies with
-``nvm use``, ``npm install`` and then to run ``npx webpack``.
+``nvm use``, ``npm install`` and then to run ``npx webpack``::
+
+    $ nvm use
+    $ npm install
+    $ npx webpack
 
 Acknowledgments
 ---------------
 
-- Special thanks to the Django CMS community and all contributors to the
-  ``djangocms-text-ckeditor`` project.
+Special thanks to the Django CMS community and all contributors to the
+``djangocms-text-ckeditor`` project.
 
 License
 -------

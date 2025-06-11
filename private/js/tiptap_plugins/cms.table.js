@@ -12,18 +12,32 @@ import Table from '@tiptap/extension-table'
  * @property {Object} attributes - The attributes of the table.
  * @property {string|null} attributes.class - The CSS class applied to the table. Defaults to `null`.
  */
-const ExtendedTable = Table.extend({
 
+function getDefaultTableClass(classes) {
+    if (classes === undefined || classes === null) {
+        classes = cms_editor_plugin.tableClasses || 'table';
+    }
+    if (Array.isArray(classes) && classes.length > 0) {
+        return classes[0][0];
+    }
+    return classes;
+}
+
+
+const ExtendedTable = Table.extend({
     addAttributes() {
         return {
             ...this.parent?.(),
             addClasses: {
                 default: null,
-                parseHTML: element => element.getAttribute('class'),
+                parseHTML: element => element.getAttribute('class') || this.options.defaultClasses,
                 renderHTML: attributes => ({ class: attributes.addClasses })
             },
         }
     },
+    onCreate() {
+        this.options.defaultClasses = getDefaultTableClass(this.editor.options.tableClasses);
+    }
 });
 
-export default ExtendedTable;
+export {ExtendedTable as default, getDefaultTableClass};

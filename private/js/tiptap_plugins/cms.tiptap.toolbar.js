@@ -4,6 +4,8 @@
 
 'use strict';
 
+import { getDefaultTableClass } from "./cms.table";
+
 
 function generateButtonArray(rows, cols) {
     const buttons = ['<div class="tt-create-table">'];
@@ -29,16 +31,6 @@ function generateTableMenu(editor, builder, item) {
         tableMenu = tableMenu.slice(0, -editor.options.separator_markup.length);
     }
     return generateButtonArray(10, 10, item.attr || editor.options.tableClasses || 'table') + `<div class="tt-edit-table">${tableMenu}</div>` + builder(['tableClass']);
-}
-
-function getDefaultTableClass(classes) {
-    if (!classes) {
-        classes = cms_editor_plugin.tableClasses || 'table';
-    }
-    if (Array.isArray(classes) && classes.length > 0) {
-        return classes[0][0];
-    }
-    return classes;
 }
 
 function renderTableClassOptions(editor, item) {

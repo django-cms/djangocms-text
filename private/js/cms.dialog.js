@@ -362,25 +362,30 @@ function formToHtml(formArray) {
     let form = '';
 
     formArray.forEach((element) => {
+        const id = Math.random().toString(36).slice(2, 9);
         switch(element.type) {
             case 'text':
             case 'url':
-                form += `<label for="${element.name}">${element.label}</label>`;
-                form += `<input type="${element.type}" id="${element.name}"
+                if (element.label) {
+                    form += `<label for="id${id}">${element.label}</label>`;
+                }
+                form += `<input type="${element.type}" id="id${id}"
                     placeholder="${element.placeholder || ''}" name="${element.name}"
                     class="${element.class || ''}"
                     value="${element.value || ''}"${element.required ? ' required' : ''}>`;
                 break;
             case 'select':
-                form += `<label for="${element.name}">${element.label}</label>`;
-                form += `<select id="${element.name}" name="${element.name}"${element.required ? ' required' : ''} class="${element.class || ''}">`;
+                if (element.label) {
+                    form += `<label for="id${id}">${element.label}</label>`;
+                }
+                form += `<select id="id${id}" name="${element.name}"${element.required ? ' required' : ''} class="${element.class || ''}">`;
                 element.options.forEach((option) => {
                     form += `<option value="${option.value}"${option.value === element.value ? ' selected' : ''}>${option.label}</option>`;
                 });
                 form += '</select>';
                 break;
             case 'hidden':
-                form += `<input type="hidden" id="${element.name}" name="${element.name}" value="${element.value || ''}">`;
+                form += `<input type="hidden" id="id${id}" name="${element.name}" value="${element.value || ''}">`;
                 break;
             case 'hr':
                 form += '<hr>';

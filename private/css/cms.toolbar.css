@@ -1,14 +1,17 @@
 .cms-editor-inline-wrapper {
+    --tiptap-ease: 100ms;
     .ProseMirror-focused [role="menubar"] {
         /* show toolbar if editor is focused */
         visibility: visible;
-        transition: visibility 200ms ease;
+        opacity: 1;
+        transition: opacity var(--tiptap-ease, 100ms) ease-in;
         [role="button"].show {
             z-index: 10;
             > .dropdown-content {
                 visibility: visible;
-                transition: visibility 200ms ease;
-                height: auto;
+                opacity: 1;
+                transition: opacity var(--tiptap-ease, 100ms) ease-in;
+                /* height: auto; */
             }
         }
     }
@@ -28,7 +31,8 @@
         font-size: 1rem;
         font-weight: normal;
         visibility: hidden;
-        transition: visibility 200ms ease;
+        opacity: 0;
+        transition: opacity var(--tiptap-ease, 100ms) ease-out, visibility 0s linear var(--tiptap-ease, 100ms);
         position: absolute;
         pointer-events: all;
         display: flex;
@@ -51,7 +55,7 @@
         display: block;
         top: 0;
         visibility: visible;
-        transition: visibility 200ms ease;
+        transition: visibility var(--tiptap-ease, 100ms);
         [role="button"].show {
             z-index: 10;
             > .dropdown-content {
@@ -77,15 +81,24 @@
         }
     }
     .tt-table {
-        &:has(> button:not([disabled])) {
+        &:has(> form, > button) {
+            display: block;
+        }
+        &:has(> div.tt-edit-table > button:not([disabled])) {
             --all-disabled: none;
             --not-all-disabled: inline-flex;
         }
-        > button {
+        div.tt-edit-table, > button, > div.hr {
+            text-align: left;
+            width: 100%;
             display: var(--not-all-disabled, none);
         }
         > .tiptap-separator {
             display: var(--not-all-disabled, none);
+        }
+        button:not(:empty):not(:has(svg)) {
+            min-width: 10rem;
+            width: 100%  !important
         }
         div.tt-create-table {
             &[disabled] {
@@ -120,6 +133,11 @@
                 }
             }
         }
+    }
+    div.hr {
+        width: 100%;
+        border-top: 1px solid var(--dca-gray-lighter, var(--hairline-color));
+        margin: 0.5rem 0;
     }
     button, [role="button"] {
         width: auto  !important;  /* for djangocms-admin-style */
@@ -200,8 +218,10 @@
         color: var(--dca-black, var(--body-fg));
         border-radius: 0;
         visibility: hidden;
-        transition: visibility 200ms ease;
-        height: 0;
+        opacity: 0;
+        /* height: 0; */
+        transition: opacity var(--tiptap-ease, 100ms) ease-out,
+                    visibility 0s linear var(--tiptap-ease, 100ms);
         overflow-y: hidden;
         position: absolute;
         inset-block-start: 100%;
@@ -223,6 +243,10 @@
                 small {
                     margin: 0;
                 }
+            }
+            &:not(:has(svg)):not(:empty) { /* Make sure text buttons have a minimum width */
+                min-width: 10rem;
+                text-align: left;
             }
         }
         &.plugins {
@@ -274,10 +298,12 @@
     .ProseMirror-focused .cms-block-toolbar, &:has(dialog.cms-form-dialog) .cms-block-toolbar {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
-        transition: visibility 200ms ease;
+        opacity: 1;
+        transition: opacity var(--tiptap-ease, 100ms) ease-in;
         &.show .cms-block-dropdown {
             visibility: visible;
-            transition: visibility 200ms ease;
+            opacity: 1;
+            transition: opacity var(--tiptap-ease, 100ms) ease-in;
         }
     }
 
@@ -285,7 +311,8 @@
         --size: 1rem;
         position: absolute;
         visibility: hidden;
-        transition: visibility 200ms ease;
+        opacity: 0;
+        transition: opacity var(--tiptap-ease, 100ms) ease-out, visibility 0s linear var(--tiptap-ease, 100ms);
         box-sizing: border-box;
         border-width: 0;
         border-style: solid;
@@ -329,7 +356,9 @@
             box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4);
             border: 1px solid var(--dca-gray-light);
             visibility: hidden;
-            transition: visibility 200ms ease;
+            opacity: 0;
+            transition: visibility var(--tiptap-ease, 100ms);
+            transition: opacity var(--tiptap-ease, 100ms) ease-out, visibility 0s linear var(--tiptap-ease, 100ms);
             display: flex;
             svg {
                 width: calc(1.2 * var(--size));

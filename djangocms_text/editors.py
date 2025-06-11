@@ -247,6 +247,7 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
         "title": _("Merge/split cells"),
         "icon": '<svg version="1.1" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="m2.5 1a1.5 1.5 0 0 0-1.5 1.5v15a1.5 1.5 0 0 0 1.5 1.5h4.459v-1h-4.959v-16h16v4.8203h1v-4.3203a1.5 1.5 0 0 0-1.5-1.5z" style="opacity:.6"/><path d="m7.5614 6.3318h11.006a1.1006 1.1121 0 0 1 1.1006 1.1121v11.121a1.1006 1.1121 0 0 1-1.1006 1.1121h-11.006a1.1006 1.1121 0 0 1-1.1006-1.1121v-11.121a1.1006 1.1121 0 0 1 1.1006-1.1121zm-0.36687 0.74142v11.863h11.74v-11.863z" opacity=".6" style="opacity:1;stroke-width:.73757"/><path d="m6.7285 13v-1h-4.7285v1z" style="opacity:.6"/><path d="m6.7285 8v-1h-4.7285v1z" style="opacity:.6"/><path d="m12 6.6816h1v-4.6816h-1z" style="opacity:.6"/><path d="m7 2v4.6816h1v-4.6816z" style="opacity:.6"/></svg>',
     },
+    "tableClass": {},
     "Code": {
         "title": _("Code"),
         "icon": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code" viewBox="0 0 16 16">\n'
@@ -446,7 +447,8 @@ class RTEConfig:
         admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
         inline_editing (bool): Whether to enable inline editing.
         child_plugin_support (bool): Whether to support child plugins.
-        additional_context (dict): Additional context to pass to the editor's global setting.
+        configuration (dict): A dictionary to hold additional globalboal editor configurations.
+        additional_context (dict): Additional context to pass to the editor's global setting object.
     """
 
     def __init__(
@@ -458,6 +460,7 @@ class RTEConfig:
         admin_css: Iterable[str] | None = None,
         inline_editing: bool = False,
         child_plugin_support: bool = False,
+        configuration: dict | None = None,
         additional_context: dict | None = None,
     ):
         """ """
@@ -468,6 +471,7 @@ class RTEConfig:
         self.admin_css = admin_css or ()
         self.inline_editing = inline_editing
         self.child_plugin_support = child_plugin_support
+        self.configuration = configuration or {}
         self.additional_context = additional_context or {}
 
     def process_base_config(self, base_config: dict) -> dict:
@@ -478,6 +482,15 @@ class RTEConfig:
         :type base_config: dict
         """
         return base_config
+
+    def get_base_config(self) -> dict:
+        """
+        Returns the base configuration for the editor.
+
+        :return: The base configuration for the editor.
+        :rtype: dict
+        """
+        return self.process_base_config(_EDITOR_TOOLBAR_BASE_CONFIG.copy())
 
 
 configuration = {}
@@ -515,25 +528,15 @@ def get_editor_config(editor: str | None = None) -> RTEConfig:
     return configuration[config_name]
 
 
-def get_editor_base_config(editor: str | None = None) -> dict:
-    """
-    Returns the base configuration for the editor.
-
-    :return: The base configuration for the editor.
-    :rtype: dict
-    """
-    editor_config = get_editor_config(editor)
-    return editor_config.process_base_config(_EDITOR_TOOLBAR_BASE_CONFIG.copy())
-
-
-register(
-    RTEConfig(
-        name="tiptap",
-        config="TIPTAP",
-        js=("djangocms_text/bundles/bundle.tiptap.min.js",),
-        css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
-        admin_css=("djangocms_text/css/tiptap.admin.css",),
-        inline_editing=True,
-        child_plugin_support=True,
-    )
+DEFAULT_EDITOR = RTEConfig(
+    name="tiptap",
+    config="TIPTAP",
+    js=("djangocms_text/bundles/bundle.tiptap.min.js",),
+    css={"all": ("djangocms_text/css/bundle.tiptap.min.css",)},
+    admin_css=("djangocms_text/css/tiptap.admin.css",),
+    inline_editing=True,
+    child_plugin_support=True,
+    configuration={},
 )
+
+register(DEFAULT_EDITOR)

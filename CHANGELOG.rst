@@ -2,9 +2,14 @@
 Changelog
 =========
 
+0.9.0 (10-06-2025)
+==================
+* feat: Add support for pasting Markdown by @fsbraun in https://github.com/django-cms/djangocms-text/pull/100
+* feat: extend tiptap table to have a (configurable) class attribute by fsbraun in https://github.com/django-cms/djangocms-text/pull/76
+
 0.8.8 (05-06-2025)
 ==================
-* fix: Text-enabled plugins could not be added in django CMS 3.x
+* fix: Text-enabled plugins could not be added in django CMS 3.x by fsbraun in https://github.com/django-cms/djangocms-text/pull/99
 
 0.8.7 (30-05-2025)
 ==================

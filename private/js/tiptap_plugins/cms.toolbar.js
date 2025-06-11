@@ -73,7 +73,7 @@ function _createBlockToolbarPlugin(editor) {
                             _handleToolbarClick(event, editor);
                             return true;
                         }
-                        blockToolbar.classList.add('show');
+                        blockToolbar.classList.toggle('show');
                         return true;
                     }
                     return false;
@@ -244,7 +244,8 @@ function _createTopToolbarPlugin(editor, filter) {
             },
             handleDOMEvents: {
                 mousedown (view, event) {
-                    if (editor.options.topToolbar?.contains(event.target)) {
+                    const form = event.target.closest('form.cms-inline-form');
+                    if (editor.options.topToolbar?.contains(event.target) && !form) {
                         event.preventDefault();
                         return true;
                     }
@@ -252,11 +253,15 @@ function _createTopToolbarPlugin(editor, filter) {
                 },
                 click (view, event) {
                     if (editor.options.topToolbar?.contains(event.target)) {
+                        const form = event.target.closest('form.cms-inline-form');
+                        if (form && editor.options.topToolbar.contains(form) ) {
+                            // Let the form handle clicks inside it
+                            return false;
+                        }
                         _handleToolbarClick(event, editor);
                         return true;
                     }
-                    _closeAllDropdowns(event, editor);
-                    return false;
+                    return _closeAllDropdowns(event, editor) > 0;
                 },
             }
         },
@@ -307,7 +312,7 @@ function _createToolbar(editor, toolbar, filter) {
     toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
 
     // create the toolbar html from the settings
-    toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${_populateToolbar(editor, toolbar, filter)}`;
+    toolbarElement.innerHTML = _populateToolbar(editor, toolbar, filter);
 
     if (!editor.options.element.classList.contains('fixed')) {
         // Limit its width to the available space
@@ -345,37 +350,35 @@ function _handleToolbarClick(event, editor) {
                 if (button.offsetLeft + content.offsetWidth > window.innerWidth) {
                     content.style.left = (window.innerWidth - content.offsetWidth - button.offsetLeft - 25) + 'px';
                 }
-                // if (content.tagName === 'FORM') {
-                //     // Don't let clicks on the form close the dropdown
-                //     content.addEventListener('click', (event) => event.stopPropagation());
-                //     // Select the first input
-                //     content.querySelector('input:not([type=hidden])').focus();
-                // }
             } else {
                 button.classList.remove('show');
             }
         } else if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, button);
+            // Close dropdowns and update toolbar after editor command execution
+            _closeAllDropdowns(event, editor, true);
             _updateToolbar(editor);
-            // Close dropdowns after command execution
-            _closeAllDropdowns(event, editor);
         }
     }
 }
 
-// Close all dropdowns
-function _closeAllDropdowns(event, editor) {
+// Close all dropdowns, returns the number of closed dropdowns from the TOP toolbar
+function _closeAllDropdowns(event, editor, force) {
     'use strict';
     let count = 0;
     document.documentElement.querySelectorAll('.cms-editor-inline-wrapper .cms-block-toolbar.show')
         .forEach((el) => {
-            el.classList.remove('show');
-            count++;
+            if (!el.contains(event.target) || force) {
+                el.classList.remove('show');
+                count++;
+            }
         });
     document.documentElement.querySelectorAll('.cms-editor-inline-wrapper [role="menubar"] .dropdown.show')
         .forEach((el) => {
-            el.classList.remove('show');
-            count++;
+            if (!el.contains(event.target) || force) {
+                el.classList.remove('show');
+                count++;
+            }
         });
     return count;
 }
@@ -383,7 +386,7 @@ function _closeAllDropdowns(event, editor) {
 function _createDropdown(editor, item, filter) {
     'use strict';
     const dropdown = typeof item.items === 'function' ?
-        item.items(editor, (items) => _populateToolbar(editor, items, filter)) :
+        item.items(editor, (items) => _populateToolbar(editor, items, filter), item) :
         _populateToolbar(editor, item.items, filter);
 
     // Are there any items in the dropdown?
@@ -391,8 +394,9 @@ function _createDropdown(editor, item, filter) {
         return '';
     }
     const title = item.title && item.icon ? `title='${item.title}' ` : '';
+    const attr = item.attr ? `data-attr="${item.attr}" ` : '';
     const icon = item.icon || `<span>${item.title}</span>`;
-    return `<span ${title}class="dropdown" tabindex="-1" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+    return `<span ${title}${attr}class="dropdown" tabindex="-1" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
 }
 
 function _populateGroup(editor, array, filter) {
@@ -413,13 +417,10 @@ function _populateToolbar(editor, array, filter) {
         }
         if (item in TiptapToolbar && (TiptapToolbar[item].items || TiptapToolbar[item].insitu)) {
             // Create submenu
-            const repr = window.cms_editor_plugin._getRepresentation(item, filter);
-            if (!repr) {
+            item = window.cms_editor_plugin._getRepresentation(item, filter);
+            if (!item) {
                 return '';
             }
-            item = TiptapToolbar[item];
-            item.title = repr.title;
-            item.icon = repr.icon;
             if (!item.items) {
                 item.items = item.insitu;
             }
@@ -459,12 +460,19 @@ function _createToolbarButton(editor, itemName, filter) {
     const repr = window.cms_editor_plugin._getRepresentation(item, filter);
     if (repr) {
         repr.dataaction = repr.dataaction || item;
-        const title = repr && repr.icon ? `title='${repr.title}' ` : '';
+        const title = repr.icon ? `title='${repr.title}' ` : '';
         const position = repr.position ? `style="float :${repr.position};" ` : '';
         const cmsplugin = repr.cmsplugin ? `data-cmsplugin="${repr.cmsplugin}" ` : '';
+        const attr = repr.attr ? `data-attr="${repr.attr}" ` : '';
+
         let form = '';
         let classes = 'button';
-        if (repr.toolbarForm) {
+        if (repr.render) {
+            // Allow custom HTML rendering
+            return repr.html(editor, repr);
+        } else if (repr.inlineForm) {
+            return `<form class="cms-form cms-inline-form" data-action="${repr.dataaction}" ${cmsplugin}${title}${position}${attr}>${formToHtml(repr.inlineForm)}</form>`;
+        } else if (repr.toolbarForm) {
             classes += ' dropdown';
             form = `<form class="cms-form dropdown-content">
                 <div class="cms-form-inputs">${formToHtml(repr.toolbarForm)}</div>
@@ -479,7 +487,7 @@ function _createToolbarButton(editor, itemName, filter) {
             </form>`;
         }
         const content = repr.icon || `<span>${repr.title}</span>`;
-        return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}class="${classes}">${content}${form}</button>`;
+        return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}${attr}class="${classes}">${content}${form}</button>`;
     }
     return '';
 }

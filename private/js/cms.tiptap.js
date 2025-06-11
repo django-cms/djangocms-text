@@ -12,7 +12,6 @@ import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
-import Table from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
@@ -22,6 +21,7 @@ import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 import {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle} from "./tiptap_plugins/cms.styles";
 import CmsFormExtension from "./tiptap_plugins/cms.formextension";
 import CmsToolbarPlugin from "./tiptap_plugins/cms.toolbar";
+import ExtendedTable from "./tiptap_plugins/cms.table";
 import markdownPasteHandler from './tiptap_plugins/cms.markdown';
 
 import '../css/cms.tiptap.css';
@@ -40,11 +40,8 @@ class CMSTipTapPlugin {
                 Placeholder,
                 Subscript,
                 Superscript,
-                Table.configure({
+                ExtendedTable.configure({
                     resizable: false,
-                    HTMLAttributes: {
-                        class: 'table',
-                    },
                 }),
                 TableRow,
                 TableHeader,
@@ -125,6 +122,7 @@ class CMSTipTapPlugin {
                 inlineStyles: options.inlineStyles,
                 blockStyles: options.blockStyles,
                 textColors: options.textColors,
+                tableClasses: options.tableClasses,
                 separator_markup: this.separator_markup,
                 space_markup: this.space_markup,
             });
@@ -260,7 +258,7 @@ class CMSTipTapPlugin {
             return null;
         }
         if (this.lang && item in this.lang && item in TiptapToolbar) {
-            if (filter && filter !== TiptapToolbar[item].type) {
+            if (filter && TiptapToolbar[item].type && filter !== TiptapToolbar[item].type) {
                 return null;
             }
             return Object.assign({}, TiptapToolbar[item] || {}, this.lang[item]);
@@ -280,7 +278,7 @@ class CMSTipTapPlugin {
                 toolbarItem.active(editor) && toolbarItem.enabled(editor);
             if (canOpenForm && !editor.state.selection.empty) {
                 // Link selected, open form
-                setTimeout(() => editor.commands.openCmsForm(action), 100);
+                setTimeout(() => editor.commands.openCmsForm(action), this.debounceTime);
             }
         }
     }

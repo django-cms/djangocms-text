@@ -16,4 +16,4 @@ Release logic:
 10. Github actions will publish the new package to pypi
 """
 
-__version__ = "0.8.8"
+__version__ = "0.9.0"

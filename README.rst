@@ -203,6 +203,16 @@ Here's an example to configre the classes which should be added to new tables::
     DEFAULT_EDITOR.configuration["tableClasses"] = "table ui"
 
     # Option 2:
+    # Modify the default editor configurartion to offer choices to the editor
+    from djangocms_text.editors import DEFAULT_EDITOR
+
+    DEFAULT_EDITOR.configuration["tableClasses"] = [
+        ["table", _("Default")],
+        ["table table-striped", _("Striped")],
+    ]
+
+    # Option 3:
+    # Use settings
     TEXT_EDITOR_SETTINGS = {
         "tableClasses": "table ui",
     }

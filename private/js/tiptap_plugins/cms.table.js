@@ -14,13 +14,16 @@ import Table from '@tiptap/extension-table'
  */
 
 function getDefaultTableClass(classes) {
-    if (classes === undefined || classes === null) {
-        classes = cms_editor_plugin.tableClasses || 'table';
+    'use strict';
+
+    const classesOption = classes === undefined || classes === null
+        ? cms_editor_plugin.tableClasses || 'table'
+        : classes;
+
+    if (Array.isArray(classesOption) && classesOption.length > 0) {
+        return classesOption[0][0];
     }
-    if (Array.isArray(classes) && classes.length > 0) {
-        return classes[0][0];
-    }
-    return classes;
+    return classesOption;
 }
 
 

@@ -81,14 +81,14 @@
         }
     }
     .tt-table {
-        &:has(> form, > div[select-button]) {
+        &:has(> form, > button) {
             display: block;
         }
         &:has(> div.tt-edit-table > button:not([disabled])) {
             --all-disabled: none;
             --not-all-disabled: inline-flex;
         }
-        div.tt-edit-table, > div[select-button], > div.hr {
+        div.tt-edit-table, > button, > div.hr {
             text-align: left;
             width: 100%;
             display: var(--not-all-disabled, none);

@@ -48,7 +48,7 @@ function renderTableClassOptions(editor, item) {
         return '';
     }
     return '<div class="hr"></div>' + tableClasses
-        .map((cls) => `<div select-button><button data-action="tableClass" data-attr="${cls[0]}">${cls[1] || cls[0]}</button></div>`)
+        .map((cls) => `<button data-action="tableClass" data-attr="${cls[0]}">${cls[1] || cls[0]}</button>`)
         .join('');
 }
 

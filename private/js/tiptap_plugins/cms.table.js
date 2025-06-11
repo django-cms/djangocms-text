@@ -23,7 +23,10 @@ const ExtendedTable = Table.extend({
                     class: element.getAttribute('class'),
                 }),
                 renderHTML: attributes => {
-                    return { class: attributes.class || null };
+                    const classNames = typeof attributes.class === 'string'
+                        ? attributes.class
+                        : attributes.class?.class
+                    return { class: classNames || null };
                 },
             },
         }

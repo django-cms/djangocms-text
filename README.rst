@@ -194,7 +194,7 @@ Here is an example for Tiptap which represents the default configuration:
         "tableClasses": "table",  # Classes added to new(!) tables
     }
 
-Here's an example to configre the classes which should be added to new tables::
+Here's an example to configure the classes which should be added to new tables::
 
     # Option 1:
     # Modify the default editor configuration and point the ``TEXT_EDITOR`` setting to it
@@ -212,7 +212,7 @@ Here's an example to configre the classes which should be added to new tables::
     ]
 
     # Option 3:
-    # Use settings
+    # Both of the above can be replaced adding TEXT_EDITOR_SETTINGS to your settings.py
     TEXT_EDITOR_SETTINGS = {
         "tableClasses": "table ui",
     }

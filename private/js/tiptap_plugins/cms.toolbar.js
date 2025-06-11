@@ -244,7 +244,8 @@ function _createTopToolbarPlugin(editor, filter) {
             },
             handleDOMEvents: {
                 mousedown (view, event) {
-                    if (editor.options.topToolbar?.contains(event.target)) {
+                    const form = event.target.closest('form.cms-inline-form');
+                    if (editor.options.topToolbar?.contains(event.target) && !form) {
                         event.preventDefault();
                         return true;
                     }
@@ -252,6 +253,11 @@ function _createTopToolbarPlugin(editor, filter) {
                 },
                 click (view, event) {
                     if (editor.options.topToolbar?.contains(event.target)) {
+                        const form = event.target.closest('form.cms-inline-form');
+                        if (form && editor.options.topToolbar.contains(form) ) {
+                            // Let the form handle clicks inside it
+                            return false;
+                        }
                         _handleToolbarClick(event, editor);
                         return true;
                     }
@@ -344,37 +350,35 @@ function _handleToolbarClick(event, editor) {
                 if (button.offsetLeft + content.offsetWidth > window.innerWidth) {
                     content.style.left = (window.innerWidth - content.offsetWidth - button.offsetLeft - 25) + 'px';
                 }
-                // if (content.tagName === 'FORM') {
-                //     // Don't let clicks on the form close the dropdown
-                //     content.addEventListener('click', (event) => event.stopPropagation());
-                //     // Select the first input
-                //     content.querySelector('input:not([type=hidden])').focus();
-                // }
             } else {
                 button.classList.remove('show');
             }
         } else if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, button);
             // Close dropdowns and update toolbar after editor command execution
-            _closeAllDropdowns(event, editor);
+            _closeAllDropdowns(event, editor, true);
             _updateToolbar(editor);
         }
     }
 }
 
-// Close all dropdowns
-function _closeAllDropdowns(event, editor) {
+// Close all dropdowns, returns the number of closed dropdowns from the TOP toolbar
+function _closeAllDropdowns(event, editor, force) {
     'use strict';
     let count = 0;
     document.documentElement.querySelectorAll('.cms-editor-inline-wrapper .cms-block-toolbar.show')
         .forEach((el) => {
-            el.classList.remove('show');
-            count++;
+            if (!el.contains(event.target) || force) {
+                el.classList.remove('show');
+                count++;
+            }
         });
     document.documentElement.querySelectorAll('.cms-editor-inline-wrapper [role="menubar"] .dropdown.show')
         .forEach((el) => {
-            el.classList.remove('show');
-            count++;
+            if (!el.contains(event.target) || force) {
+                el.classList.remove('show');
+                count++;
+            }
         });
     return count;
 }
@@ -463,7 +467,12 @@ function _createToolbarButton(editor, itemName, filter) {
 
         let form = '';
         let classes = 'button';
-        if (repr.toolbarForm) {
+        if (repr.render) {
+            // Allow custom HTML rendering
+            return repr.html(editor, repr);
+        } else if (repr.inlineForm) {
+            return `<form class="cms-form cms-inline-form" data-action="${repr.dataaction}" ${cmsplugin}${title}${position}${attr}>${formToHtml(repr.inlineForm)}</form>`;
+        } else if (repr.toolbarForm) {
             classes += ' dropdown';
             form = `<form class="cms-form dropdown-content">
                 <div class="cms-form-inputs">${formToHtml(repr.toolbarForm)}</div>

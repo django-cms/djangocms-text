@@ -81,15 +81,24 @@
         }
     }
     .tt-table {
-        &:has(> button:not([disabled])) {
+        &:has(> form, > div[select-button]) {
+            display: block;
+        }
+        &:has(> div.tt-edit-table > button:not([disabled])) {
             --all-disabled: none;
             --not-all-disabled: inline-flex;
         }
-        > button {
+        div.tt-edit-table, > div[select-button], > div.hr {
+            text-align: left;
+            width: 100%;
             display: var(--not-all-disabled, none);
         }
         > .tiptap-separator {
             display: var(--not-all-disabled, none);
+        }
+        button:not(:empty):not(:has(svg)) {
+            min-width: 10rem;
+            width: 100%  !important
         }
         div.tt-create-table {
             &[disabled] {
@@ -124,6 +133,11 @@
                 }
             }
         }
+    }
+    div.hr {
+        width: 100%;
+        border-top: 1px solid var(--dca-gray-lighter, var(--hairline-color));
+        margin: 0.5rem 0;
     }
     button, [role="button"] {
         width: auto  !important;  /* for djangocms-admin-style */
@@ -229,6 +243,10 @@
                 small {
                     margin: 0;
                 }
+            }
+            &:not(:has(svg)):not(:empty) { /* Make sure text buttons have a minimum width */
+                min-width: 10rem;
+                text-align: left;
             }
         }
         &.plugins {

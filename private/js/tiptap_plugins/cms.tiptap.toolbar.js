@@ -5,11 +5,11 @@
 'use strict';
 
 
-function generateButtonArray(rows, cols, classes) {
+function generateButtonArray(rows, cols) {
     const buttons = ['<div class="tt-create-table">'];
     for (let j= 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
-            buttons.push(`<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}" data-attr="${classes}"></button>`);
+            buttons.push(`<button title="${i+1}x${j+1}" data-action="Table" style="--mx: ${i*12}px; --my: ${j*12+4}px;" data-rows="${j+1}" data-cols="${i+1}"></button>`);
         }
     }
     buttons.push('</div>');
@@ -23,9 +23,34 @@ const _tableMenu = [
 ];
 
 function generateTableMenu(editor, builder, item) {
-    return generateButtonArray(10, 10, item.attr || editor.options.tableClasses || 'table') + builder(_tableMenu);
+    let tableMenu = builder(_tableMenu);
+
+    if (tableMenu.endsWith(editor.options.separator_markup)) {
+        tableMenu = tableMenu.slice(0, -editor.options.separator_markup.length);
+    }
+    return generateButtonArray(10, 10, item.attr || editor.options.tableClasses || 'table') + `<div class="tt-edit-table">${tableMenu}</div>` + builder(['tableClass']);
 }
 
+function getDefaultTableClass(classes) {
+    if (!classes) {
+        classes = cms_editor_plugin.tableClasses || 'table';
+    }
+    if (Array.isArray(classes) && classes.length > 0) {
+        return classes[0][0];
+    }
+    return classes;
+}
+
+function renderTableClassOptions(editor, item) {
+    const tableClasses = editor.options.tableClasses || cms_editor_plugin.tableClasses;
+    if (!Array.isArray(tableClasses)) {
+        // Only one option - no need to render a button to select it
+        return '';
+    }
+    return '<div class="hr"></div>' + tableClasses
+        .map((cls) => `<div select-button><button data-action="tableClass" data-attr="${cls[0]}">${cls[1] || cls[0]}</button></div>`)
+        .join('');
+}
 
 const TiptapToolbar = {
     Undo: {
@@ -227,8 +252,8 @@ const TiptapToolbar = {
         action: (editor, button) => {
             const rows = parseInt(button?.dataset?.rows ||3);
             const cols = parseInt(button?.dataset?.cols || 3);
-            const classes = button?.dataset?.attr || window.cms_editor_plugin.tableClasses || 'table';
-            editor.chain().focus().insertTable({ rows: rows, cols: cols}).updateAttributes('table', { class: classes }).run();
+            const classes = button?.dataset?.attr || getDefaultTableClass(editor.options.tableClasses);
+            editor.chain().focus().insertTable({ rows: rows, cols: cols}).updateAttributes('table', { addClasses: classes }).run();
         },
         enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
         type: 'mark',
@@ -281,6 +306,18 @@ const TiptapToolbar = {
         action: (editor, button) => editor.chain().focus().mergeOrSplit().run(),
         enabled: (editor) => editor.can().mergeOrSplit(),
         type: 'mark',
+    },
+    tableClass: {
+        action: (editor, button) => {
+            const classes = button.dataset.attr || getDefaultTableClass(editor.options.tableClasses);
+            editor.chain().focus().updateAttributes('table', { addClasses: classes }).run();
+        },
+        enabled: (editor, button) => editor.can().updateAttributes('table', { addClasses: 'enabled' }),
+        active: (editor, button) => {
+            const classes = editor.getAttributes('table').addClasses;
+            return classes && classes === button.dataset.attr;
+        },
+        render: renderTableClassOptions,
     },
     Code: {
         action: (editor) => editor.chain().focus().toggleCode().run(),

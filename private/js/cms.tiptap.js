@@ -258,7 +258,7 @@ class CMSTipTapPlugin {
             return null;
         }
         if (this.lang && item in this.lang && item in TiptapToolbar) {
-            if (filter && filter !== TiptapToolbar[item].type) {
+            if (filter && TiptapToolbar[item].type && filter !== TiptapToolbar[item].type) {
                 return null;
             }
             return Object.assign({}, TiptapToolbar[item] || {}, this.lang[item]);

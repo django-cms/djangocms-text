@@ -247,6 +247,7 @@ _EDITOR_TOOLBAR_BASE_CONFIG = {
         "title": _("Merge/split cells"),
         "icon": '<svg version="1.1" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="m2.5 1a1.5 1.5 0 0 0-1.5 1.5v15a1.5 1.5 0 0 0 1.5 1.5h4.459v-1h-4.959v-16h16v4.8203h1v-4.3203a1.5 1.5 0 0 0-1.5-1.5z" style="opacity:.6"/><path d="m7.5614 6.3318h11.006a1.1006 1.1121 0 0 1 1.1006 1.1121v11.121a1.1006 1.1121 0 0 1-1.1006 1.1121h-11.006a1.1006 1.1121 0 0 1-1.1006-1.1121v-11.121a1.1006 1.1121 0 0 1 1.1006-1.1121zm-0.36687 0.74142v11.863h11.74v-11.863z" opacity=".6" style="opacity:1;stroke-width:.73757"/><path d="m6.7285 13v-1h-4.7285v1z" style="opacity:.6"/><path d="m6.7285 8v-1h-4.7285v1z" style="opacity:.6"/><path d="m12 6.6816h1v-4.6816h-1z" style="opacity:.6"/><path d="m7 2v4.6816h1v-4.6816z" style="opacity:.6"/></svg>',
     },
+    "tableClass": {},
     "Code": {
         "title": _("Code"),
         "icon": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code" viewBox="0 0 16 16">\n'

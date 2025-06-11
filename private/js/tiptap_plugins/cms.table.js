@@ -20,7 +20,7 @@ const ExtendedTable = Table.extend({
             addClasses: {
                 default: null,
                 parseHTML: element => element.getAttribute('class'),
-                renderHTML: attributes => ({ class: attributes.addClasses || null })
+                renderHTML: attributes => ({ class: attributes.addClasses })
             },
         }
     },

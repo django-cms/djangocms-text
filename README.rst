@@ -388,7 +388,26 @@ The TipTap frontend supports some (minimal) Markdown support:
 
 * Markdown is converted to HTML when **pasting**. (To prevent XXS attacks, the
   pasted content might not be converted if it contains javascript scritps.)
-* When typing, **some** markdown syntax is converted on the fly, e.g., headings, bold, lists
+* When **typing**, markdown syntax is converted on the fly
+
+Supported Markdown syntax includes:
+
+* Headings: ``# Heading 1``, ``## Heading 2``, ``### Heading 3``, etc.
+* Bold: ``**bold text**`` or ``__bold text__``
+* Italic: ``*italic text*`` or ``_italic text_``
+* Strikethrough: ``~~strikethrough~~``
+* Links (pasting only): ``[link text](http://example.com)``
+* Lists: ``- Item`` or ``* Item`` for unordered lists, and ``1. Item`` for ordered lists
+* Blockquotes: ``> Quote``
+* Code: ```inline code``` für Inline-Code, und dreifache Backticks für Code-Blöcke
+* Tables (pasting only): Tables can be created using the `|` character to separate columns.
+  For example, a simple table can be created as follows::
+
+    | Header 1 | Header 2 |
+    |----------|----------|
+    | Row 1    | Row 2    |
+
+* Horiuzontal rules: ``---`` to create a horizontal rule.
 
 
 Contributing

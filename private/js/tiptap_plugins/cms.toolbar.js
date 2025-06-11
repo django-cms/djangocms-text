@@ -73,7 +73,7 @@ function _createBlockToolbarPlugin(editor) {
                             _handleToolbarClick(event, editor);
                             return true;
                         }
-                        blockToolbar.classList.add('show');
+                        blockToolbar.classList.toggle('show');
                         return true;
                     }
                     return false;
@@ -255,8 +255,7 @@ function _createTopToolbarPlugin(editor, filter) {
                         _handleToolbarClick(event, editor);
                         return true;
                     }
-                    _closeAllDropdowns(event, editor);
-                    return false;
+                    return _closeAllDropdowns(event, editor) > 0;
                 },
             }
         },
@@ -307,7 +306,7 @@ function _createToolbar(editor, toolbar, filter) {
     toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
 
     // create the toolbar html from the settings
-    toolbarElement.innerHTML = `<div class="toolbar-dropback"></div>${_populateToolbar(editor, toolbar, filter)}`;
+    toolbarElement.innerHTML = _populateToolbar(editor, toolbar, filter);
 
     if (!editor.options.element.classList.contains('fixed')) {
         // Limit its width to the available space
@@ -356,9 +355,9 @@ function _handleToolbarClick(event, editor) {
             }
         } else if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, button);
-            _updateToolbar(editor);
-            // Close dropdowns after command execution
+            // Close dropdowns and update toolbar after editor command execution
             _closeAllDropdowns(event, editor);
+            _updateToolbar(editor);
         }
     }
 }

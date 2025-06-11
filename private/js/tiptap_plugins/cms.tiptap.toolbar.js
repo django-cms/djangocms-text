@@ -17,17 +17,9 @@ function generateButtonArray(rows, cols, classes) {
 }
 
 const _tableMenu = [
-    'addColumnBefore',
-    'addColumnAfter',
-    'deleteColumn',
-    '|',
-    'addRowBefore',
-    'addRowAfter',
-    'deleteRow',
-    '|',
-    'toggleHeaderColumn',
-    'toggleHeaderRow',
-    'mergeOrSplit',
+    ['addColumnBefore', 'addColumnAfter', 'deleteColumn'],
+    ['addRowBefore', 'addRowAfter', 'deleteRow'],
+    ['toggleHeaderColumn', 'toggleHeaderRow', 'mergeOrSplit']
 ];
 
 function generateTableMenu(editor, builder, item) {
@@ -192,18 +184,6 @@ const TiptapToolbar = {
         active: (editor) => editor.isActive('bulletList'),
         type: 'block',
     },
-/*
-    Outdent: {
-        action: (editor) => editor.chain().focus().outdent().run(),
-        enabled: (editor) => editor.can().outdent(),
-        type: 'block',
-    },
-    Indent: {
-        action: (editor) => editor.chain().focus().indent().run(),
-        enabled: (editor) => editor.can().indent(),
-        type: 'block',
-    },
-*/
     Blockquote: {
         action: (editor) => editor.chain().focus().toggleBlockquote().run(),
         enabled: (editor) => editor.can().toggleBlockquote(),

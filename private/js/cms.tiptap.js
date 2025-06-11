@@ -12,7 +12,6 @@ import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
-import Table from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
@@ -279,7 +278,7 @@ class CMSTipTapPlugin {
                 toolbarItem.active(editor) && toolbarItem.enabled(editor);
             if (canOpenForm && !editor.state.selection.empty) {
                 // Link selected, open form
-                setTimeout(() => editor.commands.openCmsForm(action), 100);
+                setTimeout(() => editor.commands.openCmsForm(action), this.debounceTime);
             }
         }
     }

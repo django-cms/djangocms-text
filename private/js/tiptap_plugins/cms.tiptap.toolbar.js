@@ -309,7 +309,7 @@ const TiptapToolbar = {
     },
     tableClass: {
         action: (editor, button) => {
-            const classes = button.dataset.attr || getDefaultTableClass(editor.options.tableClasses);
+            const classes = button?.dataset.attr || getDefaultTableClass(editor.options.tableClasses);
             editor.chain().focus().updateAttributes('table', { addClasses: classes }).run();
         },
         enabled: (editor, button) => editor.can().updateAttributes('table', { addClasses: 'enabled' }),

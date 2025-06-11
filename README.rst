@@ -399,7 +399,7 @@ Supported Markdown syntax includes:
 * Links (pasting only): ``[link text](http://example.com)``
 * Lists: ``- Item`` or ``* Item`` for unordered lists, and ``1. Item`` for ordered lists
 * Blockquotes: ``> Quote``
-* Code: ``\u0060inline code\u0060`` für Inline-Code, und dreifache Backticks für Code-Blöcke
+* Code: ```inline code``` für Inline-Code, und dreifache Backticks für Code-Blöcke
 * Tables (pasting only): Tables can be created using the `|` character to separate columns.
   For example, a simple table can be created as follows::
 

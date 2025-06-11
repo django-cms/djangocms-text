@@ -17,17 +17,10 @@ const ExtendedTable = Table.extend({
     addAttributes() {
         return {
             ...this.parent?.(),
-            class: {
+            addClasses: {
                 default: null,
-                parseHTML: element => ({
-                    class: element.getAttribute('class'),
-                }),
-                renderHTML: attributes => {
-                    const classNames = typeof attributes.class === 'string'
-                        ? attributes.class
-                        : attributes.class?.class
-                    return { class: classNames || null };
-                },
+                parseHTML: element => element.getAttribute('class'),
+                renderHTML: attributes => ({ class: attributes.addClasses || null })
             },
         }
     },

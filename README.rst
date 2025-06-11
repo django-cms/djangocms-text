@@ -197,7 +197,7 @@ Here is an example for Tiptap which represents the default configuration:
 Here's an example to configre the classes which should be added to new tables::
 
     # Option 1:
-    # Modify the default editor configuration and point the ``TEXT_EDITOR`` setting to it`
+    # Modify the default editor configuration and point the ``TEXT_EDITOR`` setting to it
     from djangocms_text.editors import DEFAULT_EDITOR
 
     DEFAULT_EDITOR.configuration["tableClasses"] = "table ui"

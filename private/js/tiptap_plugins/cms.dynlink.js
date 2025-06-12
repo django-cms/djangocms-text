@@ -3,6 +3,7 @@
 /* global document, window, console */
 'use strict';
 
+import { markInputRule } from '@tiptap/core';
 import Link from '@tiptap/extension-link';
 import {Plugin} from '@tiptap/pm/state';
 
@@ -39,6 +40,9 @@ function DynLinkClickHandler(editor) {
 }
 
 
+const markdownLinkInputRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/;
+
+
 const CmsDynLink = Link.extend({
     addAttributes() {
         return {
@@ -61,6 +65,15 @@ const CmsDynLink = Link.extend({
     onDestroy() {
         this.editor.parent?.();  // Call the parent implementation, if it exists
         this.editor.view.dom.removeEventListener('click', this);
+    },
+    addInputRules() {
+        return [
+             markInputRule({
+                find: markdownLinkInputRegex,
+                type: this.type,
+                getAttributes: match => ({ href: match[2] }),
+            }),
+        ]
     },
 }).configure({
     openOnClick: false,

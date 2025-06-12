@@ -396,7 +396,7 @@ Supported Markdown syntax includes:
 * Bold: ``**bold text**`` or ``__bold text__``
 * Italic: ``*italic text*`` or ``_italic text_``
 * Strikethrough: ``~~strikethrough~~``
-* Links (pasting only): ``[link text](http://example.com)``
+* Links: ``[link text](http://example.com)``
 * Lists: ``- Item`` or ``* Item`` for unordered lists, and ``1. Item`` for ordered lists
 * Blockquotes: ``> Quote``
 * Code: ```inline code``` für Inline-Code, und dreifache Backticks für Code-Blöcke

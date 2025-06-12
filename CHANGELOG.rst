@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.9.1 (12-06-2025)
+==================
+
+* fix: Dynamic link dropdoen did not show by @fsbraun in https://github.com/django-cms/djangocms-text/pull/103
+* feat: Added markdown short cut for links - ``[link] (https://example.com)`` by @fsbraun in https://github.com/django-cms/djangocms-text/pull/103
+
 0.9.0 (10-06-2025)
 ==================
 * feat: Add support for pasting Markdown by @fsbraun in https://github.com/django-cms/djangocms-text/pull/100

@@ -10,7 +10,7 @@ class LinkField {
         this.options = options;
         this.urlElement = element;
         this.form = element.closest("form");
-        this.selectElement = this.form?.querySelector(`input[name="${this.urlElement.id + '_select'}"]`);
+        this.selectElement = this.form?.querySelector(`input[name="${this.urlElement.name + '_select'}"]`);
         if (this.selectElement) {
             this.urlElement.setAttribute('type', 'hidden');  // Two input types?
             this.selectElement.setAttribute('type', 'hidden');  // Make hidden and add common input

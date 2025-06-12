@@ -3,7 +3,7 @@
 /* global document, window, console */
 'use strict';
 
-import { InputRule } from '@tiptap/core';
+import { markInputRule } from '@tiptap/core';
 import Link from '@tiptap/extension-link';
 import {Plugin} from '@tiptap/pm/state';
 
@@ -68,28 +68,12 @@ const CmsDynLink = Link.extend({
     },
     addInputRules() {
         return [
-            new InputRule({
+             markInputRule({
                 find: markdownLinkInputRegex,
-                handler: ({ state, range, match }) => {
-                    const insert = match[1];
-                    const href = match[2];
-                    const start = range.from;
-                    const end = range.to;
-                    const {tr} = state;
-
-                    if (insert && href) {
-                        tr.insertText(insert, start, end);
-                        tr.addMark(
-                            start,
-                            start + insert.length,
-                            this.type.create({ href })
-                        );
-                        // Remove the mark, so that additional typing is outside the mark
-                        tr.removeStoredMark(this.type)
-                      }
-                }
-             }),
-        ];
+                type: this.type,
+                getAttributes: match => ({ href: match[2] }),
+            }),
+        ]
     },
 }).configure({
     openOnClick: false,

@@ -73,10 +73,13 @@ class LinkField {
 
     registerEvents() {
         this.inputElement.addEventListener('input', this.handleInput.bind(this));
-        this.inputElement.addEventListener('focus', event => this.search());
-        // this.inputElement.addEventListener('blur', event => {
-        //     setTimeout(() => { this.dropdown.style.visibility = 'hidden'; }, 200);
-        // });
+        this.inputElement.addEventListener('click', event => {
+            if (this.dropdown.style.visibility !== 'hidden') {
+                this.closeDropdown();
+            } else {
+                this.search();
+            }
+        });
         this.urlElement.addEventListener('input', event => {
             this.inputElement.value = event.target.value || '';
             this.inputElement.classList.remove('cms-linkfield-selected');
@@ -173,7 +176,7 @@ class LinkField {
     }
 
     closeDropdown(event) {
-        if (!this.wrapper.contains(event.target) || this.dropdown.contains(event.target)) {
+        if (!event || !this.wrapper.contains(event.target) || this.dropdown.contains(event.target)) {
             this.dropdown.style.visibility = 'hidden';
             document.removeEventListener('click', this.closeDropdown.bind(this));
         }

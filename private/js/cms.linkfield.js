@@ -132,7 +132,7 @@ class LinkField {
         if (result.id) {
             item.classList.add('cms-linkfield-option');
             item.setAttribute('data-value', result.id);
-            item.setAttribute('data-href', result.url);
+            item.setAttribute('data-href', result.url || '#');
             item.setAttribute('data-text', result.verbose || result.text);
         }
         if (result.children && result.children.length > 0) {

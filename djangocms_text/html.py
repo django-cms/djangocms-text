@@ -164,7 +164,7 @@ def get_data_from_db(models: dict, admin_objects: bool = False) -> dict:
     return result
 
 
-def dynamic_href(elem: Element, obj: models.Model, attr: str) -> None:
+def dynamic_href(elem: Element, obj: models.Model, attr: str, edit_mode: bool = False) -> None:
     """
     Modifies an element's attribute to create a dynamic hyperlink based on the provided model object.
     In case the object has a "get_absolute_url" method, and it returns a non-empty value, the attribute of the
@@ -186,11 +186,10 @@ def dynamic_href(elem: Element, obj: models.Model, attr: str) -> None:
     target_value = ""
     if hasattr(obj, "get_absolute_url"):
         target_value = obj.get_absolute_url()
-        if target_value:
-            elem.attrib[attr] = obj.get_absolute_url()
+        elem.attrib[attr] = target_value or "#"
     if not target_value:
         elem.attrib["data-cms-error"] = "ref-not-found"
-        if elem.tag == "a":
+        if elem.tag == "a" and not edit_mode:
             elem.tag = "span"
 
 
@@ -234,7 +233,7 @@ def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove
     - str: The updated HTML content with dynamic attributes
 
     """
-
+    print(dyn_html)
     if not dyn_attr_pattern.search(dyn_html):
         # No dynamic attributes found, skip processing the html tree
         return dyn_html
@@ -269,13 +268,14 @@ def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove
                     obj = from_db[model.strip()][int(pk.strip())]
                 except (KeyError, ValueError):
                     obj = None
-                dynamic_attr_pool[attr](elem, obj, target_attr)
+                dynamic_attr_pool[attr](elem, obj, target_attr, edit_mode=admin_objects)
                 if remove_attr:
                     # Remove dynamic attribute's source for public view
                     del elem.attrib[attr]
     doc = etree.tostring(tree, method="html").decode("utf-8")
     doc = doc.removeprefix("<html>").removesuffix("</html>")  # remove html tags added by lxml
     doc = doc.removeprefix("<body>").removesuffix("</body>")  # remove body tags added by lxml
+    print("==>", doc)
     return doc
 
 

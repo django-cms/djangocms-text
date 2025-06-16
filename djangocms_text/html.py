@@ -193,7 +193,7 @@ def dynamic_href(elem: Element, obj: models.Model, attr: str, edit_mode: bool = 
             elem.tag = "span"
 
 
-def dynamic_src(elem: Element, obj: models.Model, attr: str) -> None:
+def dynamic_src(elem: Element, obj: models.Model, attr: str, edit_mode: bool = False) -> None:
     """
     This method modifies the provided element by setting the value of the specified attribute based on the provided
     object. If the object has a "get_absolute_url" method, and it returns a non-empty value, the attribute of the

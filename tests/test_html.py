@@ -220,6 +220,11 @@ class DynamicAttributesTestCase(TestCase):
         updated_html = render_dynamic_attributes(html)
         self.assertIn('<span data-cms-error="ref-not-found">Link</span>', updated_html)
 
+    def test_render_dynamic_attributes_fails_edit_mode(self):
+        html = '<a data-cms-href="app.model:1">Link</a>'
+        updated_html = render_dynamic_attributes(html, admin_objects=True)
+        self.assertIn('<a data-cms-error="ref-not-found">Link</a>', updated_html)
+
     def test_render_dynamic_attributes_handles_no_dynamic_attributes(self):
         html = "<p>No dynamic attributes</p>"
         updated_html = render_dynamic_attributes(html)

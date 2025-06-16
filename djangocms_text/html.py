@@ -233,7 +233,6 @@ def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove
     - str: The updated HTML content with dynamic attributes
 
     """
-    print(dyn_html)
     if not dyn_attr_pattern.search(dyn_html):
         # No dynamic attributes found, skip processing the html tree
         return dyn_html
@@ -275,7 +274,6 @@ def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove
     doc = etree.tostring(tree, method="html").decode("utf-8")
     doc = doc.removeprefix("<html>").removesuffix("</html>")  # remove html tags added by lxml
     doc = doc.removeprefix("<body>").removesuffix("</body>")  # remove body tags added by lxml
-    print("==>", doc)
     return doc
 
 

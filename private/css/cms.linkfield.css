@@ -18,10 +18,13 @@
         }
         .cms-linkfield-dropdown {
             z-index: 1;
-            visibility: visible;
-            &:empty {
-                /* Hide dropdown when empty */
-                visibility: hidden;
+            visibility: hidden;
+            &.open {
+                visibility: visible;
+                &:empty {
+                    /* Hide dropdown when empty */
+                    visibility: hidden;
+                }
             }
             position: absolute;
             max-block-size: 400px;

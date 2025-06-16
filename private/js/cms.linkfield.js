@@ -11,6 +11,7 @@ class LinkField {
         this.urlElement = element;
         this.form = element.closest("form");
         this.selectElement = this.form?.querySelector(`input[name="${this.urlElement.name + '_select'}"]`);
+        this.dropdownIsOpen = false;
         this.boundCloseDropdown = this.closeDropdown.bind(this);
         if (this.selectElement) {
             this.urlElement.setAttribute('type', 'hidden');  // Two input types?
@@ -59,7 +60,7 @@ class LinkField {
             } else {
                 this.inputElement.value = '';
                 this.search();  // Trigger search to populate dropdown
-                this.dropdown.style.visibility = '';  // Initially hidden
+                this.closeDropdown();  // Close dropdown if it was open
                 this.inputElement.classList.remove('cms-linkfield-selected');
             }
             if (this.selectElement.getAttribute('data-value')) {
@@ -77,7 +78,7 @@ class LinkField {
     registerEvents() {
         this.inputElement.addEventListener('input', this.handleInput.bind(this));
         this.inputElement.addEventListener('click', event => {
-            if (!this.dropdown.style.visibility) {
+            if (this.dropdownIsOpen) {
                 this.closeDropdown();
             } else {
                 this.search();
@@ -85,18 +86,18 @@ class LinkField {
         });
         // Allow focus-triggered dropdown for keyboard accessibility
         this.inputElement.addEventListener('focus', event => {
-            if (this.dropdown.style.visibility === 'hidden') {
+            if (!this.dropdownIsOpen) {
                 this.search();
             }
         });
         // Keyboard navigation (open dropdown on ArrowDown)
         this.inputElement.addEventListener('keydown', event => {
-            if ((event.key === 'ArrowDown' || event.key === 'Down') && this.dropdown.style.visibility === 'hidden') {
+            if ((event.key === 'ArrowDown' || event.key === 'Down') && !this.dropdownIsOpen) {
                 event.preventDefault();  // Prevent cursor movement
                 event.stopPropagation();  // Prevent closing the input
                 this.search();
             }
-            if ((event.key === 'Escape' || event.key === 'Esc') && this.dropdown.style.visibility !== 'hidden') {
+            if ((event.key === 'Escape' || event.key === 'Esc') && this.dropdownIsOpen) {
                 event.preventDefault();  // Prevent closing the input
                 event.stopPropagation();  // Prevent closing the dropdown
                 this.closeDropdown();
@@ -190,18 +191,23 @@ class LinkField {
     }
 
     openDropdown(event) {
-        if (this.dropdown.style.visibility !== 'hidden') {
-            return;
+        if (!this.dropdownIsOpen) {
+            this.dropdownIsOpen = true;
+            this.dropdown.classList.add('open');
+            document.addEventListener('click', this.boundCloseDropdown);
         }
-        this.dropdown.style.visibility = '';
-        document.addEventListener('click', this.boundCloseDropdown);
     }
 
     closeDropdown(event) {
         if (!event || !this.wrapper.contains(event.target) || this.dropdown.contains(event.target)) {
-            this.dropdown.style.visibility = 'hidden';
+            this.dropdownIsOpen = false;
+            this.dropdown.classList.remove('open');
             document.removeEventListener('click', this.boundCloseDropdown);
         }
+    }
+
+    toggleDropdown() {
+       this.dropdownIsOpen ? this.closeDropdown() : this.openDropdown();
     }
 
     handleChange(event) {

@@ -81,7 +81,6 @@ div.cms .cms-more-buttons a.cms-btn.cms-edit-toggle {
 /* scrollable dropdowns on touch */
 .cke_panel {
     overflow-y: auto !important;
-    height: auto !important;
     max-height: 300px !important;
 
     -webkit-overflow-scrolling: touch !important;

@@ -1,9 +1,7 @@
 djangocms-text
 ==============
-
-|pypi| |coverage| |precommit|
-
-|python| |django| |djangocms|
+| |pypi| |coverage| |precommit|
+| |python| |django| |djangocms|
 
 ``djangocms-text`` is a flexible and extensible rich text editing solution for Django
 CMS. This package is designed as a replacement for ``djangocms-text-ckeditor``,

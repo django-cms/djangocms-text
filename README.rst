@@ -453,11 +453,13 @@ details.
     :target: http://badge.fury.io/py/djangocms-text
 .. |coverage| image:: https://codecov.io/gh/django-cms/djangocms-text/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/django-cms/djangocms-text
-.. |python| image:: https://img.shields.io/badge/python-3.10+-blue.svg
+.. |python| image:: https://img.shields.io/pypi/pyversions/djangocms-text.svg?style=flat-square
     :target: https://pypi.org/project/djangocms-text/
-.. |django| image:: https://img.shields.io/badge/django-4.2+-blue.svg
+.. |django| image:: https://img.shields.io/pypi/frameworkversions/django/djangocms-text.svg?style=flat-square
+    :alt: Supported Django versions
     :target: https://www.djangoproject.com/
-.. |djangocms| image:: https://img.shields.io/badge/django%20CMS-3.11%2B-blue.svg
+.. |djangocms| image:: https://img.shields.io/pypi/frameworkversions/django-cms/djangocms-text.svg?style=flat-square
+    :alt: Supported django CMS versions
     :target: https://www.django-cms.org/
 .. |djangocms4| image:: https://img.shields.io/badge/django%20CMS-4%2F5-blue.svg
     :target: https://www.django-cms.org/

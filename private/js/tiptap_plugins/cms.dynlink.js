@@ -16,6 +16,12 @@ function DynLinkClickHandler(editor) {
                     const target = event.target.closest('a[href]');
                     if (target) {
                         event.preventDefault();
+                        setTimeout(() => {
+                            if (editor.isActive('link')) {
+                                editor.commands.extendMarkRange('link');
+                                editor.commands.openCmsForm('Link');
+                            }
+                        }, 0);
                         return true;
                     }
                     return false;
@@ -71,7 +77,11 @@ const CmsDynLink = Link.extend({
              markInputRule({
                 find: markdownLinkInputRegex,
                 type: this.type,
-                getAttributes: match => ({ href: match[2] }),
+                getAttributes: match => {
+                    const url = match[2];
+                    match.pop(); // Remove the text part
+                    return { href: url };
+                }
             }),
         ]
     },

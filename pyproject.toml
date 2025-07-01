@@ -124,3 +124,15 @@ exclude = [
   "tmp",
   "*node_modules*",
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+DJANGO_ALLOW_ASYNC_UNSAFE = true
+python_files = [ "tests.py", "test_*.py" ]
+addopts = [
+  "--reuse-db",
+  "--nomigrations",
+  "-v",
+]
+testpaths = [ "tests" ]
+pythonpath = [ "." ]

@@ -175,3 +175,5 @@ TEXT_SAVE_IMAGE_FUNCTION = "tests.test_html.save_image"
 TEXT_ADDITIONAL_ATTRIBUTES = {
     "source": {"src"},
 }
+
+DJANGO_ALLOW_ASYNC_UNSAFE = True

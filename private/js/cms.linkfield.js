@@ -180,7 +180,8 @@ class LinkField {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.classList.contains('cms-linkfield-option')) {
-            this.inputElement.value = event.target.getAttribute('data-text') || event.target.textContent;
+            const value = event.target.getAttribute('data-text') || event.target.textContent;
+            this.inputElement.value = value.trim();
             this.inputElement.classList.add('cms-linkfield-selected');
             this.urlElement.value = event.target.getAttribute('data-href');
             this.selectElement.value = event.target.getAttribute('data-value');

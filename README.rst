@@ -1,7 +1,6 @@
 djangocms-text
 ==============
-| |pypi| |coverage| |precommit|
-| |python| |django| |djangocms|
+|pypi| |coverage| |precommit| |python| |django| |djangocms|
 
 ``djangocms-text`` is a flexible and extensible rich text editing solution for Django
 CMS. This package is designed as a replacement for ``djangocms-text-ckeditor``,
@@ -453,13 +452,14 @@ details.
     :target: http://badge.fury.io/py/djangocms-text
 .. |coverage| image:: https://codecov.io/gh/django-cms/djangocms-text/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/django-cms/djangocms-text
-.. |python| image:: https://img.shields.io/pypi/pyversions/djangocms-text.svg?style=flat-square
+.. |python| image:: https://img.shields.io/pypi/pyversions/djangocms-text
+    :alt: PyPI - Python Version
     :target: https://pypi.org/project/djangocms-text/
-.. |django| image:: https://img.shields.io/pypi/frameworkversions/django/djangocms-text.svg?style=flat-square
-    :alt: Supported Django versions
+.. |django| image:: https://img.shields.io/pypi/frameworkversions/django/djangocms-text
+    :alt: PyPI - Django Versions from Framework Classifiers
     :target: https://www.djangoproject.com/
-.. |djangocms| image:: https://img.shields.io/pypi/frameworkversions/django-cms/djangocms-text.svg?style=flat-square
-    :alt: Supported django CMS versions
+.. |djangocms| image:: https://img.shields.io/pypi/frameworkversions/django-cms/djangocms-text
+    :alt: PyPI - django CMS Versions from Framework Classifiers
     :target: https://www.django-cms.org/
 .. |precommit| image:: https://results.pre-commit.ci/badge/github/django-cms/djangocms-text/main.svg
    :target: https://results.pre-commit.ci/latest/github/django-cms/djangocms-text/main

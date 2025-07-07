@@ -1,3 +1,4 @@
+from time import sleep
 import pytest
 from django.urls import reverse
 
@@ -21,8 +22,11 @@ def test_inline_admin_add_row(live_server, page, pizza, superuser):
     endpoint = reverse("admin:test_app_pizza_change", args=(pizza.pk,))
     page.goto(f"{live_server.url}{endpoint}")
 
+    # Get the number of existing, initialized editor rows
     n = page.locator(".cms-editor-inline-wrapper.textarea.fixed").count()
 
+    # Add a row
     page.locator(".add-row a").click()
+    sleep(0.1)  # Let browser work
 
     assert page.locator(".cms-editor-inline-wrapper.textarea.fixed").count() == n + 1

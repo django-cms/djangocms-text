@@ -3,7 +3,6 @@ from urllib.parse import urlparse, urlunparse
 from django.apps import apps
 from django.forms import forms
 from django.http import QueryDict
-from django.templatetags.static import static
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
@@ -38,12 +37,7 @@ class InlineEditingToolbar(CMSToolbar):
                     if self.inline_editing
                     else ("djangocms_text/css/cms.text.css",),
                 },
-                js=(
-                    static("djangocms_text/bundles/bundle.editor.min.js"),
-                    *(static(js) for js in rte_config.js),
-                )
-                if self.inline_editing
-                else (),
+                js=("djangocms_text/bundles/bundle.editor.min.js", *rte_config.js) if self.inline_editing else (),
             )
         return forms.Media()
 

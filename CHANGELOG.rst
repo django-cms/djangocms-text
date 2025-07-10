@@ -2,6 +2,17 @@
 Changelog
 =========
 
+0.9.2 (10-08-2025)
+==================
+
+* fix: Broken linkfield selector by @fsbraun in https://github.com/django-cms/djangocms-text/pull/105
+* fix: Trim values in linkfield by @fsbraun in https://github.com/django-cms/djangocms-text/pull/107
+* fix: Remove `static` command around JS assets of the toolbar by @fsbraun in https://github.com/django-cms/djangocms-text/pull/106
+* chore: Introduce dynamic badges by @mrbazzan in https://github.com/django-cms/djangocms-text/pull/108
+
+@mrbazzan made their first contribution in https://github.com/django-cms/djangocms-text/pull/108
+
+
 0.9.1 (12-06-2025)
 ==================
 

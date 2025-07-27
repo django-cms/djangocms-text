@@ -307,12 +307,13 @@ class CMSEditor {
             );
         }
         if (!this._editor_settings[el.id].plugin_language) {
-            // If the plugin change form
+            // If the plugin change form contains a language meta tag, use it
             const lang = document.querySelector('meta[name="plugin_language"]');
 
             if (lang && lang.dataset.pluginLanguage) {
                 this._editor_settings[el.id].plugin_language = lang.dataset.pluginLanguage;
             } else {
+                // If the grouper admin is used, use the language from the grouper admin form
                 const lang = document.querySelector('input[name="content__language"]');
                 if (lang && lang.value) {
                     this._editor_settings[el.id].plugin_language = lang.value;

@@ -306,6 +306,19 @@ class CMSEditor {
                 this._global_settings,
             );
         }
+        if (!this._editor_settings[el.id].plugin_language) {
+            // If the plugin change form
+            const lang = document.querySelector('meta[name="plugin_language"]');
+
+            if (lang && lang.dataset.pluginLanguage) {
+                this._editor_settings[el.id].plugin_language = lang.dataset.pluginLanguage;
+            } else {
+                const lang = document.querySelector('input[name="content__language"]');
+                if (lang && lang.value) {
+                    this._editor_settings[el.id].plugin_language = lang.value;
+                }
+            }
+        }
         return this._editor_settings[el.id];
     }
 

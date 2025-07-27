@@ -213,7 +213,7 @@ class LinkField {
 
     handleChange(event) {
         if (this.selectElement.value && this.options.url) {
-            fetch(this.options.url + '?g=' + encodeURIComponent(this.selectElement.value))
+            fetch(this.options.url + (this.options.url.includes('?') ? '&g=' : '?g=') + encodeURIComponent(this.selectElement.value))
                 .then(response => response.json())
                 .then(data => {
                     this.inputElement.value = data.text;
@@ -242,7 +242,9 @@ class LinkField {
 
     fetchData(searchText, page ) {
         if (this.options.url) {
-            return fetch(this.options.url + `?q=${encodeURIComponent(searchText)}${page > 1 ? '&page=' + page : ''}`)
+            const url = this.options.url + (this.options.url.includes('?') ? '&' : '?') +
+                `q=${encodeURIComponent(searchText)}${page > 1 ? '&page=' + page : ''}`;
+            return fetch(url)
                 .then(response => response.json());
         }
         return new Promise(resolve => {

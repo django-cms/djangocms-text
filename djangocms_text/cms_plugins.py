@@ -256,7 +256,11 @@ class TextPlugin(CMSPluginBase):
                 body_css_classes=self._get_body_css_classes_from_parent_plugins(plugin),
                 add_admin_css=True,
             )
-        else:
+        elif (
+            request.GET.get("placeholder_id")
+            and request.GET.get("plugin_language")
+            and request.GET.get("plugin_position")
+        ):
             widget = TextEditorWidget(
                 installed_plugins=plugins,
                 pk=None,
@@ -270,6 +274,10 @@ class TextPlugin(CMSPluginBase):
                 revert_on_cancel=False,
                 body_css_classes="",
             )
+        else:
+            from django.forms.widgets import Textarea
+
+            widget = Textarea()
         return widget
 
     def _get_body_css_classes_from_parent_plugins(

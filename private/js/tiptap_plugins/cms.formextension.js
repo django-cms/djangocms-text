@@ -115,8 +115,12 @@ const CmsFormExtension = Extension.create({
                 dialog.open();
                 formElement.querySelectorAll('form.cms-form .js-linkfield')
                     .forEach((el) => {
+                        let url = editor.options.settings.url_endpoint || '';;
+                        if (url && editor.options.settings.plugin_language) {
+                            url = `${url}?language=${editor.options.settings.plugin_language}`;
+                        }
                         new LinkField(el, {
-                            url: editor.options.settings.url_endpoint || '',
+                            url: url,
                         });
                     }, this);
             },

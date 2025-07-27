@@ -2,6 +2,7 @@
     .cms-linkfield-wrapper {
         font-size: 0.8rem;
         padding: 0;
+        margin-bottom: 0.5rem;
         position: relative;
         input[type="text"] {
             padding-inline-end: 2em  !important;

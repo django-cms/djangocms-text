@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import uuid
 from copy import deepcopy
@@ -231,7 +232,9 @@ class TextEditorWidget(forms.Textarea):
             }
 
         return {
-            "add_plugin_url": admin_reverse(cms_placeholder_add_plugin),
+            "add_plugin_url": (
+                admin_reverse(cms_placeholder_add_plugin) if importlib.util.find_spec("cms") is not None else ""
+            ),
             "url_endpoint": self.url_endpoint or get_url_endpoint(),
             "static_url": settings.STATIC_URL + "djangocms_text" if settings.STATIC_URL else "",
             "lang": toolbar_setting,

@@ -1,15 +1,21 @@
 from django.apps import apps
 
-from cms import __version__
-from cms.api import create_page
+DJANGO_CMS4 = False
 
 try:
-    from cms.api import create_page_content
-except ImportError:
-    from cms.api import create_title as create_page_content
+    from cms import __version__
+    from cms.api import create_page
 
+    try:
+        from cms.api import create_page_content
+    except ImportError:
+        from cms.api import create_title as create_page_content
 
-DJANGO_CMS4 = not (__version__ < "4")
+    DJANGO_CMS4 = not (__version__ < "4")
+
+except ModuleNotFoundError:
+    DJANGO_CMS4 = False
+
 DJANGOCMS_VERSIONING = apps.is_installed("djangocms_verisoning")
 
 

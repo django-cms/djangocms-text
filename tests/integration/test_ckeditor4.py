@@ -1,5 +1,15 @@
 import pytest
-from cms.utils.urlutils import admin_reverse
+
+try:
+    from cms.utils.urlutils import admin_reverse
+except ModuleNotFoundError:
+
+    def admin_reverse(viewname, args=None, kwargs=None, current_app=None):
+        from django.urls import reverse
+
+        return reverse(f"admin:{viewname}", args, kwargs, current_app)
+
+
 from playwright.sync_api import expect
 
 from tests.fixtures import DJANGO_CMS4

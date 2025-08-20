@@ -1,6 +1,9 @@
 from django.db import models
 
-from cms.models import CMSPlugin
+try:
+    from cms.models import CMSPlugin
+except ModuleNotFoundError:
+    from django.db.models import Model as CMSPlugin
 
 from djangocms_text.fields import HTMLField
 

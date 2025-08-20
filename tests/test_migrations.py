@@ -1,11 +1,14 @@
 # original from
 # http://tech.octopus.energy/news/2016/01/21/testing-for-missing-migrations-in-django.html
 import io
+from unittest import skipIf
 
+from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 
+@skipIf(settings.CMS_NOT_USED, "Skipping tests because djangocms is not installed")
 class MigrationTestCase(TestCase):
     @override_settings(MIGRATION_MODULES={})
     def test_for_missing_migrations(self):

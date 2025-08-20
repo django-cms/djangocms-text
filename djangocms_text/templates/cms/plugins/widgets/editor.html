@@ -1,1 +1,1 @@
-{% load i18n l10n static cms_static sekizai_tags %}{{ editor_settings|json_script:editor_settings_id }}{% if global_settings %}{{ global_settings|json_script:global_settings_id }}{% endif %}
+{{ editor_settings|json_script:editor_settings_id }}{% if global_settings %}{{ global_settings|json_script:global_settings_id }}{% endif %}

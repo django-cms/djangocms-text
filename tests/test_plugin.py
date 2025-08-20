@@ -2,6 +2,7 @@ import copy
 import json
 import re
 import unittest
+from unittest import skipIf
 from unittest.mock import patch, MagicMock
 from urllib.parse import unquote
 
@@ -13,44 +14,49 @@ from django.template import RequestContext
 from django.utils.encoding import force_str
 from django.utils.html import escape
 from django.utils.http import urlencode
-
-from cms.api import add_plugin, create_title
-from cms.models import CMSPlugin, Page, Placeholder
-from cms.utils.urlutils import admin_reverse
-
-from djangocms_text.cms_plugins import TextPlugin
-from djangocms_text.models import Text
-from djangocms_text.utils import (
-    _plugin_tags_to_html,
-    _render_cms_plugin,
-    plugin_tags_to_admin_html,
-    plugin_tags_to_id_list,
-    plugin_to_tag,
-)
-from tests.test_app.cms_plugins import DummyChildPlugin, DummyParentPlugin
-
-from .base import BaseTestCase
 from .fixtures import DJANGO_CMS4, DJANGOCMS_VERSIONING, TestFixture
 
-
 try:
-    from djangocms_transfer.exporter import export_page
+    from cms.api import add_plugin, create_title
+    from cms.models import CMSPlugin, Page, Placeholder
+    from cms.utils.urlutils import admin_reverse
 
-    HAS_DJANGOCMS_TRANSFER = True
-except ImportError:
+    from djangocms_text.cms_plugins import TextPlugin
+    from djangocms_text.models import Text
+    from djangocms_text.utils import (
+        _plugin_tags_to_html,
+        _render_cms_plugin,
+        plugin_tags_to_admin_html,
+        plugin_tags_to_id_list,
+        plugin_to_tag,
+    )
+    from tests.test_app.cms_plugins import DummyChildPlugin, DummyParentPlugin
+
+    try:
+        from djangocms_transfer.exporter import export_page
+
+        HAS_DJANGOCMS_TRANSFER = True
+    except ImportError:
+        HAS_DJANGOCMS_TRANSFER = False
+
+    try:
+        import djangocms_translations  # noqa
+
+        HAS_DJANGOCMS_TRANSLATIONS = True
+    except ImportError:
+        HAS_DJANGOCMS_TRANSLATIONS = False
+
+    HAS_DJANGOCMS_PICTURE = "djangocms_picture" in settings.INSTALLED_APPS
+    SKIP_CMS_TEST = False
+except ModuleNotFoundError:
+    SKIP_CMS_TEST = True
+    HAS_DJANGOCMS_TRANSLATIONS = False
     HAS_DJANGOCMS_TRANSFER = False
 
-try:
-    import djangocms_translations  # noqa
-
-    HAS_DJANGOCMS_TRANSLATIONS = True
-except ImportError:
-    HAS_DJANGOCMS_TRANSLATIONS = False
+from .base import BaseTestCase
 
 
-HAS_DJANGOCMS_PICTURE = "djangocms_picture" in settings.INSTALLED_APPS
-
-
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class PluginActionsTestCase(TestFixture, BaseTestCase):
     def get_custom_admin_url(self, plugin_class, name):
         plugin_type = plugin_class.__name__.lower()
@@ -1010,6 +1016,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         self.assertEqual(result.json(), {"messages": []})
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 @unittest.skipUnless(
     HAS_DJANGOCMS_TRANSLATIONS and HAS_DJANGOCMS_TRANSFER,
     "Optional dependencies for tests are not installed.",
@@ -1132,6 +1139,7 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
         self.assertDictEqual(result, {child1.pk: ""})
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class TestGetChildPluginCandidates(BaseTestCase):
     @patch("cms.plugin_pool.plugin_pool.get_text_enabled_plugins")
     def test_get_child_plugin_candidates_whitelist(self, get_text_enabled_plugins_mock):

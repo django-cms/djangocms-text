@@ -1,4 +1,4 @@
--r base.txt
+-r dj_cms.txt
 
 Django>=5.2,<5.3
 django-cms>=5.0.0a1,<5.1

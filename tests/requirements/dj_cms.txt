@@ -1,0 +1,4 @@
+-r base.txt
+
+djangocms-picture>=2.1.0
+djangocms-link>=5.0.0

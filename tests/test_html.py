@@ -1,16 +1,25 @@
 import copy
+from unittest import skipIf
 from unittest.mock import patch, MagicMock
-
-from cms.api import create_page, add_plugin
-from cms.test_utils.testcases import CMSTestCase
 from django.test import TestCase
-from lxml.etree import Element
 
-from djangocms_text import html, settings
-from djangocms_text.html import NH3Parser, dynamic_href, dynamic_src, render_dynamic_attributes
+try:
+    from cms.api import create_page, add_plugin
+    from cms.test_utils.testcases import CMSTestCase
+    from lxml.etree import Element
+
+    from djangocms_text import html, settings
+    from djangocms_text.html import NH3Parser, dynamic_href, dynamic_src, render_dynamic_attributes
+
+    SKIP_CMS_TEST = False
+except ModuleNotFoundError:
+    from django.test.utils import TestCase as CMSTestCase
+
+    SKIP_CMS_TEST = True
 from tests.fixtures import DJANGO_CMS4, TestFixture
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class SanitizerTestCase(TestCase):
     def test_sanitizer(self):
         body = '<span data-one="1" data-two="2">some text</span>'
@@ -48,6 +57,7 @@ class SanitizerTestCase(TestCase):
         settings.TEXT_ADDITIONAL_ATTRIBUTES = original_global_attributes
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
     def test_default_tag_removal(self):
         settings.TEXT_ADDITIONAL_ATTRIBUTES = {}
@@ -158,6 +168,7 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         self.assertHTMLEqual(original, cleaned)
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class HTMLDynamicAttriutesTest(TestFixture, CMSTestCase):
     def test_dynamic_link(self):
         page = self.create_page("page", "page.html", language="en")
@@ -190,6 +201,7 @@ class HTMLDynamicAttriutesTest(TestFixture, CMSTestCase):
         )
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class DynamicAttributesTestCase(TestCase):
     @patch("djangocms_text.html.apps.get_model")
     def test_dynamic_href_sets_correct_attribute(self, mock_get_model):
@@ -235,6 +247,7 @@ def save_image(filename, image, parent_plugin, width, height):
     pass
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class DjangoCMSPictureIntegrationTestCase(CMSTestCase):
     def setUp(self):
         super().setUp()

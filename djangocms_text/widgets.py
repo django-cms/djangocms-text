@@ -17,6 +17,7 @@ from django.utils.translation.trans_real import get_language, gettext
 from . import settings as text_settings
 from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_config
 from .utils import admin_reverse, cms_placeholder_add_plugin
+from .utils import __version__ as cms_version
 
 
 @cache
@@ -231,7 +232,9 @@ class TextEditorWidget(forms.Textarea):
             }
 
         return {
-            "add_plugin_url": admin_reverse(cms_placeholder_add_plugin),
+            "add_plugin_url": (
+                admin_reverse(cms_placeholder_add_plugin) if cms_version != "0" else ""
+            ),
             "url_endpoint": self.url_endpoint or get_url_endpoint(),
             "static_url": settings.STATIC_URL + "djangocms_text" if settings.STATIC_URL else "",
             "lang": toolbar_setting,

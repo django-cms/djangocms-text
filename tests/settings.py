@@ -1,5 +1,8 @@
 import os
 from tempfile import mkdtemp
+import importlib.util
+
+CMS_NOT_USED = importlib.util.find_spec("cms") is None
 
 
 def gettext(s):
@@ -14,7 +17,7 @@ class DisableMigrations(dict):
         return None
 
 
-MIGRATION_MODULES = DisableMigrations()
+MIGRATION_MODULES = {"djangocms_text": None} if CMS_NOT_USED else DisableMigrations()
 
 SECRET_KEY = "djangocms-text-test-suite"
 
@@ -28,26 +31,37 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "easy_thumbnails",
     "filer",
-    "cms",
-    "menus",
-    "treebeard",
-    "sekizai",
-    "djangocms_picture",
-    "djangocms_link",
     "djangocms_text",
-    "djangocms_text.contrib.text_ckeditor4",
     "tests.test_app",
-]
+] + (
+    []
+    if CMS_NOT_USED
+    else [
+        "menus",
+        "sekizai",
+        "treebeard",
+        "cms",
+        "djangocms_text.contrib.text_ckeditor4",
+        "djangocms_picture",
+        "djangocms_link",
+    ]
+)
+
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "cms.middleware.user.CurrentUserMiddleware",
-    "cms.middleware.page.CurrentPageMiddleware",
-    "cms.middleware.toolbar.ToolbarMiddleware",
-    "cms.middleware.language.LanguageCookieMiddleware",
-]
+] + (
+    []
+    if CMS_NOT_USED
+    else [
+        "cms.middleware.user.CurrentUserMiddleware",
+        "cms.middleware.page.CurrentPageMiddleware",
+        "cms.middleware.toolbar.ToolbarMiddleware",
+        "cms.middleware.language.LanguageCookieMiddleware",
+    ]
+)
 
 TEMPLATES = [
     {

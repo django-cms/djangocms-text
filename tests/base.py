@@ -2,7 +2,10 @@ import os
 
 from django.conf import settings
 
-from cms.test_utils.testcases import CMSTestCase
+try:
+    from cms.test_utils.testcases import CMSTestCase
+except ModuleNotFoundError:  # pragma: no cover
+    from django.test import TestCase as CMSTestCase
 
 
 class BaseTestCase(CMSTestCase):

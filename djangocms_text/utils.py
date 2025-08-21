@@ -12,7 +12,8 @@ try:
     from cms.models import CMSPlugin
     from cms.utils.urlutils import admin_reverse
 except ModuleNotFoundError:  # pragma: no cover
-    from django.db import Model as CMSPlugin
+    from django.db.models import Model as CMSPlugin
+
     from django.urls import reverse
 
     __version__ = "0"
@@ -21,7 +22,6 @@ except ModuleNotFoundError:  # pragma: no cover
         return reverse(f"admin:{viewname}", args, kwargs, current_app)
 
 
-from classytags.utils import flatten_context
 from packaging.version import Version
 
 
@@ -38,7 +38,9 @@ else:
 
 
 def _render_cms_plugin(plugin: CMSPlugin, context):
-    context = flatten_context(context)
+    if callable(getattr(context, "flatten", None)):
+        context = context.flatten()
+
     context["plugin"] = plugin
 
     # This my fellow enthusiasts is a hack..

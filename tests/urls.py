@@ -17,7 +17,8 @@ i18n_urls = [
     re_path(r"^admin/", admin.site.urls),
 ]
 
-i18n_urls.append(path("", include("cms.urls")))  # NOQA
+if not settings.CMS_NOT_USED:
+    i18n_urls.append(path("", include("cms.urls")))  # NOQA
 
 urlpatterns += i18n_patterns(*i18n_urls)
 urlpatterns += staticfiles_urlpatterns()

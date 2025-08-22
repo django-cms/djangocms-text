@@ -232,9 +232,7 @@ class TextEditorWidget(forms.Textarea):
             }
 
         return {
-            "add_plugin_url": (
-                admin_reverse(cms_placeholder_add_plugin) if cms_version != "0" else ""
-            ),
+            "add_plugin_url": (admin_reverse(cms_placeholder_add_plugin) if cms_version != "0" else ""),
             "url_endpoint": self.url_endpoint or get_url_endpoint(),
             "static_url": settings.STATIC_URL + "djangocms_text" if settings.STATIC_URL else "",
             "lang": toolbar_setting,

@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.9.3 (22-08-2025)
+==================
+
+* fix: Fixed issues for non-CMS installations and added test coverage for non-CMS installations by @Grosskopf in https://github.com/django-cms/djangocms-text/pull/119
+* fix: Respect plugin language for link field by @fsbraun in https://github.com/django-cms/djangocms-text/pull/113
+
+@Grosskopf made their first contribution in https://github.com/django-cms/djangocms-text/pull/119
+
 0.9.2 (10-08-2025)
 ==================
 
@@ -11,7 +19,6 @@ Changelog
 * chore: Introduce dynamic badges by @mrbazzan in https://github.com/django-cms/djangocms-text/pull/108
 
 @mrbazzan made their first contribution in https://github.com/django-cms/djangocms-text/pull/108
-
 
 0.9.1 (12-06-2025)
 ==================

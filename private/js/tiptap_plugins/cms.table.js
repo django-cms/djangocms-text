@@ -1,4 +1,4 @@
-import Table from '@tiptap/extension-table'
+import { Table } from '@tiptap/extension-table'
 
 /**
  * ExtendedTable is a custom extension of the Table class that allows individual

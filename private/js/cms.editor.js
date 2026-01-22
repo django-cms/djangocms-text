@@ -20,7 +20,7 @@ class CMSEditor {
         this._generic_editors = {};
         this._admin_selector = 'textarea.CMS_Editor';
         this._admin_add_row_selector = 'body.change-form .add-row a';
-        this._inline_admin_selector = 'body.change-form .form-row';
+        this._inline_admin_selector = 'body.change-form [data-inline-type="tabular"] .form-row:not(.empty-form) ' + this._admin_selector + ', body.change-form [data-inline-type="stacked"] .inline-related:not(.empty-form) ' + this._admin_selector;
         this.API = {
             LinkField: LinkField,
             CmsDialog: CmsDialog,
@@ -44,9 +44,9 @@ class CMSEditor {
                 });
             }
 
-            if (document.querySelector(this._inline_admin_selector + '.empty-form')) {
+            if (document.querySelector(this._admin_selector)?.closest('.empty-form')) {
                 // Marker for inline admin form: do **not** initialize empty form templates
-                this._admin_selector = this._inline_admin_selector + ':not(.empty-form) ' + this._admin_selector;
+                this._admin_selector = this._inline_admin_selector;
             }
             this.initAll();
         }, { once: true });

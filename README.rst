@@ -170,25 +170,25 @@ Here is an example for Tiptap which represents the default configuration:
     # TipTap configuration
     DEFAULT_EDITOR.configuration = {
         "inlineStyles": [  # Styles menu, by default contains some rarer styles
-                { name: 'Small', element: 'small' },
-                { name: 'Kbd', element: 'kbd' },
-                { name: 'Var', element: 'var' },
-                { name: 'Samp', element: 'samp' },
+                { "name": 'Small', "element": 'small' },
+                { "name": 'Kbd', "element": 'kbd' },
+                { "name": 'Var', "element": 'var' },
+                { "name": 'Samp', "element": 'samp' },
             ],
         "blockStyles": [],
         # Block styles menu, e.g., for paragraphs, etc.; empty by default
         # Example entry: [{"name": "Lead", "element": "div", "attributes": {"class": "lead"}},]
         "textColors": {  # Colors offered for the text color menu - the keys are CSS classes
-                'text-primary': {name: "Primary"},
-                'text-secondary': {name: "Secondary"},
-                'text-success': {name: "Success"},
-                'text-danger': {name: "Danger"},
-                'text-warning': {name: "Warning"},
-                'text-info': {name: "Info"},
-                'text-light': {name: "Light"},
-                'text-dark': {name: "Dark"},
-                'text-body': {name: "Body"},
-                'text-muted': {name: "Muted"},
+                'text-primary': {"name": "Primary"},
+                'text-secondary': {"name": "Secondary"},
+                'text-success': {"name": "Success"},
+                'text-danger': {"name": "Danger"},
+                'text-warning': {"name": "Warning"},
+                'text-info': {"name": "Info"},
+                'text-light': {"name": "Light"},
+                'text-dark': {"name": "Dark"},
+                'text-body': {"name": "Body"},
+                'text-muted': {"name": "Muted"},
             },
         "tableClasses": "table",  # Classes added to new(!) tables
     }

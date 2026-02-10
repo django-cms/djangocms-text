@@ -6,9 +6,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const distribution = {
     editor: 'static/djangocms_text/',
     tiptap: 'static/djangocms_text/',
-    tinymce: 'contrib/text_tinymce/static/djangocms_text/',
     ckeditor4: 'contrib/text_ckeditor4/static/djangocms_text/',
-    quill: 'contrib/text_quill/static/djangocms_text/',
 };
 
 module.exports = {

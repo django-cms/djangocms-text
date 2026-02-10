@@ -66,14 +66,12 @@ const TiptapToolbar = {
         action: (editor) => editor.chain().focus().toggleItalic().run(),
         enabled: (editor) => editor.can().toggleItalic(),
         active: (editor) => editor.isActive('italic'),
-        title: 'Italic',
         type: 'mark',
     },
     Underline: {
         action: (editor) => editor.chain().focus().toggleUnderline().run(),
         enabled: (editor) => editor.can().toggleUnderline(),
         active: (editor) => editor.isActive('underline'),
-        title: 'Underline',
         type: 'mark',
     },
     Strike: {

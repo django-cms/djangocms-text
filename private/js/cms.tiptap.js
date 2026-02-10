@@ -27,6 +27,26 @@ import markdownPasteHandler from './tiptap_plugins/cms.markdown';
 import '../css/cms.tiptap.css';
 
 
+const ToolbarExtensionMap = {
+    [Underline]: 'Unterline',
+    [CmsDynLink]: 'Link',
+    [Image]: 'Image',
+    [ExtendedTable]: 'Table',
+    [TableCell]: 'Table',
+    [TableHeader]: 'Table',
+    [TableRow]: 'Table',
+    [Superscript]: 'Superscript',
+    [Subscript]: 'Subscript',
+    [TextColor]: 'TextColor',
+    [Highlight]: 'Highlight',
+    [InlineQuote]: 'InlineQuote',
+    [InlineStyle]: 'InlineStyle',
+    [BlockStyle]: 'BlockStyle',
+
+}
+
+const TiptapExtensions = (window.cms_editor_extensions || []).map((ext) => ext.extensions);
+
 
 class CMSTipTapPlugin {
     defaultOptions() {

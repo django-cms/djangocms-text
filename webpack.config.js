@@ -13,9 +13,7 @@ module.exports = {
     entry: {
         editor: './private/js/cms.editor.js',
         tiptap: './private/js/cms.tiptap.js',
-        tinymce: './private/js/cms.tinymce.js',
         ckeditor4: './private/js/cms.ckeditor4.js',
-        quill: './private/js/cms.quill.js',
     },
     plugins: [
         new MiniCssExtractPlugin({

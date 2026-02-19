@@ -38,6 +38,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Internet :: WWW/HTTP",
   "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
   "Topic :: Software Development",
@@ -56,9 +57,6 @@ urls.Homepage = "https://github.com/django-cms/djangocms-text"
 [tool.setuptools]
 packages = [ "djangocms_text", "djangocms_text_ckeditor" ]
 
-[tool.hatch.version]
-path = "djangocms_text/__init__.py"
-
 [tool.hatch.build]
 include = [
   "/djangocms_text",
@@ -68,6 +66,9 @@ artifacts = [
   "djangocms_text/static/**",
   "djangocms_text/contrib/**/static/**",
 ]
+
+[tool.hatch.version]
+path = "djangocms_text/__init__.py"
 
 [tool.ruff]
 line-length = 120

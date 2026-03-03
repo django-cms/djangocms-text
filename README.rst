@@ -333,7 +333,7 @@ the inserted order of children. For example:
         }
     }
 
-.. _cms_placeholder_conf: https://docs.django-cms.org/en/latest/reference/configuration.html#cms-placeholder-conf
+.. _cms_placeholder_conf: https://docs.django-cms.org/en/stable/reference/configuration.html#cms-placeholder-conf
 
 
 Configurable sanitizer

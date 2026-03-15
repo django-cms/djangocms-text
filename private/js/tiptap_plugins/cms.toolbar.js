@@ -553,13 +553,15 @@ function _updateToolbar(editor, toolbar) {
               const toolbarItem = button._cachedRepr || (button._cachedRepr = window.cms_editor_plugin._getRepresentation(action));
               try {
                   if (toolbarItem.enabled !== undefined) {
-                      button.disabled = !toolbarItem.enabled(editor, button);
+                      const disabled = !toolbarItem.enabled(editor, button);
+                      if (button.disabled !== disabled) {
+                          button.disabled = disabled;
+                      }
                   }
                   try {
-                      if (toolbarItem.active && toolbarItem.active(editor, button)) {
-                          button.classList.add('active');
-                      } else {
-                          button.classList.remove('active');
+                      const isActive = !!(toolbarItem.active && toolbarItem.active(editor, button));
+                      if (isActive !== button.classList.contains('active')) {
+                          button.classList.toggle('active', isActive);
                       }
                       if (TiptapToolbar[action].attributes) {
                           populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);

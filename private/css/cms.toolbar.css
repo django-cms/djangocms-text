@@ -172,7 +172,7 @@ html.cms-toolbar-expanded {
         vertical-align: middle;
         line-height: 1.2;
         padding: 6px 4px  !important;
-        &:active, &.active {
+        &:active, &.active, &:has(.active):not(:has([data-action^="Heading"], [data-action="Paragraph"])) {
             background: var(--dca-gray-lighter, var(--selected-bg))  !important;
         }
         &:hover:not(:disabled):not([data-action="TextColor"]),&.show {

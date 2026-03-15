@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 23:13+0100\n"
+"POT-Creation-Date: 2026-03-15 21:11+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Hindi (https://www.transifex.com/divio/teams/58664/hi/)\n"
@@ -21,254 +21,278 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: cms_plugins.py:370
+#: cms_plugins.py:385
 msgid "You do not have permission to add a plugin."
-msgstr ""
+msgstr "आपको प्लगइन जोड़ने की अनुमति नहीं है।"
 
-#: cms_plugins.py:434
+#: cms_plugins.py:449
 msgid "Unable to process your request. Invalid token."
-msgstr ""
+msgstr "आपका अनुरोध संसाधित नहीं हो सका। अमान्य टोकन।"
 
-#: cms_toolbars.py:60
+#: cms_toolbars.py:58
 msgid "Toggle inline editing mode for text plugins"
-msgstr ""
+msgstr "टेक्स्ट प्लगइन के लिए इनलाइन संपादन मोड टॉगल करें"
 
-#: editors.py:32
+#: editors.py:33
 msgid "Undo"
-msgstr ""
+msgstr "पूर्ववत करें"
 
-#: editors.py:36
+#: editors.py:37
 msgid "Redo"
-msgstr ""
+msgstr "पुनः करें"
 
-#: editors.py:40
+#: editors.py:41
 msgid "Bold"
-msgstr ""
+msgstr "बोल्ड"
 
-#: editors.py:46
+#: editors.py:47
 msgid "Italic"
-msgstr ""
+msgstr "इटैलिक"
 
-#: editors.py:52
+#: editors.py:53
 msgid "Underline"
-msgstr ""
+msgstr "अंडरलाइन"
 
-#: editors.py:58
+#: editors.py:59
 msgid "Strike"
-msgstr ""
+msgstr "स्ट्राइकथ्रू"
 
-#: editors.py:62
+#: editors.py:63
 msgid "Subscript"
-msgstr ""
+msgstr "सबस्क्रिप्ट"
 
-#: editors.py:68
+#: editors.py:69
 msgid "Superscript"
-msgstr ""
+msgstr "सुपरस्क्रिप्ट"
 
-#: editors.py:74
+#: editors.py:75
+msgid "Text color"
+msgstr "टेक्स्ट का रंग"
+
+#: editors.py:78
+msgid "Inline quote"
+msgstr "इनलाइन उद्धरण"
+
+#: editors.py:81
+msgid "Mark"
+msgstr "चिह्नित करें"
+
+#: editors.py:84
 msgid "Remove formatting"
-msgstr ""
+msgstr "फ़ॉर्मेटिंग हटाएं"
 
-#: editors.py:87
+#: editors.py:97
 msgid "Align left"
-msgstr ""
+msgstr "बाएं संरेखित करें"
 
-#: editors.py:93
+#: editors.py:103
 msgid "Align center"
-msgstr ""
+msgstr "केंद्र में संरेखित करें"
 
-#: editors.py:99
+#: editors.py:109
 msgid "Align right"
-msgstr ""
+msgstr "दाएं संरेखित करें"
 
-#: editors.py:105
+#: editors.py:115
 msgid "Justify"
-msgstr ""
+msgstr "दोनों ओर संरेखित करें"
 
-#: editors.py:111
+#: editors.py:121
 msgid "Horizontal rule"
-msgstr ""
+msgstr "क्षैतिज रेखा"
 
-#: editors.py:117
+#: editors.py:127
 msgid "Numbered list"
-msgstr ""
+msgstr "क्रमांकित सूची"
 
-#: editors.py:124
+#: editors.py:134
 msgid "Bullet list"
-msgstr ""
+msgstr "बुलेट सूची"
 
-#: editors.py:130
+#: editors.py:140
 msgid "Outdent"
-msgstr ""
+msgstr "इंडेंट कम करें"
 
-#: editors.py:137
+#: editors.py:147
 msgid "Indent"
-msgstr ""
+msgstr "इंडेंट बढ़ाएं"
 
-#: editors.py:144
+#: editors.py:154
 msgid "Blockquote"
-msgstr ""
+msgstr "उद्धरण"
 
-#: editors.py:150
+#: editors.py:160
 msgid "Link"
-msgstr ""
+msgstr "लिंक"
+
+#: editors.py:169
+msgid "Type URL or search for a destination"
+msgstr "URL टाइप करें या गंतव्य खोजें"
 
 #: editors.py:170
-msgid "Type URL or search for a destination"
-msgstr ""
-
-#: editors.py:171
 msgid "URL or search"
-msgstr ""
+msgstr "URL या खोजें"
 
-#: editors.py:178
+#: editors.py:177
 msgid "Link options"
-msgstr ""
+msgstr "लिंक विकल्प"
 
-#: editors.py:182
+#: editors.py:181
 msgid "Target"
-msgstr ""
+msgstr "लक्ष्य"
+
+#: editors.py:185
+msgid "New window"
+msgstr "नई विंडो"
 
 #: editors.py:186
-msgid "New window"
-msgstr ""
+msgid "Same window"
+msgstr "उसी विंडो"
 
 #: editors.py:187
-msgid "Same window"
-msgstr ""
-
-#: editors.py:188
 msgid "Parent window"
-msgstr ""
+msgstr "मूल विंडो"
 
-#: editors.py:201
+#: editors.py:200
 msgid "Unlink"
-msgstr ""
+msgstr "लिंक हटाएं"
 
-#: editors.py:209
+#: editors.py:208
 msgid "Table"
-msgstr ""
+msgstr "तालिका"
 
-#: editors.py:213
-msgid "Add row before"
-msgstr ""
+#: editors.py:212
+msgid "Header row"
+msgstr "हेडर पंक्ति"
 
 #: editors.py:216
+msgid "Header column"
+msgstr "हेडर स्तंभ"
+
+#: editors.py:220
+msgid "Add row before"
+msgstr "ऊपर पंक्ति जोड़ें"
+
+#: editors.py:224
 msgid "Add row after"
-msgstr ""
-
-#: editors.py:219
-msgid "Add column before"
-msgstr ""
-
-#: editors.py:222
-msgid "Add column after"
-msgstr ""
-
-#: editors.py:225
-msgid "Delete row"
-msgstr ""
+msgstr "नीचे पंक्ति जोड़ें"
 
 #: editors.py:228
+msgid "Add column before"
+msgstr "बाएं स्तंभ जोड़ें"
+
+#: editors.py:232
+msgid "Add column after"
+msgstr "दाएं स्तंभ जोड़ें"
+
+#: editors.py:236
+msgid "Delete row"
+msgstr "पंक्ति हटाएं"
+
+#: editors.py:240
 msgid "Delete column"
-msgstr ""
+msgstr "स्तंभ हटाएं"
 
-#: editors.py:231
+#: editors.py:244
 msgid "Delete table"
-msgstr ""
+msgstr "तालिका हटाएं"
 
-#: editors.py:234
-msgid "Merge or split cells"
-msgstr ""
-
-#: editors.py:237
-msgid "Code"
-msgstr ""
-
-#: editors.py:243
-msgid "Small"
-msgstr ""
-
-#: editors.py:246
-msgid "Keyboard input"
-msgstr ""
+#: editors.py:247
+msgid "Merge/split cells"
+msgstr "सेल मर्ज/विभाजित करें"
 
 #: editors.py:252
+msgid "Code"
+msgstr "कोड"
+
+#: editors.py:258
+msgid "Small"
+msgstr "छोटा"
+
+#: editors.py:261
+msgid "Keyboard input"
+msgstr "कीबोर्ड इनपुट"
+
+#: editors.py:267
 msgid "Code block"
-msgstr ""
+msgstr "कोड ब्लॉक"
 
-#: editors.py:259
+#: editors.py:274
 msgid "Heading 1"
-msgstr ""
+msgstr "शीर्षक 1"
 
-#: editors.py:265
+#: editors.py:280
 msgid "Heading 2"
-msgstr ""
+msgstr "शीर्षक 2"
 
-#: editors.py:271
+#: editors.py:286
 msgid "Heading 3"
-msgstr ""
+msgstr "शीर्षक 3"
 
-#: editors.py:277
+#: editors.py:292
 msgid "Heading 4"
-msgstr ""
+msgstr "शीर्षक 4"
 
-#: editors.py:283
+#: editors.py:298
 msgid "Heading 5"
-msgstr ""
-
-#: editors.py:289
-msgid "Heading 6"
-msgstr ""
-
-#: editors.py:295
-msgid "Paragraph"
-msgstr ""
-
-#: editors.py:301
-msgid "Anchor"
-msgstr ""
+msgstr "शीर्षक 5"
 
 #: editors.py:304
-msgid "Block format"
-msgstr ""
+msgid "Heading 6"
+msgstr "शीर्षक 6"
 
-#: editors.py:308
+#: editors.py:310
+msgid "Paragraph"
+msgstr "अनुच्छेद"
+
+#: editors.py:316
+msgid "Anchor"
+msgstr "एंकर"
+
+#: editors.py:319
+msgid "Format"
+msgstr "फ़ॉर्मेट"
+
+#: editors.py:322 editors.py:325
 msgid "Styles"
-msgstr ""
+msgstr "शैलियां"
 
-#: editors.py:312
+#: editors.py:328
+msgid "Blocks"
+msgstr "ब्लॉक"
+
+#: editors.py:331
 msgid "Font"
-msgstr ""
+msgstr "फ़ॉन्ट"
 
-#: editors.py:315
+#: editors.py:334
 msgid "Font size"
-msgstr ""
+msgstr "फ़ॉन्ट आकार"
 
-#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
+#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
-msgstr ""
+msgstr "CMS प्लगइन"
 
-#: editors.py:320 widgets.py:242
+#: editors.py:339 widgets.py:242
 msgid "Edit CMS Plugin"
-msgstr ""
+msgstr "CMS प्लगइन संपादित करें"
 
-#: editors.py:321 widgets.py:241
+#: editors.py:340 widgets.py:241
 msgid "Add CMS Plugin"
-msgstr ""
+msgstr "CMS प्लगइन जोड़ें"
 
-#: models.py:50
+#: models.py:54
 msgid "body"
-msgstr "शरीर"
+msgstr "मुख्य भाग"
 
-#: models.py:51
+#: models.py:55
 msgid "json"
-msgstr ""
-
-#: settings.py:39
-msgid "Text"
-msgstr "पाठ"
+msgstr "JSON"
 
 #: settings.py:40
+msgid "Text"
+msgstr "टेक्स्ट"
+
+#: settings.py:41
 msgid "Generic"
-msgstr ""
+msgstr "सामान्य"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 23:13+0100\n"
+"POT-Creation-Date: 2026-03-15 21:11+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Hebrew (https://www.transifex.com/divio/teams/58664/he/)\n"
@@ -22,254 +22,278 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % "
 "1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
 
-#: cms_plugins.py:370
+#: cms_plugins.py:385
 msgid "You do not have permission to add a plugin."
-msgstr ""
+msgstr "אין לך הרשאה להוסיף תוסף."
 
-#: cms_plugins.py:434
+#: cms_plugins.py:449
 msgid "Unable to process your request. Invalid token."
-msgstr ""
+msgstr "לא ניתן לעבד את הבקשה שלך. אסימון לא חוקי."
 
-#: cms_toolbars.py:60
+#: cms_toolbars.py:58
 msgid "Toggle inline editing mode for text plugins"
-msgstr ""
+msgstr "הפעל/כבה מצב עריכה מוטבע עבור תוספי טקסט"
 
-#: editors.py:32
+#: editors.py:33
 msgid "Undo"
-msgstr ""
+msgstr "בטל"
 
-#: editors.py:36
+#: editors.py:37
 msgid "Redo"
-msgstr ""
+msgstr "בצע שוב"
 
-#: editors.py:40
+#: editors.py:41
 msgid "Bold"
-msgstr ""
+msgstr "מודגש"
 
-#: editors.py:46
+#: editors.py:47
 msgid "Italic"
-msgstr ""
+msgstr "נטוי"
 
-#: editors.py:52
+#: editors.py:53
 msgid "Underline"
-msgstr ""
+msgstr "קו תחתון"
 
-#: editors.py:58
+#: editors.py:59
 msgid "Strike"
-msgstr ""
+msgstr "קו חוצה"
 
-#: editors.py:62
+#: editors.py:63
 msgid "Subscript"
-msgstr ""
+msgstr "כתב תחתי"
 
-#: editors.py:68
+#: editors.py:69
 msgid "Superscript"
-msgstr ""
+msgstr "כתב עילי"
 
-#: editors.py:74
+#: editors.py:75
+msgid "Text color"
+msgstr "צבע טקסט"
+
+#: editors.py:78
+msgid "Inline quote"
+msgstr "ציטוט מוטבע"
+
+#: editors.py:81
+msgid "Mark"
+msgstr "סימון"
+
+#: editors.py:84
 msgid "Remove formatting"
-msgstr ""
+msgstr "הסר עיצוב"
 
-#: editors.py:87
+#: editors.py:97
 msgid "Align left"
-msgstr ""
+msgstr "יישור לשמאל"
 
-#: editors.py:93
+#: editors.py:103
 msgid "Align center"
-msgstr ""
+msgstr "מרכז"
 
-#: editors.py:99
+#: editors.py:109
 msgid "Align right"
-msgstr ""
+msgstr "יישור לימין"
 
-#: editors.py:105
+#: editors.py:115
 msgid "Justify"
-msgstr ""
+msgstr "יישור לשני הצדדים"
 
-#: editors.py:111
+#: editors.py:121
 msgid "Horizontal rule"
-msgstr ""
+msgstr "קו אופקי"
 
-#: editors.py:117
+#: editors.py:127
 msgid "Numbered list"
-msgstr ""
+msgstr "רשימה ממוספרת"
 
-#: editors.py:124
+#: editors.py:134
 msgid "Bullet list"
-msgstr ""
+msgstr "רשימת תבליטים"
 
-#: editors.py:130
+#: editors.py:140
 msgid "Outdent"
-msgstr ""
+msgstr "הקטן הזחה"
 
-#: editors.py:137
+#: editors.py:147
 msgid "Indent"
-msgstr ""
+msgstr "הגדל הזחה"
 
-#: editors.py:144
+#: editors.py:154
 msgid "Blockquote"
-msgstr ""
+msgstr "ציטוט"
 
-#: editors.py:150
+#: editors.py:160
 msgid "Link"
-msgstr ""
+msgstr "קישור"
+
+#: editors.py:169
+msgid "Type URL or search for a destination"
+msgstr "הקלד כתובת URL או חפש יעד"
 
 #: editors.py:170
-msgid "Type URL or search for a destination"
-msgstr ""
-
-#: editors.py:171
 msgid "URL or search"
-msgstr ""
+msgstr "URL או חיפוש"
 
-#: editors.py:178
+#: editors.py:177
 msgid "Link options"
-msgstr ""
+msgstr "אפשרויות קישור"
 
-#: editors.py:182
+#: editors.py:181
 msgid "Target"
-msgstr ""
+msgstr "יעד"
+
+#: editors.py:185
+msgid "New window"
+msgstr "חלון חדש"
 
 #: editors.py:186
-msgid "New window"
-msgstr ""
+msgid "Same window"
+msgstr "אותו חלון"
 
 #: editors.py:187
-msgid "Same window"
-msgstr ""
-
-#: editors.py:188
 msgid "Parent window"
-msgstr ""
+msgstr "חלון הורה"
 
-#: editors.py:201
+#: editors.py:200
 msgid "Unlink"
-msgstr ""
+msgstr "הסר קישור"
 
-#: editors.py:209
+#: editors.py:208
 msgid "Table"
-msgstr ""
+msgstr "טבלה"
 
-#: editors.py:213
-msgid "Add row before"
-msgstr ""
+#: editors.py:212
+msgid "Header row"
+msgstr "שורת כותרת"
 
 #: editors.py:216
+msgid "Header column"
+msgstr "עמודת כותרת"
+
+#: editors.py:220
+msgid "Add row before"
+msgstr "הוסף שורה לפני"
+
+#: editors.py:224
 msgid "Add row after"
-msgstr ""
-
-#: editors.py:219
-msgid "Add column before"
-msgstr ""
-
-#: editors.py:222
-msgid "Add column after"
-msgstr ""
-
-#: editors.py:225
-msgid "Delete row"
-msgstr ""
+msgstr "הוסף שורה אחרי"
 
 #: editors.py:228
+msgid "Add column before"
+msgstr "הוסף עמודה לפני"
+
+#: editors.py:232
+msgid "Add column after"
+msgstr "הוסף עמודה אחרי"
+
+#: editors.py:236
+msgid "Delete row"
+msgstr "מחק שורה"
+
+#: editors.py:240
 msgid "Delete column"
-msgstr ""
+msgstr "מחק עמודה"
 
-#: editors.py:231
+#: editors.py:244
 msgid "Delete table"
-msgstr ""
+msgstr "מחק טבלה"
 
-#: editors.py:234
-msgid "Merge or split cells"
-msgstr ""
-
-#: editors.py:237
-msgid "Code"
-msgstr ""
-
-#: editors.py:243
-msgid "Small"
-msgstr ""
-
-#: editors.py:246
-msgid "Keyboard input"
-msgstr ""
+#: editors.py:247
+msgid "Merge/split cells"
+msgstr "מזג/פצל תאים"
 
 #: editors.py:252
+msgid "Code"
+msgstr "קוד"
+
+#: editors.py:258
+msgid "Small"
+msgstr "קטן"
+
+#: editors.py:261
+msgid "Keyboard input"
+msgstr "קלט מקלדת"
+
+#: editors.py:267
 msgid "Code block"
-msgstr ""
+msgstr "בלוק קוד"
 
-#: editors.py:259
+#: editors.py:274
 msgid "Heading 1"
-msgstr ""
+msgstr "כותרת 1"
 
-#: editors.py:265
+#: editors.py:280
 msgid "Heading 2"
-msgstr ""
+msgstr "כותרת 2"
 
-#: editors.py:271
+#: editors.py:286
 msgid "Heading 3"
-msgstr ""
+msgstr "כותרת 3"
 
-#: editors.py:277
+#: editors.py:292
 msgid "Heading 4"
-msgstr ""
+msgstr "כותרת 4"
 
-#: editors.py:283
+#: editors.py:298
 msgid "Heading 5"
-msgstr ""
-
-#: editors.py:289
-msgid "Heading 6"
-msgstr ""
-
-#: editors.py:295
-msgid "Paragraph"
-msgstr ""
-
-#: editors.py:301
-msgid "Anchor"
-msgstr ""
+msgstr "כותרת 5"
 
 #: editors.py:304
-msgid "Block format"
-msgstr ""
+msgid "Heading 6"
+msgstr "כותרת 6"
 
-#: editors.py:308
+#: editors.py:310
+msgid "Paragraph"
+msgstr "פסקה"
+
+#: editors.py:316
+msgid "Anchor"
+msgstr "עוגן"
+
+#: editors.py:319
+msgid "Format"
+msgstr "עיצוב"
+
+#: editors.py:322 editors.py:325
 msgid "Styles"
-msgstr ""
+msgstr "סגנונות"
 
-#: editors.py:312
+#: editors.py:328
+msgid "Blocks"
+msgstr "בלוקים"
+
+#: editors.py:331
 msgid "Font"
-msgstr ""
+msgstr "גופן"
 
-#: editors.py:315
+#: editors.py:334
 msgid "Font size"
-msgstr ""
+msgstr "גודל גופן"
 
-#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
+#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
-msgstr ""
+msgstr "תוספי CMS"
 
-#: editors.py:320 widgets.py:242
+#: editors.py:339 widgets.py:242
 msgid "Edit CMS Plugin"
-msgstr ""
+msgstr "ערוך תוסף CMS"
 
-#: editors.py:321 widgets.py:241
+#: editors.py:340 widgets.py:241
 msgid "Add CMS Plugin"
-msgstr ""
+msgstr "הוסף תוסף CMS"
 
-#: models.py:50
+#: models.py:54
 msgid "body"
-msgstr "תוכן"
+msgstr "גוף"
 
-#: models.py:51
+#: models.py:55
 msgid "json"
-msgstr ""
+msgstr "JSON"
 
-#: settings.py:39
+#: settings.py:40
 msgid "Text"
 msgstr "טקסט"
 
-#: settings.py:40
+#: settings.py:41
 msgid "Generic"
-msgstr ""
+msgstr "כללי"

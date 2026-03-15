@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 23:13+0100\n"
+"POT-Creation-Date: 2026-03-15 21:11+0100\n"
 "PO-Revision-Date: 2024-02-15 10:49+0000\n"
 "Last-Translator: Fabian Braun <fsbraun@gmx.de>, 2024\n"
 "Language-Team: Lithuanian (https://app.transifex.com/divio/teams/58664/lt/)\n"
@@ -23,254 +23,278 @@ msgstr ""
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
 
-#: cms_plugins.py:370
+#: cms_plugins.py:385
 msgid "You do not have permission to add a plugin."
-msgstr ""
+msgstr "Neturite leidimo pridėti įskiepį."
 
-#: cms_plugins.py:434
+#: cms_plugins.py:449
 msgid "Unable to process your request. Invalid token."
-msgstr "Negalima apdoroti jūsų užklausos. Netinkama žymė."
+msgstr "Nepavyko apdoroti jūsų užklausos. Neteisingas žetonas."
 
-#: cms_toolbars.py:60
+#: cms_toolbars.py:58
 msgid "Toggle inline editing mode for text plugins"
-msgstr ""
+msgstr "Perjungti eilutinio redagavimo režimą teksto įskiepiams"
 
-#: editors.py:32
+#: editors.py:33
 msgid "Undo"
-msgstr ""
+msgstr "Anuliuoti"
 
-#: editors.py:36
+#: editors.py:37
 msgid "Redo"
-msgstr ""
+msgstr "Pakartoti"
 
-#: editors.py:40
+#: editors.py:41
 msgid "Bold"
-msgstr ""
+msgstr "Paryškintas"
 
-#: editors.py:46
+#: editors.py:47
 msgid "Italic"
-msgstr ""
+msgstr "Kursyvas"
 
-#: editors.py:52
+#: editors.py:53
 msgid "Underline"
-msgstr ""
+msgstr "Pabrauktas"
 
-#: editors.py:58
+#: editors.py:59
 msgid "Strike"
-msgstr ""
+msgstr "Perbrauktas"
 
-#: editors.py:62
+#: editors.py:63
 msgid "Subscript"
-msgstr ""
+msgstr "Apatinis indeksas"
 
-#: editors.py:68
+#: editors.py:69
 msgid "Superscript"
-msgstr ""
+msgstr "Viršutinis indeksas"
 
-#: editors.py:74
+#: editors.py:75
+msgid "Text color"
+msgstr "Teksto spalva"
+
+#: editors.py:78
+msgid "Inline quote"
+msgstr "Eilutinė citata"
+
+#: editors.py:81
+msgid "Mark"
+msgstr "Paryškinimas"
+
+#: editors.py:84
 msgid "Remove formatting"
-msgstr ""
+msgstr "Pašalinti formatavimą"
 
-#: editors.py:87
+#: editors.py:97
 msgid "Align left"
-msgstr ""
+msgstr "Lygiuoti kairėn"
 
-#: editors.py:93
+#: editors.py:103
 msgid "Align center"
-msgstr ""
+msgstr "Centruoti"
 
-#: editors.py:99
+#: editors.py:109
 msgid "Align right"
-msgstr ""
+msgstr "Lygiuoti dešinėn"
 
-#: editors.py:105
+#: editors.py:115
 msgid "Justify"
-msgstr ""
+msgstr "Lygiuoti abipusiai"
 
-#: editors.py:111
+#: editors.py:121
 msgid "Horizontal rule"
-msgstr ""
+msgstr "Horizontali linija"
 
-#: editors.py:117
+#: editors.py:127
 msgid "Numbered list"
-msgstr ""
+msgstr "Numeruotas sąrašas"
 
-#: editors.py:124
+#: editors.py:134
 msgid "Bullet list"
-msgstr ""
+msgstr "Ženklelių sąrašas"
 
-#: editors.py:130
+#: editors.py:140
 msgid "Outdent"
-msgstr ""
+msgstr "Mažinti įtrauką"
 
-#: editors.py:137
+#: editors.py:147
 msgid "Indent"
-msgstr ""
+msgstr "Didinti įtrauką"
 
-#: editors.py:144
+#: editors.py:154
 msgid "Blockquote"
-msgstr ""
+msgstr "Citata"
 
-#: editors.py:150
+#: editors.py:160
 msgid "Link"
-msgstr ""
+msgstr "Nuoroda"
+
+#: editors.py:169
+msgid "Type URL or search for a destination"
+msgstr "Įveskite URL arba ieškokite paskirties vietos"
 
 #: editors.py:170
-msgid "Type URL or search for a destination"
-msgstr ""
-
-#: editors.py:171
 msgid "URL or search"
-msgstr ""
+msgstr "URL arba paieška"
 
-#: editors.py:178
+#: editors.py:177
 msgid "Link options"
-msgstr ""
+msgstr "Nuorodos parinktys"
 
-#: editors.py:182
+#: editors.py:181
 msgid "Target"
-msgstr ""
+msgstr "Tikslas"
+
+#: editors.py:185
+msgid "New window"
+msgstr "Naujas langas"
 
 #: editors.py:186
-msgid "New window"
-msgstr ""
+msgid "Same window"
+msgstr "Tas pats langas"
 
 #: editors.py:187
-msgid "Same window"
-msgstr ""
-
-#: editors.py:188
 msgid "Parent window"
-msgstr ""
+msgstr "Pirminis langas"
 
-#: editors.py:201
+#: editors.py:200
 msgid "Unlink"
-msgstr ""
+msgstr "Pašalinti nuorodą"
 
-#: editors.py:209
+#: editors.py:208
 msgid "Table"
-msgstr ""
+msgstr "Lentelė"
 
-#: editors.py:213
-msgid "Add row before"
-msgstr ""
+#: editors.py:212
+msgid "Header row"
+msgstr "Antraštės eilutė"
 
 #: editors.py:216
+msgid "Header column"
+msgstr "Antraštės stulpelis"
+
+#: editors.py:220
+msgid "Add row before"
+msgstr "Pridėti eilutę prieš"
+
+#: editors.py:224
 msgid "Add row after"
-msgstr ""
-
-#: editors.py:219
-msgid "Add column before"
-msgstr ""
-
-#: editors.py:222
-msgid "Add column after"
-msgstr ""
-
-#: editors.py:225
-msgid "Delete row"
-msgstr ""
+msgstr "Pridėti eilutę po"
 
 #: editors.py:228
+msgid "Add column before"
+msgstr "Pridėti stulpelį prieš"
+
+#: editors.py:232
+msgid "Add column after"
+msgstr "Pridėti stulpelį po"
+
+#: editors.py:236
+msgid "Delete row"
+msgstr "Ištrinti eilutę"
+
+#: editors.py:240
 msgid "Delete column"
-msgstr ""
+msgstr "Ištrinti stulpelį"
 
-#: editors.py:231
+#: editors.py:244
 msgid "Delete table"
-msgstr ""
+msgstr "Ištrinti lentelę"
 
-#: editors.py:234
-msgid "Merge or split cells"
-msgstr ""
-
-#: editors.py:237
-msgid "Code"
-msgstr ""
-
-#: editors.py:243
-msgid "Small"
-msgstr ""
-
-#: editors.py:246
-msgid "Keyboard input"
-msgstr ""
+#: editors.py:247
+msgid "Merge/split cells"
+msgstr "Sujungti/padalyti langelius"
 
 #: editors.py:252
+msgid "Code"
+msgstr "Kodas"
+
+#: editors.py:258
+msgid "Small"
+msgstr "Mažas"
+
+#: editors.py:261
+msgid "Keyboard input"
+msgstr "Klaviatūros įvestis"
+
+#: editors.py:267
 msgid "Code block"
-msgstr ""
+msgstr "Kodo blokas"
 
-#: editors.py:259
+#: editors.py:274
 msgid "Heading 1"
-msgstr ""
+msgstr "Antraštė 1"
 
-#: editors.py:265
+#: editors.py:280
 msgid "Heading 2"
-msgstr ""
+msgstr "Antraštė 2"
 
-#: editors.py:271
+#: editors.py:286
 msgid "Heading 3"
-msgstr ""
+msgstr "Antraštė 3"
 
-#: editors.py:277
+#: editors.py:292
 msgid "Heading 4"
-msgstr ""
+msgstr "Antraštė 4"
 
-#: editors.py:283
+#: editors.py:298
 msgid "Heading 5"
-msgstr ""
-
-#: editors.py:289
-msgid "Heading 6"
-msgstr ""
-
-#: editors.py:295
-msgid "Paragraph"
-msgstr ""
-
-#: editors.py:301
-msgid "Anchor"
-msgstr ""
+msgstr "Antraštė 5"
 
 #: editors.py:304
-msgid "Block format"
-msgstr ""
+msgid "Heading 6"
+msgstr "Antraštė 6"
 
-#: editors.py:308
+#: editors.py:310
+msgid "Paragraph"
+msgstr "Pastraipa"
+
+#: editors.py:316
+msgid "Anchor"
+msgstr "Inkaras"
+
+#: editors.py:319
+msgid "Format"
+msgstr "Formatas"
+
+#: editors.py:322 editors.py:325
 msgid "Styles"
-msgstr ""
+msgstr "Stiliai"
 
-#: editors.py:312
+#: editors.py:328
+msgid "Blocks"
+msgstr "Blokai"
+
+#: editors.py:331
 msgid "Font"
-msgstr ""
+msgstr "Šriftas"
 
-#: editors.py:315
+#: editors.py:334
 msgid "Font size"
-msgstr ""
+msgstr "Šrifto dydis"
 
-#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
+#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
-msgstr "TVS įskiepiai"
+msgstr "CMS įskiepiai"
 
-#: editors.py:320 widgets.py:242
+#: editors.py:339 widgets.py:242
 msgid "Edit CMS Plugin"
-msgstr "Redaguotis TVS įskiepį"
+msgstr "Redaguoti CMS įskiepį"
 
-#: editors.py:321 widgets.py:241
+#: editors.py:340 widgets.py:241
 msgid "Add CMS Plugin"
-msgstr "Pridėti TVS įskiepį"
+msgstr "Pridėti CMS įskiepį"
 
-#: models.py:50
+#: models.py:54
 msgid "body"
 msgstr "turinys"
 
-#: models.py:51
+#: models.py:55
 msgid "json"
-msgstr ""
+msgstr "JSON"
 
-#: settings.py:39
+#: settings.py:40
 msgid "Text"
 msgstr "Tekstas"
 
-#: settings.py:40
+#: settings.py:41
 msgid "Generic"
 msgstr "Bendras"

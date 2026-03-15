@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 23:13+0100\n"
+"POT-Creation-Date: 2026-03-15 21:11+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Persian (https://www.transifex.com/divio/teams/58664/fa/)\n"
@@ -21,254 +21,278 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: cms_plugins.py:370
+#: cms_plugins.py:385
 msgid "You do not have permission to add a plugin."
-msgstr ""
+msgstr "شما اجازه افزودن افزونه را ندارید."
 
-#: cms_plugins.py:434
+#: cms_plugins.py:449
 msgid "Unable to process your request. Invalid token."
-msgstr ""
+msgstr "امکان پردازش درخواست شما وجود ندارد. توکن نامعتبر."
 
-#: cms_toolbars.py:60
+#: cms_toolbars.py:58
 msgid "Toggle inline editing mode for text plugins"
-msgstr ""
+msgstr "تغییر حالت ویرایش درون‌خطی برای افزونه‌های متنی"
 
-#: editors.py:32
+#: editors.py:33
 msgid "Undo"
-msgstr ""
+msgstr "بازگردانی"
 
-#: editors.py:36
+#: editors.py:37
 msgid "Redo"
-msgstr ""
+msgstr "انجام مجدد"
 
-#: editors.py:40
+#: editors.py:41
 msgid "Bold"
-msgstr ""
+msgstr "درشت"
 
-#: editors.py:46
+#: editors.py:47
 msgid "Italic"
-msgstr ""
+msgstr "مورب"
 
-#: editors.py:52
+#: editors.py:53
 msgid "Underline"
-msgstr ""
+msgstr "زیرخط"
 
-#: editors.py:58
+#: editors.py:59
 msgid "Strike"
-msgstr ""
+msgstr "خط‌خورده"
 
-#: editors.py:62
+#: editors.py:63
 msgid "Subscript"
-msgstr ""
+msgstr "زیرنویس"
 
-#: editors.py:68
+#: editors.py:69
 msgid "Superscript"
-msgstr ""
+msgstr "بالانویس"
 
-#: editors.py:74
+#: editors.py:75
+msgid "Text color"
+msgstr "رنگ متن"
+
+#: editors.py:78
+msgid "Inline quote"
+msgstr "نقل‌قول درون‌خطی"
+
+#: editors.py:81
+msgid "Mark"
+msgstr "برجسته‌سازی"
+
+#: editors.py:84
 msgid "Remove formatting"
-msgstr ""
+msgstr "حذف قالب‌بندی"
 
-#: editors.py:87
+#: editors.py:97
 msgid "Align left"
-msgstr ""
+msgstr "تراز چپ"
 
-#: editors.py:93
+#: editors.py:103
 msgid "Align center"
-msgstr ""
+msgstr "تراز وسط"
 
-#: editors.py:99
+#: editors.py:109
 msgid "Align right"
-msgstr ""
+msgstr "تراز راست"
 
-#: editors.py:105
+#: editors.py:115
 msgid "Justify"
-msgstr ""
+msgstr "تراز دوطرفه"
 
-#: editors.py:111
+#: editors.py:121
 msgid "Horizontal rule"
-msgstr ""
+msgstr "خط افقی"
 
-#: editors.py:117
+#: editors.py:127
 msgid "Numbered list"
-msgstr ""
+msgstr "لیست شماره‌دار"
 
-#: editors.py:124
+#: editors.py:134
 msgid "Bullet list"
-msgstr ""
+msgstr "لیست نقطه‌ای"
 
-#: editors.py:130
+#: editors.py:140
 msgid "Outdent"
-msgstr ""
+msgstr "کاهش تورفتگی"
 
-#: editors.py:137
+#: editors.py:147
 msgid "Indent"
-msgstr ""
+msgstr "افزایش تورفتگی"
 
-#: editors.py:144
+#: editors.py:154
 msgid "Blockquote"
-msgstr ""
+msgstr "نقل‌قول"
 
-#: editors.py:150
+#: editors.py:160
 msgid "Link"
-msgstr ""
+msgstr "پیوند"
+
+#: editors.py:169
+msgid "Type URL or search for a destination"
+msgstr "آدرس URL را وارد کنید یا مقصدی را جستجو کنید"
 
 #: editors.py:170
-msgid "Type URL or search for a destination"
-msgstr ""
-
-#: editors.py:171
 msgid "URL or search"
-msgstr ""
+msgstr "URL یا جستجو"
 
-#: editors.py:178
+#: editors.py:177
 msgid "Link options"
-msgstr ""
+msgstr "گزینه‌های پیوند"
 
-#: editors.py:182
+#: editors.py:181
 msgid "Target"
-msgstr ""
+msgstr "هدف"
+
+#: editors.py:185
+msgid "New window"
+msgstr "پنجره جدید"
 
 #: editors.py:186
-msgid "New window"
-msgstr ""
+msgid "Same window"
+msgstr "همان پنجره"
 
 #: editors.py:187
-msgid "Same window"
-msgstr ""
-
-#: editors.py:188
 msgid "Parent window"
-msgstr ""
+msgstr "پنجره والد"
 
-#: editors.py:201
+#: editors.py:200
 msgid "Unlink"
-msgstr ""
+msgstr "حذف پیوند"
 
-#: editors.py:209
+#: editors.py:208
 msgid "Table"
-msgstr ""
+msgstr "جدول"
 
-#: editors.py:213
-msgid "Add row before"
-msgstr ""
+#: editors.py:212
+msgid "Header row"
+msgstr "ردیف سرصفحه"
 
 #: editors.py:216
+msgid "Header column"
+msgstr "ستون سرصفحه"
+
+#: editors.py:220
+msgid "Add row before"
+msgstr "افزودن ردیف قبل"
+
+#: editors.py:224
 msgid "Add row after"
-msgstr ""
-
-#: editors.py:219
-msgid "Add column before"
-msgstr ""
-
-#: editors.py:222
-msgid "Add column after"
-msgstr ""
-
-#: editors.py:225
-msgid "Delete row"
-msgstr ""
+msgstr "افزودن ردیف بعد"
 
 #: editors.py:228
+msgid "Add column before"
+msgstr "افزودن ستون قبل"
+
+#: editors.py:232
+msgid "Add column after"
+msgstr "افزودن ستون بعد"
+
+#: editors.py:236
+msgid "Delete row"
+msgstr "حذف ردیف"
+
+#: editors.py:240
 msgid "Delete column"
-msgstr ""
+msgstr "حذف ستون"
 
-#: editors.py:231
+#: editors.py:244
 msgid "Delete table"
-msgstr ""
+msgstr "حذف جدول"
 
-#: editors.py:234
-msgid "Merge or split cells"
-msgstr ""
-
-#: editors.py:237
-msgid "Code"
-msgstr ""
-
-#: editors.py:243
-msgid "Small"
-msgstr ""
-
-#: editors.py:246
-msgid "Keyboard input"
-msgstr ""
+#: editors.py:247
+msgid "Merge/split cells"
+msgstr "ادغام/تقسیم سلول‌ها"
 
 #: editors.py:252
+msgid "Code"
+msgstr "کد"
+
+#: editors.py:258
+msgid "Small"
+msgstr "کوچک"
+
+#: editors.py:261
+msgid "Keyboard input"
+msgstr "ورودی صفحه‌کلید"
+
+#: editors.py:267
 msgid "Code block"
-msgstr ""
+msgstr "بلوک کد"
 
-#: editors.py:259
+#: editors.py:274
 msgid "Heading 1"
-msgstr ""
+msgstr "عنوان ۱"
 
-#: editors.py:265
+#: editors.py:280
 msgid "Heading 2"
-msgstr ""
+msgstr "عنوان ۲"
 
-#: editors.py:271
+#: editors.py:286
 msgid "Heading 3"
-msgstr ""
+msgstr "عنوان ۳"
 
-#: editors.py:277
+#: editors.py:292
 msgid "Heading 4"
-msgstr ""
+msgstr "عنوان ۴"
 
-#: editors.py:283
+#: editors.py:298
 msgid "Heading 5"
-msgstr ""
-
-#: editors.py:289
-msgid "Heading 6"
-msgstr ""
-
-#: editors.py:295
-msgid "Paragraph"
-msgstr ""
-
-#: editors.py:301
-msgid "Anchor"
-msgstr ""
+msgstr "عنوان ۵"
 
 #: editors.py:304
-msgid "Block format"
-msgstr ""
+msgid "Heading 6"
+msgstr "عنوان ۶"
 
-#: editors.py:308
+#: editors.py:310
+msgid "Paragraph"
+msgstr "پاراگراف"
+
+#: editors.py:316
+msgid "Anchor"
+msgstr "لنگر"
+
+#: editors.py:319
+msgid "Format"
+msgstr "قالب"
+
+#: editors.py:322 editors.py:325
 msgid "Styles"
-msgstr ""
+msgstr "سبک‌ها"
 
-#: editors.py:312
+#: editors.py:328
+msgid "Blocks"
+msgstr "بلوک‌ها"
+
+#: editors.py:331
 msgid "Font"
-msgstr ""
+msgstr "قلم"
 
-#: editors.py:315
+#: editors.py:334
 msgid "Font size"
-msgstr ""
+msgstr "اندازه قلم"
 
-#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
+#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
-msgstr ""
+msgstr "افزونه‌های CMS"
 
-#: editors.py:320 widgets.py:242
+#: editors.py:339 widgets.py:242
 msgid "Edit CMS Plugin"
-msgstr ""
+msgstr "ویرایش افزونه CMS"
 
-#: editors.py:321 widgets.py:241
+#: editors.py:340 widgets.py:241
 msgid "Add CMS Plugin"
-msgstr ""
+msgstr "افزودن افزونه CMS"
 
-#: models.py:50
+#: models.py:54
 msgid "body"
-msgstr "بدنه"
+msgstr "متن"
 
-#: models.py:51
+#: models.py:55
 msgid "json"
-msgstr ""
+msgstr "JSON"
 
-#: settings.py:39
+#: settings.py:40
 msgid "Text"
 msgstr "متن"
 
-#: settings.py:40
+#: settings.py:41
 msgid "Generic"
-msgstr ""
+msgstr "عمومی"

@@ -12,7 +12,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
 import {TableCell, TableHeader, TableRow} from '@tiptap/extension-table';
-import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
+import {TextAlign} from '@tiptap/extension-text-align';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 
 import {TextColor, Highlight, InlineQuote, InlineStyle, BlockStyle} from "./tiptap_plugins/cms.styles";

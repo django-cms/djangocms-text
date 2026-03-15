@@ -35,7 +35,8 @@ html.cms-toolbar-expanded {
 
     [role="menubar"] {
         font-family: var(--font-family-primary, Helvetica, Arial, sans-serif);
-        bottom: calc(100% - 1px);
+        bottom: calc(100% + 6px);
+        inset-inline-start: -4px;
         min-width: 375px;
         z-index: 88889; /* Above #cms-top (z-index: 88888) */
         padding: 2px 0.4rem;

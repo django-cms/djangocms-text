@@ -169,12 +169,14 @@ class CMSTipTapPlugin {
             ],
             toolbar_HTMLField: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'], '|',
+                ['Outdent', 'Indent', '-', 'Blockquote'],
                 ['Undo', 'Redo'],
             ],
             toolbar_CMS: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'], '|',
+                ['Outdent', 'Indent', '-', 'Blockquote'],
                 ['Undo', 'Redo'],
             ],
         };

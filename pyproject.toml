@@ -65,6 +65,7 @@ build.include = [
 build.artifacts = [
   "djangocms_text/static/**",
   "djangocms_text/contrib/**/static/**",
+  "djangocms_text/locale/**/*.mo",
   "djangocms_text/THIRD_PARTY_LICENSES.txt",
 ]
 version.path = "djangocms_text/__init__.py"

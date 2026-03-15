@@ -143,7 +143,7 @@ class TextEditorWidget(forms.Textarea):
         self.plugin_position = plugin_position  # specific
         if configuration and getattr(settings, configuration, False):
             self.configuration = deepcopy(self.rte_config.configuration)
-            self.configuration.update(settings.TEXT_EDITOR_SETTINGS)
+            self.configuration.update(text_settings.TEXT_EDITOR_SETTINGS)
             self.configuration.update(getattr(settings, configuration))
         else:
             self.configuration = deepcopy(self.rte_config.configuration)

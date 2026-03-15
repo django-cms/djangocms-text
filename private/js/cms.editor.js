@@ -88,6 +88,10 @@ class CMSEditor {
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
+        // Skip elements inside empty form templates (stacked and tabular inlines)
+        if (el.closest('.empty-form')) {
+            return;
+        }
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }
@@ -149,7 +153,7 @@ class CMSEditor {
                     }
                 } else if (plugin[1].type === 'generic') {
                     // Frontend editable element
-                    const edit_fields = new URL(url.replace('&amp;', '&'), 'https://random-base.org')
+                    const edit_fields = new URL(url.replace('&amp;', '&'), 'https://example.org')
                         .searchParams.get('edit_fields');  // Get the edit_fields parameter from the URL
                     if (edit_fields && edit_fields.indexOf(',') === -1 && edit_fields !== 'changelist') {
                         // Single field

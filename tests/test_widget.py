@@ -110,6 +110,31 @@ class WidgetTestCase(TestFixture, BaseTestCase):
         self.assertContains(response, "<span>some text</span>")
 
 
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
+class WidgetConfigurationTestCase(BaseTestCase):
+    def test_htmlfield_configuration_without_text_editor_settings(self):
+        """Regression test for #136: HTMLField(configuration=...) should not
+        raise AttributeError when TEXT_EDITOR_SETTINGS is not in Django settings."""
+        from django.conf import settings
+        from djangocms_text.widgets import TextEditorWidget
+
+        # Ensure TEXT_EDITOR_SETTINGS is not set in Django settings
+        has_setting = hasattr(settings, "TEXT_EDITOR_SETTINGS")
+        if has_setting:
+            original = settings.TEXT_EDITOR_SETTINGS
+            delattr(settings, "TEXT_EDITOR_SETTINGS")
+
+        # Define a custom configuration in Django settings
+        settings.MY_CUSTOM_CONFIG = {"toolbar": "HTMLField"}
+        try:
+            widget = TextEditorWidget(configuration="MY_CUSTOM_CONFIG")
+            self.assertEqual(widget.configuration["toolbar"], "HTMLField")
+        finally:
+            del settings.MY_CUSTOM_CONFIG
+            if has_setting:
+                settings.TEXT_EDITOR_SETTINGS = original
+
+
 @skipIf(not SKIP_CMS_TEST, "Skipping tests because djangocms is installed")
 class NonCMSWidgetTestCase(BaseTestCase):
     def test_django_form_renders_widget(self):

@@ -1,6 +1,7 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const { LicenseWebpackPlugin } = require('license-webpack-plugin');
 
 
 const distribution = {
@@ -23,6 +24,30 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: (pathData) => {
                 return distribution[pathData.chunk.name] + 'css/bundle.' + pathData.chunk.name + '.min.css';
+            },
+        }),
+        new LicenseWebpackPlugin({
+            outputFilename: 'THIRD_PARTY_LICENSES.txt',
+            perChunkOutput: false,
+            licenseTemplateDir: path.resolve(__dirname, 'private/license-templates'),
+            renderLicenses: (modules) => {
+                // Group packages by their license text to avoid repeating identical texts
+                const groups = {};
+                for (const mod of modules) {
+                    const text = (mod.licenseText || '').trim();
+                    if (!groups[text]) {
+                        // Use a Set to avoid duplicate package names per license text
+                        groups[text] = { type: mod.licenseId, packages: new Set() };
+                    }
+                    groups[text].packages.add(mod.packageJson.name);
+                }
+                const sections = [];
+                for (const [text, { type, packages }] of Object.entries(groups)) {
+                    const uniquePackages = Array.from(packages).sort();
+                    const heading = uniquePackages.join('\n');
+                    sections.push(`${heading}\n\n${type}\n\n${text}`);
+                }
+                return sections.join('\n\n' + '='.repeat(70) + '\n\n');
             },
         }),
     ],

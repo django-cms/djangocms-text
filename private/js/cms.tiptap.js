@@ -27,6 +27,117 @@ import markdownPasteHandler from './tiptap_plugins/cms.markdown';
 import '../css/cms.tiptap.css';
 
 
+// Mapping from toolbar item names to the extensions they require.
+// starterKitKey: key to pass to StarterKit.configure({key: false}) to disable
+// extensionNames: extension name(s) to remove from the extensions array
+const toolbarToExtension = {
+    Bold:           { starterKitKey: 'bold' },
+    Italic:         { starterKitKey: 'italic' },
+    Strike:         { starterKitKey: 'strike' },
+    Code:           { starterKitKey: 'code' },
+    CodeBlock:      { starterKitKey: 'codeBlock' },
+    Blockquote:     { starterKitKey: 'blockquote' },
+    BulletedList:   { starterKitKey: 'bulletList' },
+    NumberedList:   { starterKitKey: 'orderedList' },
+    HorizontalRule: { starterKitKey: 'horizontalRule' },
+    Heading1:       { starterKitKey: 'heading' },
+    Heading2:       { starterKitKey: 'heading' },
+    Heading3:       { starterKitKey: 'heading' },
+    Heading4:       { starterKitKey: 'heading' },
+    Heading5:       { starterKitKey: 'heading' },
+    Heading6:       { starterKitKey: 'heading' },
+    Underline:      { extensionNames: ['underline'] },
+    Subscript:      { extensionNames: ['subscript'] },
+    Superscript:    { extensionNames: ['superscript'] },
+    Link:           { extensionNames: ['link'] },
+    Table:          { extensionNames: ['table', 'tableRow', 'tableHeader', 'tableCell'] },
+    TextColor:      { extensionNames: ['textcolor'] },
+    Highlight:      { extensionNames: ['Highlight'] },
+    InlineQuote:    { extensionNames: ['Q'] },
+    InlineStyles:   { extensionNames: ['inlinestyle'] },
+    BlockStyles:    { extensionNames: ['blockstyle'] },
+};
+
+// Collect all toolbar item names from a (possibly nested) toolbar config
+function collectToolbarItems(toolbar) {
+    const items = new Set();
+    if (!Array.isArray(toolbar)) {
+        return items;
+    }
+    for (const entry of toolbar) {
+        if (typeof entry === 'string') {
+            if (entry !== '|' && entry !== '-') {
+                items.add(entry);
+            }
+        } else if (Array.isArray(entry)) {
+            for (const item of collectToolbarItems(entry)) {
+                items.add(item);
+            }
+        }
+    }
+    // Expand Format's insitu items (Paragraph, Heading1-6)
+    if (items.has('Format')) {
+        const formatDef = TiptapToolbar.Format;
+        if (formatDef && formatDef.insitu) {
+            for (const sub of formatDef.insitu) {
+                if (typeof sub === 'string' && sub !== '|' && sub !== '-') {
+                    items.add(sub);
+                }
+            }
+        }
+    }
+    return items;
+}
+
+// Filter extensions based on which toolbar items are present.
+// Disables StarterKit sub-extensions and removes standalone extensions
+// that have no corresponding toolbar item.
+function filterExtensions(extensions, toolbarItems) {
+    const removeNames = new Set();
+
+    // First pass: find which StarterKit keys are needed by at least one toolbar item
+    const starterKitKeep = new Set();
+    for (const [toolbarItem, mapping] of Object.entries(toolbarToExtension)) {
+        if (mapping.starterKitKey && toolbarItems.has(toolbarItem)) {
+            starterKitKeep.add(mapping.starterKitKey);
+        }
+    }
+
+    // Second pass: collect what to disable/remove
+    const starterKitDisable = {};
+    for (const [toolbarItem, mapping] of Object.entries(toolbarToExtension)) {
+        if (!toolbarItems.has(toolbarItem)) {
+            if (mapping.starterKitKey && !starterKitKeep.has(mapping.starterKitKey)) {
+                starterKitDisable[mapping.starterKitKey] = false;
+            }
+            if (mapping.extensionNames) {
+                for (const name of mapping.extensionNames) {
+                    removeNames.add(name);
+                }
+            }
+        }
+    }
+
+    // Nothing to disable
+    if (Object.keys(starterKitDisable).length === 0 && removeNames.size === 0) {
+        return extensions;
+    }
+
+    return extensions
+        .map((ext) => {
+            // Reconfigure StarterKit to disable unused sub-extensions
+            const name = ext.name || ext?.config?.name;
+            if (name === 'starterKit' && Object.keys(starterKitDisable).length > 0) {
+                return ext.configure(starterKitDisable);
+            }
+            return ext;
+        })
+        .filter((ext) => {
+            const name = ext.name || ext?.config?.name;
+            return !removeNames.has(name);
+        });
+}
+
 
 class CMSTipTapPlugin {
     defaultOptions() {
@@ -103,6 +214,13 @@ class CMSTipTapPlugin {
             const options = Object.assign({}, this.options, settings.options || {});
             delete settings.options;
 
+            const toolbar = options.toolbar || options.toolbar_HTMLField;
+
+            // Filter extensions based on toolbar: disable extensions whose
+            // toolbar items have been removed, so pasting won't add that formatting
+            const toolbarItems = collectToolbarItems(toolbar);
+            const extensions = filterExtensions(options.extensions, toolbarItems);
+
             const editorElement = this._transform_textarea(el, inModal);
             if (el.tagName === 'TEXTAREA') {
                 // Fix toolbar position for non-inline editors
@@ -110,7 +228,7 @@ class CMSTipTapPlugin {
             }
 
             const editor = new Editor({
-                extensions: options.extensions,
+                extensions: extensions,
                 autofocus: false,
                 content: content || '',
                 editable: true,
@@ -118,7 +236,7 @@ class CMSTipTapPlugin {
                 el: el,
                 save_callback: save_callback,
                 settings: settings,
-                toolbar: options.toolbar || options.toolbar_HTMLField,
+                toolbar: toolbar,
                 inlineStyles: options.inlineStyles,
                 blockStyles: options.blockStyles,
                 textColors: options.textColors,

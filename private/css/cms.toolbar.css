@@ -25,8 +25,18 @@ html.cms-toolbar-expanded {
         visibility: visible;
     }
 
+    .cms-toolbar-sticky {
+        position: sticky;
+        top: 0;
+        z-index: 88889; /* Above #cms-top (z-index: 88888) */
+        height: 0;
+        overflow: visible;
+    }
+
     [role="menubar"] {
         font-family: var(--font-family-primary, Helvetica, Arial, sans-serif);
+        bottom: calc(100% + 6px);
+        inset-inline-start: -4px;
         min-width: 375px;
         z-index: 88889; /* Above #cms-top (z-index: 88888) */
         padding: 2px 0.4rem;
@@ -36,8 +46,7 @@ html.cms-toolbar-expanded {
         visibility: hidden;
         opacity: 0;
         transition: opacity var(--tiptap-ease, 100ms) ease-out, visibility 0s linear var(--tiptap-ease, 100ms);
-        position: sticky;
-        top: var(--cms-toolbar-height, 0px);
+        position: absolute;
         pointer-events: all;
         display: flex;
         flex-flow: row wrap;
@@ -54,6 +63,7 @@ html.cms-toolbar-expanded {
             justify-content: center;
             break-inside: avoid;
         }
+
     }
     &.fixed [role="menubar"]  {
         display: block;

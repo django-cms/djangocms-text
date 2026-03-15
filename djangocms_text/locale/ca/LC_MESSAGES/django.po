@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-22 23:13+0100\n"
+"POT-Creation-Date: 2026-03-15 21:11+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Catalan (https://www.transifex.com/divio/teams/58664/ca/)\n"
@@ -21,254 +21,278 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: cms_plugins.py:370
+#: cms_plugins.py:385
 msgid "You do not have permission to add a plugin."
-msgstr ""
+msgstr "No teniu permís per afegir un connector."
 
-#: cms_plugins.py:434
+#: cms_plugins.py:449
 msgid "Unable to process your request. Invalid token."
-msgstr ""
+msgstr "No s'ha pogut processar la sol·licitud. Token no vàlid."
 
-#: cms_toolbars.py:60
+#: cms_toolbars.py:58
 msgid "Toggle inline editing mode for text plugins"
-msgstr ""
+msgstr "Commuta el mode d'edició en línia per als connectors de text"
 
-#: editors.py:32
+#: editors.py:33
 msgid "Undo"
-msgstr ""
+msgstr "Desfés"
 
-#: editors.py:36
+#: editors.py:37
 msgid "Redo"
-msgstr ""
+msgstr "Refés"
 
-#: editors.py:40
+#: editors.py:41
 msgid "Bold"
-msgstr ""
+msgstr "Negreta"
 
-#: editors.py:46
+#: editors.py:47
 msgid "Italic"
-msgstr ""
+msgstr "Cursiva"
 
-#: editors.py:52
+#: editors.py:53
 msgid "Underline"
-msgstr ""
+msgstr "Subratllat"
 
-#: editors.py:58
+#: editors.py:59
 msgid "Strike"
-msgstr ""
+msgstr "Barrat"
 
-#: editors.py:62
+#: editors.py:63
 msgid "Subscript"
-msgstr ""
+msgstr "Subíndex"
 
-#: editors.py:68
+#: editors.py:69
 msgid "Superscript"
-msgstr ""
+msgstr "Superíndex"
 
-#: editors.py:74
+#: editors.py:75
+msgid "Text color"
+msgstr "Color del text"
+
+#: editors.py:78
+msgid "Inline quote"
+msgstr "Citació en línia"
+
+#: editors.py:81
+msgid "Mark"
+msgstr "Ressaltar"
+
+#: editors.py:84
 msgid "Remove formatting"
-msgstr ""
+msgstr "Elimina el format"
 
-#: editors.py:87
+#: editors.py:97
 msgid "Align left"
-msgstr ""
+msgstr "Alinea a l'esquerra"
 
-#: editors.py:93
+#: editors.py:103
 msgid "Align center"
-msgstr ""
+msgstr "Centra"
 
-#: editors.py:99
+#: editors.py:109
 msgid "Align right"
-msgstr ""
+msgstr "Alinea a la dreta"
 
-#: editors.py:105
+#: editors.py:115
 msgid "Justify"
-msgstr ""
+msgstr "Justifica"
 
-#: editors.py:111
+#: editors.py:121
 msgid "Horizontal rule"
-msgstr ""
+msgstr "Línia horitzontal"
 
-#: editors.py:117
+#: editors.py:127
 msgid "Numbered list"
-msgstr ""
+msgstr "Llista numerada"
 
-#: editors.py:124
+#: editors.py:134
 msgid "Bullet list"
-msgstr ""
+msgstr "Llista amb vinyetes"
 
-#: editors.py:130
+#: editors.py:140
 msgid "Outdent"
-msgstr ""
+msgstr "Redueix el sagnat"
 
-#: editors.py:137
+#: editors.py:147
 msgid "Indent"
-msgstr ""
+msgstr "Augmenta el sagnat"
 
-#: editors.py:144
+#: editors.py:154
 msgid "Blockquote"
-msgstr ""
+msgstr "Citació"
 
-#: editors.py:150
+#: editors.py:160
 msgid "Link"
-msgstr ""
+msgstr "Enllaç"
+
+#: editors.py:169
+msgid "Type URL or search for a destination"
+msgstr "Escriviu un URL o cerqueu una destinació"
 
 #: editors.py:170
-msgid "Type URL or search for a destination"
-msgstr ""
-
-#: editors.py:171
 msgid "URL or search"
-msgstr ""
+msgstr "URL o cerca"
 
-#: editors.py:178
+#: editors.py:177
 msgid "Link options"
-msgstr ""
+msgstr "Opcions de l'enllaç"
 
-#: editors.py:182
+#: editors.py:181
 msgid "Target"
-msgstr ""
+msgstr "Destinació"
+
+#: editors.py:185
+msgid "New window"
+msgstr "Nova finestra"
 
 #: editors.py:186
-msgid "New window"
-msgstr ""
+msgid "Same window"
+msgstr "Mateixa finestra"
 
 #: editors.py:187
-msgid "Same window"
-msgstr ""
-
-#: editors.py:188
 msgid "Parent window"
-msgstr ""
+msgstr "Finestra superior"
 
-#: editors.py:201
+#: editors.py:200
 msgid "Unlink"
-msgstr ""
+msgstr "Elimina l'enllaç"
 
-#: editors.py:209
+#: editors.py:208
 msgid "Table"
-msgstr ""
+msgstr "Taula"
 
-#: editors.py:213
-msgid "Add row before"
-msgstr ""
+#: editors.py:212
+msgid "Header row"
+msgstr "Fila de capçalera"
 
 #: editors.py:216
+msgid "Header column"
+msgstr "Columna de capçalera"
+
+#: editors.py:220
+msgid "Add row before"
+msgstr "Afegeix fila abans"
+
+#: editors.py:224
 msgid "Add row after"
-msgstr ""
-
-#: editors.py:219
-msgid "Add column before"
-msgstr ""
-
-#: editors.py:222
-msgid "Add column after"
-msgstr ""
-
-#: editors.py:225
-msgid "Delete row"
-msgstr ""
+msgstr "Afegeix fila després"
 
 #: editors.py:228
+msgid "Add column before"
+msgstr "Afegeix columna abans"
+
+#: editors.py:232
+msgid "Add column after"
+msgstr "Afegeix columna després"
+
+#: editors.py:236
+msgid "Delete row"
+msgstr "Elimina la fila"
+
+#: editors.py:240
 msgid "Delete column"
-msgstr ""
+msgstr "Elimina la columna"
 
-#: editors.py:231
+#: editors.py:244
 msgid "Delete table"
-msgstr ""
+msgstr "Elimina la taula"
 
-#: editors.py:234
-msgid "Merge or split cells"
-msgstr ""
-
-#: editors.py:237
-msgid "Code"
-msgstr ""
-
-#: editors.py:243
-msgid "Small"
-msgstr ""
-
-#: editors.py:246
-msgid "Keyboard input"
-msgstr ""
+#: editors.py:247
+msgid "Merge/split cells"
+msgstr "Combina/divideix cel·les"
 
 #: editors.py:252
+msgid "Code"
+msgstr "Codi"
+
+#: editors.py:258
+msgid "Small"
+msgstr "Petit"
+
+#: editors.py:261
+msgid "Keyboard input"
+msgstr "Entrada de teclat"
+
+#: editors.py:267
 msgid "Code block"
-msgstr ""
+msgstr "Bloc de codi"
 
-#: editors.py:259
+#: editors.py:274
 msgid "Heading 1"
-msgstr ""
+msgstr "Títol 1"
 
-#: editors.py:265
+#: editors.py:280
 msgid "Heading 2"
-msgstr ""
+msgstr "Títol 2"
 
-#: editors.py:271
+#: editors.py:286
 msgid "Heading 3"
-msgstr ""
+msgstr "Títol 3"
 
-#: editors.py:277
+#: editors.py:292
 msgid "Heading 4"
-msgstr ""
+msgstr "Títol 4"
 
-#: editors.py:283
+#: editors.py:298
 msgid "Heading 5"
-msgstr ""
-
-#: editors.py:289
-msgid "Heading 6"
-msgstr ""
-
-#: editors.py:295
-msgid "Paragraph"
-msgstr ""
-
-#: editors.py:301
-msgid "Anchor"
-msgstr ""
+msgstr "Títol 5"
 
 #: editors.py:304
-msgid "Block format"
-msgstr ""
+msgid "Heading 6"
+msgstr "Títol 6"
 
-#: editors.py:308
+#: editors.py:310
+msgid "Paragraph"
+msgstr "Paràgraf"
+
+#: editors.py:316
+msgid "Anchor"
+msgstr "Àncora"
+
+#: editors.py:319
+msgid "Format"
+msgstr "Format"
+
+#: editors.py:322 editors.py:325
 msgid "Styles"
-msgstr ""
+msgstr "Estils"
 
-#: editors.py:312
+#: editors.py:328
+msgid "Blocks"
+msgstr "Blocs"
+
+#: editors.py:331
 msgid "Font"
-msgstr ""
+msgstr "Tipus de lletra"
 
-#: editors.py:315
+#: editors.py:334
 msgid "Font size"
-msgstr ""
+msgstr "Mida de lletra"
 
-#: editors.py:318 editors.py:319 widgets.py:240 widgets.py:243
+#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
 msgid "CMS Plugins"
-msgstr ""
+msgstr "Connectors CMS"
 
-#: editors.py:320 widgets.py:242
+#: editors.py:339 widgets.py:242
 msgid "Edit CMS Plugin"
-msgstr ""
+msgstr "Edita el connector CMS"
 
-#: editors.py:321 widgets.py:241
+#: editors.py:340 widgets.py:241
 msgid "Add CMS Plugin"
-msgstr ""
+msgstr "Afegeix connector CMS"
 
-#: models.py:50
+#: models.py:54
 msgid "body"
 msgstr "cos"
 
-#: models.py:51
+#: models.py:55
 msgid "json"
-msgstr ""
+msgstr "JSON"
 
-#: settings.py:39
+#: settings.py:40
 msgid "Text"
 msgstr "Text"
 
-#: settings.py:40
+#: settings.py:41
 msgid "Generic"
-msgstr ""
+msgstr "Genèric"

@@ -169,12 +169,14 @@ class CMSTipTapPlugin {
             ],
             toolbar_HTMLField: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'], '|',
+                ['Outdent', 'Indent', '-', 'Blockquote'],
                 ['Undo', 'Redo'],
             ],
             toolbar_CMS: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',
-                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+                ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'], '|',
+                ['Outdent', 'Indent', '-', 'Blockquote'],
                 ['Undo', 'Redo'],
             ],
         };
@@ -302,12 +304,13 @@ class CMSTipTapPlugin {
      * @return {void}
      */
     destroyEditor(el) {
-        if (document.getElementById(el.id + '_editor')) {
-            document.getElementById(el.id + '_editor').remove();
+        const id = typeof el === 'string' ? el : el.id;
+        if (document.getElementById(id + '_editor')) {
+            document.getElementById(id + '_editor').remove();
         }
-        if (el.id in this._editors) {
-            this._editors[el.id].destroy();
-            delete this._editors[el.id];
+        if (id in this._editors) {
+            this._editors[id].destroy();
+            delete this._editors[id];
         }
     }
 

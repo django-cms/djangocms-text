@@ -299,6 +299,24 @@ function _createTopToolbarPlugin(editor, filter) {
                             filter
                         );
                         editor.options.topToolbar = topToolbar;
+
+                        // For inline editors: wrap in a sticky container so the
+                        // toolbar pins to the viewport top when scrolled
+                        if (!editor.options.element.classList.contains('fixed')) {
+                            const wrapper = document.createElement('div');
+                            wrapper.classList.add('cms-toolbar-sticky');
+                            wrapper.appendChild(topToolbar);
+                            // Set top to CMS toolbar height + editor toolbar height
+                            // so the toolbar (which extends upward) lands just below the CMS toolbar
+                            const cmsToolbarHeight = parseInt(
+                                getComputedStyle(document.documentElement)
+                                    .getPropertyValue('--cms-toolbar-height') || '0', 10
+                            );
+                            requestAnimationFrame(() => {
+                                wrapper.style.top = (cmsToolbarHeight + (topToolbar.offsetHeight || 0)) + 'px';
+                            });
+                            return wrapper;
+                        }
                         return topToolbar;
                     }, {
                         side: -1,

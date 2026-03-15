@@ -36,13 +36,15 @@ module.exports = {
                 for (const mod of modules) {
                     const text = (mod.licenseText || '').trim();
                     if (!groups[text]) {
-                        groups[text] = { type: mod.licenseId, packages: [] };
+                        // Use a Set to avoid duplicate package names per license text
+                        groups[text] = { type: mod.licenseId, packages: new Set() };
                     }
-                    groups[text].packages.push(mod.packageJson.name);
+                    groups[text].packages.add(mod.packageJson.name);
                 }
                 const sections = [];
                 for (const [text, { type, packages }] of Object.entries(groups)) {
-                    const heading = packages.sort().join('\n');
+                    const uniquePackages = Array.from(packages).sort();
+                    const heading = uniquePackages.join('\n');
                     sections.push(`${heading}\n\n${type}\n\n${text}`);
                 }
                 return sections.join('\n\n' + '='.repeat(70) + '\n\n');

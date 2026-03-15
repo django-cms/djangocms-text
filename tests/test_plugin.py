@@ -17,7 +17,7 @@ from django.utils.http import urlencode
 from .fixtures import DJANGO_CMS4, DJANGOCMS_VERSIONING, TestFixture
 
 try:
-    from cms.api import add_plugin, create_title
+    from cms.api import add_plugin, create_page_content
     from cms.models import CMSPlugin, Page, Placeholder
     from cms.utils.urlutils import admin_reverse
 
@@ -861,7 +861,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         text_plugin = self.add_plugin_to_text(text_plugin, child_plugin_2)
 
         # create a page translation to copy plugins to
-        translation = create_title(
+        translation = create_page_content(
             "fr",
             "test-page-fr",
             simple_page,

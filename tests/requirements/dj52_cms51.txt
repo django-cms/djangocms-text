@@ -1,4 +1,4 @@
 -r dj_cms.txt
 
 Django>=5.2,<5.3
-django-cms>=5.1.0a1,<5.1
+django-cms>=5.1.0a1,<5.2

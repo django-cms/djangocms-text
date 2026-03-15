@@ -4,7 +4,6 @@
 
 import {Editor} from '@tiptap/core';
 import {StarterKit} from "@tiptap/starter-kit";
-import Underline from '@tiptap/extension-underline';
 import CharacterCount from '@tiptap/extension-character-count';
 import CmsDynLink from './tiptap_plugins/cms.dynlink';
 import {CmsPluginNode, CmsBlockPluginNode} from './tiptap_plugins/cms.plugin';
@@ -12,9 +11,7 @@ import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
-import TableRow from '@tiptap/extension-table-row';
+import {TableCell, TableHeader, TableRow} from '@tiptap/extension-table';
 import {TextAlign, TextAlignOptions} from '@tiptap/extension-text-align';
 import TiptapToolbar from "./tiptap_plugins/cms.tiptap.toolbar";
 
@@ -46,7 +43,7 @@ const toolbarToExtension = {
     Heading4:       { starterKitKey: 'heading' },
     Heading5:       { starterKitKey: 'heading' },
     Heading6:       { starterKitKey: 'heading' },
-    Underline:      { extensionNames: ['underline'] },
+    Underline:      { starterKitKey: 'underline' },
     Subscript:      { extensionNames: ['subscript'] },
     Superscript:    { extensionNames: ['superscript'] },
     Link:           { extensionNames: ['link'] },
@@ -143,8 +140,9 @@ class CMSTipTapPlugin {
     defaultOptions() {
         return {
             extensions: [
-                StarterKit,
-                Underline,
+                StarterKit.configure({
+                    link: false,  // CmsDynLink replaces StarterKit's Link
+                }),
                 CharacterCount,
                 Image,
                 TextColor,

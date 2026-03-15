@@ -1,6 +1,5 @@
 [build-system]
 build-backend = "hatchling.build"
-
 requires = [ "hatchling" ]
 
 [project]
@@ -23,11 +22,13 @@ classifiers = [
   "Framework :: Django :: 5.0",
   "Framework :: Django :: 5.1",
   "Framework :: Django :: 5.2",
+  "Framework :: Django :: 6.0",
   "Framework :: Django CMS",
   "Framework :: Django CMS :: 3.11",
   "Framework :: Django CMS :: 4.0",
   "Framework :: Django CMS :: 4.1",
   "Framework :: Django CMS :: 5.0",
+  "Framework :: Django CMS :: 5.1",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: BSD License",
   "Operating System :: OS Independent",
@@ -38,6 +39,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Internet :: WWW/HTTP",
   "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
   "Topic :: Software Development",
@@ -50,24 +52,21 @@ dependencies = [
   "packaging",
   "pillow",
 ]
-
 urls.Homepage = "https://github.com/django-cms/djangocms-text"
 
 [tool.setuptools]
 packages = [ "djangocms_text", "djangocms_text_ckeditor" ]
 
-[tool.hatch.version]
-path = "djangocms_text/__init__.py"
-
-[tool.hatch.build]
-include = [
+[tool.hatch]
+build.include = [
   "/djangocms_text",
   "/djangocms_text_ckeditor",
 ]
-artifacts = [
+build.artifacts = [
   "djangocms_text/static/**",
   "djangocms_text/contrib/**/static/**",
 ]
+version.path = "djangocms_text/__init__.py"
 
 [tool.ruff]
 line-length = 120
@@ -125,14 +124,13 @@ exclude = [
   "*node_modules*",
 ]
 
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "tests.settings"
-DJANGO_ALLOW_ASYNC_UNSAFE = true
-python_files = [ "tests.py", "test_*.py" ]
-addopts = [
+[tool.pytest]
+ini_options.DJANGO_SETTINGS_MODULE = "tests.settings"
+ini_options.python_files = [ "tests.py", "test_*.py" ]
+ini_options.addopts = [
   "--reuse-db",
   "--nomigrations",
   "-v",
 ]
-testpaths = [ "tests" ]
-pythonpath = [ "." ]
+ini_options.testpaths = [ "tests" ]
+ini_options.pythonpath = [ "." ]

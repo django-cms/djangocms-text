@@ -360,9 +360,6 @@ class CMSEditor {
 
     saveData(el, action) {
         if (el && el.dataset.changed === "true") {
-            const html = window.cms_editor_plugin.getHTML(el),
-                json = window.cms_editor_plugin.getJSON(el);
-
             let url = el.dataset.cmsEditUrl;
             let csrf = el.dataset.cmsCsrfToken;
             let field = el.dataset.cmsField;
@@ -376,13 +373,19 @@ class CMSEditor {
                 csrfmiddlewaretoken: csrf,
                 _save: 'Save'
             };
-            if (field) {
-                // FormField data
-                data[field] = el.dataset.cmsType === 'HTMLField' ? html : el.textContent ;
+            if (field && el.dataset.cmsType !== 'HTMLField') {
+                // CharField: use plain textContent, no editor plugin involved
+                data[field] = el.textContent;
             } else {
-                // Plugin data
-                data.body = html;
-                data.json = JSON.stringify(json) || '';
+                // TextPlugin or HTMLField: get data from the editor plugin
+                const html = window.cms_editor_plugin.getHTML(el);
+                const json = window.cms_editor_plugin.getJSON(el);
+                if (field) {
+                    data[field] = html;
+                } else {
+                    data.body = html;
+                    data.json = json ? JSON.stringify(json) : '';
+                }
             }
 
             fetch(url, {

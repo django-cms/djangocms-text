@@ -92,6 +92,109 @@ describe('CMSEditor', () => {
         expect(document.querySelector(`.cms-draggable-${pluginId}`)).toBeTruthy();
     });
 
+    describe('inline admin add row', () => {
+        const flush = () => new Promise(resolve => setTimeout(resolve, 10));
+
+        function setupInlineAdmin(inlineHTML) {
+            document.body.innerHTML = `
+                <script id="cms-editor-cfg" type="application/json">{"some": "config"}</script>
+                ${inlineHTML}
+            `;
+            document.body.classList.add('change-form');
+
+            // Recalculate the admin selector to exclude empty-form templates
+            editor._admin_selector = 'textarea.CMS_Editor';
+            if (document.querySelector(editor._inline_admin_selector + '.empty-form')) {
+                editor._admin_selector = editor._inline_admin_selector +
+                    ':not(.empty-form) ' + editor._admin_selector;
+            }
+            editor._editor_settings = {};
+            editor.initAll();
+        }
+
+        it('initializes editors in stacked inline and adds new ones on add row click', async () => {
+            setupInlineAdmin(`
+                <div class="inline-group" id="stacked-group">
+                    <div class="form-row">
+                        <textarea class="CMS_Editor" id="stacked-editor-0"></textarea>
+                    </div>
+                    <div class="form-row empty-form">
+                        <textarea class="CMS_Editor" id="stacked-editor-empty"></textarea>
+                    </div>
+                    <div class="add-row"><a href="#">Add another</a></div>
+                </div>
+            `);
+
+            // The existing editor should be initialized, but not the empty-form template
+            expect(editor._editor_settings['stacked-editor-0']).toBeDefined();
+            expect(editor._editor_settings['stacked-editor-empty']).toBeUndefined();
+
+            // Wait for the first setTimeout in initAll to attach click listeners
+            await flush();
+
+            // Simulate Django's add row: clone the empty form as a real row
+            const emptyRow = document.querySelector('.form-row.empty-form');
+            const newRow = emptyRow.cloneNode(true);
+            newRow.classList.remove('empty-form');
+            const newTextarea = newRow.querySelector('textarea');
+            newTextarea.id = 'stacked-editor-1';
+            emptyRow.parentNode.insertBefore(newRow, emptyRow);
+
+            // Click the "Add another" link
+            document.querySelector('.add-row a').click();
+
+            // Wait for the second setTimeout inside the click handler
+            await flush();
+
+            expect(editor._editor_settings['stacked-editor-1']).toBeDefined();
+            // Empty form template should still not be initialized
+            expect(editor._editor_settings['stacked-editor-empty']).toBeUndefined();
+        });
+
+        it('initializes editors in tabular inline and adds new ones on add row click', async () => {
+            setupInlineAdmin(`
+                <div class="inline-group" id="tabular-group">
+                    <table>
+                        <tbody>
+                            <tr class="form-row">
+                                <td><textarea class="CMS_Editor" id="tabular-editor-0"></textarea></td>
+                            </tr>
+                            <tr class="form-row empty-form">
+                                <td><textarea class="CMS_Editor" id="tabular-editor-empty"></textarea></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="add-row"><a href="#">Add another</a></div>
+                </div>
+            `);
+
+            // The existing editor should be initialized, but not the empty-form template
+            expect(editor._editor_settings['tabular-editor-0']).toBeDefined();
+            expect(editor._editor_settings['tabular-editor-empty']).toBeUndefined();
+
+            // Wait for the first setTimeout in initAll to attach click listeners
+            await flush();
+
+            // Simulate Django's add row: clone the empty form as a real row
+            const emptyRow = document.querySelector('tr.form-row.empty-form');
+            const newRow = emptyRow.cloneNode(true);
+            newRow.classList.remove('empty-form');
+            const newTextarea = newRow.querySelector('textarea');
+            newTextarea.id = 'tabular-editor-1';
+            emptyRow.parentNode.insertBefore(newRow, emptyRow);
+
+            // Click the "Add another" link
+            document.querySelector('.add-row a').click();
+
+            // Wait for the second setTimeout inside the click handler
+            await flush();
+
+            expect(editor._editor_settings['tabular-editor-1']).toBeDefined();
+            // Empty form template should still not be initialized
+            expect(editor._editor_settings['tabular-editor-empty']).toBeUndefined();
+        });
+    });
+
     describe('saveData', () => {
         let fetchMock;
 

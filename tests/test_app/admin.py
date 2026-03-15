@@ -1,10 +1,15 @@
 from django.contrib import admin
 
-from .models import Pizza, Topping
+from .models import Pizza, Sauce, Topping
 
 
 class ToppingInlineAdmin(admin.TabularInline):
     model = Topping
+    extra = 1
+
+
+class SauceInlineAdmin(admin.StackedInline):
+    model = Sauce
     extra = 1
 
 
@@ -27,4 +32,4 @@ class PizzaAdmin(admin.ModelAdmin):
             },
         ),
     )
-    inlines = [ToppingInlineAdmin]
+    inlines = [ToppingInlineAdmin, SauceInlineAdmin]

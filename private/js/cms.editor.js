@@ -88,6 +88,10 @@ class CMSEditor {
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
+        // Skip elements inside empty form templates (stacked and tabular inlines)
+        if (el.closest('.empty-form')) {
+            return;
+        }
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }

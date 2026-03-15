@@ -275,12 +275,7 @@ const InlineStyle = Mark.create({
 
     addOptions() {
         return {
-            styles: [
-                { name: 'Small', element: 'small' },
-                { name: 'Kbd', element: 'kbd' },
-                { name: 'Var', element: 'var' },
-                { name: 'Samp', element: 'samp' },
-            ]
+            styles: [],
         };
     },
 

@@ -91,4 +91,101 @@ describe('CMSEditor', () => {
         editor._highlightTextplugin(pluginId);
         expect(document.querySelector(`.cms-draggable-${pluginId}`)).toBeTruthy();
     });
+
+    describe('saveData', () => {
+        let fetchMock;
+
+        beforeEach(() => {
+            fetchMock = mockFetch(
+                '<html><body><div class="messagelist"><div class="success">OK</div></div></body></html>'
+            );
+            window.fetch = fetchMock;
+        });
+
+        it('does not call cms_editor_plugin for CharField editors', () => {
+            const el = document.createElement('div');
+            el.id = 'char-editor-1';
+            el.textContent = 'Updated title';
+            el.dataset.changed = 'true';
+            el.dataset.cmsEditUrl = '/edit/1/';
+            el.dataset.cmsCsrfToken = 'test-token';
+            el.dataset.cmsField = 'title';
+            el.dataset.cmsType = 'CharField';
+            document.body.appendChild(el);
+
+            // Mock cms_editor_plugin with spies
+            const getHTMLSpy = jest.fn();
+            const getJSONSpy = jest.fn();
+            window.cms_editor_plugin = {
+                _editors: {},
+                create: jest.fn(),
+                getHTML: getHTMLSpy,
+                getJSON: getJSONSpy,
+                destroyEditor: jest.fn(),
+            };
+
+            editor.saveData(el);
+
+            // Should NOT call cms_editor_plugin for CharField
+            expect(getHTMLSpy).not.toHaveBeenCalled();
+            expect(getJSONSpy).not.toHaveBeenCalled();
+
+            // Should have called fetch with the textContent
+            expect(fetchMock).toHaveBeenCalled();
+            const body = fetchMock.mock.calls[0][1].body;
+            expect(body.get('title')).toBe('Updated title');
+        });
+
+        it('calls cms_editor_plugin for TextPlugin editors', () => {
+            const el = document.createElement('div');
+            el.id = 'text-editor-1';
+            el.dataset.changed = 'true';
+            el.dataset.cmsEditUrl = '/edit/1/';
+            el.dataset.cmsCsrfToken = 'test-token';
+            el.dataset.cmsType = 'TextPlugin';
+            document.body.appendChild(el);
+
+            window.cms_editor_plugin = {
+                _editors: {},
+                create: jest.fn(),
+                getHTML: jest.fn().mockReturnValue('<p>Rich text</p>'),
+                getJSON: jest.fn().mockReturnValue({type: 'doc'}),
+                destroyEditor: jest.fn(),
+            };
+
+            editor.saveData(el);
+
+            expect(window.cms_editor_plugin.getHTML).toHaveBeenCalledWith(el);
+            expect(window.cms_editor_plugin.getJSON).toHaveBeenCalledWith(el);
+
+            const body = fetchMock.mock.calls[0][1].body;
+            expect(body.get('body')).toBe('<p>Rich text</p>');
+        });
+
+        it('calls cms_editor_plugin for HTMLField editors', () => {
+            const el = document.createElement('div');
+            el.id = 'html-editor-1';
+            el.dataset.changed = 'true';
+            el.dataset.cmsEditUrl = '/edit/1/';
+            el.dataset.cmsCsrfToken = 'test-token';
+            el.dataset.cmsField = 'content';
+            el.dataset.cmsType = 'HTMLField';
+            document.body.appendChild(el);
+
+            window.cms_editor_plugin = {
+                _editors: {},
+                create: jest.fn(),
+                getHTML: jest.fn().mockReturnValue('<p>HTML content</p>'),
+                getJSON: jest.fn().mockReturnValue(undefined),
+                destroyEditor: jest.fn(),
+            };
+
+            editor.saveData(el);
+
+            expect(window.cms_editor_plugin.getHTML).toHaveBeenCalledWith(el);
+
+            const body = fetchMock.mock.calls[0][1].body;
+            expect(body.get('content')).toBe('<p>HTML content</p>');
+        });
+    });
 });

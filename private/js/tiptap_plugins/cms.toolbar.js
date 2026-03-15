@@ -41,6 +41,9 @@ const topLevelBlocks = {
 
 let _node_icons = null;
 
+// RAF-based coalescing: only one toolbar update per animation frame
+let _topToolbarRafId = 0;
+
 /**
  * Creates a ProseMirror Plugin for handling a block toolbar in the editor.
  *
@@ -85,15 +88,7 @@ function _createBlockToolbarPlugin(editor) {
                     })
                 ]);
             },
-            apply(tr, value, oldState, newState) {
-                if (!oldState.doc.eq(newState.doc) || oldState.selection.eq(newState.selection) === false) {
-                    // Let the editor execute the dom update before updating the toolbar
-                    // Use editor.state (not newState) so the toolbar reflects the final
-                    // state after all transactions (e.g. drag-drop) have been applied.
-                    setTimeout(() => updateBlockToolbar(editor), 0);
-                }
-                return value;
-            }
+            apply(tr, value) { return value; }
         }
     });
 }
@@ -183,6 +178,7 @@ function updateBlockToolbar(editor, state) {
         editor.options.blockToolbar.title = title;
     } else {
         editor.options.blockToolbar.draggable = false;
+        editor.options.blockToolbar._lastIconType = null;
         _replaceIcon(editor.options.blockToolbar.firstElementChild, _menu_icon);
     }
     // TODO: Set the size of the balloon according to the fontsize
@@ -233,6 +229,11 @@ function _updateToolbarIcon (editor, node, parentNode) {
     // For list items, show the icon of the parent list (ul/ol)
     const iconNode = node.type.name === 'listItem' && parentNode ? parentNode : node;
     const type = iconNode.type.name === 'heading' ? 'heading' + iconNode.attrs.level : iconNode.type.name;
+    // Skip DOM update if icon type hasn't changed
+    if (editor.options.blockToolbar._lastIconType === type) {
+        return;
+    }
+    editor.options.blockToolbar._lastIconType = type;
     if (type in _node_icons) {
         _replaceIcon(editor.options.blockToolbar.firstElementChild, _node_icons[type]);
     } else {
@@ -290,7 +291,6 @@ function _createTopToolbarPlugin(editor, filter) {
         },
         state: {
             init(_, {doc}) {
-                this.handleSelectionChange = () => _updateToolbar(editor);
                 return DecorationSet.create(doc, [
                     Decoration.widget(0, () => {
                         const topToolbar = _createToolbar(
@@ -325,12 +325,7 @@ function _createTopToolbarPlugin(editor, filter) {
                     })
                 ]);
             },
-            apply(tr, value, oldState, newState) {
-                if (!oldState.doc.eq(newState.doc) || oldState.selection.eq(newState.selection) === false) {
-                    setTimeout(this.handleSelectionChange, 0);
-                }
-                return value;
-            }
+            apply(tr, value) { return value; }
         }
     });
 }
@@ -554,16 +549,19 @@ function _updateToolbar(editor, toolbar) {
     for (const button of querySelector) {
         const {action} = button.dataset;
         if (TiptapToolbar[action]) {
-              const toolbarItem = window.cms_editor_plugin._getRepresentation(action);
+              // Cache representation lookup on the button element
+              const toolbarItem = button._cachedRepr || (button._cachedRepr = window.cms_editor_plugin._getRepresentation(action));
               try {
                   if (toolbarItem.enabled !== undefined) {
-                      button.disabled = !toolbarItem.enabled(editor, button);
+                      const disabled = !toolbarItem.enabled(editor, button);
+                      if (button.disabled !== disabled) {
+                          button.disabled = disabled;
+                      }
                   }
                   try {
-                      if (toolbarItem.active && toolbarItem.active(editor, button)) {
-                          button.classList.add('active');
-                      } else {
-                          button.classList.remove('active');
+                      const isActive = !!(toolbarItem.active && toolbarItem.active(editor, button));
+                      if (isActive !== button.classList.contains('active')) {
+                          button.classList.toggle('active', isActive);
                       }
                       if (TiptapToolbar[action].attributes) {
                           populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);
@@ -607,6 +605,21 @@ function _submitToolbarForm(event, editor) {
  * and bounding rectangle to adapt the toolbar layout responsively.
  */
 const CmsToolbarPlugin = Extension.create({
+    onCreate() {
+        const editor = this.editor;
+        const hasBlockToolbar = editor.options.blockToolbar;
+        editor.on('transaction', () => {
+            if (!_topToolbarRafId) {
+                _topToolbarRafId = requestAnimationFrame(() => {
+                    _topToolbarRafId = 0;
+                    _updateToolbar(editor);
+                    if (hasBlockToolbar) {
+                        updateBlockToolbar(editor);
+                    }
+                });
+            }
+        });
+    },
     addProseMirrorPlugins() {
         'use strict';
         const {el} = this.editor.options;

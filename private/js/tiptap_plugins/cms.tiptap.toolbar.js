@@ -45,7 +45,27 @@ function renderTableClassOptions(editor, item) {
         .join('');
 }
 
+// Schema-based checks: static per editor instance, avoid dry-run transactions
+function _hasMark(editor, name) {
+    return !!editor.schema.marks[name];
+}
+
+function _hasNode(editor, name) {
+    return !!editor.schema.nodes[name];
+}
+
+// Two-phase block action: try toggle first, fall back to insertContent
+function _toggleOrInsert(editor, toggleCmd, nodeType, attrs) {
+    if (editor.can()[toggleCmd](attrs)) {
+        editor.chain().focus()[toggleCmd](attrs).run();
+    } else {
+        const content = attrs ? { type: nodeType, attrs } : { type: nodeType };
+        editor.chain().focus().insertContent(content).run();
+    }
+}
+
 const TiptapToolbar = {
+    // Undo/Redo: must use can() — depends on history state
     Undo: {
         action: (editor) => editor.chain().focus().undo().run(),
         enabled: (editor) => editor.can().undo(),
@@ -56,41 +76,42 @@ const TiptapToolbar = {
         enabled: (editor) => editor.can().redo(),
         type: 'mark',
     },
+    // Marks: schema check only — marks can always be toggled on text selections
     Bold: {
         action: (editor) => editor.chain().focus().toggleBold().run(),
-        enabled: (editor) => editor.can().toggleBold(),
+        enabled: (editor) => _hasMark(editor, 'bold'),
         active: (editor) => editor.isActive('bold'),
         type: 'mark',
     },
     Italic: {
         action: (editor) => editor.chain().focus().toggleItalic().run(),
-        enabled: (editor) => editor.can().toggleItalic(),
+        enabled: (editor) => _hasMark(editor, 'italic'),
         active: (editor) => editor.isActive('italic'),
         title: 'Italic',
         type: 'mark',
     },
     Underline: {
         action: (editor) => editor.chain().focus().toggleUnderline().run(),
-        enabled: (editor) => editor.can().toggleUnderline(),
+        enabled: (editor) => _hasMark(editor, 'underline'),
         active: (editor) => editor.isActive('underline'),
         title: 'Underline',
         type: 'mark',
     },
     Strike: {
         action: (editor) => editor.chain().focus().toggleStrike().run(),
-        enabled: (editor) => editor.can().toggleStrike(),
+        enabled: (editor) => _hasMark(editor, 'strike'),
         active: (editor) => editor.isActive('strike'),
         type: 'mark',
     },
     Subscript: {
         action: (editor) => editor.chain().focus().toggleSubscript().run(),
-        enabled: (editor) => editor.can().toggleSubscript(),
+        enabled: (editor) => _hasMark(editor, 'subscript'),
         active: (editor) => editor.isActive('subscript'),
         type: 'mark',
     },
     Superscript: {
         action: (editor) => editor.chain().focus().toggleSuperscript().run(),
-        enabled: (editor) => editor.can().toggleSuperscript(),
+        enabled: (editor) => _hasMark(editor, 'superscript'),
         active: (editor) => editor.isActive('superscript'),
         type: 'mark',
     },
@@ -102,7 +123,7 @@ const TiptapToolbar = {
             }
             editor.chain().focus().toggleTextColor(button?.dataset?.class || 'text-primary').run();
         },
-        enabled: (editor) => editor.can().toggleTextColor(),
+        enabled: (editor) => _hasMark(editor, 'textcolor'),
         active: (editor, button) => editor.isActive('textcolor', {class: button.dataset?.class}),
         icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-fonts" viewBox="0 0 16 16"><path d="M12.258 3h-8.51l-.083 2.46h.479c.26-1.544.758-1.783 2.693-1.845l.424-.013v7.827c0 .663-.144.82-1.3.923v.52h4.082v-.52c-1.162-.103-1.306-.26-1.306-.923V3.602l.431.013c1.934.062 2.434.301 2.693 1.846h.479z"/></svg>',
         type: 'mark',
@@ -116,7 +137,7 @@ const TiptapToolbar = {
                 editor.chain().focus().setMark('Q').run();
             }
         },
-        enabled: (editor) => editor.can().toggleMark('Q'),
+        enabled: (editor) => _hasMark(editor, 'Q'),
         active: (editor) => editor.isActive('Q'),
         icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-quote" viewBox="0 0 16 16">' +
             '<path d="M12 12a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1h-1.388q0-.527.062-1.054.093-.558.31-.992t.559-.683q.34-.279.868-.279V3q-.868 0-1.52.372a3.3 3.3 0 0 0-1.085.992 4.9 4.9 0 0 0-.62 1.458A7.7 7.7 0 0 0 9 7.558V11a1 1 0 0 0 1 1zm-6 0a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1H4.612q0-.527.062-1.054.094-.558.31-.992.217-.434.559-.683.34-.279.868-.279V3q-.868 0-1.52.372a3.3 3.3 0 0 0-1.085.992 4.9 4.9 0 0 0-.62 1.458A7.7 7.7 0 0 0 3 7.558V11a1 1 0 0 0 1 1z"/>' +
@@ -132,7 +153,7 @@ const TiptapToolbar = {
                 editor.chain().focus().setMark('Highlight').run();
             }
         },
-        enabled: (editor) => editor.can().toggleMark('Highlight'),
+        enabled: (editor) => _hasMark(editor, 'Highlight'),
         active: (editor) => editor.isActive('Highlight'),
         icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-highlighter" viewBox="0 0 16 16">\n' +
             '  <path fill-rule="evenodd" d="M11.096.644a2 2 0 0 1 2.791.036l1.433 1.433a2 2 0 0 1 .035 2.791l-.413.435-8.07 8.995a.5.5 0 0 1-.372.166h-3a.5.5 0 0 1-.234-.058l-.412.412A.5.5 0 0 1 2.5 15h-2a.5.5 0 0 1-.354-.854l1.412-1.412A.5.5 0 0 1 1.5 12.5v-3a.5.5 0 0 1 .166-.372l8.995-8.07zm-.115 1.47L2.727 9.52l3.753 3.753 7.406-8.254zm3.585 2.17.064-.068a1 1 0 0 0-.017-1.396L13.18 1.387a1 1 0 0 0-1.396-.018l-.068.065zM5.293 13.5 2.5 10.707v1.586L3.707 13.5z"/>\n' +
@@ -147,7 +168,7 @@ const TiptapToolbar = {
         },
         enabled: (editor, button) => {
             if (button?.dataset?.id !== undefined) {
-                return editor.can().toggleInlineStyle(button.dataset.id);
+                return _hasMark(editor, 'inlinestyle');
             }
             const ext = editor.extensionManager.extensions.find(e => e.name === 'inlinestyle');
             const styles = editor.options.inlineStyles || ext?.options?.styles || [];
@@ -162,7 +183,7 @@ const TiptapToolbar = {
         action: (editor, button) => editor.chain().focus().toggleBlockStyle(button?.dataset?.id || 0).run(),
         enabled: (editor, button) => {
             if (button?.dataset?.id !== undefined) {
-                return editor.can().toggleBlockStyle(button.dataset.id);
+                return _hasNode(editor, 'blockstyle') || !!editor.extensionManager.extensions.find(e => e.name === 'blockstyle');
             }
             const ext = editor.extensionManager.extensions.find(e => e.name === 'blockstyle');
             const styles = editor.options.blockStyles || ext?.options?.styles || [];
@@ -172,56 +193,65 @@ const TiptapToolbar = {
     },
     RemoveFormat: {
         action: (editor) => editor.chain().focus().unsetAllMarks().run(),
-        enabled: (editor) => editor.can().unsetAllMarks(),
+        enabled: () => true,
         type: 'mark',
     },
+    // Text alignment: schema check via extension presence
     JustifyLeft: {
         action: (editor) => editor.chain().focus().setTextAlign('left').run(),
-        enabled: (editor) => editor.can().setTextAlign('left'),
+        enabled: (editor) => !!editor.extensionManager.extensions.find(e => e.name === 'textAlign'),
         active: (editor) => editor.isActive({textAlign: 'left'}),
         type: 'block',
     },
     JustifyCenter: {
         action: (editor) => editor.chain().focus().setTextAlign('center').run(),
-        enabled: (editor) => editor.can().setTextAlign('center'),
+        enabled: (editor) => !!editor.extensionManager.extensions.find(e => e.name === 'textAlign'),
         active: (editor) => editor.isActive(({textAlign: 'center'})),
         type: 'block',
     },
     JustifyRight: {
         action: (editor) => editor.chain().focus().setTextAlign('right').run(),
-        enabled: (editor) => editor.can().setTextAlign('right'),
+        enabled: (editor) => !!editor.extensionManager.extensions.find(e => e.name === 'textAlign'),
         active: (editor) => editor.isActive({textAlign: 'right'}),
         type: 'block',
     },
     JustifyBlock: {
         action: (editor) => editor.chain().focus().setTextAlign('justify').run(),
-        enabled: (editor) => editor.can().setTextAlign('justify'),
+        enabled: (editor) => !!editor.extensionManager.extensions.find(e => e.name === 'textAlign'),
         active: (editor) => editor.isActive({textAlign: 'justify'}),
         type: 'block',
     },
+    // Block nodes: schema check + toggle-or-insert actions
     HorizontalRule: {
-        action: (editor) => editor.chain().focus().setHorizontalRule().run(),
-        enabled: (editor) => editor.can().setHorizontalRule(),
+        action: (editor) => {
+            if (editor.can().setHorizontalRule()) {
+                editor.chain().focus().setHorizontalRule().run();
+            } else {
+                editor.chain().focus().insertContent({ type: 'horizontalRule' }).run();
+            }
+        },
+        enabled: (editor) => _hasNode(editor, 'horizontalRule'),
         type: 'block',
     },
     NumberedList: {
         action: (editor) => editor.chain().focus().toggleOrderedList().run(),
-        enabled: (editor) => editor.can().toggleOrderedList(),
+        enabled: (editor) => _hasNode(editor, 'orderedList'),
         active: (editor) => editor.isActive('orderedList'),
         type: 'block',
     },
     BulletedList: {
         action: (editor) => editor.chain().focus().toggleBulletList().run(),
-        enabled: (editor) => editor.can().toggleBulletList(),
+        enabled: (editor) => _hasNode(editor, 'bulletList'),
         active: (editor) => editor.isActive('bulletList'),
         type: 'block',
     },
     Blockquote: {
-        action: (editor) => editor.chain().focus().toggleBlockquote().run(),
-        enabled: (editor) => editor.can().toggleBlockquote(),
+        action: (editor) => _toggleOrInsert(editor, 'toggleBlockquote', 'blockquote'),
+        enabled: (editor) => _hasNode(editor, 'blockquote'),
         active: (editor) => editor.isActive('blockquote'),
         type: 'block',
     },
+    // Link/Unlink: link uses schema check, unlink checks if link is active
     Link: {
         action: (editor) => {
             if (editor.isActive('link')) {
@@ -240,7 +270,7 @@ const TiptapToolbar = {
                 editor.chain().focus().setLink(link).run();
             }
         },
-        enabled: (editor) => editor.can().setLink({href: '#'}),
+        enabled: (editor) => _hasMark(editor, 'link'),
         active: (editor) => editor.isActive('link'),
         attributes: (editor) => {
             let attrs = editor.getAttributes('link');
@@ -252,9 +282,10 @@ const TiptapToolbar = {
     },
     Unlink: {
         action: (editor) => editor.chain().focus().unsetLink().run(),
-        enabled: (editor) => editor.can().unsetLink(),
+        enabled: (editor) => editor.isActive('link'),
         type: 'mark',
     },
+    // Table: schema check for insert, isActive('table') for sub-commands
     Table: {
         action: (editor, button) => {
             const rows = parseInt(button?.dataset?.rows ||3);
@@ -262,56 +293,56 @@ const TiptapToolbar = {
             const classes = button?.dataset?.attr || getDefaultTableClass(editor.options.tableClasses);
             editor.chain().focus().insertTable({ rows: rows, cols: cols}).updateAttributes('table', { addClasses: classes }).run();
         },
-        enabled: (editor) => editor.can().insertTable({ rows: 3, cols: 3 }),
+        enabled: (editor) => _hasNode(editor, 'table'),
         type: 'mark',
         items: generateTableMenu,
         class: 'tt-table',
     },
     toggleHeaderColumn: {
         action: (editor, button) => editor.chain().focus().toggleHeaderColumn().run(),
-        enabled: (editor) => editor.can().toggleHeaderColumn(),
+        enabled: (editor) => editor.isActive('table'),
         active: (editor) => editor.isActive('headerColumn'),
         type: 'mark',
     },
     toggleHeaderRow: {
         action: (editor, button) => editor.chain().focus().toggleHeaderRow().run(),
-        enabled: (editor) => editor.can().toggleHeaderRow(),
+        enabled: (editor) => editor.isActive('table'),
         active: (editor) => editor.isActive('headerRow'),
         type: 'mark',
     },
     addColumnBefore: {
         action: (editor, button) => editor.chain().focus().addColumnBefore().run(),
-        enabled: (editor) => editor.can().addColumnBefore(),
+        enabled: (editor) => editor.isActive('table'),
         type: 'mark',
     },
     addColumnAfter: {
         action: (editor, button) => editor.chain().focus().addColumnAfter().run(),
-        enabled: (editor) => editor.can().addColumnAfter(),
+        enabled: (editor) => editor.isActive('table'),
         type: 'mark',
     },
     deleteColumn: {
         action: (editor, button) => editor.chain().focus().deleteColumn().run(),
-        enabled: (editor) => editor.can().deleteColumn(),
+        enabled: (editor) => editor.isActive('table'),
         type: 'mark',
     },
     addRowBefore: {
         action: (editor, button) => editor.chain().focus().addRowBefore().run(),
-        enabled: (editor) => editor.can().addRowBefore(),
+        enabled: (editor) => editor.isActive('table'),
         type: 'mark',
     },
     addRowAfter: {
         action: (editor, button) => editor.chain().focus().addRowAfter().run(),
-        enabled: (editor) => editor.can().addRowAfter(),
+        enabled: (editor) => editor.isActive('table'),
         type: 'mark',
     },
     deleteRow: {
         action: (editor, button) => editor.chain().focus().deleteRow().run(),
-        enabled: (editor) => editor.can().deleteRow(),
+        enabled: (editor) => editor.isActive('table'),
         type: 'mark',
     },
     mergeOrSplit: {
         action: (editor, button) => editor.chain().focus().mergeOrSplit().run(),
-        enabled: (editor) => editor.can().mergeOrSplit(),
+        enabled: (editor) => editor.isActive('table'),
         type: 'mark',
     },
     tableClass: {
@@ -319,7 +350,7 @@ const TiptapToolbar = {
             const classes = button?.dataset.attr || getDefaultTableClass(editor.options.tableClasses);
             editor.chain().focus().updateAttributes('table', { addClasses: classes }).run();
         },
-        enabled: (editor, button) => editor.can().updateAttributes('table', { addClasses: button?.dataset.attr || ''}),
+        enabled: (editor) => editor.isActive('table'),
         active: (editor, button) => {
             const classes = editor.getAttributes('table').addClasses;
             return classes && classes === button.dataset.attr;
@@ -328,20 +359,21 @@ const TiptapToolbar = {
     },
     Code: {
         action: (editor) => editor.chain().focus().toggleCode().run(),
-        enabled: (editor) => editor.can().toggleCode(),
+        enabled: (editor) => _hasMark(editor, 'code'),
         active: (editor) => editor.isActive('code'),
         type: 'mark',
     },
     CodeBlock: {
-        action: (editor) => editor.chain().focus().toggleCodeBlock().run(),
-        enabled: (editor) => editor.can().toggleCodeBlock(),
+        action: (editor) => _toggleOrInsert(editor, 'toggleCodeBlock', 'codeBlock'),
+        enabled: (editor) => _hasNode(editor, 'codeBlock'),
         active: (editor) => editor.isActive('codeBlock'),
         type: 'block',
     },
     HardBreak: {
         action: (editor) => editor.chain().focus().setHardBreak().run(),
-        enabled: (editor) => editor.can().setHardBreak(),
+        enabled: (editor) => _hasNode(editor, 'hardBreak'),
     },
+    // Format dropdown and headings: toggle-or-insert
     Format: {
         insitu: ['Paragraph', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5', 'Heading6', '|'],
         iconx: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-type" viewBox="0 0 16 16">\n' +
@@ -350,48 +382,54 @@ const TiptapToolbar = {
         type: 'block',
     },
     Heading1: {
-        action: (editor) => editor.chain().focus().setHeading({ level: 1 }).run(),
-        enabled: (editor) => editor.can().setHeading({ level: 1 }),
+        action: (editor) => _toggleOrInsert(editor, 'toggleHeading', 'heading', { level: 1 }),
+        enabled: (editor) => _hasNode(editor, 'heading'),
         active: (editor) => editor.isActive('heading', { level: 1 }),
         type: 'block',
     },
     Heading2: {
-        action: (editor) => editor.chain().focus().setHeading({ level: 2 }).run(),
-        enabled: (editor) => editor.can().setHeading({ level: 2 }),
+        action: (editor) => _toggleOrInsert(editor, 'toggleHeading', 'heading', { level: 2 }),
+        enabled: (editor) => _hasNode(editor, 'heading'),
         active: (editor) => editor.isActive('heading', { level: 2 }),
         type: 'block',
     },
     Heading3: {
-        action: (editor) => editor.chain().focus().setHeading({ level: 3 }).run(),
-        enabled: (editor) => editor.can().setHeading({ level: 3 }),
+        action: (editor) => _toggleOrInsert(editor, 'toggleHeading', 'heading', { level: 3 }),
+        enabled: (editor) => _hasNode(editor, 'heading'),
         active: (editor) => editor.isActive('heading', { level: 3 }),
         title: 'Heading 3',
         type: 'block',
     },
     Heading4: {
-        action: (editor) => editor.chain().focus().setHeading({ level: 4 }).run(),
-        enabled: (editor) => editor.can().setHeading({ level: 4 }),
+        action: (editor) => _toggleOrInsert(editor, 'toggleHeading', 'heading', { level: 4 }),
+        enabled: (editor) => _hasNode(editor, 'heading'),
         active: (editor) => editor.isActive('heading', { level: 4 }),
         title: 'Heading 4',
         type: 'block',
     },
     Heading5: {
-        action: (editor) => editor.chain().focus().setHeading({ level: 5 }).run(),
-        enabled: (editor) => editor.can().setHeading({ level: 5 }),
+        action: (editor) => _toggleOrInsert(editor, 'toggleHeading', 'heading', { level: 5 }),
+        enabled: (editor) => _hasNode(editor, 'heading'),
         active: (editor) => editor.isActive('heading', { level: 5 }),
         title: 'Heading 5',
         type: 'block',
     },
     Heading6: {
-        action: (editor) => editor.chain().focus().setHeading({ level: 6 }).run(),
-        enabled: (editor) => editor.can().setHeading({ level: 6 }),
+        action: (editor) => _toggleOrInsert(editor, 'toggleHeading', 'heading', { level: 6 }),
+        enabled: (editor) => _hasNode(editor, 'heading'),
         active: (editor) => editor.isActive('heading', { level: 6 }),
         title: 'Heading 6',
         type: 'block',
     },
     Paragraph: {
-        action: (editor) => editor.chain().focus().setParagraph().run(),
-        enabled: (editor) => editor.can().setParagraph(),
+        action: (editor) => {
+            if (editor.can().setParagraph()) {
+                editor.chain().focus().setParagraph().run();
+            } else {
+                editor.chain().focus().insertContent({ type: 'paragraph' }).run();
+            }
+        },
+        enabled: (editor) => _hasNode(editor, 'paragraph'),
         active: (editor) => editor.isActive('paragraph'),
         title: 'Paragraph',
         type: 'block',

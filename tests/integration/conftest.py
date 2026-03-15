@@ -58,4 +58,7 @@ def text_plugin(db, cms_page):
 
 
 def pytest_configure():
-    os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+    import django
+
+    if django.VERSION < (6, 0):
+        os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"

@@ -126,7 +126,6 @@ exclude = [
 
 [tool.pytest]
 ini_options.DJANGO_SETTINGS_MODULE = "tests.settings"
-ini_options.DJANGO_ALLOW_ASYNC_UNSAFE = true
 ini_options.python_files = [ "tests.py", "test_*.py" ]
 ini_options.addopts = [
   "--reuse-db",

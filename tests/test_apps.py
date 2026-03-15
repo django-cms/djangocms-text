@@ -1,7 +1,9 @@
 from importlib import import_module
 from types import SimpleNamespace
+from unittest import skipIf
 from unittest.mock import patch
 
+from django.conf import settings
 from django import forms
 from django.test import SimpleTestCase
 
@@ -20,6 +22,7 @@ def _make_model(app_label: str, model_name: str):
     return Model
 
 
+@skipIf(settings.CMS_NOT_USED, "Skipping app tests because djangocms is not installed")
 class AppsConfigTestCase(SimpleTestCase):
     def test_ready_populates_inline_models_and_registers_checks(self):
         app_config = TextConfig("djangocms_text", import_module("djangocms_text"))
@@ -35,6 +38,7 @@ class AppsConfigTestCase(SimpleTestCase):
         register_mock.assert_any_call(check_no_cms_config)
 
 
+@skipIf(settings.CMS_NOT_USED, "Skipping app tests because djangocms is not installed")
 class DiscoverInlineEditableModelsTestCase(SimpleTestCase):
     def test_discovery_finds_admin_and_plugin_fields(self):
         admin_model = _make_model("tests", "adminmodel")

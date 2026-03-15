@@ -4,7 +4,7 @@
 
 import {Extension} from "@tiptap/core";
 
-import {TextSelection} from "@tiptap/pm/state";
+import {NodeSelection, TextSelection} from "@tiptap/pm/state";
 import {Decoration, DecorationSet} from "@tiptap/pm/view";
 import {Plugin} from "@tiptap/pm/state";
 import TiptapToolbar from "./cms.tiptap.toolbar";
@@ -97,7 +97,9 @@ function _createBlockToolbarPlugin(editor) {
             apply(tr, value, oldState, newState) {
                 if (!oldState.doc.eq(newState.doc) || oldState.selection.eq(newState.selection) === false) {
                     // Let the editor execute the dom update before updating the toolbar
-                    setTimeout(() => updateBlockToolbar(editor, newState), 0);
+                    // Use editor.state (not newState) so the toolbar reflects the final
+                    // state after all transactions (e.g. drag-drop) have been applied.
+                    setTimeout(() => updateBlockToolbar(editor), 0);
                 }
                 return value;
             }
@@ -134,15 +136,24 @@ function _createBlockToolbar(editor, blockToolbar) {
 
         if (depth >= 0 && start >= 0 && end >= 0) {
             const {state, dispatch} = editor.view;
-            const textSelection = TextSelection.create(state.doc, start, end-1);
+            // Select the entire node (start - 1 is the position before the node)
+            // so that drag-drop moves the whole block, not just its content
+            let selection;
+            try {
+                selection = NodeSelection.create(state.doc, start - 1);
+            } catch (e) {
+                // Fallback for nodes that don't support NodeSelection
+                selection = TextSelection.create(state.doc, start - 1, end);
+            }
             const domNode = editor.view.domAtPos(start).node;
             event.dataTransfer.setDragImage(domNode, 0, 0);
-            dispatch(state.tr.setSelection(textSelection));
+            dispatch(state.tr.setSelection(selection));
         }
          else {
             event.preventDefault();
         }
     });
+
 
     if (_node_icons === null) {
         // Initialize the node icons once globally
@@ -165,7 +176,7 @@ function updateBlockToolbar(editor, state) {
     'use strict';
     const {resolvedPos, depth} = _getResolvedPos(state || editor.state);
     if (depth > 0) {
-        _updateToolbarIcon(editor, resolvedPos.node(depth));
+        _updateToolbarIcon(editor, resolvedPos.node(depth), depth > 1 ? resolvedPos.node(depth - 1) : null);
         const startPos = resolvedPos.start(depth);
         editor.options.blockToolbar.dataset.start = startPos;
         editor.options.blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
@@ -190,26 +201,47 @@ function updateBlockToolbar(editor, state) {
 function _getResolvedPos(state) {
     'use strict';
 
-    const {$anchor, $head} = state.selection;
-    const maxDepth = $anchor.depth < $head.depth ? $anchor.depth : $head.depth;
-    let lastBlockDepth = 0;
-    for (let depth = 0; depth <= maxDepth; depth++) {
-        if ($anchor.start(depth) !== $head.start(depth)) {
-            return {resolvedPos: $anchor, depth: lastBlockDepth};
+    let resolvedPos, lastBlockDepth = 0;
+
+    if (state.selection instanceof NodeSelection) {
+        // NodeSelection: $anchor is before the node, resolve inside it
+        resolvedPos = state.doc.resolve(state.selection.from + 1);
+        for (let depth = 0; depth <= resolvedPos.depth; depth++) {
+            if (resolvedPos.node(depth).type.isBlock) {
+                lastBlockDepth = depth;
+            }
         }
-        if ($anchor.node(depth).type.isBlock) {
-            lastBlockDepth = depth;
+    } else {
+        const {$anchor, $head} = state.selection;
+        resolvedPos = $anchor;
+        const maxDepth = $anchor.depth < $head.depth ? $anchor.depth : $head.depth;
+        for (let depth = 0; depth <= maxDepth; depth++) {
+            if ($anchor.start(depth) !== $head.start(depth)) {
+                return {resolvedPos, depth: lastBlockDepth};
+            }
+            if ($anchor.node(depth).type.isBlock) {
+                lastBlockDepth = depth;
+            }
         }
     }
-    return {resolvedPos: $anchor, depth: lastBlockDepth};
+
+    // Walk up while the current block is the only block child of its parent,
+    // e.g. select listItem rather than its inner paragraph
+    while (lastBlockDepth > 1 && resolvedPos.node(lastBlockDepth - 1).childCount === 1) {
+        lastBlockDepth--;
+    }
+
+    return {resolvedPos, depth: lastBlockDepth};
 }
 
-function _updateToolbarIcon (editor, node) {
+function _updateToolbarIcon (editor, node, parentNode) {
     'use strict';
     if (!node) {
         return;
     }
-    const type = node.type.name === 'heading' ? 'heading' + node.attrs.level : node.type.name;
+    // For list items, show the icon of the parent list (ul/ol)
+    const iconNode = node.type.name === 'listItem' && parentNode ? parentNode : node;
+    const type = iconNode.type.name === 'heading' ? 'heading' + iconNode.attrs.level : iconNode.type.name;
     if (type in _node_icons) {
         _replaceIcon(editor.options.blockToolbar.firstElementChild, _node_icons[type]);
     } else {

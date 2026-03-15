@@ -21,11 +21,22 @@ describe('Tiptap toolbar items', () => {
         // Clean up tiptap editor instances directly (destroyAll passes string IDs
         // to destroyEditor which expects elements, so _editors may not be cleared)
         const plugin = window.cms_editor_plugin;
-        for (const id of Object.keys(plugin._editors)) {
-            plugin._editors[id].destroy();
-            delete plugin._editors[id];
+
+        if (plugin && plugin._editors && typeof plugin._editors === 'object') {
+            for (const id of Object.keys(plugin._editors)) {
+                const instance = plugin._editors[id];
+
+                if (instance && typeof instance.destroy === 'function') {
+                    instance.destroy();
+                }
+
+                delete plugin._editors[id];
+            }
         }
-        editor.destroyAll();
+
+        if (editor && typeof editor.destroyAll === 'function') {
+            editor.destroyAll();
+        }
     });
 
     it('initializes a single editor', () => {

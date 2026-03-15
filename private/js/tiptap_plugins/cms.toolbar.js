@@ -46,15 +46,6 @@ let _node_icons = null;
  *
  * @param {Object} editor - The editor instance.
  * @returns {Plugin} - A ProseMirror Plugin instance.
- *
- * @property {Object} props - Plugin properties.
- * @property {Function} props.decorations - Function to get the current state of decorations.
- * @property {Object} props.handleDOMEvents - Object containing DOM event handlers.
- * @property {Function} props.handleDOMEvents.click - Click event handler for the block toolbar.
- *
- * @property {Object} state - Plugin state.
- * @property {Function} state.init - Initializes the plugin state with decorations.
- * @property {Function} state.apply - Applies state changes and updates the block toolbar.
  */
 function _createBlockToolbarPlugin(editor) {
     'use strict';

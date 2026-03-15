@@ -21,6 +21,8 @@ jobs:
       with:
         python-version: 3.12
 
+    - name: Install gettext
+      run: sudo apt-get install -y gettext
     - name: Install pypa/build
       run: >-
         python -m

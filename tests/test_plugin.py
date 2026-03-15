@@ -17,7 +17,10 @@ from django.utils.http import urlencode
 from .fixtures import DJANGO_CMS4, DJANGOCMS_VERSIONING, TestFixture
 
 try:
-    from cms.api import add_plugin, create_page_content
+    try:
+        from cms.api import add_plugin, create_page_content
+    except ImportError:
+        from cms.api import add_plugin, create_title as create_page_content
     from cms.models import CMSPlugin, Page, Placeholder
     from cms.utils.urlutils import admin_reverse
 

@@ -39,3 +39,9 @@ class Topping(models.Model):
     name = models.CharField(max_length=255)
     description = HTMLField()
     pizza = models.ForeignKey(Pizza, on_delete=models.CASCADE)
+
+
+class Sauce(models.Model):
+    name = models.CharField(max_length=255)
+    description = HTMLField()
+    pizza = models.ForeignKey(Pizza, on_delete=models.CASCADE)

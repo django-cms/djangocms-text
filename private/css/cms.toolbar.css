@@ -28,7 +28,7 @@ html.cms-toolbar-expanded {
     .cms-toolbar-sticky {
         position: sticky;
         top: 0;
-        z-index: 9999999; /* Above #cms-top and its stacking context */
+        z-index: 88889; /* Above #cms-top (z-index: 88888) */
         height: 0;
         overflow: visible;
     }

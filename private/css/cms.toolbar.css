@@ -1,3 +1,8 @@
+/* Position sticky toolbar below the django CMS toolbar when it's visible */
+html.cms-toolbar-expanded {
+    --cms-toolbar-height: 46px;
+}
+
 .cms-editor-inline-wrapper {
     --tiptap-ease: 100ms;
     .ProseMirror-focused [role="menubar"] {
@@ -22,18 +27,17 @@
 
     [role="menubar"] {
         font-family: var(--font-family-primary, Helvetica, Arial, sans-serif);
-        bottom: calc(100% - 1px);
         min-width: 375px;
-        z-index: 1;
+        z-index: 88889; /* Above #cms-top (z-index: 88888) */
         padding: 2px 0.4rem;
-        /* border-radius: 3px; */
         margin: 0 !important;
         font-size: 1rem;
         font-weight: normal;
         visibility: hidden;
         opacity: 0;
         transition: opacity var(--tiptap-ease, 100ms) ease-out, visibility 0s linear var(--tiptap-ease, 100ms);
-        position: absolute;
+        position: sticky;
+        top: var(--cms-toolbar-height, 0px);
         pointer-events: all;
         display: flex;
         flex-flow: row wrap;

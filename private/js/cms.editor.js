@@ -384,7 +384,7 @@ class CMSEditor {
                     data[field] = html;
                 } else {
                     data.body = html;
-                    data.json = JSON.stringify(json) || '';
+                    data.json = json ? JSON.stringify(json) : '';
                 }
             }
 

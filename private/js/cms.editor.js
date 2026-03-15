@@ -153,7 +153,7 @@ class CMSEditor {
                     }
                 } else if (plugin[1].type === 'generic') {
                     // Frontend editable element
-                    const edit_fields = new URL(url.replace('&amp;', '&'), 'https://random-base.org')
+                    const edit_fields = new URL(url.replace('&amp;', '&'), 'https://example.org')
                         .searchParams.get('edit_fields');  // Get the edit_fields parameter from the URL
                     if (edit_fields && edit_fields.indexOf(',') === -1 && edit_fields !== 'changelist') {
                         // Single field

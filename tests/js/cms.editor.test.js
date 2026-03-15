@@ -60,6 +60,53 @@ describe('CMSEditor', () => {
         expect(Object.keys(editor._editor_settings).length).toBe(0);
     });
 
+    it('destroyAll cleans up tiptap editor instances', () => {
+        const plugin = window.cms_editor_plugin;
+        editor.initAll();
+
+        // Both editors should be created
+        expect(plugin._editors.editor1).toBeDefined();
+        expect(plugin._editors.editor2).toBeDefined();
+        expect(plugin._editors.editor1.isDestroyed).toBe(false);
+        expect(plugin._editors.editor2.isDestroyed).toBe(false);
+
+        editor.destroyAll();
+
+        // Tiptap instances should be destroyed and removed
+        expect(plugin._editors.editor1).toBeUndefined();
+        expect(plugin._editors.editor2).toBeUndefined();
+        expect(Object.keys(plugin._editors).length).toBe(0);
+    });
+
+    it('cleans up after repeated init/destroy cycles', () => {
+        const plugin = window.cms_editor_plugin;
+
+        for (let i = 0; i < 5; i++) {
+            editor.initAll();
+            expect(Object.keys(plugin._editors).length).toBe(2);
+
+            const tiptap1 = plugin._editors.editor1;
+            const tiptap2 = plugin._editors.editor2;
+
+            editor.destroyAll();
+            expect(Object.keys(plugin._editors).length).toBe(0);
+            expect(tiptap1.isDestroyed).toBe(true);
+            expect(tiptap2.isDestroyed).toBe(true);
+
+            // Re-show textareas for next cycle
+            document.getElementById('editor1').style.display = '';
+            document.getElementById('editor2').style.display = '';
+        }
+    });
+
+    it('destroyRTE clears _editor_settings', () => {
+        editor.initAll();
+        expect(Object.keys(editor._editor_settings).length).toBe(2);
+
+        editor.destroyRTE();
+        expect(Object.keys(editor._editor_settings).length).toBe(0);
+    });
+
     it('handles plugin form loading', (done) => {
         const iframe = document.createElement('iframe');
         const el = document.getElementById('editor1');

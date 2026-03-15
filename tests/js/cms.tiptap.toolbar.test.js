@@ -75,4 +75,53 @@ describe('Tiptap toolbar items', () => {
         }
     });
 
+    it('cleans up fully after destroy', () => {
+        const plugin = window.cms_editor_plugin;
+        const el = document.getElementById('editor1');
+        editor.init(el);
+
+        const tiptap = plugin._editors.editor1;
+        expect(tiptap).toBeDefined();
+        expect(tiptap.isDestroyed).toBe(false);
+
+        // Destroy via the plugin directly (the correct way)
+        plugin.destroyEditor(el);
+
+        expect(plugin._editors.editor1).toBeUndefined();
+        expect(tiptap.isDestroyed).toBe(true);
+    });
+
+    it('cleans up after repeated create/destroy cycles', () => {
+        const plugin = window.cms_editor_plugin;
+
+        for (let i = 0; i < 5; i++) {
+            const el = document.getElementById('editor1');
+            el.style.display = '';
+
+            plugin.create(el, false, `<p>cycle ${i}</p>`, {}, () => {});
+            const tiptap = plugin._editors.editor1;
+            expect(tiptap).toBeDefined();
+            expect(tiptap.isDestroyed).toBe(false);
+
+            plugin.destroyEditor(el);
+            expect(plugin._editors.editor1).toBeUndefined();
+            expect(tiptap.isDestroyed).toBe(true);
+        }
+
+        expect(Object.keys(plugin._editors).length).toBe(0);
+    });
+
+    it('destroyRTE cleans up editor instances', () => {
+        const plugin = window.cms_editor_plugin;
+        const el = document.getElementById('editor1');
+        editor.init(el);
+
+        expect(plugin._editors.editor1).toBeDefined();
+
+        editor.destroyRTE();
+
+        // destroyRTE passes string IDs to destroyEditor which expects elements
+        // If this entry remains, it's a bug in destroyRTE/destroyEditor
+        expect(plugin._editors.editor1).toBeUndefined();
+    });
 });

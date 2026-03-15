@@ -210,6 +210,17 @@ function validateAttributes(node, styleAttributes) {
  *     Renders the HTML by merging provided attributes with the default ones. Outputs
  *     a structured array containing the tag, merged attributes, and content placeholder.
  */
+/**
+ * Returns the resolved styles for an extension. Editor options take
+ * precedence over extension defaults.
+ */
+function resolveStyles(ext) {
+    const editorStyles = ext.name === 'blockstyle' ?
+        ext.editor.options.blockStyles :
+        ext.editor.options.inlineStyles;
+    return editorStyles || ext.options.styles || [];
+}
+
 const Style = {
     addOptions() {
         return { styles: [] };
@@ -223,14 +234,9 @@ const Style = {
     },
 
     parseHTML() {
-        const styles = this.name === 'blockstyle' ?
-            this.editor.options.blockStyles :
-            this.editor.options.inlineStyles;
-        if (styles) {
-            this.options.styles = styles;
-        }
+        const styles = resolveStyles(this);
 
-       return (this.options.styles || []).map(style => {
+       return styles.map(style => {
            return {
                tag: style.element || '*',
                getAttrs: node => validateAttributes(node, style.attributes) && (
@@ -275,14 +281,19 @@ const InlineStyle = Mark.create({
 
     addOptions() {
         return {
-            styles: [],
+            styles: [
+                { name: 'Small', element: 'small' },
+                { name: 'Kbd', element: 'kbd' },
+                { name: 'Var', element: 'var' },
+                { name: 'Samp', element: 'samp' },
+            ],
         };
     },
 
     addCommands() {
         return {
             toggleInlineStyle: (id) => ({commands}) => {
-                const style = this.options.styles[id];
+                const style = resolveStyles(this)[id];
                 if (!style) {
                     return false;
                 }
@@ -296,7 +307,7 @@ const InlineStyle = Mark.create({
                 });
             },
             activeInlineStyle: (id) => ({editor}) => {
-                const style = this.options.styles[id];
+                const style = resolveStyles(this)[id];
                 if (!style || !editor.isActive(this.name)) {
                     return false;
                 }
@@ -348,14 +359,17 @@ const BlockStyle = Node.create({
     addCommands() {
         return {
             toggleBlockStyle: (id) => ({commands}) => {
-                const style = this.options.styles[id];
-                return style && commands.toggleWrap(this.name, {
+                const style = resolveStyles(this)[id];
+                if (!style) {
+                    return false;
+                }
+                return commands.toggleWrap(this.name, {
                         tag: style.element,
                         attributes: style.attributes,
                     });
             },
             activeBlockStyle: (id) => ({editor}) => {
-                const style = this.options.styles[id];
+                const style = resolveStyles(this)[id];
                 return style && editor.isActive(this.name, {
                     tag: style.element,
                     attributes: style.attributes,

@@ -145,7 +145,14 @@ const TiptapToolbar = {
         action: (editor, button) => {
             editor.chain().focus().toggleInlineStyle(button?.dataset?.id ||0).run();
         },
-        enabled: (editor, button) => editor.can().toggleInlineStyle(button?.dataset?.id || 0),
+        enabled: (editor, button) => {
+            if (button?.dataset?.id !== undefined) {
+                return editor.can().toggleInlineStyle(button.dataset.id);
+            }
+            const ext = editor.extensionManager.extensions.find(e => e.name === 'inlinestyle');
+            const styles = editor.options.inlineStyles || ext?.options?.styles || [];
+            return styles.length > 0;
+        },
         active: (editor, button) => editor.commands.activeInlineStyle(button?.dataset?.id || 0),
 
     },
@@ -153,7 +160,14 @@ const TiptapToolbar = {
         type: 'mark',
         class: 'vertical js-set-active-text',
         action: (editor, button) => editor.chain().focus().toggleBlockStyle(button?.dataset?.id || 0).run(),
-        enabled: (editor, button) => editor.can().toggleBlockStyle(button?.dataset?.id || 0),
+        enabled: (editor, button) => {
+            if (button?.dataset?.id !== undefined) {
+                return editor.can().toggleBlockStyle(button.dataset.id);
+            }
+            const ext = editor.extensionManager.extensions.find(e => e.name === 'blockstyle');
+            const styles = editor.options.blockStyles || ext?.options?.styles || [];
+            return styles.length > 0;
+        },
         active: (editor, button) => editor.commands.activeBlockStyle(button?.dataset?.id || 0),
     },
     RemoveFormat: {

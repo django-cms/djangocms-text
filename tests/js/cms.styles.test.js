@@ -87,6 +87,26 @@ describe('Tiptap style extensions', () => {
             expect(html).not.toContain('<samp>');
         });
 
+        it('enables InlineStyles when styles are configured', () => {
+            const editor = createEditorWithContent('test-inline-enabled', '<p>test</p>', {
+                toolbar: [['Bold', 'InlineStyles']],
+                inlineStyles: [
+                    { name: 'Small', element: 'small' },
+                ],
+            });
+
+            expect(editor.can().toggleInlineStyle(0)).toBe(true);
+        });
+
+        it('enables InlineStyles with default styles when no inlineStyles option given', () => {
+            const editor = createEditorWithContent('test-inline-defaults', '<p>test</p>', {
+                toolbar: [['Bold', 'InlineStyles']],
+            });
+
+            // Default styles include Small, Kbd, Var, Samp
+            expect(editor.can().toggleInlineStyle(0)).toBe(true);
+        });
+
         it('handles inline styles with class attributes', () => {
             const content = '<p>Normal <span class="lead">lead text</span> and <span class="other">other text</span></p>';
             const editor = createEditorWithContent('test-inline-4', content, {
@@ -123,6 +143,29 @@ describe('Tiptap style extensions', () => {
             expect(html).not.toMatch(/class="wrapper"/);
             expect(html).toContain('inside wrapper');
             expect(html).toContain('normal');
+        });
+
+        it('enables BlockStyles when styles are configured', () => {
+            const editor = createEditorWithContent('test-block-enabled', '<p>test</p>', {
+                toolbar: [['Bold', 'BlockStyles']],
+                blockStyles: [
+                    { name: 'Container', element: 'div', attributes: { class: 'container' } },
+                ],
+            });
+
+            expect(editor.options.blockStyles).toEqual([
+                { name: 'Container', element: 'div', attributes: { class: 'container' } },
+            ]);
+            expect(editor.can().toggleBlockStyle(0)).toBe(true);
+        });
+
+        it('disables BlockStyles when no styles are configured', () => {
+            const editor = createEditorWithContent('test-block-disabled', '<p>test</p>', {
+                toolbar: [['Bold', 'BlockStyles']],
+                // no blockStyles
+            });
+
+            expect(editor.can().toggleBlockStyle(0)).toBe(false);
         });
 
         it('strips all block styles when none are configured', () => {

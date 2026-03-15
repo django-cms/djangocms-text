@@ -22,11 +22,13 @@ classifiers = [
   "Framework :: Django :: 5.0",
   "Framework :: Django :: 5.1",
   "Framework :: Django :: 5.2",
+  "Framework :: Django :: 6.0",
   "Framework :: Django CMS",
   "Framework :: Django CMS :: 3.11",
   "Framework :: Django CMS :: 4.0",
   "Framework :: Django CMS :: 4.1",
   "Framework :: Django CMS :: 5.0",
+  "Framework :: Django CMS :: 5.1",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: BSD License",
   "Operating System :: OS Independent",
@@ -124,7 +126,6 @@ exclude = [
 
 [tool.pytest]
 ini_options.DJANGO_SETTINGS_MODULE = "tests.settings"
-ini_options.DJANGO_ALLOW_ASYNC_UNSAFE = true
 ini_options.python_files = [ "tests.py", "test_*.py" ]
 ini_options.addopts = [
   "--reuse-db",

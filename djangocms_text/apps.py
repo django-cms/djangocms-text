@@ -14,14 +14,14 @@ class TextConfig(AppConfig):
         register(check_no_cms_config)
 
 
-def discover_inline_editable_models() -> dict[str, str]:
+def discover_inline_editable_models(blacklist_apps: list[str] | None = None) -> dict[str, str]:
     # Find frontend-editable models and plugins
 
     from django.contrib.admin import site
 
     registered_inline_fields = ["HTMLFormField", "CharField"]
     inline_models: dict[str, str] = {}
-    blacklist_apps: list[str] = []
+    blacklist_apps = blacklist_apps or []
 
     for model, modeladmin in site._registry.items():
         if model._meta.app_label in blacklist_apps:

@@ -5,12 +5,13 @@ Changelog
 0.9.4 (15-03-2026)
 ==================
 
-* feat: Upgrade to Tiptap 3
+* feat: Upgrade to Tiptap 3 by @fsbraun in https://github.com/django-cms/djangocms-text/pull/149
 * feat: Unregister unused extensions (keeps html clean) by @fsbraun in https://github.com/django-cms/djangocms-text/pull/154
 * fix: Inline editing crashed with CKEditor4 by @fsbraun in https://github.com/django-cms/djangocms-text/pull/148
 * fix: Stacked inline did not initialize RTE when adding an item by @fsbraun in https://github.com/django-cms/djangocms-text/pull/150
 * fix: Defining `TEXT_EDITOR_SETTINGS` in settings.py removed all default settings by @fsbraun in https://github.com/django-cms/djangocms-text/pull/152
 * fix: Add test for pasting markdown and admin editor initialization by @fsbraun in https://github.com/django-cms/djangocms-text/pull/153
+* fix: Remove unused CKEditor 4 sample files by @fsbraun in https://github.com/django-cms/djangocms-text/pull/155
 * chore: Add `THIRD_PARTY_LICENSES.txt` to published package by @fsbraun in https://github.com/django-cms/djangocms-text/pull/151
 * chore: Update locales
 * docs: fix broken link about placeholder config by @dnlzrgz in https://github.com/django-cms/djangocms-text/pull/145

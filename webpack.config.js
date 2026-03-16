@@ -27,7 +27,7 @@ module.exports = {
             },
         }),
         new LicenseWebpackPlugin({
-            outputFilename: 'THIRD_PARTY_LICENSES.txt',
+            outputFilename: '../THIRD_PARTY_LICENSES.txt',
             perChunkOutput: false,
             licenseTemplateDir: path.resolve(__dirname, 'private/license-templates'),
             renderLicenses: (modules) => {

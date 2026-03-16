@@ -62,7 +62,6 @@ package-data."djangocms_text" = [
   "static/**",
   "contrib/**/static/**",
   "templates/**",
-  "THIRD_PARTY_LICENSES.txt",
 ]
 package-data."djangocms_text_ckeditor" = [
   "static/**",

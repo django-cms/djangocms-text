@@ -29,9 +29,6 @@ jobs:
         pip install
         build django
         --user
-    - name: Compile messages
-      run: django-admin compilemessages
-      working-directory: djangocms_text
     - uses: actions/setup-node@v6
       with:
         node-version-file: '.nvmrc'
@@ -39,6 +36,9 @@ jobs:
       run: npm install
     - name: Build client
       run: webpack --mode production
+    - name: Compile messages
+      run: django-admin compilemessages
+      working-directory: djangocms_text
 
     - name: Build a binary wheel and a source tarball
       run: >-
@@ -49,6 +49,9 @@ jobs:
         --outdir dist/
         .
 
+    - name: Show source dist content
+      run: >-
+        tar tzf dist/*.tar.gz
     - name: Publish distribution 📦 to Test PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:

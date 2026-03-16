@@ -1,0 +1,2 @@
+recursive-include djangocms_text *.html *.txt *.mo *.js *.css *.svg *.png *.gif *.jpg *.woff *.woff2 *.ttf *.eot
+recursive-include djangocms_text_ckeditor *.html *.txt *.js *.css *.svg *.png *.gif *.jpg *.woff *.woff2 *.ttf *.eot

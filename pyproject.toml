@@ -57,13 +57,13 @@ urls.Homepage = "https://github.com/django-cms/djangocms-text"
 [tool.setuptools]
 packages.find.include = [ "djangocms_text*", "djangocms_text_ckeditor*" ]
 dynamic.version = { attr = "djangocms_text.__version__" }
-package-data."djangocms_text" = [
+package-data.djangocms_text = [
   "locale/**/*.mo",
   "static/**",
   "contrib/**/static/**",
   "templates/**",
 ]
-package-data."djangocms_text_ckeditor" = [
+package-data.djangocms_text_ckeditor = [
   "static/**",
 ]
 

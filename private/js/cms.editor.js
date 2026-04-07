@@ -653,6 +653,14 @@ class CMSEditor {
                 }
             }
         }
+        // Clean up orphaned plain text editors
+        for (const id of Object.keys(this._generic_editors)) {
+            const el = this._generic_editors[id].el;
+            if (!el || !document.contains(el)) {
+                this._generic_editors[id].destroy();
+                delete this._generic_editors[id];
+            }
+        }
         this.initInlineEditors();
     }
 

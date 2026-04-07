@@ -304,13 +304,12 @@ function _createTopToolbarPlugin(editor, filter) {
                         editor.options.topToolbar = topToolbar;
 
                         if (!editor.options.element.classList.contains('fixed')) {
-                            // For inline editors: wrap in an absolutely positioned
-                            // container and pin it on scroll
-                            const wrapper = document.createElement('div');
-                            wrapper.classList.add('cms-toolbar-sticky');
-                            wrapper.appendChild(topToolbar);
-                            editor.options._cleanupScrollPin = _pinToolbarOnScroll(editor.options.element, wrapper, true);
-                            return wrapper;
+                            // Inline editors: toolbar is position:fixed to escape
+                            // overflow:hidden on ancestors. Position via JS.
+                            editor.options._cleanupScrollPin = _positionFixedToolbar(
+                                editor.options.element, topToolbar
+                            );
+                            return topToolbar;
                         }
                         // Fixed toolbar: sticky positioning keeps it in view
                         // within the editor's scroll container
@@ -328,13 +327,53 @@ function _createTopToolbarPlugin(editor, filter) {
 }
 
 /**
- * Keeps an absolutely positioned toolbar visible by adjusting its top offset
- * on scroll. Repositions the toolbar so it doesn't scroll out of view,
- * working around overflow:hidden on ancestors that would break sticky positioning.
+/**
+ * Positions a fixed toolbar above the editor element.
+ * The toolbar uses position:fixed to escape ancestor overflow:hidden clipping.
+ * Its position is updated on scroll to stay above the editor, clamped to the
+ * CMS toolbar bottom edge.
  *
  * @param {HTMLElement} editorElement - The editor wrapper element.
- * @param {HTMLElement} toolbar - The toolbar (or toolbar wrapper) element to pin.
+ * @param {HTMLElement} toolbar - The menubar element (position:fixed).
+ * @returns {Function} Cleanup function to remove event listeners.
  */
+function _positionFixedToolbar(editorElement, toolbar) {
+    const cmsToolbarHeight = parseInt(
+        getComputedStyle(document.documentElement)
+            .getPropertyValue('--cms-toolbar-height') || '0', 10
+    );
+
+    function update() {
+        const rect = editorElement.getBoundingClientRect();
+        const toolbarHeight = toolbar.offsetHeight || 0;
+
+        // Position toolbar above the editor, or pin to CMS toolbar bottom
+        const idealTop = rect.top - toolbarHeight - 6;
+        const minTop = cmsToolbarHeight;
+        // Hide if editor is scrolled out of view
+        const editorBottom = rect.bottom;
+        if (editorBottom < cmsToolbarHeight + toolbarHeight || rect.top > window.innerHeight) {
+            toolbar.style.top = '-9999px';
+        } else {
+            toolbar.style.top = Math.max(idealTop, minTop) + 'px';
+        }
+        toolbar.style.left = rect.left + 'px';
+    }
+
+    const scrollTarget = _findScrollParent(editorElement);
+    // No RAF debounce: updating top/left on a fixed element is cheap
+    // and avoids the one-frame lag that makes the toolbar visibly trail
+    scrollTarget.addEventListener('scroll', update, {passive: true});
+    window.addEventListener('scroll', update, {passive: true});
+    // Defer initial positioning so the toolbar has been rendered and has a height
+    requestAnimationFrame(update);
+
+    return () => {
+        scrollTarget.removeEventListener('scroll', update);
+        window.removeEventListener('scroll', update);
+    };
+}
+
 /**
  * Finds the nearest scrollable ancestor of an element, or falls back to window.
  *
@@ -353,68 +392,6 @@ function _findScrollParent(element) {
     return window;
 }
 
-function _pinToolbarOnScroll(editorElement, toolbar, isInline) {
-    const cmsToolbarHeight = parseInt(
-        getComputedStyle(document.documentElement)
-            .getPropertyValue('--cms-toolbar-height') || '0', 10
-    );
-
-    function update() {
-        const rect = editorElement.getBoundingClientRect();
-
-        if (isInline) {
-            // Inline toolbar: the menubar extends upward from the wrapper
-            // (bottom: 100%+6px). We need to offset the wrapper down so the
-            // menubar stays visible at the CMS toolbar bottom edge.
-            const menubar = toolbar.querySelector('[role="menubar"]');
-            const menubarHeight = menubar?.offsetHeight || 0;
-            // The point where the toolbar should start pinning:
-            // editor top has scrolled above (cmsToolbarHeight + menubarHeight)
-            const pinPoint = cmsToolbarHeight + menubarHeight + 6; // 6px gap
-            if (rect.top < pinPoint) {
-                const offset = pinPoint - rect.top;
-                // Clamp so toolbar doesn't go below the editor bottom
-                const maxOffset = rect.height - menubarHeight;
-                toolbar.style.top = Math.min(offset, Math.max(0, maxOffset)) + 'px';
-            } else {
-                toolbar.style.top = '0';
-            }
-        } else {
-            // Fixed toolbar: sits at top of editor, scrolls with content
-            const toolbarHeight = toolbar.offsetHeight || 0;
-            if (rect.top < cmsToolbarHeight) {
-                const offset = cmsToolbarHeight - rect.top;
-                const maxOffset = editorElement.scrollHeight - toolbarHeight;
-                toolbar.style.top = Math.min(offset, Math.max(0, maxOffset)) + 'px';
-            } else {
-                toolbar.style.top = '0';
-            }
-        }
-    }
-
-    let rafId = 0;
-    function onScroll() {
-        if (!rafId) {
-            rafId = requestAnimationFrame(() => {
-                rafId = 0;
-                update();
-            });
-        }
-    }
-
-    const scrollTarget = _findScrollParent(editorElement);
-    scrollTarget.addEventListener('scroll', onScroll, {passive: true});
-    update();
-
-    // Return cleanup function to remove the scroll listener
-    return () => {
-        scrollTarget.removeEventListener('scroll', onScroll);
-        if (rafId) {
-            cancelAnimationFrame(rafId);
-        }
-    };
-}
-
 /**
  * Creates a toolbar element for the editor.
  * A toolbar is a div element with role="toolbar" and class cms-toolbar.
@@ -430,12 +407,11 @@ function _createToolbar(editor, toolbar, filter) {
     const toolbarElement = document.createElement('div');
     toolbarElement.setAttribute('role', 'menubar');
     toolbarElement.classList.add('cms-toolbar');
-    toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
-
     // create the toolbar html from the settings
     toolbarElement.innerHTML = _populateToolbar(editor, toolbar, filter);
 
     if (!editor.options.element.classList.contains('fixed')) {
+        toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;
         // Limit its width to the available space
         toolbarElement.style.maxWidth = (window.innerWidth - toolbarElement.getBoundingClientRect().left - 16) + 'px';
     }

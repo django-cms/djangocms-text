@@ -325,6 +325,7 @@ class CmsForm {
 
     open() {
         this.dialog.show();
+        this.el.classList.add('has-form-dialog');
         const firstInput = this.dialog.querySelector('input');
         if (firstInput) {
             firstInput.focus();
@@ -340,6 +341,7 @@ class CmsForm {
                 this.cancel(event);
             }
             this.dialog.remove();
+            this.el.classList.remove('has-form-dialog');
         }
     }
 

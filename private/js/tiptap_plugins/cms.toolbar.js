@@ -282,6 +282,9 @@ function _createTopToolbarPlugin(editor, filter) {
                             // Let the form handle clicks inside it
                             return false;
                         }
+                        if (!editor.isFocused) {
+                            editor.commands.focus();
+                        }
                         _handleToolbarClick(event, editor);
                         return true;
                     }
@@ -389,12 +392,27 @@ function _pinToolbarOnScroll(editorElement, toolbar, isInline) {
         }
     }
 
+    let rafId = 0;
+    function onScroll() {
+        if (!rafId) {
+            rafId = requestAnimationFrame(() => {
+                rafId = 0;
+                update();
+            });
+        }
+    }
+
     const scrollTarget = _findScrollParent(editorElement);
-    scrollTarget.addEventListener('scroll', update, {passive: true});
+    scrollTarget.addEventListener('scroll', onScroll, {passive: true});
     update();
 
     // Return cleanup function to remove the scroll listener
-    return () => scrollTarget.removeEventListener('scroll', update);
+    return () => {
+        scrollTarget.removeEventListener('scroll', onScroll);
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+        }
+    };
 }
 
 /**
@@ -449,12 +467,14 @@ function _handleToolbarClick(event, editor) {
             if (!button.classList.contains('show')) {
                 _closeAllDropdowns(event, editor);
                 button.classList.add('show');
+                button.closest('[role="menubar"]')?.classList.add('has-dropdown-open');
                 content.style.top = button.offsetHeight + 'px';
                 if (button.offsetLeft + content.offsetWidth > window.innerWidth) {
                     content.style.left = (window.innerWidth - content.offsetWidth - button.offsetLeft - 25) + 'px';
                 }
             } else {
                 button.classList.remove('show');
+                button.closest('[role="menubar"]')?.classList.remove('has-dropdown-open');
             }
         } else if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, button);
@@ -480,6 +500,7 @@ function _closeAllDropdowns(event, editor, force) {
         .forEach((el) => {
             if (!el.contains(event.target) || force) {
                 el.classList.remove('show');
+                el.closest('[role="menubar"]')?.classList.remove('has-dropdown-open');
                 count++;
             }
         });
@@ -639,6 +660,18 @@ function _updateToolbar(editor, toolbar) {
                   console.warn(e);
                   button.remove();
               }
+        }
+    }
+    // Update parent dropdowns: mark as has-active-child if any non-heading/paragraph
+    // child is active (avoids expensive :has() CSS selector)
+    const SKIP_ACTIONS = new Set(['Heading1','Heading2','Heading3','Heading4','Heading5','Heading6','Paragraph']);
+    const topToolbar = editor.options.topToolbar;
+    if (!topToolbar) { editor.options.el.dataset.selecting = 'false'; return; }
+    for (const dropdown of topToolbar.querySelectorAll('[role="button"].dropdown')) {
+        const hasActive = Array.from(dropdown.querySelectorAll('.active'))
+            .some(el => !SKIP_ACTIONS.has(el.dataset.action));
+        if (hasActive !== dropdown.classList.contains('has-active-child')) {
+            dropdown.classList.toggle('has-active-child', hasActive);
         }
     }
     editor.options.el.dataset.selecting = 'false';

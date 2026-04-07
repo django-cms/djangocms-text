@@ -231,7 +231,7 @@ class CMSTipTapPlugin {
             }
 
             // Preserve scroll position: editor creation may cause unwanted scrolling
-            const scrollY = window.scrollY;
+            const scrollY = window.scrollY || 0;
             const editor = new Editor({
                 extensions: extensions,
                 autofocus: shouldAutofocus ? 'start' : false,
@@ -249,7 +249,9 @@ class CMSTipTapPlugin {
                 separator_markup: this.separator_markup,
                 space_markup: this.space_markup,
             });
-            window.scrollTo({top: scrollY});
+            if (window.scrollY !== scrollY) {
+                window.scrollTo({top: scrollY});
+            }
             editor.on('blur', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });

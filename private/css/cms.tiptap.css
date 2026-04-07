@@ -41,6 +41,17 @@
     position: relative;
 
     .tiptap {
+        min-height: 1em;
+
+        /* Placeholder text for empty nodes */
+        .is-empty::before {
+            content: '\00a0';
+            float: left;
+            color: var(--dca-gray, #adb5bd);
+            pointer-events: none;
+            height: 0;
+        }
+
         &.ProseMirror-focused {
             /* Safari: Only outline the editor div, not toolbar etc. */
             outline: 3px solid AccentColor;

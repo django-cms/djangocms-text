@@ -140,7 +140,7 @@ describe('CMSEditor', () => {
     });
 
     describe('inline admin add row', () => {
-        const flush = () => new Promise(resolve => setTimeout(resolve, 10));
+        const flush = () => new Promise(resolve => setTimeout(resolve, 50));
 
         function setupInlineAdmin(inlineHTML) {
             document.body.innerHTML = `

@@ -232,8 +232,8 @@ class CMSEditor {
             JSON.parse(el.dataset.options || '{}')
         );
 
-        // Add event listener to delete data on modal cancel
-        if (settings.revert_on_cancel) {
+        // Add event listener to delete data on modal cancel (only for modal/admin editors)
+        if (settings.revert_on_cancel && el.tagName === 'TEXTAREA') {
             const CMS = this.CMS;
             const csrf = CMS.config?.csrf || document.querySelector('input[name="csrfmiddlewaretoken"]').value;
             CMS.API.Helpers.addEventListener(

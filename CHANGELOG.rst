@@ -12,6 +12,7 @@ Changelog
 * fix: Avoid initial scrolling in change views
 * fix: Make inline toolbar positioned absolutely and sticky using javascript
 * fix: Show cursor in empty HTMLFields
+* fix: Revert on cancel was called for non-editor modals
 
 0.9.4 (15-03-2026)
 ==================

@@ -222,15 +222,19 @@ class CMSTipTapPlugin {
             const toolbarItems = collectToolbarItems(toolbar);
             const extensions = filterExtensions(options.extensions, toolbarItems);
 
+            const firstInput = document.querySelector('textarea, input:not([type="hidden"]), select');
+            const shouldAutofocus = el.tagName === 'TEXTAREA' && firstInput === el;
             const editorElement = this._transform_textarea(el, inModal);
             if (el.tagName === 'TEXTAREA') {
                 // Fix toolbar position for non-inline editors
                 editorElement.classList.add('fixed');
             }
 
+            // Preserve scroll position: editor creation may cause unwanted scrolling
+            const scrollY = window.scrollY;
             const editor = new Editor({
                 extensions: extensions,
-                autofocus: false,
+                autofocus: shouldAutofocus ? 'start' : false,
                 content: content || '',
                 editable: true,
                 element: editorElement,
@@ -245,6 +249,7 @@ class CMSTipTapPlugin {
                 separator_markup: this.separator_markup,
                 space_markup: this.space_markup,
             });
+            window.scrollTo({top: scrollY});
             editor.on('blur', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });

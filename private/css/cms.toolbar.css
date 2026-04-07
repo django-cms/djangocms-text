@@ -69,8 +69,12 @@ html.cms-toolbar-expanded {
     &.fixed [role="menubar"]  {
         display: block;
         top: 0;
+        bottom: unset;
+        inset-inline-start: unset;
+        min-width: unset;
         z-index: unset;
         visibility: visible;
+        opacity: 1;
         transition: visibility var(--tiptap-ease, 100ms);
         [role="button"].show {
             z-index: 10;
@@ -79,7 +83,7 @@ html.cms-toolbar-expanded {
                 height: auto;
             }
         }
-        position: absolute;
+        position: sticky;
         width: 100%;
         box-sizing: border-box;
         outline: none;

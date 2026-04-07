@@ -309,9 +309,8 @@ function _createTopToolbarPlugin(editor, filter) {
                             _pinToolbarOnScroll(editor.options.element, wrapper, true);
                             return wrapper;
                         }
-                        // Fixed toolbar: position absolutely and adjust on scroll
-                        // so it stays visible within the editor bounds
-                        _pinToolbarOnScroll(editor.options.element, topToolbar, false);
+                        // Fixed toolbar: sticky positioning keeps it in view
+                        // within the editor's scroll container
                         return topToolbar;
                     }, {
                         side: -1,

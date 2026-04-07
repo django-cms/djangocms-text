@@ -142,6 +142,7 @@ class CMSTipTapPlugin {
             extensions: [
                 StarterKit.configure({
                     link: false,  // CmsDynLink replaces StarterKit's Link
+                    trailingNode: false,  // Disable auto-appended trailing paragraph after headings etc.
                 }),
                 CharacterCount,
                 Image,

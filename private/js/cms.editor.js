@@ -124,16 +124,20 @@ class CMSEditor {
             return;
         }
 
+        const initAsync = typeof requestIdleCallback === 'function'
+            ? (cb) => requestIdleCallback(cb, {timeout: 2000})
+            : (cb) => setTimeout(cb, 0);
+
         this.observer = this.observer || new IntersectionObserver( (entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                     this.observer.unobserve(entry.target);  // Only init once
-                    this.init(entry.target);
+                    initAsync(() => this.init(entry.target));
                 }
             }, this);
         }, {
             root: null,
-            threshold: 0.05
+            threshold: 0
         });
         this.observer.disconnect();
 
@@ -188,10 +192,13 @@ class CMSEditor {
                         // Only add to the observer if not already observed (e.g., if the page only was update partially)
                         this.observer.observe(wrapper);
                         if (this.CMS) {
-                            // Remove django CMS core's double click event handler which opens an edit dialog
+                            // Only suppress CMS double click if the inline editor was created
+                            // If creation fails, the default CMS modal editing should still work
                             this.CMS.$(wrapper).off('dblclick.cms.plugin')
                                 .on('dblclick.cms-editor', function (event) {
-                                    event.stopPropagation();
+                                    if (wrapper.id && wrapper.id in (window.cms_editor_plugin?._editors || {})) {
+                                        event.stopPropagation();
+                                    }
                                 });
                             wrapper.addEventListener('focusin', () => {
                                 this._highlightTextplugin(id);

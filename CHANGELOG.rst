@@ -2,6 +2,18 @@
 Changelog
 =========
 
+0.9.5 (08-04-2026)
+==================
+
+* feat: Allow inline editing with wrappers (custom `text.html` template)
+* feat: Improve performance
+* feat: Improve markdown detection on paste
+* fix: Tiptap added an empty paragraph after heading-only content
+* fix: Avoid initial scrolling in change views
+* fix: Make inline toolbar positioned absolutely and sticky using javascript
+* fix: Show cursor in empty HTMLFields
+* fix: Revert on cancel was called for non-editor modals
+
 0.9.4 (15-03-2026)
 ==================
 

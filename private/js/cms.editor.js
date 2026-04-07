@@ -10,6 +10,12 @@ import CmsDialog from "./cms.dialog";
 // CMS Editor
 // #############################################################################
 
+const WRAPPER_TAGS = new Set([
+    'DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE',
+    'HEADER', 'FOOTER', 'NAV', 'CMS-PLUGIN',
+]);
+
+
 class CMSEditor {
 
     // CMS Editor: constructor
@@ -118,16 +124,20 @@ class CMSEditor {
             return;
         }
 
+        const initAsync = typeof requestIdleCallback === 'function'
+            ? (cb) => requestIdleCallback(cb, {timeout: 2000})
+            : (cb) => setTimeout(cb, 0);
+
         this.observer = this.observer || new IntersectionObserver( (entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                     this.observer.unobserve(entry.target);  // Only init once
-                    this.init(entry.target);
+                    initAsync(() => this.init(entry.target));
                 }
             }, this);
         }, {
             root: null,
-            threshold: 0.05
+            threshold: 0
         });
         this.observer.disconnect();
 
@@ -182,10 +192,13 @@ class CMSEditor {
                         // Only add to the observer if not already observed (e.g., if the page only was update partially)
                         this.observer.observe(wrapper);
                         if (this.CMS) {
-                            // Remove django CMS core's double click event handler which opens an edit dialog
+                            // Only suppress CMS double click if the inline editor was created
+                            // If creation fails, the default CMS modal editing should still work
                             this.CMS.$(wrapper).off('dblclick.cms.plugin')
                                 .on('dblclick.cms-editor', function (event) {
-                                    event.stopPropagation();
+                                    if (wrapper.id && wrapper.id in (window.cms_editor_plugin?._editors || {})) {
+                                        event.stopPropagation();
+                                    }
                                 });
                             wrapper.addEventListener('focusin', () => {
                                 this._highlightTextplugin(id);
@@ -219,8 +232,8 @@ class CMSEditor {
             JSON.parse(el.dataset.options || '{}')
         );
 
-        // Add event listener to delete data on modal cancel
-        if (settings.revert_on_cancel) {
+        // Add event listener to delete data on modal cancel (only for modal/admin editors)
+        if (settings.revert_on_cancel && el.tagName === 'TEXTAREA') {
             const CMS = this.CMS;
             const csrf = CMS.config?.csrf || document.querySelector('input[name="csrfmiddlewaretoken"]').value;
             CMS.API.Helpers.addEventListener(
@@ -678,12 +691,16 @@ class CMSEditor {
 
         if (elements.length > 0) {
             if (elements.length === 1 && (
-                elements[0].tagName === 'DIV' || // Single wrapping div
-                elements[0].tagName === 'CMS-PLUGIN' ||  // Single wrapping cms-plugin tag
+                WRAPPER_TAGS.has(elements[0].tagName) ||  // Single wrapping container element
                 elements[0].classList.contains('cms-editor-inline-wrapper')  // already wrapped
             )) {
                 // already wrapped?
                 wrapper = elements[0];
+                // Check for .cms-content-start inside the plugin and use it as the editing base
+                const contentStart = wrapper.querySelector('.cms-content-start');
+                if (contentStart) {
+                    wrapper = contentStart;
+                }
                 wrapper.classList.add('cms-editor-inline-wrapper');
             } else {  // no, wrap now!
                 wrapper = document.createElement('div');

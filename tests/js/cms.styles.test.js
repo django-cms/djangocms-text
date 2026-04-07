@@ -431,4 +431,50 @@ describe('Tiptap style extensions', () => {
             expect(html).toContain('underline');
         });
     });
+
+    describe('Document schema', () => {
+        it('does not add an empty paragraph after a heading-only document', () => {
+            const editor = createEditorWithContent('test-heading-only', '<h1>Title</h1>', {
+                toolbar: [['Heading1']],
+            });
+
+            const html = editor.getHTML();
+            expect(html).toContain('<h1>');
+            expect(html).not.toContain('<p>');
+        });
+
+        it('does not add an empty paragraph after a heading at the end', () => {
+            const editor = createEditorWithContent('test-heading-end', '<p>Text</p><h2>Title</h2>', {
+                toolbar: [['Heading2']],
+            });
+
+            const html = editor.getHTML();
+            expect(html).toContain('<h2>');
+            expect(html).toContain('<p>Text</p>');
+            // Should not have a trailing empty paragraph
+            expect(html).not.toMatch(/<\/h2>\s*<p>\s*<\/p>/);
+        });
+
+        it('preserves existing paragraphs alongside headings', () => {
+            const editor = createEditorWithContent('test-heading-para', '<h1>Title</h1><p>Body text</p>', {
+                toolbar: [['Heading1']],
+            });
+
+            const html = editor.getHTML();
+            expect(html).toContain('<h1>Title</h1>');
+            expect(html).toContain('<p>Body text</p>');
+        });
+
+        it('trailingNode is disabled so no paragraph is appended after a heading', () => {
+            const editor = createEditorWithContent('test-no-trailing', '<h1>Title</h1>', {
+                toolbar: [['Heading1']],
+            });
+
+            // After a tick, trailingNode would have appended a paragraph if enabled
+            const html = editor.getHTML();
+            expect(html).toBe('<h1>Title</h1>');
+            expect(editor.state.doc.childCount).toBe(1);
+            expect(editor.state.doc.child(0).type.name).toBe('heading');
+        });
+    });
 });

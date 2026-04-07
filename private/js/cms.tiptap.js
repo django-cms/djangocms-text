@@ -142,6 +142,7 @@ class CMSTipTapPlugin {
             extensions: [
                 StarterKit.configure({
                     link: false,  // CmsDynLink replaces StarterKit's Link
+                    trailingNode: false,  // Disable auto-appended trailing paragraph after headings etc.
                 }),
                 CharacterCount,
                 Image,
@@ -221,15 +222,19 @@ class CMSTipTapPlugin {
             const toolbarItems = collectToolbarItems(toolbar);
             const extensions = filterExtensions(options.extensions, toolbarItems);
 
+            const firstInput = document.querySelector('textarea, input:not([type="hidden"]), select');
+            const shouldAutofocus = el.tagName === 'TEXTAREA' && firstInput === el;
             const editorElement = this._transform_textarea(el, inModal);
             if (el.tagName === 'TEXTAREA') {
                 // Fix toolbar position for non-inline editors
                 editorElement.classList.add('fixed');
             }
 
+            // Preserve scroll position: editor creation may cause unwanted scrolling
+            const scrollY = window.scrollY || 0;
             const editor = new Editor({
                 extensions: extensions,
-                autofocus: false,
+                autofocus: shouldAutofocus ? 'start' : false,
                 content: content || '',
                 editable: true,
                 element: editorElement,
@@ -244,6 +249,9 @@ class CMSTipTapPlugin {
                 separator_markup: this.separator_markup,
                 space_markup: this.space_markup,
             });
+            if (window.scrollY !== scrollY) {
+                window.scrollTo({top: scrollY});
+            }
             editor.on('blur', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });
@@ -340,6 +348,9 @@ class CMSTipTapPlugin {
         // Let the editor process clicks first
         // This hopefully prevents race conditions
         setTimeout(() => {
+            if (editor.isDestroyed) {
+                return;
+            }
             // Allow toolbar and other editor widgets to process the click first
             // They need to refocus the editor to avoid a save
             const {id} = editor.options.el;

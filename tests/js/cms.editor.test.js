@@ -140,7 +140,7 @@ describe('CMSEditor', () => {
     });
 
     describe('inline admin add row', () => {
-        const flush = () => new Promise(resolve => setTimeout(resolve, 10));
+        const flush = () => new Promise(resolve => setTimeout(resolve, 50));
 
         function setupInlineAdmin(inlineHTML) {
             document.body.innerHTML = `
@@ -239,6 +239,137 @@ describe('CMSEditor', () => {
             expect(editor._editor_settings['tabular-editor-1']).toBeDefined();
             // Empty form template should still not be initialized
             expect(editor._editor_settings['tabular-editor-empty']).toBeUndefined();
+        });
+    });
+
+    describe('_initInlineRichText', () => {
+        it('returns undefined for empty element list', () => {
+            const result = editor._initInlineRichText([], '/edit/1/', 'cms-plugin-1');
+            expect(result).toBeUndefined();
+        });
+
+        it('uses a single DIV element as wrapper directly', () => {
+            const div = document.createElement('div');
+            div.classList.add('cms-plugin', 'cms-plugin-1');
+            document.body.appendChild(div);
+
+            const result = editor._initInlineRichText([div], '/edit/1/', 'cms-plugin-1');
+            expect(result).toBe(div);
+            expect(result.classList.contains('cms-editor-inline-wrapper')).toBe(true);
+            expect(result.dataset.cmsEditUrl).toBe('/edit/1/');
+        });
+
+        it('uses a single SECTION element as wrapper directly', () => {
+            const section = document.createElement('section');
+            section.classList.add('cms-plugin', 'cms-plugin-1');
+            document.body.appendChild(section);
+
+            const result = editor._initInlineRichText([section], '/edit/1/', 'cms-plugin-1');
+            expect(result).toBe(section);
+            expect(result.classList.contains('cms-editor-inline-wrapper')).toBe(true);
+        });
+
+        it('uses a single ARTICLE element as wrapper directly', () => {
+            const article = document.createElement('article');
+            document.body.appendChild(article);
+
+            const result = editor._initInlineRichText([article], '/edit/1/', 'cms-plugin-1');
+            expect(result).toBe(article);
+            expect(result.classList.contains('cms-editor-inline-wrapper')).toBe(true);
+        });
+
+        it('wraps a single P element in a new DIV', () => {
+            const p = document.createElement('p');
+            p.textContent = 'Hello';
+            document.body.appendChild(p);
+
+            const result = editor._initInlineRichText([p], '/edit/1/', 'cms-plugin-1');
+            expect(result.tagName).toBe('DIV');
+            expect(result.classList.contains('cms-editor-inline-wrapper')).toBe(true);
+            expect(result.classList.contains('wrapped')).toBe(true);
+            expect(result.contains(p)).toBe(true);
+        });
+
+        it('wraps a single H1 element in a new DIV', () => {
+            const h1 = document.createElement('h1');
+            h1.textContent = 'Title';
+            document.body.appendChild(h1);
+
+            const result = editor._initInlineRichText([h1], '/edit/1/', 'cms-plugin-1');
+            expect(result.tagName).toBe('DIV');
+            expect(result.classList.contains('wrapped')).toBe(true);
+        });
+
+        it('wraps multiple elements in a new DIV', () => {
+            const container = document.createElement('div');
+            document.body.appendChild(container);
+            const p1 = document.createElement('p');
+            const p2 = document.createElement('p');
+            p1.classList.add('cms-plugin', 'cms-plugin-1');
+            p2.classList.add('cms-plugin', 'cms-plugin-1');
+            container.appendChild(p1);
+            container.appendChild(p2);
+
+            const result = editor._initInlineRichText([p1, p2], '/edit/1/', 'cms-plugin-1');
+            expect(result.tagName).toBe('DIV');
+            expect(result.classList.contains('wrapped')).toBe(true);
+            expect(result.contains(p1)).toBe(true);
+            expect(result.contains(p2)).toBe(true);
+        });
+
+        it('uses .cms-content-start as editing base when present inside a wrapper tag', () => {
+            const div = document.createElement('div');
+            const contentStart = document.createElement('div');
+            contentStart.classList.add('cms-content-start');
+            contentStart.textContent = 'Editable content';
+            div.appendChild(contentStart);
+            document.body.appendChild(div);
+
+            const result = editor._initInlineRichText([div], '/edit/1/', 'cms-plugin-1');
+            expect(result).toBe(contentStart);
+            expect(result.classList.contains('cms-editor-inline-wrapper')).toBe(true);
+            expect(result.dataset.cmsEditUrl).toBe('/edit/1/');
+        });
+
+        it('uses .cms-content-start inside a SECTION element', () => {
+            const section = document.createElement('section');
+            const header = document.createElement('h1');
+            header.textContent = 'Title';
+            const contentStart = document.createElement('div');
+            contentStart.classList.add('cms-content-start');
+            contentStart.textContent = 'Content here';
+            section.appendChild(header);
+            section.appendChild(contentStart);
+            document.body.appendChild(section);
+
+            const result = editor._initInlineRichText([section], '/edit/1/', 'cms-plugin-1');
+            expect(result).toBe(contentStart);
+            expect(result.classList.contains('cms-editor-inline-wrapper')).toBe(true);
+        });
+
+        it('ignores .cms-content-start when element is not a wrapper tag', () => {
+            const p = document.createElement('p');
+            const span = document.createElement('span');
+            span.classList.add('cms-content-start');
+            p.appendChild(span);
+            document.body.appendChild(p);
+
+            const result = editor._initInlineRichText([p], '/edit/1/', 'cms-plugin-1');
+            // P is not a wrapper tag, so it gets wrapped in a new DIV
+            expect(result.tagName).toBe('DIV');
+            expect(result.classList.contains('wrapped')).toBe(true);
+            // The .cms-content-start check only applies to the already-wrapped case
+            expect(result).not.toBe(span);
+        });
+
+        it('falls back to wrapper when no .cms-content-start is present', () => {
+            const div = document.createElement('div');
+            div.textContent = 'Plain content';
+            document.body.appendChild(div);
+
+            const result = editor._initInlineRichText([div], '/edit/1/', 'cms-plugin-1');
+            expect(result).toBe(div);
+            expect(result.classList.contains('cms-editor-inline-wrapper')).toBe(true);
         });
     });
 

@@ -20,14 +20,15 @@ html.cms-toolbar-expanded {
             }
         }
     }
-    &:has(dialog.cms-form-dialog) [role="menubar"] {
+    &.has-form-dialog [role="menubar"] {
         /* show toolbar if form dialog is open */
         visibility: visible;
     }
 
     .cms-toolbar-sticky {
-        position: sticky;
+        position: absolute;
         top: 0;
+        width: 100%;
         z-index: 88889; /* Above #cms-top (z-index: 88888) */
         height: 0;
         overflow: visible;
@@ -54,7 +55,6 @@ html.cms-toolbar-expanded {
         box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow), .4);
         color: var(--dca-black, var(--body-fg));
         background: var(--dca-white, var(--body-bg));
-        opacity: 1;
 
         div.grouper {
             padding: 0;
@@ -68,7 +68,12 @@ html.cms-toolbar-expanded {
     &.fixed [role="menubar"]  {
         display: block;
         top: 0;
+        bottom: unset;
+        inset-inline-start: unset;
+        min-width: unset;
+        z-index: unset;
         visibility: visible;
+        opacity: 1;
         transition: visibility var(--tiptap-ease, 100ms);
         [role="button"].show {
             z-index: 10;
@@ -172,7 +177,7 @@ html.cms-toolbar-expanded {
         vertical-align: middle;
         line-height: 1.2;
         padding: 6px 4px  !important;
-        &:active, &.active, &:has(.active):not(:has([data-action^="Heading"], [data-action="Paragraph"])) {
+        &:active, &.active, &.has-active-child {
             background: var(--dca-gray-lighter, var(--selected-bg))  !important;
         }
         &:hover:not(:disabled):not([data-action="TextColor"]),&.show {
@@ -304,12 +309,15 @@ html.cms-toolbar-expanded {
         z-index: -1;
         cursor: unset;  /* browser default */
     }
-    :not(:has(.dropdown.show)) .toolbar-dropback {
+    .toolbar-dropback {
         display: none;
+    }
+    .has-dropdown-open .toolbar-dropback {
+        display: block;
     }
 
     /* Block toolbar */
-    .ProseMirror-focused .cms-block-toolbar, &:has(dialog.cms-form-dialog) .cms-block-toolbar {
+    .ProseMirror-focused .cms-block-toolbar, &.has-form-dialog .cms-block-toolbar {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
         opacity: 1;

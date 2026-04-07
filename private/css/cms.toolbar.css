@@ -26,8 +26,9 @@ html.cms-toolbar-expanded {
     }
 
     .cms-toolbar-sticky {
-        position: sticky;
+        position: absolute;
         top: 0;
+        width: 100%;
         z-index: 88889; /* Above #cms-top (z-index: 88888) */
         height: 0;
         overflow: visible;
@@ -68,6 +69,7 @@ html.cms-toolbar-expanded {
     &.fixed [role="menubar"]  {
         display: block;
         top: 0;
+        z-index: unset;
         visibility: visible;
         transition: visibility var(--tiptap-ease, 100ms);
         [role="button"].show {
@@ -77,7 +79,7 @@ html.cms-toolbar-expanded {
                 height: auto;
             }
         }
-        position: sticky;
+        position: absolute;
         width: 100%;
         box-sizing: border-box;
         outline: none;

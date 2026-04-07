@@ -7,6 +7,7 @@
     textarea.CMS_Editor + div#id_body_editor.fixed {
         display: flex;
         flex-flow: column;
+        position: relative;
         height: 100%;
         width: 100%;
         max-width: 100%; /* for djangocms-admin-style */

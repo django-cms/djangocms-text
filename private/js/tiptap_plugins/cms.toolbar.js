@@ -300,23 +300,18 @@ function _createTopToolbarPlugin(editor, filter) {
                         );
                         editor.options.topToolbar = topToolbar;
 
-                        // For inline editors: wrap in a sticky container so the
-                        // toolbar pins to the viewport top when scrolled
                         if (!editor.options.element.classList.contains('fixed')) {
+                            // For inline editors: wrap in an absolutely positioned
+                            // container and pin it on scroll
                             const wrapper = document.createElement('div');
                             wrapper.classList.add('cms-toolbar-sticky');
                             wrapper.appendChild(topToolbar);
-                            // Set top to CMS toolbar height + editor toolbar height
-                            // so the toolbar (which extends upward) lands just below the CMS toolbar
-                            const cmsToolbarHeight = parseInt(
-                                getComputedStyle(document.documentElement)
-                                    .getPropertyValue('--cms-toolbar-height') || '0', 10
-                            );
-                            requestAnimationFrame(() => {
-                                wrapper.style.top = (cmsToolbarHeight + (topToolbar.offsetHeight || 0)) + 'px';
-                            });
+                            _pinToolbarOnScroll(editor.options.element, wrapper, true);
                             return wrapper;
                         }
+                        // Fixed toolbar: position absolutely and adjust on scroll
+                        // so it stays visible within the editor bounds
+                        _pinToolbarOnScroll(editor.options.element, topToolbar, false);
                         return topToolbar;
                     }, {
                         side: -1,
@@ -328,6 +323,76 @@ function _createTopToolbarPlugin(editor, filter) {
             apply(tr, value) { return value; }
         }
     });
+}
+
+/**
+ * Keeps an absolutely positioned toolbar visible by adjusting its top offset
+ * on scroll. Repositions the toolbar so it doesn't scroll out of view,
+ * working around overflow:hidden on ancestors that would break sticky positioning.
+ *
+ * @param {HTMLElement} editorElement - The editor wrapper element.
+ * @param {HTMLElement} toolbar - The toolbar (or toolbar wrapper) element to pin.
+ */
+/**
+ * Finds the nearest scrollable ancestor of an element, or falls back to window.
+ *
+ * @param {HTMLElement} element - The element to start searching from.
+ * @returns {HTMLElement|Window} The nearest scrollable ancestor or window.
+ */
+function _findScrollParent(element) {
+    let scrollParent = element.parentElement;
+    while (scrollParent && scrollParent !== document.documentElement) {
+        const overflow = getComputedStyle(scrollParent).overflowY;
+        if (overflow === 'auto' || overflow === 'scroll') {
+            return scrollParent;
+        }
+        scrollParent = scrollParent.parentElement;
+    }
+    return window;
+}
+
+function _pinToolbarOnScroll(editorElement, toolbar, isInline) {
+    const cmsToolbarHeight = parseInt(
+        getComputedStyle(document.documentElement)
+            .getPropertyValue('--cms-toolbar-height') || '0', 10
+    );
+
+    function update() {
+        const rect = editorElement.getBoundingClientRect();
+
+        if (isInline) {
+            // Inline toolbar: the menubar extends upward from the wrapper
+            // (bottom: 100%+6px). We need to offset the wrapper down so the
+            // menubar stays visible at the CMS toolbar bottom edge.
+            const menubar = toolbar.querySelector('[role="menubar"]');
+            const menubarHeight = menubar?.offsetHeight || 0;
+            // The point where the toolbar should start pinning:
+            // editor top has scrolled above (cmsToolbarHeight + menubarHeight)
+            const pinPoint = cmsToolbarHeight + menubarHeight + 6; // 6px gap
+            if (rect.top < pinPoint) {
+                const offset = pinPoint - rect.top;
+                // Clamp so toolbar doesn't go below the editor bottom
+                const maxOffset = rect.height - menubarHeight;
+                toolbar.style.top = Math.min(offset, Math.max(0, maxOffset)) + 'px';
+            } else {
+                toolbar.style.top = '0';
+            }
+        } else {
+            // Fixed toolbar: sits at top of editor, scrolls with content
+            const toolbarHeight = toolbar.offsetHeight || 0;
+            if (rect.top < cmsToolbarHeight) {
+                const offset = cmsToolbarHeight - rect.top;
+                const maxOffset = editorElement.scrollHeight - toolbarHeight;
+                toolbar.style.top = Math.min(offset, Math.max(0, maxOffset)) + 'px';
+            } else {
+                toolbar.style.top = '0';
+            }
+        }
+    }
+
+    const scrollTarget = _findScrollParent(editorElement);
+    scrollTarget.addEventListener('scroll', update, {passive: true});
+    update();
 }
 
 /**

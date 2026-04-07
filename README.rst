@@ -242,6 +242,24 @@ loses focus. If only text has changed the user can immediately continue to edit.
 text-enabled plugin was changed, added, or removed he page will refresh to update the
 page tree and get the correctly rendered version of the changed plugin.
 
+Custom plugin templates
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If you override the default ``cms/plugins/text.html`` template and your template wraps
+the plugin output in container elements (e.g. ``<section>``, ``<article>``, ``<div>``),
+the **innermost** container element must have the class ``cms-content-start``::
+
+    <!-- cms/plugins/text.html -->
+    <section class="my-text-plugin">
+        <div class="cms-content-start">
+            {{ body|safe }}
+        </div>
+    </section>
+
+This tells the inline editor which element to use as the editable area. Without it the
+editor will treat the outermost container as the editable region which may include
+non-editable markup.
+
 
 Text-enabled plugins
 ~~~~~~~~~~~~~~~~~~~~

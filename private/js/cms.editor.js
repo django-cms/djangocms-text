@@ -10,6 +10,12 @@ import CmsDialog from "./cms.dialog";
 // CMS Editor
 // #############################################################################
 
+const WRAPPER_TAGS = new Set([
+    'DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE',
+    'HEADER', 'FOOTER', 'NAV', 'CMS-PLUGIN',
+]);
+
+
 class CMSEditor {
 
     // CMS Editor: constructor
@@ -678,12 +684,16 @@ class CMSEditor {
 
         if (elements.length > 0) {
             if (elements.length === 1 && (
-                elements[0].tagName === 'DIV' || // Single wrapping div
-                elements[0].tagName === 'CMS-PLUGIN' ||  // Single wrapping cms-plugin tag
+                WRAPPER_TAGS.has(elements[0].tagName) ||  // Single wrapping container element
                 elements[0].classList.contains('cms-editor-inline-wrapper')  // already wrapped
             )) {
                 // already wrapped?
                 wrapper = elements[0];
+                // Check for .cms-content-start inside the plugin and use it as the editing base
+                const contentStart = wrapper.querySelector('.cms-content-start');
+                if (contentStart) {
+                    wrapper = contentStart;
+                }
                 wrapper.classList.add('cms-editor-inline-wrapper');
             } else {  // no, wrap now!
                 wrapper = document.createElement('div');

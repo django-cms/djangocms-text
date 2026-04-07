@@ -306,7 +306,7 @@ function _createTopToolbarPlugin(editor, filter) {
                             const wrapper = document.createElement('div');
                             wrapper.classList.add('cms-toolbar-sticky');
                             wrapper.appendChild(topToolbar);
-                            _pinToolbarOnScroll(editor.options.element, wrapper, true);
+                            editor.options._cleanupScrollPin = _pinToolbarOnScroll(editor.options.element, wrapper, true);
                             return wrapper;
                         }
                         // Fixed toolbar: sticky positioning keeps it in view
@@ -392,6 +392,9 @@ function _pinToolbarOnScroll(editorElement, toolbar, isInline) {
     const scrollTarget = _findScrollParent(editorElement);
     scrollTarget.addEventListener('scroll', update, {passive: true});
     update();
+
+    // Return cleanup function to remove the scroll listener
+    return () => scrollTarget.removeEventListener('scroll', update);
 }
 
 /**
@@ -683,6 +686,12 @@ const CmsToolbarPlugin = Extension.create({
                 });
             }
         });
+    },
+    onDestroy() {
+        if (this.editor.options._cleanupScrollPin) {
+            this.editor.options._cleanupScrollPin();
+            delete this.editor.options._cleanupScrollPin;
+        }
     },
     addProseMirrorPlugins() {
         'use strict';

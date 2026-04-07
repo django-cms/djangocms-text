@@ -346,6 +346,9 @@ class CMSTipTapPlugin {
         // Let the editor process clicks first
         // This hopefully prevents race conditions
         setTimeout(() => {
+            if (editor.isDestroyed) {
+                return;
+            }
             // Allow toolbar and other editor widgets to process the click first
             // They need to refocus the editor to avoid a save
             const {id} = editor.options.el;

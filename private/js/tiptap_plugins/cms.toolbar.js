@@ -708,10 +708,11 @@ const CmsToolbarPlugin = Extension.create({
     onCreate() {
         const editor = this.editor;
         const hasBlockToolbar = editor.options.blockToolbar;
+        let rafId = 0;
         editor.on('transaction', () => {
-            if (!_topToolbarRafId) {
-                _topToolbarRafId = requestAnimationFrame(() => {
-                    _topToolbarRafId = 0;
+            if (!rafId) {
+                rafId = requestAnimationFrame(() => {
+                    rafId = 0;
                     _updateToolbar(editor);
                     if (hasBlockToolbar) {
                         updateBlockToolbar(editor);

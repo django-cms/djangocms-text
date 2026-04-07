@@ -257,15 +257,35 @@ class CMSTipTapPlugin {
             });
             editor.on('update', ({editor}) => {
                 el.dataset.changed = 'true';
+                // Clear textarea on first change to trigger Django's change detection
+                // Actual content is synced on form submit
                 if (el.dataset.textarea) {
-                    document.getElementById(el.dataset.textarea).value = editor.getHTML();
+                    const textarea = document.getElementById(el.dataset.textarea);
+                    if (textarea && textarea.value !== '') {
+                        textarea.value = '';
+                    }
                 }
                 if (el.dataset.jsonField) {
-                    document.getElementById(el.dataset.jsonField).value = JSON.stringify(
-                        editor.getJSON()
-                    );
+                    const jsonField = document.getElementById(el.dataset.jsonField);
+                    if (jsonField && jsonField.value !== '') {
+                        jsonField.value = '';
+                    }
                 }
             });
+            // Sync editor content to form fields on submit
+            const form = el.closest('form') || editorElement.closest('form');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    if (el.dataset.textarea) {
+                        document.getElementById(el.dataset.textarea).value = editor.getHTML();
+                    }
+                    if (el.dataset.jsonField) {
+                        document.getElementById(el.dataset.jsonField).value = JSON.stringify(
+                            editor.getJSON()
+                        );
+                    }
+                });
+            }
             this._editors[el.id] = editor;
             editor.cmsPlugin = this;
 

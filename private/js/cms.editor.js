@@ -642,6 +642,17 @@ class CMSEditor {
 
     // CMS Editor: resetInlineEditors
     _resetInlineEditors () {
+        // Destroy editors whose DOM elements are no longer in the document
+        // (e.g., after CMS replaces plugin HTML on save)
+        const plugin = window.cms_editor_plugin;
+        if (plugin && plugin._editors) {
+            for (const id of Object.keys(plugin._editors)) {
+                const editorElement = plugin._editors[id].options.element;
+                if (!editorElement || !document.contains(editorElement)) {
+                    plugin.destroyEditor(id);
+                }
+            }
+        }
         this.initInlineEditors();
     }
 

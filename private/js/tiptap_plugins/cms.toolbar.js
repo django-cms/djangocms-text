@@ -667,7 +667,7 @@ function _updateToolbar(editor, toolbar) {
     const SKIP_ACTIONS = new Set(['Heading1','Heading2','Heading3','Heading4','Heading5','Heading6','Paragraph']);
     const topToolbar = editor.options.topToolbar;
     if (!topToolbar) { editor.options.el.dataset.selecting = 'false'; return; }
-    for (const dropdown of topToolbar.querySelectorAll('[role="button"].dropdown')) {
+    for (const dropdown of topToolbar.querySelectorAll('.dropdown')) {
         const hasActive = Array.from(dropdown.querySelectorAll('.active'))
             .some(el => !SKIP_ACTIONS.has(el.dataset.action));
         if (hasActive !== dropdown.classList.contains('has-active-child')) {

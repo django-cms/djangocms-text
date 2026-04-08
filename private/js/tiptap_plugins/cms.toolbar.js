@@ -343,34 +343,44 @@ function _positionFixedToolbar(editorElement, toolbar) {
             .getPropertyValue('--cms-toolbar-height') || '0', 10
     );
 
+    // Cache toolbar height — only changes on window resize
+    let toolbarHeight = 0;
+    // Set initial fixed position at 0,0; use transform for fast compositor updates
+    toolbar.style.top = '0';
+    toolbar.style.left = '0';
+    toolbar.style.willChange = 'transform';
+
     function update() {
         const rect = editorElement.getBoundingClientRect();
-        const toolbarHeight = toolbar.offsetHeight || 0;
 
         // Position toolbar above the editor, or pin to CMS toolbar bottom
         const idealTop = rect.top - toolbarHeight - 6;
         const minTop = cmsToolbarHeight;
         // Hide if editor is scrolled out of view
-        const editorBottom = rect.bottom;
-        if (editorBottom < cmsToolbarHeight + toolbarHeight || rect.top > window.innerHeight) {
-            toolbar.style.top = '-9999px';
+        if (rect.bottom < cmsToolbarHeight + toolbarHeight || rect.top > window.innerHeight) {
+            toolbar.style.transform = 'translate(-9999px, -9999px)';
         } else {
-            toolbar.style.top = Math.max(idealTop, minTop) + 'px';
+            const top = Math.max(idealTop, minTop);
+            toolbar.style.transform = `translate(${rect.left}px, ${top}px)`;
         }
-        toolbar.style.left = rect.left + 'px';
+    }
+
+    function onResize() {
+        toolbarHeight = toolbar.offsetHeight || 0;
+        update();
     }
 
     const scrollTarget = _findScrollParent(editorElement);
-    // No RAF debounce: updating top/left on a fixed element is cheap
-    // and avoids the one-frame lag that makes the toolbar visibly trail
     scrollTarget.addEventListener('scroll', update, {passive: true});
     window.addEventListener('scroll', update, {passive: true});
+    window.addEventListener('resize', onResize, {passive: true});
     // Defer initial positioning so the toolbar has been rendered and has a height
-    requestAnimationFrame(update);
+    requestAnimationFrame(onResize);
 
     return () => {
         scrollTarget.removeEventListener('scroll', update);
         window.removeEventListener('scroll', update);
+        window.removeEventListener('resize', onResize);
     };
 }
 
@@ -601,16 +611,20 @@ function _createToolbarButton(editor, itemName, filter) {
  */
 function _updateToolbar(editor, toolbar) {
     'use strict';
-    let querySelector;
+    let buttons;
     if (!toolbar) {
-        querySelector = editor.options.element.querySelectorAll(
-            '.cms-toolbar button, .cms-toolbar [role="button"], ' +
-            '.cms-block-toolbar button, .cms-block-toolbar [role="button"]'
-        );
+        // Cache button list on the editor element to avoid querySelectorAll on every update
+        if (!editor.options._cachedToolbarButtons) {
+            editor.options._cachedToolbarButtons = editor.options.element.querySelectorAll(
+                '.cms-toolbar button, .cms-toolbar [role="button"], ' +
+                '.cms-block-toolbar button, .cms-block-toolbar [role="button"]'
+            );
+        }
+        buttons = editor.options._cachedToolbarButtons;
     } else {
-        querySelector = toolbar.querySelectorAll('button, [role="button"]');
+        buttons = toolbar.querySelectorAll('button, [role="button"]');
     }
-    for (const button of querySelector) {
+    for (const button of buttons) {
         const {action} = button.dataset;
         if (TiptapToolbar[action]) {
               // Cache representation lookup on the button element
@@ -684,16 +698,28 @@ const CmsToolbarPlugin = Extension.create({
     onCreate() {
         const editor = this.editor;
         const hasBlockToolbar = editor.options.blockToolbar;
-        let rafId = 0;
+        let lastFrom = -1;
+        let lastTo = -1;
         editor.on('transaction', () => {
-            if (!rafId) {
-                rafId = requestAnimationFrame(() => {
-                    rafId = 0;
-                    _updateToolbar(editor);
-                    if (hasBlockToolbar) {
-                        updateBlockToolbar(editor);
-                    }
-                });
+            // Skip if tab is hidden
+            if (document.hidden) {
+                return;
+            }
+            // Skip if toolbar is not visible (inline editor not focused)
+            if (!editor.isFocused && !editor.options.element.classList.contains('fixed')) {
+                return;
+            }
+            // Skip if selection hasn't changed (typing at same position
+            // doesn't change active/enabled states)
+            const {from, to} = editor.state.selection;
+            if (from === lastFrom && to === lastTo) {
+                return;
+            }
+            lastFrom = from;
+            lastTo = to;
+            _updateToolbar(editor);
+            if (hasBlockToolbar) {
+                updateBlockToolbar(editor);
             }
         });
     },

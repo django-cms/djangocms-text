@@ -203,12 +203,16 @@ class CMSEditor {
                             wrapper.addEventListener('focusin', () => {
                                 this._highlightTextplugin(id);
                             }, true);
-                            // Prevent tooltip on hover
-                            this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
-                                .on('pointerover.cms-editor', function (event) {
-                                    window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
-                                    event.stopPropagation();
-                                });
+                            // Prevent CMS tooltip on hover: stop pointer events from
+                            // reaching the document-level CMS delegate handler
+                            this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin');
+                            wrapper.addEventListener('pointerover', function (event) {
+                                event.stopPropagation();
+                                window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
+                            }, false);
+                            wrapper.addEventListener('pointerout', function (event) {
+                                event.stopPropagation();
+                            }, false);
                         }
                     }
                 }

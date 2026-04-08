@@ -277,14 +277,14 @@ class CMSTipTapPlugin {
             if (form) {
                 form.addEventListener('submit', () => {
                     if (el.dataset.textarea) {
-                        document.getElementById(el.dataset.textarea).value = editor.getHTML();
+                        const textarea = document.getElementById(el.dataset.textarea);
+                        if (textarea) textarea.value = editor.getHTML();
                     }
                     if (el.dataset.jsonField) {
-                        document.getElementById(el.dataset.jsonField).value = JSON.stringify(
-                            editor.getJSON()
-                        );
+                        const jsonField = document.getElementById(el.dataset.jsonField);
+                        if (jsonField) jsonField.value = JSON.stringify(editor.getJSON());
                     }
-                });
+                }, { once: true });
             }
             this._editors[el.id] = editor;
             editor.cmsPlugin = this;

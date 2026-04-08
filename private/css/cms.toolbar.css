@@ -44,6 +44,7 @@ html.cms-toolbar-expanded {
         box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow), .4);
         color: var(--dca-black, var(--body-fg));
         background: var(--dca-white, var(--body-bg));
+        will-change: transform;
 
         div.grouper {
             padding: 0;
@@ -227,6 +228,7 @@ html.cms-toolbar-expanded {
         border-radius: 0;
         visibility: hidden;
         opacity: 0;
+        contain: layout style;
         /* height: 0; */
         transition: opacity var(--tiptap-ease, 100ms) ease-out,
                     visibility 0s linear var(--tiptap-ease, 100ms);

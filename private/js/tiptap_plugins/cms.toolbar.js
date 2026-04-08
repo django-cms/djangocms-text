@@ -370,17 +370,25 @@ function _positionFixedToolbar(editorElement, toolbar) {
         update();
     }
 
+    let rafId = 0;
+    function scheduleUpdate() {
+        if (!rafId) {
+            rafId = requestAnimationFrame(() => { rafId = 0; update(); });
+        }
+    }
+
     const scrollTarget = _findScrollParent(editorElement);
-    scrollTarget.addEventListener('scroll', update, {passive: true});
-    window.addEventListener('scroll', update, {passive: true});
+    scrollTarget.addEventListener('scroll', scheduleUpdate, {passive: true});
+    window.addEventListener('scroll', scheduleUpdate, {passive: true});
     window.addEventListener('resize', onResize, {passive: true});
     // Defer initial positioning so the toolbar has been rendered and has a height
     requestAnimationFrame(onResize);
 
     return () => {
-        scrollTarget.removeEventListener('scroll', update);
-        window.removeEventListener('scroll', update);
+        scrollTarget.removeEventListener('scroll', scheduleUpdate);
+        window.removeEventListener('scroll', scheduleUpdate);
         window.removeEventListener('resize', onResize);
+        if (rafId) { cancelAnimationFrame(rafId); }
     };
 }
 
@@ -700,6 +708,7 @@ const CmsToolbarPlugin = Extension.create({
         const hasBlockToolbar = editor.options.blockToolbar;
         let lastFrom = -1;
         let lastTo = -1;
+        let toolbarRafId = 0;
         editor.on('transaction', () => {
             // Skip if tab is hidden
             if (document.hidden) {
@@ -717,9 +726,15 @@ const CmsToolbarPlugin = Extension.create({
             }
             lastFrom = from;
             lastTo = to;
-            _updateToolbar(editor);
-            if (hasBlockToolbar) {
-                updateBlockToolbar(editor);
+            // Coalesce rapid transactions into a single paint frame
+            if (!toolbarRafId) {
+                toolbarRafId = requestAnimationFrame(() => {
+                    toolbarRafId = 0;
+                    _updateToolbar(editor);
+                    if (hasBlockToolbar) {
+                        updateBlockToolbar(editor);
+                    }
+                });
             }
         });
     },

@@ -774,7 +774,7 @@ const CmsToolbarPlugin = Extension.create({
         let lastFrom = -1;
         let lastTo = -1;
         let toolbarRafId = 0;
-        editor.on('transaction', () => {
+        editor.on('transaction', ({transaction}) => {
             // Skip if tab is hidden
             if (document.hidden) {
                 return;
@@ -783,10 +783,12 @@ const CmsToolbarPlugin = Extension.create({
             if (!editor.isFocused && !editor.options.element.classList.contains('fixed')) {
                 return;
             }
-            // Skip if selection hasn't changed (typing at same position
-            // doesn't change active/enabled states)
+            // Skip if neither selection nor document changed.
+            // (Pure typing within the same block changes the doc but
+            // we still want to update active states; toolbar transformations
+            // like heading level changes change docChanged but keep selection.)
             const {from, to} = editor.state.selection;
-            if (from === lastFrom && to === lastTo) {
+            if (from === lastFrom && to === lastTo && !transaction.docChanged) {
                 return;
             }
             lastFrom = from;

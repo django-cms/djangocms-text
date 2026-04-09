@@ -160,29 +160,52 @@ function _createBlockToolbar(editor, blockToolbar) {
  */
 function updateBlockToolbar(editor, state) {
     'use strict';
+    // Skip if block toolbar isn't focused/visible
+    if (!editor.isFocused) {
+        return;
+    }
+    const blockToolbar = editor.options.blockToolbar;
     const {resolvedPos, depth} = _getResolvedPos(state || editor.state);
     if (depth > 0) {
-        _updateToolbarIcon(editor, resolvedPos.node(depth), depth > 1 ? resolvedPos.node(depth - 1) : null);
         const startPos = resolvedPos.start(depth);
-        editor.options.blockToolbar.dataset.start = startPos;
-        editor.options.blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
-        editor.options.blockToolbar.dataset.depth = depth;
+        const node = resolvedPos.node(depth);
+        const parentNode = depth > 1 ? resolvedPos.node(depth - 1) : null;
+        // Skip DOM updates if the block hasn't changed (cursor moved within same block,
+        // and the block's identity is unchanged)
+        if (
+            blockToolbar._lastStartPos === startPos &&
+            blockToolbar._lastDepth === depth &&
+            blockToolbar._lastNode === node
+        ) {
+            return;
+        }
+        blockToolbar._lastStartPos = startPos;
+        blockToolbar._lastDepth = depth;
+        blockToolbar._lastNode = node;
+        _updateToolbarIcon(editor, node, parentNode);
+        blockToolbar.dataset.start = startPos;
+        blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
+        blockToolbar.dataset.depth = depth;
         const pos = editor.view.coordsAtPos(startPos);
-        const ref = editor.options.el.getBoundingClientRect();
-        editor.options.blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
-        editor.options.blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
+        const ref = (editor.options.el || editor.options.element).getBoundingClientRect();
+        blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
+        blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
         let title = resolvedPos.node(1)?.type.name;
-        for (let i= 2; i <= depth; i++) {
+        for (let i = 2; i <= depth; i++) {
             title += ` > ${resolvedPos.node(i)?.type.name}`;
         }
-        editor.options.blockToolbar.title = title;
+        blockToolbar.title = title;
     } else {
-        editor.options.blockToolbar.draggable = false;
-        editor.options.blockToolbar._lastIconType = null;
-        _replaceIcon(editor.options.blockToolbar.firstElementChild, _menu_icon);
+        if (blockToolbar._lastDepth === 0) {
+            return;
+        }
+        blockToolbar._lastDepth = 0;
+        blockToolbar._lastStartPos = -1;
+        blockToolbar._lastNode = null;
+        blockToolbar.draggable = false;
+        blockToolbar._lastIconType = null;
+        _replaceIcon(blockToolbar.firstElementChild, _menu_icon);
     }
-    // TODO: Set the size of the balloon according to the fontsize
-    // this.toolbar.style.setProperty('--size', this.editor.view. ...)
 }
 
 function _getResolvedPos(state) {
@@ -259,82 +282,158 @@ function _replaceIcon(node, string) {
  * @param {Function} filter - A filter function to customize the toolbar.
  * @returns {Plugin} - A ProseMirror plugin instance.
  */
-function _createTopToolbarPlugin(editor, filter) {
-    'use strict';
-    return new Plugin({
-        props: {
-            decorations(state) {
-                return this.getState(state);
-            },
-            handleDOMEvents: {
-                mousedown (view, event) {
-                    const form = event.target.closest('form.cms-inline-form');
-                    if (editor.options.topToolbar?.contains(event.target) && !form) {
-                        event.preventDefault();
-                        return true;
-                    }
-                    return false;
-                },
-                click (view, event) {
-                    if (editor.options.topToolbar?.contains(event.target)) {
-                        const form = event.target.closest('form.cms-inline-form');
-                        if (form && editor.options.topToolbar.contains(form) ) {
-                            // Let the form handle clicks inside it
-                            return false;
-                        }
-                        if (!editor.isFocused) {
-                            editor.commands.focus();
-                        }
-                        _handleToolbarClick(event, editor);
-                        return true;
-                    }
-                    return _closeAllDropdowns(event, editor) > 0;
-                },
-            }
-        },
-        state: {
-            init(_, {doc}) {
-                return DecorationSet.create(doc, [
-                    Decoration.widget(0, () => {
-                        const topToolbar = _createToolbar(
-                            editor,
-                            editor.options.toolbar,
-                            filter
-                        );
-                        editor.options.topToolbar = topToolbar;
+/**
+ * Creates the top toolbar DOM element and attaches it outside the ProseMirror
+ * decoration system to avoid unnecessary redraws on every transaction.
+ *
+ * For inline editors: appended to document.body with position:fixed positioning.
+ * For fixed editors: prepended to the tiptap element with sticky positioning.
+ *
+ * @param {Editor} editor - The editor instance.
+ * @param {Function} filter - A filter function to customize the toolbar.
+ */
+function _initTopToolbar(editor, filter) {
+    const topToolbar = _createToolbar(editor, editor.options.toolbar, filter);
+    editor.options.topToolbar = topToolbar;
 
-                        if (!editor.options.element.classList.contains('fixed')) {
-                            // For inline editors: wrap in an absolutely positioned
-                            // container and pin it on scroll
-                            const wrapper = document.createElement('div');
-                            wrapper.classList.add('cms-toolbar-sticky');
-                            wrapper.appendChild(topToolbar);
-                            editor.options._cleanupScrollPin = _pinToolbarOnScroll(editor.options.element, wrapper, true);
-                            return wrapper;
-                        }
-                        // Fixed toolbar: sticky positioning keeps it in view
-                        // within the editor's scroll container
-                        return topToolbar;
-                    }, {
-                        side: -1,
-                        ignoreSelection: true,
-                        key: "topToolbar",
-                    })
-                ]);
-            },
-            apply(tr, value) { return value; }
+    const isFixed = editor.options.element.classList.contains('fixed');
+
+    if (!isFixed) {
+        // Inline editors: append to body to escape overflow clipping
+        // and allow CSS contain:layout on the editor.
+        // Wrap in a container with .cms-editor-inline-wrapper so toolbar CSS applies.
+        const toolbarHost = document.createElement('div');
+        toolbarHost.classList.add('cms-editor-inline-wrapper');
+        toolbarHost.appendChild(topToolbar);
+        document.body.appendChild(toolbarHost);
+        editor.options._cleanupScrollPin = _positionFixedToolbar(
+            editor.options.element, topToolbar
+        );
+        // Toggle visibility on focus/blur since toolbar is outside the editor DOM
+        editor.on('focus', () => toolbarHost.classList.add('has-focused-editor'));
+        editor.on('blur', () => {
+            // Delay hiding so toolbar clicks can be processed first
+            // (mousedown preventDefault keeps focus but blur fires first)
+            setTimeout(() => {
+                if (!editor.isFocused && !topToolbar.contains(document.activeElement)) {
+                    toolbarHost.classList.remove('has-focused-editor');
+                }
+            }, 200);
+        });
+        editor.options._toolbarHost = toolbarHost;
+    } else {
+        // Fixed editors: prepend to the editor container so the toolbar
+        // sits above the .tiptap content area
+        editor.options.element.prepend(topToolbar);
+    }
+
+    // Prevent toolbar clicks from blurring the editor
+    topToolbar.addEventListener('mousedown', (e) => {
+        const form = e.target.closest('form.cms-inline-form');
+        if (!form) {
+            e.preventDefault();
+        }
+    });
+    // Handle toolbar clicks
+    topToolbar.addEventListener('click', (e) => {
+        if (!editor.isFocused) {
+            editor.commands.focus();
+        }
+        const form = e.target.closest('form.cms-inline-form');
+        if (!form) {
+            _handleToolbarClick(e, editor);
         }
     });
 }
 
+function _createTopToolbarPlugin(editor, filter) {
+    'use strict';
+    return new Plugin({
+        props: {
+            handleDOMEvents: {
+                click (view, event) {
+                    // Close dropdowns when clicking inside the editor content
+                    if (!editor.options.topToolbar?.contains(event.target)) {
+                        return _closeAllDropdowns(event, editor) > 0;
+                    }
+                    return false;
+                },
+            }
+        },
+    });
+}
+
 /**
- * Keeps an absolutely positioned toolbar visible by adjusting its top offset
- * on scroll. Repositions the toolbar so it doesn't scroll out of view,
- * working around overflow:hidden on ancestors that would break sticky positioning.
+/**
+ * Positions a fixed toolbar above the editor element.
+ * The toolbar uses position:fixed to escape ancestor overflow:hidden clipping.
+ * Its position is updated on scroll to stay above the editor, clamped to the
+ * CMS toolbar bottom edge.
  *
  * @param {HTMLElement} editorElement - The editor wrapper element.
- * @param {HTMLElement} toolbar - The toolbar (or toolbar wrapper) element to pin.
+ * @param {HTMLElement} toolbar - The menubar element (position:fixed).
+ * @returns {Function} Cleanup function to remove event listeners.
  */
+function _positionFixedToolbar(editorElement, toolbar) {
+    const cmsToolbarHeight = parseInt(
+        getComputedStyle(document.documentElement)
+            .getPropertyValue('--cms-toolbar-height') || '0', 10
+    );
+
+    // Cache toolbar height — only changes on window resize
+    let toolbarHeight = 0;
+    // Set initial fixed position at 0,0; use transform for fast compositor updates
+    toolbar.style.top = '0';
+    toolbar.style.left = '0';
+    toolbar.style.willChange = 'transform';
+
+    function update() {
+        const rect = editorElement.getBoundingClientRect();
+
+        // Position toolbar above the editor, or pin to CMS toolbar bottom
+        const idealTop = rect.top - toolbarHeight - 6;
+        const minTop = cmsToolbarHeight;
+        // Hide if editor is scrolled out of view
+        if (rect.bottom < cmsToolbarHeight + toolbarHeight || rect.top > window.innerHeight) {
+            toolbar.style.transform = 'translate(-9999px, -9999px)';
+        } else {
+            const top = Math.max(idealTop, minTop);
+            toolbar.style.transform = `translate(${rect.left}px, ${top}px)`;
+        }
+    }
+
+    function onResize() {
+        toolbarHeight = toolbar.offsetHeight || 0;
+        update();
+    }
+
+    let rafId = 0;
+    function scheduleUpdate() {
+        if (!rafId) {
+            rafId = requestAnimationFrame(() => { rafId = 0; update(); });
+        }
+    }
+
+    const scrollTarget = _findScrollParent(editorElement);
+    scrollTarget.addEventListener('scroll', scheduleUpdate, {passive: true});
+    // Only attach the window listener if the scroll parent isn't the window itself
+    if (scrollTarget !== window) {
+        window.addEventListener('scroll', scheduleUpdate, {passive: true});
+    }
+    window.addEventListener('resize', onResize, {passive: true});
+    // Defer initial positioning so the toolbar has been rendered and has a height
+    requestAnimationFrame(onResize);
+
+    return () => {
+        scrollTarget.removeEventListener('scroll', scheduleUpdate);
+        if (scrollTarget !== window) {
+            window.removeEventListener('scroll', scheduleUpdate);
+        }
+        window.removeEventListener('resize', onResize);
+        if (rafId) { cancelAnimationFrame(rafId); }
+    };
+}
+
 /**
  * Finds the nearest scrollable ancestor of an element, or falls back to window.
  *
@@ -353,68 +452,6 @@ function _findScrollParent(element) {
     return window;
 }
 
-function _pinToolbarOnScroll(editorElement, toolbar, isInline) {
-    const cmsToolbarHeight = parseInt(
-        getComputedStyle(document.documentElement)
-            .getPropertyValue('--cms-toolbar-height') || '0', 10
-    );
-
-    function update() {
-        const rect = editorElement.getBoundingClientRect();
-
-        if (isInline) {
-            // Inline toolbar: the menubar extends upward from the wrapper
-            // (bottom: 100%+6px). We need to offset the wrapper down so the
-            // menubar stays visible at the CMS toolbar bottom edge.
-            const menubar = toolbar.querySelector('[role="menubar"]');
-            const menubarHeight = menubar?.offsetHeight || 0;
-            // The point where the toolbar should start pinning:
-            // editor top has scrolled above (cmsToolbarHeight + menubarHeight)
-            const pinPoint = cmsToolbarHeight + menubarHeight + 6; // 6px gap
-            if (rect.top < pinPoint) {
-                const offset = pinPoint - rect.top;
-                // Clamp so toolbar doesn't go below the editor bottom
-                const maxOffset = rect.height - menubarHeight;
-                toolbar.style.top = Math.min(offset, Math.max(0, maxOffset)) + 'px';
-            } else {
-                toolbar.style.top = '0';
-            }
-        } else {
-            // Fixed toolbar: sits at top of editor, scrolls with content
-            const toolbarHeight = toolbar.offsetHeight || 0;
-            if (rect.top < cmsToolbarHeight) {
-                const offset = cmsToolbarHeight - rect.top;
-                const maxOffset = editorElement.scrollHeight - toolbarHeight;
-                toolbar.style.top = Math.min(offset, Math.max(0, maxOffset)) + 'px';
-            } else {
-                toolbar.style.top = '0';
-            }
-        }
-    }
-
-    let rafId = 0;
-    function onScroll() {
-        if (!rafId) {
-            rafId = requestAnimationFrame(() => {
-                rafId = 0;
-                update();
-            });
-        }
-    }
-
-    const scrollTarget = _findScrollParent(editorElement);
-    scrollTarget.addEventListener('scroll', onScroll, {passive: true});
-    update();
-
-    // Return cleanup function to remove the scroll listener
-    return () => {
-        scrollTarget.removeEventListener('scroll', onScroll);
-        if (rafId) {
-            cancelAnimationFrame(rafId);
-        }
-    };
-}
-
 /**
  * Creates a toolbar element for the editor.
  * A toolbar is a div element with role="toolbar" and class cms-toolbar.
@@ -430,12 +467,11 @@ function _createToolbar(editor, toolbar, filter) {
     const toolbarElement = document.createElement('div');
     toolbarElement.setAttribute('role', 'menubar');
     toolbarElement.classList.add('cms-toolbar');
-    toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
-
     // create the toolbar html from the settings
     toolbarElement.innerHTML = _populateToolbar(editor, toolbar, filter);
 
     if (!editor.options.element.classList.contains('fixed')) {
+        toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;
         // Limit its width to the available space
         toolbarElement.style.maxWidth = (window.innerWidth - toolbarElement.getBoundingClientRect().left - 16) + 'px';
     }
@@ -459,7 +495,8 @@ function _handleToolbarClick(event, editor) {
     'use strict';
     event.preventDefault();
     const button = event.target.closest('button, .dropdown');
-    if (button && !button.disabled && !editor.options.el.querySelector('dialog.cms-form-dialog')) {
+    const editorEl = editor.options.el || editor.options.element;
+    if (button && !button.disabled && !editorEl.querySelector('dialog.cms-form-dialog')) {
         const {action} = button.dataset;
         if (button.classList.contains('dropdown')) {
             // Open dropdown
@@ -625,16 +662,27 @@ function _createToolbarButton(editor, itemName, filter) {
  */
 function _updateToolbar(editor, toolbar) {
     'use strict';
-    let querySelector;
+    let buttons;
     if (!toolbar) {
-        querySelector = editor.options.element.querySelectorAll(
-            '.cms-toolbar button, .cms-toolbar [role="button"], ' +
-            '.cms-block-toolbar button, .cms-block-toolbar [role="button"]'
-        );
+        // Cache button list to avoid querySelectorAll on every update.
+        // The top toolbar may live in document.body (inline editors), so query it
+        // directly along with the block toolbar inside the editor.
+        if (!editor.options._cachedToolbarButtons) {
+            const fromTop = editor.options.topToolbar
+                ? Array.from(editor.options.topToolbar.querySelectorAll('button, [role="button"]'))
+                : [];
+            const fromBlock = editor.options.element
+                ? Array.from(editor.options.element.querySelectorAll(
+                    '.cms-block-toolbar button, .cms-block-toolbar [role="button"]'
+                ))
+                : [];
+            editor.options._cachedToolbarButtons = [...fromTop, ...fromBlock];
+        }
+        buttons = editor.options._cachedToolbarButtons;
     } else {
-        querySelector = toolbar.querySelectorAll('button, [role="button"]');
+        buttons = toolbar.querySelectorAll('button, [role="button"]');
     }
-    for (const button of querySelector) {
+    for (const button of buttons) {
         const {action} = button.dataset;
         if (TiptapToolbar[action]) {
               // Cache representation lookup on the button element
@@ -666,7 +714,8 @@ function _updateToolbar(editor, toolbar) {
     // child is active (avoids expensive :has() CSS selector)
     const SKIP_ACTIONS = new Set(['Heading1','Heading2','Heading3','Heading4','Heading5','Heading6','Paragraph']);
     const topToolbar = editor.options.topToolbar;
-    if (!topToolbar) { editor.options.el.dataset.selecting = 'false'; return; }
+    const editorEl = editor.options.el || editor.options.element;
+    if (!topToolbar) { editorEl.dataset.selecting = 'false'; return; }
     for (const dropdown of topToolbar.querySelectorAll('.dropdown')) {
         const hasActive = Array.from(dropdown.querySelectorAll('.active'))
             .some(el => !SKIP_ACTIONS.has(el.dataset.action));
@@ -674,7 +723,7 @@ function _updateToolbar(editor, toolbar) {
             dropdown.classList.toggle('has-active-child', hasActive);
         }
     }
-    editor.options.el.dataset.selecting = 'false';
+    editorEl.dataset.selecting = 'false';
 }
 
 function _submitToolbarForm(event, editor) {
@@ -708,10 +757,46 @@ const CmsToolbarPlugin = Extension.create({
     onCreate() {
         const editor = this.editor;
         const hasBlockToolbar = editor.options.blockToolbar;
-        editor.on('transaction', () => {
-            if (!_topToolbarRafId) {
-                _topToolbarRafId = requestAnimationFrame(() => {
-                    _topToolbarRafId = 0;
+        const el = editor.options.el || editor.options.element;
+        const el_rect = el.getBoundingClientRect();
+        const filter = (el.tagName !== 'TEXTAREA' && el_rect.x >= 28) ? 'mark' : undefined;
+
+        // Create toolbar outside ProseMirror's decoration system
+        _initTopToolbar(editor, filter);
+        // Set initial button states (disabled/active) once on creation
+        requestAnimationFrame(() => {
+            _updateToolbar(editor);
+            if (hasBlockToolbar) {
+                updateBlockToolbar(editor);
+            }
+        });
+
+        let lastFrom = -1;
+        let lastTo = -1;
+        let toolbarRafId = 0;
+        editor.on('transaction', ({transaction}) => {
+            // Skip if tab is hidden
+            if (document.hidden) {
+                return;
+            }
+            // Skip if toolbar is not visible (inline editor not focused)
+            if (!editor.isFocused && !editor.options.element.classList.contains('fixed')) {
+                return;
+            }
+            // Skip if neither selection nor document changed.
+            // (Pure typing within the same block changes the doc but
+            // we still want to update active states; toolbar transformations
+            // like heading level changes change docChanged but keep selection.)
+            const {from, to} = editor.state.selection;
+            if (from === lastFrom && to === lastTo && !transaction.docChanged) {
+                return;
+            }
+            lastFrom = from;
+            lastTo = to;
+            // Coalesce rapid transactions into a single paint frame
+            if (!toolbarRafId) {
+                toolbarRafId = requestAnimationFrame(() => {
+                    toolbarRafId = 0;
                     _updateToolbar(editor);
                     if (hasBlockToolbar) {
                         updateBlockToolbar(editor);
@@ -721,6 +806,16 @@ const CmsToolbarPlugin = Extension.create({
         });
     },
     onDestroy() {
+        // Remove toolbar from DOM
+        if (this.editor.options._toolbarHost) {
+            this.editor.options._toolbarHost.remove();
+            delete this.editor.options._toolbarHost;
+        } else if (this.editor.options.topToolbar) {
+            this.editor.options.topToolbar.remove();
+        }
+        delete this.editor.options.topToolbar;
+        // Invalidate cached button list
+        delete this.editor.options._cachedToolbarButtons;
         if (this.editor.options._cleanupScrollPin) {
             this.editor.options._cleanupScrollPin();
             delete this.editor.options._cleanupScrollPin;
@@ -728,7 +823,7 @@ const CmsToolbarPlugin = Extension.create({
     },
     addProseMirrorPlugins() {
         'use strict';
-        const {el} = this.editor.options;
+        const el = this.editor.options.el || this.editor.options.element;
         const el_rect = el.getBoundingClientRect();
         if (el.tagName === 'TEXTAREA' || el_rect.x < 28) {
             // Not inline or too close to the left edge to see the block toolbar

@@ -132,6 +132,43 @@ describe('CMSEditor', () => {
         expect(Object.keys(editor._editor_settings).length).toBe(2);
     });
 
+    it('destroys orphaned editors when DOM is replaced', () => {
+        const plugin = window.cms_editor_plugin;
+
+        // Create editors
+        editor.initAll();
+        expect(plugin._editors.editor1).toBeDefined();
+        expect(plugin._editors.editor1.isDestroyed).toBe(false);
+
+        const oldEditor = plugin._editors.editor1;
+
+        // Simulate CMS replacing the DOM: remove the editor's rendered element
+        const editorElement = oldEditor.options.element;
+        editorElement.remove();
+
+        // _resetInlineEditors should detect the orphaned editor and destroy it
+        editor._resetInlineEditors();
+
+        expect(oldEditor.isDestroyed).toBe(true);
+        expect(plugin._editors.editor1).toBeUndefined();
+    });
+
+    it('keeps editors whose DOM is still present', () => {
+        const plugin = window.cms_editor_plugin;
+
+        editor.initAll();
+        expect(plugin._editors.editor1).toBeDefined();
+
+        const oldEditor = plugin._editors.editor1;
+
+        // DOM is NOT replaced — editor element still present
+        editor._resetInlineEditors();
+
+        // Editor should be kept, not destroyed
+        expect(oldEditor.isDestroyed).toBe(false);
+        expect(plugin._editors.editor1).toBe(oldEditor);
+    });
+
     it('highlights text plugin', () => {
         const pluginId = 'test-plugin';
         document.body.innerHTML += `<div class="cms-draggable-${pluginId}"></div>`;

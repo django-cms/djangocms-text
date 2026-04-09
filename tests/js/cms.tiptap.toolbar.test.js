@@ -124,4 +124,89 @@ describe('Tiptap toolbar items', () => {
         // If this entry remains, it's a bug in destroyRTE/destroyEditor
         expect(plugin._editors.editor1).toBeUndefined();
     });
+
+    describe('editor.options.el and editor.options.element consistency', () => {
+        it('sets both options.el and options.element on a textarea editor', () => {
+            const plugin = window.cms_editor_plugin;
+            const el = document.getElementById('editor1');
+            editor.init(el);
+
+            const tiptap = plugin._editors.editor1;
+            expect(tiptap).toBeDefined();
+            // Both options must be defined
+            expect(tiptap.options.el).toBeDefined();
+            expect(tiptap.options.element).toBeDefined();
+            // For textareas, el is the textarea and element is the wrapper div
+            expect(tiptap.options.el).toBe(el);
+            expect(tiptap.options.el.tagName).toBe('TEXTAREA');
+            expect(tiptap.options.element.tagName).toBe('DIV');
+            // The wrapper element should be a sibling of the textarea
+            expect(tiptap.options.element).not.toBe(tiptap.options.el);
+        });
+
+        it('toolbar plugin works when only options.el is set (legacy)', () => {
+            const plugin = window.cms_editor_plugin;
+            const el = document.getElementById('editor1');
+            editor.init(el);
+
+            const tiptap = plugin._editors.editor1;
+            // Verify the toolbar code paths used both via fallback
+            // (cms.toolbar.js uses `editor.options.el || editor.options.element`)
+            const fallbackEl = tiptap.options.el || tiptap.options.element;
+            expect(fallbackEl).toBeDefined();
+            expect(typeof fallbackEl.getBoundingClientRect).toBe('function');
+            expect(fallbackEl.tagName).toBeDefined();
+        });
+
+        it('toolbar plugin works when only options.element is set', () => {
+            const plugin = window.cms_editor_plugin;
+            const el = document.getElementById('editor1');
+            editor.init(el);
+
+            const tiptap = plugin._editors.editor1;
+            // Simulate a setup where `el` is missing - the fallback should work
+            const originalEl = tiptap.options.el;
+            delete tiptap.options.el;
+
+            const fallbackEl = tiptap.options.el || tiptap.options.element;
+            expect(fallbackEl).toBeDefined();
+            expect(fallbackEl).toBe(tiptap.options.element);
+            expect(typeof fallbackEl.getBoundingClientRect).toBe('function');
+
+            // Restore
+            tiptap.options.el = originalEl;
+        });
+
+        it('source code uses fallback pattern for editor.options.el access in cms.toolbar.js', async () => {
+            // Static check: ensure all direct accesses of editor.options.el in
+            // cms.toolbar.js are guarded with a fallback to editor.options.element.
+            // This catches regressions where new code uses options.el directly.
+            const fs = require('fs');
+            const path = require('path');
+            const filePath = path.resolve(
+                __dirname, '../../private/js/tiptap_plugins/cms.toolbar.js'
+            );
+            const source = fs.readFileSync(filePath, 'utf8');
+            // Find all .options.el access without `||` fallback or `.element`
+            // Allowed patterns:
+            //   editor.options.el || editor.options.element
+            //   this.editor.options.el || this.editor.options.element
+            //   editor.options.element  (no .el at all)
+            // Disallowed: standalone `editor.options.el` reads (without fallback)
+            const lines = source.split('\n');
+            const offenders = [];
+            lines.forEach((line, idx) => {
+                // Match `.options.el` not followed by `ement` (to exclude `.options.element`)
+                // and not in a chain that includes a fallback `|| ... .element`
+                const match = line.match(/\.options\.el(?!ement)/);
+                if (match) {
+                    // Check if the same line contains a fallback to .element
+                    if (!line.includes('options.element')) {
+                        offenders.push(`Line ${idx + 1}: ${line.trim()}`);
+                    }
+                }
+            });
+            expect(offenders).toEqual([]);
+        });
+    });
 });

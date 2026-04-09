@@ -203,12 +203,16 @@ class CMSEditor {
                             wrapper.addEventListener('focusin', () => {
                                 this._highlightTextplugin(id);
                             }, true);
-                            // Prevent tooltip on hover
-                            this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin')
-                                .on('pointerover.cms-editor', function (event) {
-                                    window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
-                                    event.stopPropagation();
-                                });
+                            // Prevent CMS tooltip on hover: stop pointer events from
+                            // reaching the document-level CMS delegate handler
+                            this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin');
+                            wrapper.addEventListener('pointerover', function (event) {
+                                event.stopPropagation();
+                                window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);
+                            }, false);
+                            wrapper.addEventListener('pointerout', function (event) {
+                                event.stopPropagation();
+                            }, false);
                         }
                     }
                 }
@@ -642,6 +646,30 @@ class CMSEditor {
 
     // CMS Editor: resetInlineEditors
     _resetInlineEditors () {
+        // Destroy editors whose DOM elements are no longer in the document
+        // (e.g., after CMS replaces plugin HTML on save)
+        const plugin = window.cms_editor_plugin;
+        if (plugin && plugin._editors) {
+            for (const id of Object.keys(plugin._editors)) {
+                const editorInstance = plugin._editors[id];
+                if (!editorInstance || !editorInstance.options) {
+                    delete plugin._editors[id];
+                    continue;
+                }
+                const editorElement = editorInstance.options.element;
+                if (!editorElement || !document.contains(editorElement)) {
+                    plugin.destroyEditor(id);
+                }
+            }
+        }
+        // Clean up orphaned plain text editors
+        for (const id of Object.keys(this._generic_editors)) {
+            const el = this._generic_editors[id].el;
+            if (!el || !document.contains(el)) {
+                this._generic_editors[id].destroy();
+                delete this._generic_editors[id];
+            }
+        }
         this.initInlineEditors();
     }
 

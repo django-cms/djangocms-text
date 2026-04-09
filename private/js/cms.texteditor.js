@@ -15,8 +15,8 @@ class CmsTextEditor {
     }
 
     destroy () {
-        this.el.removeEventListener('focus', this._focus.bind(this));
-        this.el.removeEventListener('blur', this._blur.bind(this));
+        this.el.removeEventListener('focus', this._boundFocus);
+        this.el.removeEventListener('blur', this._boundBlur);
         this.el.removeEventListener('input', this._change);
         this.el.removeEventListener('keydown', this._key_down);
         this.el.removeEventListener('paste', this._paste);
@@ -31,9 +31,12 @@ class CmsTextEditor {
 
         }
         this.el.setAttribute('spellcheck', this.options.spellcheck || 'false');
+        // Bind once and store references for proper removal in destroy()
+        this._boundFocus = this._focus.bind(this);
+        this._boundBlur = this._blur.bind(this);
         this.el.addEventListener('input', this._change);
-        this.el.addEventListener('focus', this._focus.bind(this));
-        this.el.addEventListener('blur', this._blur.bind(this));
+        this.el.addEventListener('focus', this._boundFocus);
+        this.el.addEventListener('blur', this._boundBlur);
         this.el.addEventListener('keydown', this._key_down);
         if (this.options.enforcePlaintext) {
             this.el.addEventListener('paste', this._paste);

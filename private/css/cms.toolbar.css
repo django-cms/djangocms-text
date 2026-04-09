@@ -3,41 +3,29 @@ html.cms-toolbar-expanded {
     --cms-toolbar-height: 46px;
 }
 
+
 .cms-editor-inline-wrapper {
     --tiptap-ease: 100ms;
-    .ProseMirror-focused [role="menubar"] {
-        /* show toolbar if editor is focused */
+    .ProseMirror-focused [role="menubar"],
+    &.has-form-dialog [role="menubar"],
+    &.has-focused-editor [role="menubar"] {
+        /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
         opacity: 1;
         transition: opacity var(--tiptap-ease, 100ms) ease-in;
-        [role="button"].show {
-            z-index: 10;
-            > .dropdown-content {
-                visibility: visible;
-                opacity: 1;
-                transition: opacity var(--tiptap-ease, 100ms) ease-in;
-                /* height: auto; */
-            }
+    }
+    /* Dropdowns inside any toolbar (visible or fixed) */
+    [role="menubar"] [role="button"].show {
+        z-index: 10;
+        > .dropdown-content {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity var(--tiptap-ease, 100ms) ease-in;
         }
-    }
-    &.has-form-dialog [role="menubar"] {
-        /* show toolbar if form dialog is open */
-        visibility: visible;
-    }
-
-    .cms-toolbar-sticky {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        z-index: 88889; /* Above #cms-top (z-index: 88888) */
-        height: 0;
-        overflow: visible;
     }
 
     [role="menubar"] {
         font-family: var(--font-family-primary, Helvetica, Arial, sans-serif);
-        bottom: calc(100% + 6px);
-        inset-inline-start: -4px;
         min-width: 375px;
         z-index: 88889; /* Above #cms-top (z-index: 88888) */
         padding: 2px 0.4rem;
@@ -47,7 +35,7 @@ html.cms-toolbar-expanded {
         visibility: hidden;
         opacity: 0;
         transition: opacity var(--tiptap-ease, 100ms) ease-out, visibility 0s linear var(--tiptap-ease, 100ms);
-        position: absolute;
+        position: fixed;
         pointer-events: all;
         display: flex;
         flex-flow: row wrap;
@@ -55,6 +43,7 @@ html.cms-toolbar-expanded {
         box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow), .4);
         color: var(--dca-black, var(--body-fg));
         background: var(--dca-white, var(--body-bg));
+        will-change: transform;
 
         div.grouper {
             padding: 0;
@@ -71,7 +60,7 @@ html.cms-toolbar-expanded {
         bottom: unset;
         inset-inline-start: unset;
         min-width: unset;
-        z-index: unset;
+        z-index: 2;
         visibility: visible;
         opacity: 1;
         transition: visibility var(--tiptap-ease, 100ms);
@@ -86,12 +75,7 @@ html.cms-toolbar-expanded {
         width: 100%;
         box-sizing: border-box;
         outline: none;
-        border-bottom: 1px solid var(--dca-gray-lighter, var(--hairline-color));
-        border-top: none;
-        border-left: none;
-        border-right: none;
         box-shadow: none;
-        margin-bottom: 0.5rem  !important;
         padding-left: 0;
         padding-right: 0;
         .dropdown-content {
@@ -238,7 +222,6 @@ html.cms-toolbar-expanded {
         border-radius: 0;
         visibility: hidden;
         opacity: 0;
-        /* height: 0; */
         transition: opacity var(--tiptap-ease, 100ms) ease-out,
                     visibility 0s linear var(--tiptap-ease, 100ms);
         overflow-y: hidden;

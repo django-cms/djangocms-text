@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.9.6 (09-04-2026)
+==================
+
+* fix: Memory leak when updating inline editors
+
 0.9.5 (08-04-2026)
 ==================
 

@@ -160,29 +160,52 @@ function _createBlockToolbar(editor, blockToolbar) {
  */
 function updateBlockToolbar(editor, state) {
     'use strict';
+    // Skip if block toolbar isn't focused/visible
+    if (!editor.isFocused) {
+        return;
+    }
+    const blockToolbar = editor.options.blockToolbar;
     const {resolvedPos, depth} = _getResolvedPos(state || editor.state);
     if (depth > 0) {
-        _updateToolbarIcon(editor, resolvedPos.node(depth), depth > 1 ? resolvedPos.node(depth - 1) : null);
         const startPos = resolvedPos.start(depth);
-        editor.options.blockToolbar.dataset.start = startPos;
-        editor.options.blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
-        editor.options.blockToolbar.dataset.depth = depth;
+        const node = resolvedPos.node(depth);
+        const parentNode = depth > 1 ? resolvedPos.node(depth - 1) : null;
+        // Skip DOM updates if the block hasn't changed (cursor moved within same block,
+        // and the block's identity is unchanged)
+        if (
+            blockToolbar._lastStartPos === startPos &&
+            blockToolbar._lastDepth === depth &&
+            blockToolbar._lastNode === node
+        ) {
+            return;
+        }
+        blockToolbar._lastStartPos = startPos;
+        blockToolbar._lastDepth = depth;
+        blockToolbar._lastNode = node;
+        _updateToolbarIcon(editor, node, parentNode);
+        blockToolbar.dataset.start = startPos;
+        blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
+        blockToolbar.dataset.depth = depth;
         const pos = editor.view.coordsAtPos(startPos);
         const ref = editor.options.el.getBoundingClientRect();
-        editor.options.blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
-        editor.options.blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
+        blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
+        blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
         let title = resolvedPos.node(1)?.type.name;
-        for (let i= 2; i <= depth; i++) {
+        for (let i = 2; i <= depth; i++) {
             title += ` > ${resolvedPos.node(i)?.type.name}`;
         }
-        editor.options.blockToolbar.title = title;
+        blockToolbar.title = title;
     } else {
-        editor.options.blockToolbar.draggable = false;
-        editor.options.blockToolbar._lastIconType = null;
-        _replaceIcon(editor.options.blockToolbar.firstElementChild, _menu_icon);
+        if (blockToolbar._lastDepth === 0) {
+            return;
+        }
+        blockToolbar._lastDepth = 0;
+        blockToolbar._lastStartPos = -1;
+        blockToolbar._lastNode = null;
+        blockToolbar.draggable = false;
+        blockToolbar._lastIconType = null;
+        _replaceIcon(blockToolbar.firstElementChild, _menu_icon);
     }
-    // TODO: Set the size of the balloon according to the fontsize
-    // this.toolbar.style.setProperty('--size', this.editor.view. ...)
 }
 
 function _getResolvedPos(state) {
@@ -259,70 +282,86 @@ function _replaceIcon(node, string) {
  * @param {Function} filter - A filter function to customize the toolbar.
  * @returns {Plugin} - A ProseMirror plugin instance.
  */
+/**
+ * Creates the top toolbar DOM element and attaches it outside the ProseMirror
+ * decoration system to avoid unnecessary redraws on every transaction.
+ *
+ * For inline editors: appended to document.body with position:fixed positioning.
+ * For fixed editors: prepended to the tiptap element with sticky positioning.
+ *
+ * @param {Editor} editor - The editor instance.
+ * @param {Function} filter - A filter function to customize the toolbar.
+ */
+function _initTopToolbar(editor, filter) {
+    const topToolbar = _createToolbar(editor, editor.options.toolbar, filter);
+    editor.options.topToolbar = topToolbar;
+
+    const isFixed = editor.options.element.classList.contains('fixed');
+
+    if (!isFixed) {
+        // Inline editors: append to body to escape overflow clipping
+        // and allow CSS contain:layout on the editor.
+        // Wrap in a container with .cms-editor-inline-wrapper so toolbar CSS applies.
+        const toolbarHost = document.createElement('div');
+        toolbarHost.classList.add('cms-editor-inline-wrapper');
+        toolbarHost.appendChild(topToolbar);
+        document.body.appendChild(toolbarHost);
+        editor.options._cleanupScrollPin = _positionFixedToolbar(
+            editor.options.element, topToolbar
+        );
+        // Toggle visibility on focus/blur since toolbar is outside the editor DOM
+        editor.on('focus', () => toolbarHost.classList.add('has-focused-editor'));
+        editor.on('blur', () => {
+            // Delay hiding so toolbar clicks can be processed first
+            // (mousedown preventDefault keeps focus but blur fires first)
+            setTimeout(() => {
+                if (!editor.isFocused && !topToolbar.contains(document.activeElement)) {
+                    toolbarHost.classList.remove('has-focused-editor');
+                }
+            }, 200);
+        });
+        editor.options._toolbarHost = toolbarHost;
+    } else {
+        // Fixed editors: prepend to tiptap element for sticky positioning
+        const tiptap = editor.options.element.querySelector('.tiptap');
+        if (tiptap) {
+            tiptap.prepend(topToolbar);
+        }
+    }
+
+    // Prevent toolbar clicks from blurring the editor
+    topToolbar.addEventListener('mousedown', (e) => {
+        const form = e.target.closest('form.cms-inline-form');
+        if (!form) {
+            e.preventDefault();
+        }
+    });
+    // Handle toolbar clicks
+    topToolbar.addEventListener('click', (e) => {
+        if (!editor.isFocused) {
+            editor.commands.focus();
+        }
+        const form = e.target.closest('form.cms-inline-form');
+        if (!form) {
+            _handleToolbarClick(e, editor);
+        }
+    });
+}
+
 function _createTopToolbarPlugin(editor, filter) {
     'use strict';
     return new Plugin({
         props: {
-            decorations(state) {
-                return this.getState(state);
-            },
             handleDOMEvents: {
-                mousedown (view, event) {
-                    const form = event.target.closest('form.cms-inline-form');
-                    if (editor.options.topToolbar?.contains(event.target) && !form) {
-                        event.preventDefault();
-                        return true;
+                click (view, event) {
+                    // Close dropdowns when clicking inside the editor content
+                    if (!editor.options.topToolbar?.contains(event.target)) {
+                        return _closeAllDropdowns(event, editor) > 0;
                     }
                     return false;
                 },
-                click (view, event) {
-                    if (editor.options.topToolbar?.contains(event.target)) {
-                        const form = event.target.closest('form.cms-inline-form');
-                        if (form && editor.options.topToolbar.contains(form) ) {
-                            // Let the form handle clicks inside it
-                            return false;
-                        }
-                        if (!editor.isFocused) {
-                            editor.commands.focus();
-                        }
-                        _handleToolbarClick(event, editor);
-                        return true;
-                    }
-                    return _closeAllDropdowns(event, editor) > 0;
-                },
             }
         },
-        state: {
-            init(_, {doc}) {
-                return DecorationSet.create(doc, [
-                    Decoration.widget(0, () => {
-                        const topToolbar = _createToolbar(
-                            editor,
-                            editor.options.toolbar,
-                            filter
-                        );
-                        editor.options.topToolbar = topToolbar;
-
-                        if (!editor.options.element.classList.contains('fixed')) {
-                            // Inline editors: toolbar is position:fixed to escape
-                            // overflow:hidden on ancestors. Position via JS.
-                            editor.options._cleanupScrollPin = _positionFixedToolbar(
-                                editor.options.element, topToolbar
-                            );
-                            return topToolbar;
-                        }
-                        // Fixed toolbar: sticky positioning keeps it in view
-                        // within the editor's scroll container
-                        return topToolbar;
-                    }, {
-                        side: -1,
-                        ignoreSelection: true,
-                        key: "topToolbar",
-                    })
-                ]);
-            },
-            apply(tr, value) { return value; }
-        }
     });
 }
 
@@ -706,6 +745,13 @@ const CmsToolbarPlugin = Extension.create({
     onCreate() {
         const editor = this.editor;
         const hasBlockToolbar = editor.options.blockToolbar;
+        const {el} = editor.options;
+        const el_rect = el.getBoundingClientRect();
+        const filter = (el.tagName !== 'TEXTAREA' && el_rect.x >= 28) ? 'mark' : undefined;
+
+        // Create toolbar outside ProseMirror's decoration system
+        _initTopToolbar(editor, filter);
+
         let lastFrom = -1;
         let lastTo = -1;
         let toolbarRafId = 0;
@@ -739,6 +785,14 @@ const CmsToolbarPlugin = Extension.create({
         });
     },
     onDestroy() {
+        // Remove toolbar from DOM
+        if (this.editor.options._toolbarHost) {
+            this.editor.options._toolbarHost.remove();
+            delete this.editor.options._toolbarHost;
+        } else if (this.editor.options.topToolbar) {
+            this.editor.options.topToolbar.remove();
+        }
+        delete this.editor.options.topToolbar;
         if (this.editor.options._cleanupScrollPin) {
             this.editor.options._cleanupScrollPin();
             delete this.editor.options._cleanupScrollPin;

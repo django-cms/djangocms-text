@@ -36,12 +36,14 @@
         padding-top: 0;
         resize: vertical;
         overflow-y: auto;
+        contain: none; /* Fixed toolbar uses sticky inside tiptap */
     }
 
     position: relative;
 
     .tiptap {
         min-height: 1em;
+        contain: layout style;
 
         /* Placeholder text for empty nodes */
         .is-empty::before {

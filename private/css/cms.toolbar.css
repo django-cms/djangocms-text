@@ -3,10 +3,13 @@ html.cms-toolbar-expanded {
     --cms-toolbar-height: 46px;
 }
 
+
 .cms-editor-inline-wrapper {
     --tiptap-ease: 100ms;
-    .ProseMirror-focused [role="menubar"] {
-        /* show toolbar if editor is focused */
+    .ProseMirror-focused [role="menubar"],
+    &.has-form-dialog [role="menubar"],
+    &.has-focused-editor [role="menubar"] {
+        /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
         opacity: 1;
         transition: opacity var(--tiptap-ease, 100ms) ease-in;
@@ -16,13 +19,8 @@ html.cms-toolbar-expanded {
                 visibility: visible;
                 opacity: 1;
                 transition: opacity var(--tiptap-ease, 100ms) ease-in;
-                /* height: auto; */
             }
         }
-    }
-    &.has-form-dialog [role="menubar"] {
-        /* show toolbar if form dialog is open */
-        visibility: visible;
     }
 
     [role="menubar"] {

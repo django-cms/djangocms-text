@@ -13,13 +13,14 @@ html.cms-toolbar-expanded {
         visibility: visible;
         opacity: 1;
         transition: opacity var(--tiptap-ease, 100ms) ease-in;
-        [role="button"].show {
-            z-index: 10;
-            > .dropdown-content {
-                visibility: visible;
-                opacity: 1;
-                transition: opacity var(--tiptap-ease, 100ms) ease-in;
-            }
+    }
+    /* Dropdowns inside any toolbar (visible or fixed) */
+    [role="menubar"] [role="button"].show {
+        z-index: 10;
+        > .dropdown-content {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity var(--tiptap-ease, 100ms) ease-in;
         }
     }
 
@@ -59,7 +60,7 @@ html.cms-toolbar-expanded {
         bottom: unset;
         inset-inline-start: unset;
         min-width: unset;
-        z-index: unset;
+        z-index: 2;
         visibility: visible;
         opacity: 1;
         transition: visibility var(--tiptap-ease, 100ms);
@@ -226,8 +227,6 @@ html.cms-toolbar-expanded {
         border-radius: 0;
         visibility: hidden;
         opacity: 0;
-        contain: layout style;
-        /* height: 0; */
         transition: opacity var(--tiptap-ease, 100ms) ease-out,
                     visibility 0s linear var(--tiptap-ease, 100ms);
         overflow-y: hidden;

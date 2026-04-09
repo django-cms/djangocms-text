@@ -322,11 +322,9 @@ function _initTopToolbar(editor, filter) {
         });
         editor.options._toolbarHost = toolbarHost;
     } else {
-        // Fixed editors: prepend to tiptap element for sticky positioning
-        const tiptap = editor.options.element.querySelector('.tiptap');
-        if (tiptap) {
-            tiptap.prepend(topToolbar);
-        }
+        // Fixed editors: prepend to the editor container so the toolbar
+        // sits above the .tiptap content area
+        editor.options.element.prepend(topToolbar);
     }
 
     // Prevent toolbar clicks from blurring the editor
@@ -660,12 +658,19 @@ function _updateToolbar(editor, toolbar) {
     'use strict';
     let buttons;
     if (!toolbar) {
-        // Cache button list on the editor element to avoid querySelectorAll on every update
+        // Cache button list to avoid querySelectorAll on every update.
+        // The top toolbar may live in document.body (inline editors), so query it
+        // directly along with the block toolbar inside the editor.
         if (!editor.options._cachedToolbarButtons) {
-            editor.options._cachedToolbarButtons = editor.options.element.querySelectorAll(
-                '.cms-toolbar button, .cms-toolbar [role="button"], ' +
-                '.cms-block-toolbar button, .cms-block-toolbar [role="button"]'
-            );
+            const fromTop = editor.options.topToolbar
+                ? Array.from(editor.options.topToolbar.querySelectorAll('button, [role="button"]'))
+                : [];
+            const fromBlock = editor.options.element
+                ? Array.from(editor.options.element.querySelectorAll(
+                    '.cms-block-toolbar button, .cms-block-toolbar [role="button"]'
+                ))
+                : [];
+            editor.options._cachedToolbarButtons = [...fromTop, ...fromBlock];
         }
         buttons = editor.options._cachedToolbarButtons;
     } else {
@@ -751,6 +756,13 @@ const CmsToolbarPlugin = Extension.create({
 
         // Create toolbar outside ProseMirror's decoration system
         _initTopToolbar(editor, filter);
+        // Set initial button states (disabled/active) once on creation
+        requestAnimationFrame(() => {
+            _updateToolbar(editor);
+            if (hasBlockToolbar) {
+                updateBlockToolbar(editor);
+            }
+        });
 
         let lastFrom = -1;
         let lastTo = -1;

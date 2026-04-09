@@ -187,7 +187,7 @@ function updateBlockToolbar(editor, state) {
         blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
         blockToolbar.dataset.depth = depth;
         const pos = editor.view.coordsAtPos(startPos);
-        const ref = editor.options.el.getBoundingClientRect();
+        const ref = (editor.options.el || editor.options.element).getBoundingClientRect();
         blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
         blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
         let title = resolvedPos.node(1)?.type.name;
@@ -416,14 +416,19 @@ function _positionFixedToolbar(editorElement, toolbar) {
 
     const scrollTarget = _findScrollParent(editorElement);
     scrollTarget.addEventListener('scroll', scheduleUpdate, {passive: true});
-    window.addEventListener('scroll', scheduleUpdate, {passive: true});
+    // Only attach the window listener if the scroll parent isn't the window itself
+    if (scrollTarget !== window) {
+        window.addEventListener('scroll', scheduleUpdate, {passive: true});
+    }
     window.addEventListener('resize', onResize, {passive: true});
     // Defer initial positioning so the toolbar has been rendered and has a height
     requestAnimationFrame(onResize);
 
     return () => {
         scrollTarget.removeEventListener('scroll', scheduleUpdate);
-        window.removeEventListener('scroll', scheduleUpdate);
+        if (scrollTarget !== window) {
+            window.removeEventListener('scroll', scheduleUpdate);
+        }
         window.removeEventListener('resize', onResize);
         if (rafId) { cancelAnimationFrame(rafId); }
     };
@@ -490,7 +495,8 @@ function _handleToolbarClick(event, editor) {
     'use strict';
     event.preventDefault();
     const button = event.target.closest('button, .dropdown');
-    if (button && !button.disabled && !editor.options.el.querySelector('dialog.cms-form-dialog')) {
+    const editorEl = editor.options.el || editor.options.element;
+    if (button && !button.disabled && !editorEl.querySelector('dialog.cms-form-dialog')) {
         const {action} = button.dataset;
         if (button.classList.contains('dropdown')) {
             // Open dropdown
@@ -708,7 +714,8 @@ function _updateToolbar(editor, toolbar) {
     // child is active (avoids expensive :has() CSS selector)
     const SKIP_ACTIONS = new Set(['Heading1','Heading2','Heading3','Heading4','Heading5','Heading6','Paragraph']);
     const topToolbar = editor.options.topToolbar;
-    if (!topToolbar) { editor.options.el.dataset.selecting = 'false'; return; }
+    const editorEl = editor.options.el || editor.options.element;
+    if (!topToolbar) { editorEl.dataset.selecting = 'false'; return; }
     for (const dropdown of topToolbar.querySelectorAll('.dropdown')) {
         const hasActive = Array.from(dropdown.querySelectorAll('.active'))
             .some(el => !SKIP_ACTIONS.has(el.dataset.action));
@@ -716,7 +723,7 @@ function _updateToolbar(editor, toolbar) {
             dropdown.classList.toggle('has-active-child', hasActive);
         }
     }
-    editor.options.el.dataset.selecting = 'false';
+    editorEl.dataset.selecting = 'false';
 }
 
 function _submitToolbarForm(event, editor) {
@@ -750,7 +757,7 @@ const CmsToolbarPlugin = Extension.create({
     onCreate() {
         const editor = this.editor;
         const hasBlockToolbar = editor.options.blockToolbar;
-        const {el} = editor.options;
+        const el = editor.options.el || editor.options.element;
         const el_rect = el.getBoundingClientRect();
         const filter = (el.tagName !== 'TEXTAREA' && el_rect.x >= 28) ? 'mark' : undefined;
 
@@ -805,6 +812,8 @@ const CmsToolbarPlugin = Extension.create({
             this.editor.options.topToolbar.remove();
         }
         delete this.editor.options.topToolbar;
+        // Invalidate cached button list
+        delete this.editor.options._cachedToolbarButtons;
         if (this.editor.options._cleanupScrollPin) {
             this.editor.options._cleanupScrollPin();
             delete this.editor.options._cleanupScrollPin;
@@ -812,7 +821,7 @@ const CmsToolbarPlugin = Extension.create({
     },
     addProseMirrorPlugins() {
         'use strict';
-        const {el} = this.editor.options;
+        const el = this.editor.options.el || this.editor.options.element;
         const el_rect = el.getBoundingClientRect();
         if (el.tagName === 'TEXTAREA' || el_rect.x < 28) {
             // Not inline or too close to the left edge to see the block toolbar

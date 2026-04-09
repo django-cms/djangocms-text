@@ -651,7 +651,12 @@ class CMSEditor {
         const plugin = window.cms_editor_plugin;
         if (plugin && plugin._editors) {
             for (const id of Object.keys(plugin._editors)) {
-                const editorElement = plugin._editors[id].options.element;
+                const editorInstance = plugin._editors[id];
+                if (!editorInstance || !editorInstance.options) {
+                    delete plugin._editors[id];
+                    continue;
+                }
+                const editorElement = editorInstance.options.element;
                 if (!editorElement || !document.contains(editorElement)) {
                     plugin.destroyEditor(id);
                 }

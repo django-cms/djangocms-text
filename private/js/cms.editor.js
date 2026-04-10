@@ -128,6 +128,47 @@ class CMSEditor {
             ? (cb) => requestIdleCallback(cb, {timeout: 2000})
             : (cb) => setTimeout(cb, 0);
 
+        // Install a one-time document-level guard that prevents CMS's delegated
+        // `dblclick.cms.plugin` handler from opening the modal editor when the
+        // double-click belongs to an inline editor (tiptap or generic text editor).
+        //
+        // Why this needs to live on `document` in capture phase, and not on the
+        // wrapper itself:
+        //   * django-cms binds `dblclick.cms.plugin` via jQuery delegation on
+        //     `document`, so `.off('dblclick.cms.plugin')` on the wrapper is a
+        //     no-op — only stopping propagation before it reaches `document`'s
+        //     bubble phase actually disarms it.
+        //   * For a plain double-click the wrapper-bound handler is enough, but
+        //     for "double-click + drag to extend by word" the second mouseup
+        //     lands on a different node (often outside the wrapper), so the
+        //     dblclick that jQuery ultimately routes never bubbles through the
+        //     wrapper at all. We therefore also remember whether the preceding
+        //     mousedown originated inside an inline wrapper and use that as a
+        //     fallback signal.
+        if (!this._inlineDblclickGuardInstalled) {
+            let mouseDownInsideInline = false;
+            document.addEventListener('mousedown', (event) => {
+                const target = event.target;
+                mouseDownInsideInline = !!(
+                    target && target.nodeType === 1 &&
+                    target.closest && target.closest('.cms-editor-inline-wrapper')
+                );
+            }, true);
+            document.addEventListener('dblclick', (event) => {
+                const target = event.target;
+                const insideInline = !!(
+                    target && target.nodeType === 1 &&
+                    target.closest && target.closest('.cms-editor-inline-wrapper')
+                );
+                if (insideInline || mouseDownInsideInline) {
+                    // Stop the event before it reaches document's bubble phase,
+                    // where jQuery's delegated `.cms-plugin` handler lives.
+                    event.stopPropagation();
+                }
+            }, true);
+            this._inlineDblclickGuardInstalled = true;
+        }
+
         this.observer = this.observer || new IntersectionObserver( (entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {

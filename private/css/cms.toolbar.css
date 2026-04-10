@@ -76,6 +76,9 @@ html.cms-toolbar-expanded {
         box-sizing: border-box;
         outline: none;
         box-shadow: none;
+        border: none;
+        border-bottom: 1px solid var(--dca-gray-lighter, var(--hairline-color));
+        border-radius: 0;
         padding-left: 0;
         padding-right: 0;
         .dropdown-content {

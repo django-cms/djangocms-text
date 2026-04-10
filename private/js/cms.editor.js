@@ -44,41 +44,59 @@ function _installInlineDblclickGuard() {
     }
     _inlineDblclickGuardInstalled = true;
 
-    let mouseDownInsideInline = false;
+    // Track the wrapper where the gesture started, not just a boolean.
+    // We need the wrapper element to check if it has an active editor.
+    let mouseDownWrapper = null;
 
-    const isInsideInline = (target) => !!(
-        target && target.nodeType === 1 &&
-        target.closest && target.closest('.cms-editor-inline-wrapper')
-    );
+    // Find the enclosing inline editor wrapper for a target element.
+    const findInlineWrapper = (target) => {
+        if (!target || target.nodeType !== 1 || !target.closest) {
+            return null;
+        }
+        return target.closest('.cms-editor-inline-wrapper');
+    };
+
+    // Only suppress the CMS modal if the wrapper has an *initialized* editor.
+    // If editor creation failed (e.g. bad content), the fallback to the CMS
+    // modal editor should still work via a regular double-click.
+    const wrapperHasEditor = (wrapper) => {
+        if (!wrapper || !wrapper.id) {
+            return false;
+        }
+        const tiptapEditors = window.cms_editor_plugin?._editors || {};
+        const genericEditors = window.CMS_Editor?._generic_editors || {};
+        return wrapper.id in tiptapEditors || wrapper.id in genericEditors;
+    };
 
     document.addEventListener('mousedown', (event) => {
         // Only primary button starts a double-click gesture we care about
         if (event.button !== 0) {
-            mouseDownInsideInline = false;
+            mouseDownWrapper = null;
             return;
         }
-        mouseDownInsideInline = isInsideInline(event.target);
+        mouseDownWrapper = findInlineWrapper(event.target);
     }, true);
 
     document.addEventListener('dblclick', (event) => {
         if (event.button !== 0) {
             return;
         }
-        if (isInsideInline(event.target) || mouseDownInsideInline) {
+        const currentWrapper = findInlineWrapper(event.target);
+        const wrapper = currentWrapper || mouseDownWrapper;
+        if (wrapper && wrapperHasEditor(wrapper)) {
             // Stop the event before it reaches document's bubble phase,
             // where jQuery's delegated `.cms-plugin` handler lives.
             event.stopPropagation();
         }
-        // Reset the flag so it doesn't leak across subsequent interactions.
-        mouseDownInsideInline = false;
+        // Reset the gesture state after the dblclick is handled.
+        mouseDownWrapper = null;
     }, true);
 
-    // Safety net: reset on mouseup so a lingering flag doesn't outlive a
-    // gesture that never produced a dblclick.
+    // Safety net: clear the gesture state on mouseup if no dblclick follows.
     document.addEventListener('mouseup', () => {
         // Defer to the next tick so a dblclick handler that fires after
-        // mouseup can still observe the flag.
-        setTimeout(() => { mouseDownInsideInline = false; }, 0);
+        // mouseup can still observe the wrapper reference.
+        setTimeout(() => { mouseDownWrapper = null; }, 0);
     }, true);
 }
 

@@ -1,4 +1,4 @@
-/* Position sticky toolbar below the django CMS toolbar when it's visible */
+/* CMS toolbar height is needed to position the editor toolbar below it */
 html.cms-toolbar-expanded {
     --cms-toolbar-height: 46px;
 }
@@ -56,31 +56,24 @@ html.cms-toolbar-expanded {
     }
     &.fixed [role="menubar"]  {
         display: block;
+        position: sticky;
         top: 0;
         bottom: unset;
         inset-inline-start: unset;
+        width: 100%;
         min-width: unset;
         z-index: 2;
+        box-sizing: border-box;
         visibility: visible;
         opacity: 1;
-        transition: visibility var(--tiptap-ease, 100ms);
-        [role="button"].show {
-            z-index: 10;
-            > .dropdown-content {
-                visibility: visible;
-                height: auto;
-            }
-        }
-        position: sticky;
-        width: 100%;
-        box-sizing: border-box;
         outline: none;
-        box-shadow: none;
         border: none;
         border-bottom: 1px solid var(--dca-gray-lighter, var(--hairline-color));
         border-radius: 0;
+        box-shadow: none;
         padding-left: 0;
         padding-right: 0;
+        transition: visibility var(--tiptap-ease, 100ms);
         .dropdown-content {
             inset-block-start: 100%;
             inset-inline-start: -2px;
@@ -298,7 +291,7 @@ html.cms-toolbar-expanded {
     .toolbar-dropback {
         display: none;
     }
-    .has-dropdown-open .toolbar-dropback {
+    [role="menubar"].has-dropdown-open .toolbar-dropback {
         display: block;
     }
 
@@ -328,7 +321,6 @@ html.cms-toolbar-expanded {
         color: var(--dca-gray);
         border-radius: 3px;
         box-shadow: none;
-        /* box-shadow: 0 1.5px 1.5px rgba(var(--dca-shadow),.4); */
         inset-inline-end: calc(100% + 0.75rem);
         width: calc(1.6 * var(--size));
         height:  calc(1.6 * var(--size));

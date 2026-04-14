@@ -387,7 +387,13 @@ function _positionFixedToolbar(editorElement, toolbar) {
     toolbar.style.top = '0';
     toolbar.style.left = '0';
     toolbar.style.willChange = 'transform';
-    toolbar.style.maxWidth = `${window.innerWidth - 2 * VIEWPORT_MARGIN}px`;
+
+    const viewportWidth =
+        (document.documentElement && document.documentElement.clientWidth) ||
+        (document.body && document.body.clientWidth) ||
+        window.innerWidth;
+
+    toolbar.style.maxWidth = `${viewportWidth - 2 * VIEWPORT_MARGIN}px`;
 
     function update() {
         const rect = editorElement.getBoundingClientRect();

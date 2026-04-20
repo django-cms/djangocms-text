@@ -20,6 +20,7 @@ import CmsFormExtension from "./tiptap_plugins/cms.formextension";
 import CmsToolbarPlugin from "./tiptap_plugins/cms.toolbar";
 import ExtendedTable from "./tiptap_plugins/cms.table";
 import markdownPasteHandler from './tiptap_plugins/cms.markdown';
+import OfficePaste from '@intevation/tiptap-extension-office-paste';
 
 import '../css/cms.tiptap.css';
 
@@ -167,6 +168,7 @@ class CMSTipTapPlugin {
                 CmsFormExtension,
                 CmsToolbarPlugin,
                 markdownPasteHandler,
+                OfficePaste,
             ],
             toolbar_HTMLField: [
                 ['Paragraph', '-', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5'], '|',

@@ -121,6 +121,5 @@ bundles/
 !djangocms_text_ckeditor/static/djangocms_text_ckeditor/js/dist
 !djangocms_text/static/djangocms_text/bundles/
 bundle.ckeditor5.min.css
-bundle.tiptap.min.css
 bundle.ckeditor4.min.css
 THIRD_PARTY_LICENSES.txt

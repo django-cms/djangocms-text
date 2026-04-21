@@ -213,7 +213,7 @@ do not bump the version.
 
 Extensions should declare the version they were written against via the
 `apiVersion` option so the host can refuse to run extensions that need a
-newer host than installed.
+newer host than is installed.
 
 ## File map
 

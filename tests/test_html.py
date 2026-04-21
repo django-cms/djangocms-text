@@ -138,9 +138,7 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
             self.assertIn("src", cms_parser.ALLOWED_ATTRIBUTES["iframe"])
             self.assertIn("width", cms_parser.ALLOWED_ATTRIBUTES["iframe"])
 
-            cleaned = html.clean_html(
-                '<iframe src="https://example.com/" width="100"></iframe>'
-            )
+            cleaned = html.clean_html('<iframe src="https://example.com/" width="100"></iframe>')
             self.assertIn("<iframe", cleaned)
             self.assertIn('src="https://example.com/"', cleaned)
             self.assertIn('width="100"', cleaned)

@@ -50,16 +50,18 @@ register_toolbar_labels({TOOLBAR_ITEM: {"title": _("YouTube")}})
 # whitelisted here. `allow` and `referrerpolicy` are required by the
 # modern YouTube embed boilerplate — without them the player emits
 # configuration errors (e.g. YouTube error 153).
-register_cleaner_attributes({
-    "iframe": {
-        "src",
-        "width",
-        "height",
-        "frameborder",
-        "allowfullscreen",
-        "allow",
-        "referrerpolicy",
-        "title",
-        "loading",
-    },
-})
+register_cleaner_attributes(
+    {
+        "iframe": {
+            "src",
+            "width",
+            "height",
+            "frameborder",
+            "allowfullscreen",
+            "allow",
+            "referrerpolicy",
+            "title",
+            "loading",
+        },
+    }
+)

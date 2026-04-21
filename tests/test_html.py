@@ -120,6 +120,43 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
         text = html.clean_html('<source src="rtmp://testurl.com/">', cleaner=NH3Parser())
         self.assertEqual('<source src="rtmp://testurl.com/">', text)
 
+    def test_register_cleaner_attributes(self):
+        from djangocms_text.html import (
+            cms_additional_attributes,
+            cms_parser,
+            register_cleaner_attributes,
+        )
+
+        orig_additional = copy.deepcopy(cms_additional_attributes)
+        orig_tags = set(cms_parser.ALLOWED_TAGS)
+        orig_attrs = copy.deepcopy(cms_parser.ALLOWED_ATTRIBUTES)
+
+        try:
+            register_cleaner_attributes({"iframe": {"src", "width"}})
+
+            self.assertIn("iframe", cms_parser.ALLOWED_TAGS)
+            self.assertIn("src", cms_parser.ALLOWED_ATTRIBUTES["iframe"])
+            self.assertIn("width", cms_parser.ALLOWED_ATTRIBUTES["iframe"])
+
+            cleaned = html.clean_html(
+                '<iframe src="https://example.com/" width="100"></iframe>'
+            )
+            self.assertIn("<iframe", cleaned)
+            self.assertIn('src="https://example.com/"', cleaned)
+            self.assertIn('width="100"', cleaned)
+
+            # Merging: a second call adds attributes without clobbering.
+            register_cleaner_attributes({"iframe": {"height"}})
+            self.assertIn("src", cms_parser.ALLOWED_ATTRIBUTES["iframe"])
+            self.assertIn("height", cms_parser.ALLOWED_ATTRIBUTES["iframe"])
+        finally:
+            cms_additional_attributes.clear()
+            cms_additional_attributes.update(orig_additional)
+            cms_parser.ALLOWED_TAGS.clear()
+            cms_parser.ALLOWED_TAGS.update(orig_tags)
+            cms_parser.ALLOWED_ATTRIBUTES.clear()
+            cms_parser.ALLOWED_ATTRIBUTES.update(orig_attrs)
+
     def test_clean_html_with_sanitize_enabled(self):
         old_text_html_sanitize = settings.TEXT_HTML_SANITIZE
         settings.TEXT_HTML_SANITIZE = True

@@ -20,8 +20,28 @@ import CmsFormExtension from "./tiptap_plugins/cms.formextension";
 import CmsToolbarPlugin from "./tiptap_plugins/cms.toolbar";
 import ExtendedTable from "./tiptap_plugins/cms.table";
 import markdownPasteHandler from './tiptap_plugins/cms.markdown';
+import {CmsTiptapRegistry} from './cms.tiptap.registry';
 
 import '../css/cms.tiptap.css';
+
+// Expose the registry and drain any calls that were queued by the
+// bootstrap stub in cms.editor.js. This makes extension registration
+// order-independent: extension scripts may load before or after the
+// tiptap bundle — the stub queues, the bundle drains on takeover.
+CmsTiptapRegistry._bindToolbar(TiptapToolbar);
+window.CMS_Editor = window.CMS_Editor || {};
+(function () {
+    'use strict';
+    const prev = window.CMS_Editor.tiptap;
+    window.CMS_Editor.tiptap = CmsTiptapRegistry;
+    if (prev && prev._bootstrap && Array.isArray(prev._queue)) {
+        for (const [method, args] of prev._queue) {
+            if (typeof CmsTiptapRegistry[method] === 'function') {
+                CmsTiptapRegistry[method].apply(CmsTiptapRegistry, args);
+            }
+        }
+    }
+})();
 
 
 // Mapping from toolbar item names to the extensions they require.
@@ -220,7 +240,10 @@ class CMSTipTapPlugin {
             // Filter extensions based on toolbar: disable extensions whose
             // toolbar items have been removed, so pasting won't add that formatting
             const toolbarItems = collectToolbarItems(toolbar);
-            const extensions = filterExtensions(options.extensions, toolbarItems);
+            const extensions = [
+                ...filterExtensions(options.extensions, toolbarItems),
+                ...CmsTiptapRegistry.buildExtensions(),
+            ];
 
             const firstInput = document.querySelector('textarea, input:not([type="hidden"]), select');
             const shouldAutofocus = el.tagName === 'TEXTAREA' && firstInput === el;

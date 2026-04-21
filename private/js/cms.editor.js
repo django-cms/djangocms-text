@@ -771,3 +771,27 @@ class CMSEditor {
 // Create global editor object
 window.CMS_Editor = window.CMS_Editor || new CMSEditor();
 
+// Bootstrap a queuing stub for the tiptap registry so that dynamically
+// contributed extension scripts (e.g. djangocms_text/contrib/youtube)
+// can call register()/registerToolbarItem() regardless of whether they
+// load before or after bundle.tiptap.min.js. The tiptap bundle replaces
+// this stub with the real registry on load and drains the queue.
+(function () {
+    'use strict';
+    if (window.CMS_Editor.tiptap && !window.CMS_Editor.tiptap._bootstrap) {
+        return;
+    }
+    const existing = window.CMS_Editor.tiptap;
+    const queue = (existing && existing._queue) || [];
+    const enqueue = (method) => function () {
+        queue.push([method, Array.prototype.slice.call(arguments)]);
+    };
+    window.CMS_Editor.tiptap = {
+        _bootstrap: true,
+        _queue: queue,
+        register: enqueue('register'),
+        unregister: enqueue('unregister'),
+        registerToolbarItem: enqueue('registerToolbarItem'),
+    };
+})();
+

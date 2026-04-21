@@ -379,6 +379,7 @@ function _positionFixedToolbar(editorElement, toolbar) {
         getComputedStyle(document.documentElement)
             .getPropertyValue('--cms-toolbar-height') || '0', 10
     );
+    const VIEWPORT_MARGIN = 8; // Minimum gap between toolbar and viewport edges
 
     // Cache toolbar height — only changes on window resize
     let toolbarHeight = 0;
@@ -387,8 +388,16 @@ function _positionFixedToolbar(editorElement, toolbar) {
     toolbar.style.left = '0';
     toolbar.style.willChange = 'transform';
 
+    const viewportWidth =
+        (document.documentElement && document.documentElement.clientWidth) ||
+        (document.body && document.body.clientWidth) ||
+        window.innerWidth;
+
+    toolbar.style.maxWidth = `${viewportWidth - 2 * VIEWPORT_MARGIN}px`;
+
     function update() {
         const rect = editorElement.getBoundingClientRect();
+        const toolbarWidth = toolbar.offsetWidth || 0;
 
         // Position toolbar above the editor, or pin to CMS toolbar bottom
         const idealTop = rect.top - toolbarHeight - 6;
@@ -396,14 +405,18 @@ function _positionFixedToolbar(editorElement, toolbar) {
         // Hide if editor is scrolled out of view
         if (rect.bottom < cmsToolbarHeight + toolbarHeight || rect.top > window.innerHeight) {
             toolbar.style.transform = 'translate(-9999px, -9999px)';
-        } else {
-            const top = Math.max(idealTop, minTop);
-            toolbar.style.transform = `translate(${rect.left}px, ${top}px)`;
+            return;
         }
+        // Clamp left position so the toolbar stays within the viewport
+        const maxLeft = window.innerWidth - toolbarWidth - VIEWPORT_MARGIN;
+        const left = Math.max(VIEWPORT_MARGIN, Math.min(rect.left, maxLeft));
+        const top = Math.max(idealTop, minTop);
+        toolbar.style.transform = `translate(${left}px, ${top}px)`;
     }
 
     function onResize() {
         toolbarHeight = toolbar.offsetHeight || 0;
+        toolbar.style.maxWidth = `${window.innerWidth - 2 * VIEWPORT_MARGIN}px`;
         update();
     }
 

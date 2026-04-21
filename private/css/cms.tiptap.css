@@ -25,35 +25,37 @@
 }
 
 .cms-editor-inline-wrapper {
-    &.textarea .tiptap {
-        border: 1px solid var(--dca-gray-lighter, var(--hairline-color));
-        padding: 6px;
-        min-height: 3rem;
-        border-radius: 0 0 4px 4px;
-    }
-    &.textarea > [role="menubar"] {
-        border: 1px solid var(--dca-gray-lighter, var(--hairline-color));
-        border-bottom: none;
-        border-radius: 4px 4px 0 0;
-    }
-    /* Focus outline encompasses both toolbar and editor content */
-    &.textarea:has(.ProseMirror-focused) {
-        border-radius: 4px;
-        box-shadow: 0 0 0 3px AccentColor;
-    }
-    /* Hide the inner outline on .tiptap when wrapper has the outline */
-    &.textarea .tiptap.ProseMirror-focused {
-        outline: none;
-    }
-
-    &.textarea.fixed .tiptap {
-        padding-top: 0;
-        resize: vertical;
-        overflow-y: auto;
-        contain: none; /* Fixed toolbar uses sticky inside tiptap */
-    }
-
     position: relative;
+
+    /* HTMLField (textarea) widget styling: border wraps both toolbar and content */
+    &.textarea {
+        .tiptap {
+            border: 1px solid var(--dca-gray-lighter, var(--hairline-color));
+            padding: 6px;
+            min-height: 3rem;
+            border-radius: 0 0 4px 4px;
+        }
+        &.fixed > [role="menubar"] {
+            border: 1px solid var(--dca-gray-lighter, var(--hairline-color));
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+        }
+        &.fixed .tiptap {
+            padding-top: 0;
+            resize: vertical;
+            overflow-y: auto;
+            contain: none; /* Fixed toolbar uses sticky inside tiptap */
+        }
+        /* Focus outline encompasses both toolbar and editor content */
+        &:has(.ProseMirror-focused) {
+            border-radius: 4px;
+            box-shadow: 0 0 0 3px AccentColor;
+        }
+        /* Hide the inner outline on .tiptap when wrapper has the outline */
+        .tiptap.ProseMirror-focused {
+            outline: none;
+        }
+    }
 
     .tiptap {
         min-height: 1em;
@@ -72,6 +74,10 @@
             /* Safari: Only outline the editor div, not toolbar etc. */
             outline: 3px solid AccentColor;
             outline-offset: 2px;
+
+            td, th {
+                outline: Highlight solid 0.5px;
+            }
         }
 
         &.resize-cursor {
@@ -105,12 +111,6 @@
                 position: absolute;
                 background: AccentColor;
                 box-shadow: 0 0 2px AccentColor;
-            }
-        }
-
-        &.ProseMirror-focused {
-            td, th {
-                outline: Highlight solid 0.5px;
             }
         }
 

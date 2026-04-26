@@ -7,18 +7,14 @@ const { LicenseWebpackPlugin } = require('license-webpack-plugin');
 const distribution = {
     editor: 'static/djangocms_text/',
     tiptap: 'static/djangocms_text/',
-    tinymce: 'contrib/text_tinymce/static/djangocms_text/',
     ckeditor4: 'contrib/text_ckeditor4/static/djangocms_text/',
-    quill: 'contrib/text_quill/static/djangocms_text/',
 };
 
 module.exports = {
     entry: {
         editor: './private/js/cms.editor.js',
         tiptap: './private/js/cms.tiptap.js',
-        tinymce: './private/js/cms.tinymce.js',
         ckeditor4: './private/js/cms.ckeditor4.js',
-        quill: './private/js/cms.quill.js',
     },
     plugins: [
         new MiniCssExtractPlugin({

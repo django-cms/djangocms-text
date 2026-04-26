@@ -128,7 +128,7 @@ Installation
 
        TEXT_FILER_IMAGE_CLASSES = (
            ("img-fluid", _("Responsive")),
-           ("rounded", _("Rounded")),
+           ("img-fluid rounded", _("Rounded")),
            ("img-thumbnail", _("Framed")),
        )
 

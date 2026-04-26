@@ -84,9 +84,17 @@ function _installInlineDblclickGuard() {
         const currentWrapper = findInlineWrapper(event.target);
         const wrapper = currentWrapper || mouseDownWrapper;
         if (wrapper && wrapperHasEditor(wrapper)) {
-            // Stop the event before it reaches document's bubble phase,
-            // where jQuery's delegated `.cms-plugin` handler lives.
-            event.stopPropagation();
+            // Let double-clicks on nested cms-plugin tags pass through to
+            // the editor (e.g. tiptap's node view handler opens the plugin
+            // dialog and stops propagation itself).
+            const onCmsPlugin = event.target.nodeType === 1 &&
+                event.target.closest &&
+                event.target.closest('cms-plugin');
+            if (!onCmsPlugin) {
+                // Stop the event before it reaches document's bubble phase,
+                // where jQuery's delegated `.cms-plugin` handler lives.
+                event.stopPropagation();
+            }
         }
         // Reset the gesture state after the dblclick is handled.
         mouseDownWrapper = null;

@@ -148,8 +148,13 @@ def get_xpath(pool: dict) -> str:
     :return: A string representing the xpath expression.
     :rtype: str
     """
+    # Each key needs the full ``//*[@key]`` wrapper. A naive join on the
+    # closing-bracket suffix only wraps the first key and produces e.g.
+    # ``//*[@data-cms-href] | //data-cms-src`` (a tag selector for the
+    # second key), so any element with the second attribute would never
+    # match.
     if pool:
-        return "//*[@" + "] | //".join(pool.keys())
+        return " | ".join(f"//*[@{key}]" for key in pool)
     return ""
 
 

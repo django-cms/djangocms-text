@@ -277,6 +277,33 @@ class DynamicAttributesTestCase(TestCase):
         updated_html = render_dynamic_attributes(html)
         self.assertEqual(html, updated_html)
 
+    def test_get_xpath_wraps_every_attribute_in_a_predicate(self):
+        # Regression: get_xpath used to fold a list of attributes into
+        # `//*[@first] | //second` (only the first key was wrapped),
+        # so any element matching the second-or-later attribute was
+        # silently skipped by the dynamic-attribute resolver.
+        from djangocms_text.html import get_xpath
+
+        xpath = get_xpath({"data-cms-href": None, "data-cms-src": None})
+        self.assertEqual(xpath, "//*[@data-cms-href] | //*[@data-cms-src]")
+
+    def test_render_dynamic_attributes_resolves_data_cms_src(self):
+        # Regression for the same get_xpath bug above: with both
+        # data-cms-href and data-cms-src in the pool (the default), an
+        # element with only data-cms-src was previously not matched,
+        # so neither the resolver fired nor was the attribute removed.
+        from unittest.mock import patch as _patch
+
+        mock_obj = MagicMock()
+        mock_obj.get_absolute_url.return_value = "/resolved.jpg"
+        with _patch("djangocms_text.html.apps.get_model") as mock_get_model:
+            mock_get_model.return_value.objects.filter.return_value = [mock_obj]
+            mock_obj.id = 7
+            html_in = '<img src="/old.jpg" alt="cat" data-cms-src="app.model:7">'
+            html_out = render_dynamic_attributes(html_in)
+        self.assertIn('src="/resolved.jpg"', html_out)
+        self.assertNotIn("data-cms-src", html_out)
+
 
 def save_image(filename, image, parent_plugin, width, height):
     pass

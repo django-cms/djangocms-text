@@ -4,32 +4,34 @@ djangocms-text
 
 ``djangocms-text`` is a flexible and extensible rich text editing solution for Django
 CMS. This package is designed as a replacement for ``djangocms-text-ckeditor``,
-introducing a swappable rich text editor interface and supporting enhanced data storage
-in both HTML and JSON formats.
+introducing a swappable rich text editor interface and supporting enhanced data
+storage in both HTML and JSON formats.
 
 Features
 --------
 
-- **Swappable Rich Text Editors**: Choose and switch between different rich text editors
-  as per project requirements.
-- **Customization and Extensions**: Easily add new or customized versions of your
-  favorite rich text editors.
-- **Enhanced Data Storage**: Store content in either HTML or JSON format, offering
-  versatility for different use cases.
-- **djangocms-text-ckeditor Compatibility**: Initial version includes a port of the
-  CKEditor 4 interface and child plugin functionality. This editor is compatible with
-  the ``djangocms-text-ckeditor`` plugin, and can be used as a drop-in replacement.
+- **Swappable editors** — switch between TipTap (default), CKEditor 4, and
+  CKEditor 5 frontends.
+- **HTML and JSON storage** — store content in either format, depending on
+  your use case.
+- **Inline editing** — click a text plugin to edit it directly in edit mode.
+- **Text-enabled plugins** — embed CMS plugins inline within rich text.
+- **Drop-in for djangocms-text-ckeditor** — automatic data migration on
+  install.
 
 Installation
 ------------
 
 1. Install: ``pip install djangocms-text``
-2. Add to ``INSTALLED_APPS``: ``INSTALLED_APPS = [..., "djangocms_text", ...]``
-3. Run migrations: ``python manage.py migrate djangocms_text``
-4. Start your server and add a Text plugin!
+2. Add to ``INSTALLED_APPS``::
 
-Optionally, add an editor frontend to your installed apps (if different from the
-default TipTap frontend), and set the editor you want to use:
+       INSTALLED_APPS = [..., "djangocms_text", ...]
+
+3. Run migrations: ``python manage.py migrate djangocms_text``
+4. Start your server and add a Text plugin.
+
+The default editor is TipTap and is included in the base package. To use a
+different editor, install its frontend package and set ``TEXT_EDITOR``:
 
 .. code-block:: python
 
@@ -37,100 +39,54 @@ default TipTap frontend), and set the editor you want to use:
     TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor4.ckeditor4"
 
 
-Upgrading from djangocms-text-ckeditor
---------------------------------------
-
-djangocms-text's migrations automatically migrate existing text plugins
-from djangocms-text-ckeditor, and clean up old tables. All you have to do is:
-
-* uninstall ``djangocms-text-ckeditor``
-* remove ``djangocms_text_ckeditor`` from ``INSTALLED_APPS``
-* add ``djangocms_text`` to ``INSTALLED_APPS`` (see above)
-* run ``python -m manage migrate djangocms_text``
-
-**Attention**: The migration command also deletes djangocms-text-ckeditor's
-tables from the database (to avoid referential integrity issues). To be on
-the safe side, make a backup of its content.
-
-When transitioning from CKEditor4 to Tiptap as the rich text editor in your
-project, consider the following points:
-
-* **Switching Editors**: The biggest challenge will likely be adapting to the
-  differences between CKEditor4 and the new default rich text editor Tiptap.
-  Tiptap offers a more modern editing experience, but there are important
-  distinctions in how content is handled.
-* **No HTML Source Code Editing**: Tiptap does not support direct HTML source
-  code editing. While this simplifies the editor for most users, it could be a
-  drawback for those accustomed to manually editing HTML, such as advanced
-  users or developers.
-* **Loss of Non-standard Formatting**: Formatting created through
-  CKEditor4 plugins or manually added HTML classes may not be preserved.
-  Tiptap stores content in an abstract JSON format and regenerates the HTML
-  upon editing, which can lead to a loss of non-standard formatting. However,
-  this only happens if a field is edited after migration.
-* **Potential Workaround**: If maintaining CKEditor4 functionality is
-  essential, you could circumvent these issues by using the CKEditor4 backend
-  provided with djangocms-text. This allows you to retain the familiar
-  CKEditor4 behavior while benefiting from other updates.
-
-**You can continue to use ckeditor4.** Compared to djangocms-text-ckeditor, the
-ckeditor4 sources have moved to ``static/djangocms_text/vendor/ckeditor4``.
-Please reflect this if you use custom ckeditor4 plugins.
-
 Editors
 -------
 
-``djangocms-text`` supports multiple rich text editors, which can be swapped out as
-needed. The following editors are currently supported:
+``djangocms-text`` ships with several editor frontends that can be swapped via
+the ``TEXT_EDITOR`` setting:
 
-- **TipTap**: A modern rich text editor with a modular architecture, TipTap is currently
-  in development and is the default editor. It supports text-enabled plugins, dynamic linking,
-  and conversion of pasted markdown text into HTML. TipTap does not allow the user to edit
-  HTML directly, which means that some formating options are lost when switching from
-  CKEditor 4 to TipTap.
-- **CKEditor 4**: The initial version of ``djangocms-text`` includes a port of the
-  CKEditor 4 interface and child plugin functionality. This editor is compatible with
-  the ``djangocms-text-ckeditor`` plugin, and can be used as a drop-in replacement.
-  It supports inline editing and text-enabled plugins.
-- **CKEditor 5**: To keep licenses separated, there is a
-  `separate package <https://github.com/django-cms/djangocms-text-ckeditor5>`_
-  ``djangocms-text-ckeditor5`` which provides CKEditor 5 as a rich text editor.
+- **TipTap** *(default)* — A modern, modular rich text editor. Supports
+  text-enabled plugins, dynamic links, inline editing, and on-the-fly
+  Markdown conversion. Does not allow direct HTML source editing.
+- **CKEditor 4** — Compatible with ``djangocms-text-ckeditor`` and usable as
+  a drop-in replacement. Supports inline editing and text-enabled plugins.
+- **CKEditor 5** — Available as a `separate package
+  <https://github.com/django-cms/djangocms-text-ckeditor5>`_
+  (``djangocms-text-ckeditor5``) to keep licenses separated. Fully supports
+  text-enabled CMS plugins and dynamic links.
 
 
 Configuration
 -------------
 
-Rich text editor selection
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Selecting an editor
+~~~~~~~~~~~~~~~~~~~
 
-To select a rich text editor, add the editor's package to your ``INSTALLED_APPS`` and
-add the setting ``TEXT_EDITOR`` to point to the editor's ``RTEConfig`` path.
-
-Example::
+Add the editor's package to ``INSTALLED_APPS`` and point ``TEXT_EDITOR`` at
+its ``RTEConfig`` path::
 
     INSTALLED_APPS = [
         ...,
         "djangocms_text.contrib.text_ckeditor4",
-        ...
+        ...,
     ]
-
     TEXT_EDITOR = "djangocms_text.contrib.text_ckeditor4.ckeditor4"
 
-Rich text editor global configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Global editor configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``TEXT_EDITOR`` setting points to a ``RTEConfig`` object. You can create your custom
-``RTEConfig`` instance.  The following attributes are available:
+The ``TEXT_EDITOR`` setting points to a ``RTEConfig`` object. The following
+attributes are available:
 
-- name (str): The name of the RTE configuration.
-- config (str): The configuration string.
-- js (Iterable[str]): An iterable of JavaScript files to include.
-- css (dict): A dictionary of CSS files to include.
-- admin_css (Iterable[str]): An iterable of CSS files for the admin interface only.
-- inline_editing (bool): Whether to enable inline editing.
-- child_plugin_support (bool): Whether to support child plugins.
-- configuration (dict): Additional configuration options for the RTE.
-- additional_context (dict): Additional context to pass to global editor configuration.
+- ``name`` (str) — The name of the RTE configuration.
+- ``config`` (str) — The configuration string.
+- ``js`` (Iterable[str]) — JavaScript files to include.
+- ``css`` (dict) — CSS files to include.
+- ``admin_css`` (Iterable[str]) — CSS files for the admin interface only.
+- ``inline_editing`` (bool) — Whether to enable inline editing.
+- ``child_plugin_support`` (bool) — Whether to support child plugins.
+- ``configuration`` (dict) — Frontend-specific options.
+- ``additional_context`` (dict) — Additional context to pass to the editor.
 
 The default configuration is:
 
@@ -144,110 +100,97 @@ The default configuration is:
         admin_css=("djangocms_text/css/tiptap.admin.css",),
         inline_editing=True,
         child_plugin_support=True,
-        configuration={},  # Default configuration (see below)
+        configuration={},  # see below
     )
 
-You can use the ``admin_css`` attribute to include CSS files that you need to be loaded into the
-dialog window, e.g., to declare custom colors or other styles.
+Use ``admin_css`` to include CSS files loaded into the dialog window, e.g. to
+declare custom colors or other styles.
 
-Adding configuration to rich text editor frontend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Frontend-specific configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Configuration to the rich text editor frontend can be passed by adding entries to the
-``configuration`` property of the ``RTEConfig``. The contents depends on the rich text
-editor frontend (TipTap, CKEditor 4, etc.).
+Frontend-specific options live in the ``configuration`` property of the
+``RTEConfig``. The contents depend on the rich text editor frontend (TipTap,
+CKEditor 4, etc.).
 
-The preferred method to add configuration to rich text editor frontend. Some configuration
-can be done using the ``TEXT_EDITOR_SETTINGS`` which is a dictionary that corresponds
-to the ``configuration`` property of the ``RTEConfig``. For backwards compatibility with
-``djangocms-text-ckeditor``, ``CKEDITOR_SETTINGS`` is also passed on the the rich text
-editor frontend (even if it is not CKEditor 4).
+The preferred way to set them is via ``TEXT_EDITOR_SETTINGS``, which mirrors
+``RTEConfig.configuration``. For backwards compatibility with
+``djangocms-text-ckeditor``, ``CKEDITOR_SETTINGS`` is also forwarded to the
+frontend (even when the frontend is not CKEditor 4).
 
-Here is an example for Tiptap which represents the default configuration:
+Example TipTap configuration (matches the defaults):
 
 .. code-block:: python
 
-    # TipTap configuration
     DEFAULT_EDITOR.configuration = {
         "inlineStyles": [  # Styles menu, by default contains some rarer styles
-                { "name": 'Small', "element": 'small' },
-                { "name": 'Kbd', "element": 'kbd' },
-                { "name": 'Var', "element": 'var' },
-                { "name": 'Samp', "element": 'samp' },
-            ],
+            { "name": 'Small', "element": 'small' },
+            { "name": 'Kbd', "element": 'kbd' },
+            { "name": 'Var', "element": 'var' },
+            { "name": 'Samp', "element": 'samp' },
+        ],
         "blockStyles": [],
-        # Block styles menu, e.g., for paragraphs, etc.; empty by default
-        # Example entry: [{"name": "Lead", "element": "div", "attributes": {"class": "lead"}},]
+        # Block styles menu, e.g., for paragraphs; empty by default.
+        # Example: [{"name": "Lead", "element": "div", "attributes": {"class": "lead"}}]
         "textColors": {  # Colors offered for the text color menu - the keys are CSS classes
-                'text-primary': {"name": "Primary"},
-                'text-secondary': {"name": "Secondary"},
-                'text-success': {"name": "Success"},
-                'text-danger': {"name": "Danger"},
-                'text-warning': {"name": "Warning"},
-                'text-info': {"name": "Info"},
-                'text-light': {"name": "Light"},
-                'text-dark': {"name": "Dark"},
-                'text-body': {"name": "Body"},
-                'text-muted': {"name": "Muted"},
-            },
-        "tableClasses": "table",  # Classes added to new(!) tables
+            'text-primary': {"name": "Primary"},
+            'text-secondary': {"name": "Secondary"},
+            'text-success': {"name": "Success"},
+            'text-danger': {"name": "Danger"},
+            'text-warning': {"name": "Warning"},
+            'text-info': {"name": "Info"},
+            'text-light': {"name": "Light"},
+            'text-dark': {"name": "Dark"},
+            'text-body': {"name": "Body"},
+            'text-muted': {"name": "Muted"},
+        },
+        "tableClasses": "table",  # classes added to new tables
     }
 
-Here's an example to configure the classes which should be added to new tables::
+Three ways to configure the classes added to new tables::
 
-    # Option 1:
-    # Modify the default editor configuration and point the ``TEXT_EDITOR`` setting to it
+    # Option 1: modify the default editor configuration in place
     from djangocms_text.editors import DEFAULT_EDITOR
-
     DEFAULT_EDITOR.configuration["tableClasses"] = "table ui"
 
-    # Option 2:
-    # Modify the default editor configurartion to offer choices to the editor
+    # Option 2: offer a list of named choices
     from djangocms_text.editors import DEFAULT_EDITOR
-
     DEFAULT_EDITOR.configuration["tableClasses"] = [
         ["table", _("Default")],
         ["table table-striped", _("Striped")],
     ]
 
-    # Option 3:
-    # Both of the above can be replaced adding TEXT_EDITOR_SETTINGS to your settings.py
+    # Option 3: use TEXT_EDITOR_SETTINGS in settings.py
     TEXT_EDITOR_SETTINGS = {
         "tableClasses": "table ui",
     }
 
 
-Inline editing feature
-~~~~~~~~~~~~~~~~~~~~~~
+Inline editing
+~~~~~~~~~~~~~~
 
-Inline editing allows editors to directly click on a text plugin and change the contents
-in django CMS' edit mode. The CKEditor appears directly around the text field and can be
-used normally. Changes are saved as soon as the text field leaves focus.
+Inline editing lets editors click a text plugin and change its contents
+directly in django CMS edit mode. The editor appears around the text field,
+and changes are saved as soon as the field loses focus.
 
-Inline editing requires to encapsulate the HTML text in a ``<div>`` in edit mode. This
-might cause some side effects with a site's CSS, e.g. direct child rules.
+Inline editing wraps the HTML in a ``<div>`` in edit mode, which may interact
+with site CSS that uses direct child selectors.
 
-Inline editing is active by default. To deactivate inline editing add the
-following line in your project's ``settings.py``:
-
-.. code-block::
+Inline editing is enabled by default. To disable it::
 
     TEXT_INLINE_EDITING = False
 
-With inline editing active, a toggle button to the toolbar to allow to switch
-inline editing on and off for the current session.
-
-When inline editing is active the editor will save the plugin's content each time it
-loses focus. If only text has changed the user can immediately continue to edit. If a
-text-enabled plugin was changed, added, or removed he page will refresh to update the
-page tree and get the correctly rendered version of the changed plugin.
+When enabled, a toolbar toggle lets users switch inline editing on and off
+for the current session. If only text changes, editing continues seamlessly.
+If a text-enabled plugin was added, changed, or removed, the page refreshes
+to update the page tree and re-render the affected plugins.
 
 Custom plugin templates
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-If you override the default ``cms/plugins/text.html`` template and your template wraps
-the plugin output in container elements (e.g. ``<section>``, ``<article>``, ``<div>``),
-the **innermost** container element must have the class ``cms-content-start``::
+If you override the default ``cms/plugins/text.html`` and wrap the plugin
+output in container elements (e.g. ``<section>``, ``<article>``, ``<div>``),
+the **innermost** container must have the class ``cms-content-start``::
 
     <!-- cms/plugins/text.html -->
     <section class="my-text-plugin">
@@ -256,43 +199,34 @@ the **innermost** container element must have the class ``cms-content-start``::
         </div>
     </section>
 
-This tells the inline editor which element to use as the editable area. Without it the
-editor will treat the outermost container as the editable region which may include
-non-editable markup.
+This tells the inline editor which element to use as the editable area.
+Without it, the editor will treat the outermost container as the editable
+region, which may include non-editable markup.
 
 
 Text-enabled plugins
 ~~~~~~~~~~~~~~~~~~~~
 
-djangocms-text supports text-enabled plugins, not all rich text editor frontends
-will, however.
+djangocms-text supports text-enabled plugins (note: not all editor frontends
+do — see Editors_).
 
-If you have created a plugin that you want to use within Text plugins you can make them appear in the dropdown by
-making them ``text_enabled``. This means that you assign the property ``text_enabled`` of a plugin to ``True``,
-the default value is ``False``. Here is a very simple implementation::
+To make a plugin available inside Text plugins, set ``text_enabled = True``
+on its plugin class::
 
     class MyTextPlugin(TextPlugin):
         name = "My text plugin"
         model = MyTextModel
         text_enabled = True
 
-When the plugin is picked up, it will be available in the *CMS Plugins* dropdown (puzzle icon), which you can find in the
-editor. This makes it very easy for users to insert special content in a user-friendly Text block, which they are familiar
-with.
+The plugin then appears in the *CMS Plugins* dropdown (puzzle icon) in the
+editor and is previewed inline.
 
-The plugin will even be previewed in the text editor. **Pro-tip**: make sure
-your plugin provides its own ``icon_alt`` method. That way, if you have many
-``text_enabled``-plugins, it can display a hint about it. For example, if you
-created a plugin which displays prices of configurable product, it can
-display a tooltip with the name of that product.
+**Pro-tip**: Provide an ``icon_alt`` method on the plugin so that, when many
+``text_enabled`` plugins are available, users get a useful tooltip — for
+example, the name of the product whose price the plugin shows.
 
-For more information about extending the CMS with plugins, read `django-cms doc`_ on how to do this.
-
-.. _django-cms doc: http://docs.django-cms.org/en/latest/reference/plugins.html#cms.plugin_base.CMSPluginBase.text_enabled
-
-Text-enabled plugins can have their own icons with djangocms-text. If the plugin
-class has a ``text_icon`` property, it should contain a SVG source code of an
-icon. The icon will be displayed in the CMS plugin pulldown menu, or in the toolbar.
+Text-enabled plugins can also have their own icons. Add a ``text_icon``
+property containing SVG source code:
 
 .. code-block::
 
@@ -302,21 +236,23 @@ icon. The icon will be displayed in the CMS plugin pulldown menu, or in the tool
         text_enabled = True
         text_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>'
 
+The icon shows in the CMS plugin pulldown menu and toolbar. To make a
+text-enabled plugin directly accessible from the editor toolbar, add its
+name (e.g. ``"LinkPlugin"``) to the toolbar configuration.
 
-You can also configure text-enabled plugins to be directly accessible from the rich
-text editor toolbar by adding the plugin's name to the toolbar configuration,
-e.g. ``"LinkPlugin"``.
+For more on extending the CMS with plugins, see the `django-cms doc`_.
+
+.. _django-cms doc: http://docs.django-cms.org/en/latest/reference/plugins.html#cms.plugin_base.CMSPluginBase.text_enabled
 
 
-Default content in Placeholder
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Default content in placeholders
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can use ``TextPlugin`` in "default_plugins" (see docs
-about the CMS_PLACEHOLDER_CONF_ setting). ``TextPlugin`` requires just
-one value: ``body`` where you write your default HTML content. If you want to add some
-"default children" to your automagically added plugin (i.e. a ``LinkPlugin``), you have
-to put children references in the body. References are ``"%(_tag_child_<order>)s"`` with
-the inserted order of children. For example:
+You can use ``TextPlugin`` in ``default_plugins`` (see the
+`CMS_PLACEHOLDER_CONF`_ setting docs). ``TextPlugin`` requires a single
+value: ``body`` for the default HTML content. To attach default children
+(e.g. a ``LinkPlugin``), reference them in the body using
+``"%(_tag_child_<order>)s"`` placeholders:
 
 .. code-block::
 
@@ -351,119 +287,153 @@ the inserted order of children. For example:
         }
     }
 
-.. _cms_placeholder_conf: https://docs.django-cms.org/en/stable/reference/configuration.html#cms-placeholder-conf
+.. _CMS_PLACEHOLDER_CONF: https://docs.django-cms.org/en/stable/reference/configuration.html#cms-placeholder-conf
 
 
-Configurable sanitizer
-----------------------
+HTML sanitizer
+~~~~~~~~~~~~~~
 
-``djangocms-text`` uses `nh3 <https://nh3.readthedocs.io/en/latest/>`_ to sanitize HTML to avoid
-security issues and to check for correct HTML code.
-Sanitisation may strip tags useful for some use cases such as ``iframe``;
-you may customize the tags and attributes allowed by overriding the
-``TEXT_ADDITIONAL_ATTRIBUTES`` setting::
+``djangocms-text`` uses `nh3 <https://nh3.readthedocs.io/en/latest/>`_ to
+sanitize HTML, both for security and to enforce well-formed markup.
+Sanitization may strip tags useful for some use cases (e.g. ``iframe``).
+Customize allowed tags and attributes via ``TEXT_ADDITIONAL_ATTRIBUTES``::
 
     TEXT_ADDITIONAL_ATTRIBUTES = {
         'iframe': {'scrolling', 'allowfullscreen', 'frameborder'},
     }
 
-Note that the ``TEXT_ADDITIONAL_ATTRIBUTES`` setting is a dictionary, where the keys are
-the tag names and the values are sets of attribute names.
+The dictionary maps tag names to sets of allowed attribute names.
 
-If you have settings in the style of djangocms-text-ckeditor, which utilizes
-both ``TEXT_ADDITIONAL_TAGS`` and ``TEXT_ADDITIONAL_ATTRIBUTES``, those will
-be translated for you automatically, but you will get a warning from the
-Django checks framework at server startup.
+If you have settings in the older djangocms-text-ckeditor style using both
+``TEXT_ADDITIONAL_TAGS`` and ``TEXT_ADDITIONAL_ATTRIBUTES``, those will be
+translated automatically — with a warning from the Django checks framework
+at server startup.
+
+**Note**: Some frontend editors pre-sanitize content before sending it to
+the server, which can render the above settings ineffective.
+
+To disable sanitization entirely, set ``TEXT_HTML_SANITIZE = False``.
 
 
-**NOTE**: Some frontend editors will pre-sanitize your text before passing it to the web server,
-rendering the above settings useless.
-
-To completely disable the feature, set ``TEXT_HTML_SANITIZE = False``.
-
-Usage outside django CMS
-------------------------
-
-django CMS Text can be used without django CMS installed. Without django CMS it
-offers the ``HTMLField``, ``HTMLFormField``, and the ``TextEditorWidget`` class
-which can be used by any Django model or form.
-
-If django CMS is not installed with django CMS Text, add the following to your
-``MIGRATION_MODULES`` setting::
-
-    MIGRATION_MODULES = {
-        ...,
-        "djangocms_text": None,
-        ...
-    }
-
-This will prevent the creation of the model for the django CMS text plugin.
-
-Markdown-support
+Markdown support
 ----------------
-The TipTap frontend supports some (minimal) Markdown support:
 
-* Markdown is converted to HTML when **pasting**. (To prevent XXS attacks, the
-  pasted content might not be converted if it contains javascript scritps.)
-* When **typing**, markdown syntax is converted on the fly
+The TipTap frontend includes (minimal) Markdown support:
 
-Supported Markdown syntax includes:
+- Markdown is converted to HTML when **pasting**. (To prevent XSS attacks,
+  pasted content is not converted if it contains JavaScript.)
+- When **typing**, Markdown syntax is converted on the fly.
 
-* Headings: ``# Heading 1``, ``## Heading 2``, ``### Heading 3``, etc.
-* Bold: ``**bold text**`` or ``__bold text__``
-* Italic: ``*italic text*`` or ``_italic text_``
-* Strikethrough: ``~~strikethrough~~``
-* Links: ``[link text](http://example.com)``
-* Lists: ``- Item`` or ``* Item`` for unordered lists, and ``1. Item`` for ordered lists
-* Blockquotes: ``> Quote``
-* Code: ```inline code``` für Inline-Code, und dreifache Backticks für Code-Blöcke
-* Tables (pasting only): Tables can be created using the `|` character to separate columns.
-  For example, a simple table can be created as follows::
+Supported syntax:
+
+- Headings: ``# Heading 1``, ``## Heading 2``, ``### Heading 3``, etc.
+- Bold: ``**bold text**`` or ``__bold text__``
+- Italic: ``*italic text*`` or ``_italic text_``
+- Strikethrough: ``~~strikethrough~~``
+- Links: ``[link text](http://example.com)``
+- Lists: ``- Item`` or ``* Item`` for unordered, ``1. Item`` for ordered.
+- Blockquotes: ``> Quote``
+- Code: ```inline code``` for inline code, triple backticks for code blocks.
+- Tables (pasting only): use ``|`` to separate columns::
 
     | Header 1 | Header 2 |
     |----------|----------|
     | Row 1    | Row 2    |
 
-* Horiuzontal rules: ``---`` to create a horizontal rule.
+- Horizontal rules: ``---``
+
+
+Migrating from djangocms-text-ckeditor
+--------------------------------------
+
+djangocms-text's migrations automatically migrate existing text plugins
+from djangocms-text-ckeditor and clean up old tables. To migrate:
+
+1. Uninstall ``djangocms-text-ckeditor``.
+2. Remove ``djangocms_text_ckeditor`` from ``INSTALLED_APPS``.
+3. Add ``djangocms_text`` to ``INSTALLED_APPS`` (see Installation_).
+4. Run ``python -m manage migrate djangocms_text``.
+
+**Attention**: The migration also deletes djangocms-text-ckeditor's tables
+from the database (to avoid referential integrity issues). Make a backup
+beforehand to be safe.
+
+Switching from CKEditor 4 to TipTap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When transitioning from CKEditor 4 to TipTap (the new default), keep these
+points in mind:
+
+- **No HTML source editing** — TipTap does not support direct HTML source
+  editing. This simplifies the editor for most users but may be a drawback
+  for advanced users or developers who manually edit HTML.
+- **Loss of non-standard formatting** — TipTap stores content in an
+  abstract JSON format and regenerates HTML on edit. Formatting created via
+  CKEditor 4 plugins or manually added HTML classes may not be preserved.
+  This only happens on first edit after migration.
+- **Keep using CKEditor 4 if needed** — If retaining CKEditor 4 behavior is
+  essential, use the CKEditor 4 backend that ships with djangocms-text.
+
+**You can continue to use CKEditor 4.** Compared to djangocms-text-ckeditor,
+the CKEditor 4 sources have moved to
+``static/djangocms_text/vendor/ckeditor4``. Update any custom CKEditor 4
+plugins accordingly.
+
+
+Usage outside django CMS
+------------------------
+
+django CMS Text can be used without django CMS installed. It provides
+``HTMLField``, ``HTMLFormField``, and the ``TextEditorWidget`` class for use
+with any Django model or form.
+
+When django CMS is not installed alongside django CMS Text, add this to your
+``MIGRATION_MODULES`` setting to skip creation of the CMS plugin model::
+
+    MIGRATION_MODULES = {
+        ...,
+        "djangocms_text": None,
+        ...,
+    }
 
 
 Contributing
 ------------
 
-Contributions to ``djangocms-text`` are welcome! Please read our
+Contributions to ``djangocms-text`` are welcome! See the
 `contributing guidelines <https://docs.django-cms.org/en/stable/contributing/index.html>`_
 to get started.
 
 pre-commit hooks
 ~~~~~~~~~~~~~~~~
 
-The repo uses pre-commit git hooks to run tools which ensure code quality.
+The repo uses pre-commit git hooks to ensure code quality. Install with::
 
-To utilise this, run ``pip install pre-commit`` and then ``pre-commit install``.
+    pip install pre-commit
+    pre-commit install
 
 Building the JavaScript
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-``djangocms-text`` distributes a javascript bundle required for the plugin to work,
-which contains frontend editors themselves and all the necessary plugins for functioning
-within CMS. To build the bundle you need to have to install dependencies with
-``nvm use``, ``npm install`` and then to run ``npx webpack``::
+``djangocms-text`` distributes a JavaScript bundle containing the editor
+frontends and CMS integration. To rebuild the bundle::
 
-    $ nvm use
-    $ npm install
-    $ npx webpack
+    nvm use
+    npm install
+    npx webpack
+
 
 Acknowledgments
 ---------------
 
-Special thanks to the Django CMS community and all contributors to the
+Special thanks to the django CMS community and to all contributors to the
 ``djangocms-text-ckeditor`` project.
 
 License
 -------
 
-This project is licensed under the BSD-3-Clause License - see the LICENSE file for
-details.
+This project is licensed under the BSD-3-Clause License — see the LICENSE
+file for details.
 
 
 .. |pypi| image:: https://badge.fury.io/py/djangocms-text.svg

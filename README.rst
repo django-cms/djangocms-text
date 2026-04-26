@@ -420,7 +420,12 @@ frontends and CMS integration. To rebuild the bundle::
 
     nvm use
     npm install
-    npx webpack
+    npm run build
+
+Other build scripts:
+
+* ``npm run build:dev`` — unminified development build
+* ``npm run watch`` — rebuild on file changes
 
 
 Acknowledgments

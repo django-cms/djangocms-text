@@ -28,6 +28,23 @@ function _findInlineWrapper(target) {
 }
 
 
+// Has this wrapper got an *initialised* editor right now? Inline text
+// plugin wrappers are page DOM (we don't own them), so they outlive
+// the editor instance — the dblclick guard must consult the live
+// editor registry on each event rather than assume "still active".
+function _wrapperHasEditor(wrapper) {
+    if (!wrapper || !wrapper.id) {
+        return false;
+    }
+    const tiptapEditors = window.cms_editor_plugin && window.cms_editor_plugin._editors;
+    const genericEditors = window.CMS_Editor && window.CMS_Editor._generic_editors;
+    return !!(
+        (tiptapEditors && wrapper.id in tiptapEditors) ||
+        (genericEditors && wrapper.id in genericEditors)
+    );
+}
+
+
 /**
  * Per-wrapper bubble-phase boundary. Mirrors the
  * `pointerover.cms.plugin` / `pointerout.cms.plugin` idiom used elsewhere
@@ -43,6 +60,12 @@ function _findInlineWrapper(target) {
  * frequently a `<cms-plugin>` tag (text plugins are inline-edited in
  * place), which is why we walk up explicitly rather than using
  * `target.closest('cms-plugin')` and comparing identity.
+ *
+ * Lifecycle: the listener is gated on `_wrapperHasEditor`. After the
+ * editor is destroyed (without the wrapper being removed — the common
+ * case for in-place text-plugin editing) the listener stays attached
+ * but becomes a no-op, so a dblclick on the now-editorless cms-plugin
+ * tag correctly opens the CMS modal editor again.
  */
 function _attachInlineDblclickGuard(wrapper) {
     if (!wrapper || wrapper._cmsInlineDblclickGuardAttached) {
@@ -52,6 +75,9 @@ function _attachInlineDblclickGuard(wrapper) {
 
     wrapper.addEventListener('dblclick', (event) => {
         if (event.button !== 0) {
+            return;
+        }
+        if (!_wrapperHasEditor(wrapper)) {
             return;
         }
         for (let cur = event.target; cur && cur !== wrapper; cur = cur.parentElement) {
@@ -80,18 +106,6 @@ function _installInlineDblclickGuard() {
 
     let mouseDownWrapper = null;
 
-    // Only suppress the CMS modal if the wrapper has an *initialized* editor.
-    // If editor creation failed (e.g. bad content), the fallback to the CMS
-    // modal editor should still work via a regular double-click.
-    const wrapperHasEditor = (wrapper) => {
-        if (!wrapper || !wrapper.id) {
-            return false;
-        }
-        const tiptapEditors = window.cms_editor_plugin?._editors || {};
-        const genericEditors = window.CMS_Editor?._generic_editors || {};
-        return wrapper.id in tiptapEditors || wrapper.id in genericEditors;
-    };
-
     document.addEventListener('mousedown', (event) => {
         // Only primary button starts a double-click gesture we care about
         if (event.button !== 0) {
@@ -112,7 +126,7 @@ function _installInlineDblclickGuard() {
             mouseDownWrapper = null;
             return;
         }
-        if (mouseDownWrapper && wrapperHasEditor(mouseDownWrapper)) {
+        if (mouseDownWrapper && _wrapperHasEditor(mouseDownWrapper)) {
             event.stopPropagation();
         }
         mouseDownWrapper = null;

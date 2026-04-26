@@ -687,6 +687,23 @@ describe('CMSEditor', () => {
             bareWrapper.remove();
         });
 
+        it('stops suppressing once the wrapper\'s editor is destroyed', () => {
+            // The wrapper for an in-place text plugin is page DOM that
+            // outlives the editor instance. After the editor is
+            // destroyed (without the wrapper being removed), dblclicks
+            // should reach the document delegate again so the CMS
+            // modal can be opened by dblclick on the same plugin tag.
+            const target = document.createElement('span');
+            wrapper.appendChild(target);
+            // Simulate editor teardown: the wrapper survives in the
+            // DOM but is no longer in the editor registry.
+            delete window.cms_editor_plugin._editors[wrapper.id];
+
+            dispatchDblclick(target);
+
+            expect(docDblclick).toHaveBeenCalledTimes(1);
+        });
+
         it('attachInlineDblclickGuard is idempotent', () => {
             // Calling twice must not stack listeners — otherwise a
             // second call from a re-init path would double the work

@@ -295,6 +295,11 @@ class DynamicAttributesTestCase(TestCase):
         from unittest.mock import patch as _patch
 
         mock_obj = MagicMock()
+        # The filer-image contrib registers a resolver that prefers
+        # `obj.url`; pin it to None so the test exercises the
+        # `get_absolute_url` branch regardless of which resolver
+        # `dynamic_attr_pool['data-cms-src']` currently points at.
+        mock_obj.url = None
         mock_obj.get_absolute_url.return_value = "/resolved.jpg"
         with _patch("djangocms_text.html.apps.get_model") as mock_get_model:
             mock_get_model.return_value.objects.filter.return_value = [mock_obj]

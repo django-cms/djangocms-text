@@ -2,8 +2,9 @@
   "name": "djangocms-text",
   "version": "1.0.0",
   "scripts": {
-    "build": "webpack --mode=production",
-    "build:dev": "webpack --mode=development",
+    "build": "webpack --mode=production && npm run build:contribs",
+    "build:dev": "webpack --mode=development && npm run build:contribs",
+    "build:contribs": "npm run build --prefix djangocms_text/contrib/filer_image",
     "watch": "webpack --mode=development --watch",
     "test": "jest",
     "test:watch": "jest --watch",

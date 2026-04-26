@@ -57,17 +57,11 @@ class CmsDialog {
         const settings = window.CMS_Editor.getSettings(this.el);
         this.dialog.querySelector(".cms-modal-title-suffix").textContent = settings.lang.edit;
         this.dialog.querySelector(".cms-modal-title-prefix").textContent = settings.lang.toolbar;
-        this.dialog.querySelector('.cms-modal-title').addEventListener('mousedown', (event) => {
+        this.dialog.querySelector('.cms-modal-title').addEventListener('pointerdown', (event) => {
             this.dragDialog(event);
         });
-        this.dialog.querySelector('.cms-modal-title').addEventListener('touchstart', (event) => {
-            this.swipeDialog(event);
-        });
-        this.dialog.querySelector('.cms-modal-resize').addEventListener('mousedown', (event) => {
+        this.dialog.querySelector('.cms-modal-resize').addEventListener('pointerdown', (event) => {
             this.resizeDialog(event);
-        });
-        this.dialog.querySelector('.cms-modal-resize').addEventListener('touchstart', (event) => {
-            this.touchResizeDialog(event);
         });
         const closeEvent = (event) => {
             event.stopPropagation();
@@ -191,12 +185,44 @@ class CmsDialog {
     }
 
     /**
-     * Allows dragging the dialog based on the user's mouse movements.
+     * Captures the pointer on the handle and forwards `pointermove` to
+     * `onMove`. Cleans up on `pointerup`, `pointercancel`, or
+     * `lostpointercapture` so the drag never gets stuck (e.g. when the
+     * pointer crosses into the inner iframe or leaves the window).
      *
-     * @param {Event} event - The mouse event that triggers the drag.
+     * @param {PointerEvent} event - The pointerdown event on the handle.
+     * @param {Function} onMove - Called with each pointermove event.
+     */
+    _capturePointer(event, onMove) {
+        const handle = event.currentTarget;
+        handle.setPointerCapture(event.pointerId);
+        const onEnd = () => {
+            handle.removeEventListener('pointermove', onMove);
+            handle.removeEventListener('pointerup', onEnd);
+            handle.removeEventListener('pointercancel', onEnd);
+            handle.removeEventListener('lostpointercapture', onEnd);
+        };
+        handle.addEventListener('pointermove', onMove);
+        handle.addEventListener('pointerup', onEnd);
+        handle.addEventListener('pointercancel', onEnd);
+        handle.addEventListener('lostpointercapture', onEnd);
+    }
+
+    /**
+     * Drags the dialog from the title bar. Uses pointer events so the
+     * gesture works for mouse, touch, and pen, and stays consistent
+     * even when the pointer crosses the inner iframe.
+     *
+     * @param {PointerEvent} event - The pointerdown event on the title bar.
      */
     dragDialog(event) {
-        if (event.which !== 1) {
+        if (event.button !== 0 || !event.isPrimary) {
+            return;
+        }
+        // Don't start a drag when the pointerdown lands on an interactive
+        // child (e.g. the close icon). preventDefault() below would
+        // otherwise swallow the child's click.
+        if (event.target.closest('.cms-modal-close')) {
             return;
         }
         event.preventDefault();
@@ -205,96 +231,37 @@ class CmsDialog {
         const initialX = parseInt(getComputedStyle(this.dialog).left);
         const initialY = parseInt(getComputedStyle(this.dialog).top);
 
-        const dragIt = (e) => {
+        this._capturePointer(event, (e) => {
             this.dialog.style.left = initialX + e.pageX - firstX + 'px';
             this.dialog.style.top = initialY + e.pageY - firstY + 'px';
-        };
-        const Window = window.parent || window;
-        Window.addEventListener('mousemove', dragIt, false);
-        Window.addEventListener('mouseup', (e) => {
-            Window.removeEventListener('mousemove', dragIt, false);
-        }, false);
+        });
     }
 
     /**
-     * Allows dragging the dialog based on the user's touch movements.
+     * Resizes the dialog from the custom handle. Replaces native CSS
+     * `resize` because Safari clips the native handle to the dialog's
+     * rounded corner.
      *
-     * @param {Event} event - The touch event that triggers the drag.
-     */
-    swipeDialog(event) {
-        event.preventDefault();
-
-        const firstX = event.pageX;
-        const firstY = event.pageY;
-        const initialX = parseInt(getComputedStyle(this.dialog).left);
-        const initialY = parseInt(getComputedStyle(this.dialog).top);
-
-        const swipeIt = (e) => {
-            const contact = e.touches;
-            this.dialog.style.left = initialX + contact[0].pageX - firstX + 'px';
-            this.dialog.style.top = initialY + contact[0].pageY - firstY + 'px';
-        };
-
-        const Window = window.parent || window;
-        Window.addEventListener('touchmove', swipeIt, false);
-        Window.addEventListener('touchend', (e) => {
-            Window.removeEventListener('touchmove', swipeIt, false);
-        }, false);
-    }
-
-    /**
-     * Resizes the dialog based on the user's mouse movements on the
-     * custom resize handle. Replaces native CSS `resize` because Safari
-     * clips the native handle to the dialog's rounded corner.
-     *
-     * @param {Event} event - The mouse event that triggers the resize.
+     * @param {PointerEvent} event - The pointerdown event on the resize handle.
      */
     resizeDialog(event) {
-        if (event.which !== 1) {
+        if (event.button !== 0 || !event.isPrimary) {
             return;
         }
         event.preventDefault();
         event.stopPropagation();
         const firstX = event.pageX;
         const firstY = event.pageY;
-        const initialW = parseInt(getComputedStyle(this.dialog).width);
-        const initialH = parseInt(getComputedStyle(this.dialog).height);
+        const style = getComputedStyle(this.dialog);
+        const initialW = parseInt(style.width);
+        const initialH = parseInt(style.height);
+        const minW = parseInt(style.minWidth) || 0;
+        const minH = parseInt(style.minHeight) || 0;
 
-        const resizeIt = (e) => {
-            this.dialog.style.width = initialW + e.pageX - firstX + 'px';
-            this.dialog.style.height = initialH + e.pageY - firstY + 'px';
-        };
-        const Window = window.parent || window;
-        Window.addEventListener('mousemove', resizeIt, false);
-        Window.addEventListener('mouseup', () => {
-            Window.removeEventListener('mousemove', resizeIt, false);
-        }, false);
-    }
-
-    /**
-     * Resizes the dialog based on the user's touch movements on the
-     * custom resize handle.
-     *
-     * @param {Event} event - The touch event that triggers the resize.
-     */
-    touchResizeDialog(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const firstX = event.touches[0].pageX;
-        const firstY = event.touches[0].pageY;
-        const initialW = parseInt(getComputedStyle(this.dialog).width);
-        const initialH = parseInt(getComputedStyle(this.dialog).height);
-
-        const resizeIt = (e) => {
-            const contact = e.touches;
-            this.dialog.style.width = initialW + contact[0].pageX - firstX + 'px';
-            this.dialog.style.height = initialH + contact[0].pageY - firstY + 'px';
-        };
-        const Window = window.parent || window;
-        Window.addEventListener('touchmove', resizeIt, false);
-        Window.addEventListener('touchend', () => {
-            Window.removeEventListener('touchmove', resizeIt, false);
-        }, false);
+        this._capturePointer(event, (e) => {
+            this.dialog.style.width = Math.max(minW, initialW + e.pageX - firstX) + 'px';
+            this.dialog.style.height = Math.max(minH, initialH + e.pageY - firstY) + 'px';
+        });
     }
 }
 

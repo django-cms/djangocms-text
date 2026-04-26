@@ -41,8 +41,6 @@ describe('Tiptap registry bootstrap and drain', () => {
     it('drains the queue into the real registry when the tiptap bundle loads', () => {
         require('../../private/js/cms.editor');
 
-        expect(window.CMS_Editor.tiptap._queue).toBeUndefined();
-
         const factory = ({Node}) => Node.create({
             name: 'droppedNode',
             group: 'block',

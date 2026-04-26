@@ -19,24 +19,58 @@ const WRAPPER_TAGS = new Set([
 // document-level dblclick guard listeners.
 let _inlineDblclickGuardInstalled = false;
 
+// Find the enclosing inline editor wrapper for a target element.
+function _findInlineWrapper(target) {
+    if (!target || target.nodeType !== 1 || !target.closest) {
+        return null;
+    }
+    return target.closest('.cms-editor-inline-wrapper');
+}
+
+
 /**
- * Installs a one-time document-level capture-phase guard that prevents CMS's
- * delegated `dblclick.cms.plugin` handler from opening the modal editor when
- * the double-click belongs to an inline editor (tiptap or generic text editor).
+ * Per-wrapper bubble-phase boundary. Mirrors the
+ * `pointerover.cms.plugin` / `pointerout.cms.plugin` idiom used elsewhere
+ * in this file: each inline-editor wrapper owns a bubble listener that
+ * keeps the event from bubbling out to django-cms's delegated
+ * `dblclick.cms.plugin` handler on `document`. Editor-side handlers on
+ * descendants (e.g. ProseMirror's `view.dom` dblclick listeners) live
+ * deeper in the bubble path and have already fired by then.
  *
- * Why this needs to live on `document` in capture phase, and not on the
- * wrapper itself:
- *   * django-cms binds `dblclick.cms.plugin` via jQuery delegation on
- *     `document`, so `.off('dblclick.cms.plugin')` on the wrapper is a
- *     no-op — only stopping propagation before it reaches `document`'s
- *     bubble phase actually disarms it.
- *   * For a plain double-click the wrapper-bound handler is enough, but
- *     for "double-click + drag to extend by word" the second mouseup
- *     lands on a different node (often outside the wrapper), so the
- *     dblclick that jQuery ultimately routes never bubbles through the
- *     wrapper at all. We therefore also remember whether the preceding
- *     mousedown originated inside an inline wrapper and use that as a
- *     fallback signal.
+ * Pass-through: if a *descendant* `<cms-plugin>` is between the target
+ * and this wrapper, the event must continue to the document delegate so
+ * the nested plugin's modal editor can open. The wrapper itself is
+ * frequently a `<cms-plugin>` tag (text plugins are inline-edited in
+ * place), which is why we walk up explicitly rather than using
+ * `target.closest('cms-plugin')` and comparing identity.
+ */
+function _attachInlineDblclickGuard(wrapper) {
+    if (!wrapper || wrapper._cmsInlineDblclickGuardAttached) {
+        return;
+    }
+    wrapper._cmsInlineDblclickGuardAttached = true;
+
+    wrapper.addEventListener('dblclick', (event) => {
+        if (event.button !== 0) {
+            return;
+        }
+        for (let cur = event.target; cur && cur !== wrapper; cur = cur.parentElement) {
+            if (cur.tagName === 'CMS-PLUGIN') {
+                return;
+            }
+        }
+        event.stopPropagation();
+    });
+}
+
+
+/**
+ * Document-level fallback for the "double-click + drag to extend by
+ * word" gesture: the synthesised dblclick can land on a node *outside*
+ * the wrapper, so the per-wrapper guard never sees it. We track the
+ * wrapper the mousedown started in and stop the event in capture if
+ * the dblclick lands elsewhere — there is no editor handler in that
+ * bubble path, so a plain `stopPropagation` is safe.
  */
 function _installInlineDblclickGuard() {
     if (_inlineDblclickGuardInstalled) {
@@ -44,17 +78,7 @@ function _installInlineDblclickGuard() {
     }
     _inlineDblclickGuardInstalled = true;
 
-    // Track the wrapper where the gesture started, not just a boolean.
-    // We need the wrapper element to check if it has an active editor.
     let mouseDownWrapper = null;
-
-    // Find the enclosing inline editor wrapper for a target element.
-    const findInlineWrapper = (target) => {
-        if (!target || target.nodeType !== 1 || !target.closest) {
-            return null;
-        }
-        return target.closest('.cms-editor-inline-wrapper');
-    };
 
     // Only suppress the CMS modal if the wrapper has an *initialized* editor.
     // If editor creation failed (e.g. bad content), the fallback to the CMS
@@ -74,29 +98,23 @@ function _installInlineDblclickGuard() {
             mouseDownWrapper = null;
             return;
         }
-        mouseDownWrapper = findInlineWrapper(event.target);
+        mouseDownWrapper = _findInlineWrapper(event.target);
     }, true);
 
     document.addEventListener('dblclick', (event) => {
         if (event.button !== 0) {
             return;
         }
-        const currentWrapper = findInlineWrapper(event.target);
-        const wrapper = currentWrapper || mouseDownWrapper;
-        if (wrapper && wrapperHasEditor(wrapper)) {
-            // Let double-clicks on nested cms-plugin tags pass through to
-            // the editor (e.g. tiptap's node view handler opens the plugin
-            // dialog and stops propagation itself).
-            const onCmsPlugin = event.target.nodeType === 1 &&
-                event.target.closest &&
-                event.target.closest('cms-plugin');
-            if (!onCmsPlugin) {
-                // Stop the event before it reaches document's bubble phase,
-                // where jQuery's delegated `.cms-plugin` handler lives.
-                event.stopPropagation();
-            }
+        // In-wrapper dblclicks are handled by the per-wrapper guard
+        // installed at editor mount; we only care about the
+        // out-of-wrapper drag-extend case here.
+        if (_findInlineWrapper(event.target)) {
+            mouseDownWrapper = null;
+            return;
         }
-        // Reset the gesture state after the dblclick is handled.
+        if (mouseDownWrapper && wrapperHasEditor(mouseDownWrapper)) {
+            event.stopPropagation();
+        }
         mouseDownWrapper = null;
     }, true);
 
@@ -210,6 +228,18 @@ class CMSEditor {
     // CMS Editor: initInlineEditors
     // Register all plugins on the page for inline editing
     // This is called from init_all
+    /**
+     * Attach the inline-editor double-click event boundary to a wrapper.
+     * Each wrapper owns this listener; it stops dblclicks from reaching
+     * django-cms's document-level `dblclick.cms.plugin` delegate while
+     * letting editor-internal handlers (registered on descendants) fire
+     * normally. Idempotent. Exposed so tests and any callers that build
+     * wrappers outside `initInlineEditors` can opt in to the guard.
+     */
+    attachInlineDblclickGuard(wrapper) {
+        _attachInlineDblclickGuard(wrapper);
+    }
+
     initInlineEditors() {
         if (this.CMS === undefined || this.CMS._plugins === undefined) {
             // Check the CMS frontend for plugins
@@ -283,9 +313,13 @@ class CMSEditor {
                 }
 
                 if (wrapper) {
+                    // Stop dblclicks at the wrapper before they reach the
+                    // document-delegated `dblclick.cms.plugin` handler — the
+                    // canonical "block events from leaving my component"
+                    // pattern, mirroring the pointer-event setup below.
+                    _attachInlineDblclickGuard(wrapper);
+
                     // Catch CMS single click event to highlight the plugin.
-                    // Double-click suppression is handled by the document-level
-                    // capture-phase guard installed in initInlineEditors().
                     if (!Array.from(this.observer.root?.children || []).includes(wrapper)) {
                         // Only add to the observer if not already observed (e.g., if the page only was update partially)
                         this.observer.observe(wrapper);

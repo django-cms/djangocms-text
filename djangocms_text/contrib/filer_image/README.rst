@@ -14,6 +14,24 @@ package with **its own webpack configuration** that bundles a small
 multi-module source tree into the same kind of registry-friendly IIFE.
 
 
+What the user sees
+------------------
+
+- A **Filer image** button in the toolbar opens filer's directory
+  listing in a popup window. Picking a file inserts an ``<img>`` at the
+  current cursor position.
+- **Single-clicking** an existing image opens the class form
+  (configurable via ``TEXT_FILER_IMAGE_CLASSES`` — see below). A short
+  guard window lets a follow-up click promote the gesture into a
+  dblclick.
+- **Double-clicking** an existing image re-opens the filer picker so
+  the user can swap the underlying file in place. Alt, title, class
+  and any other author-set attributes are preserved.
+- If a default class is configured, newly inserted images are tagged
+  with the first entry — saving the author from setting it manually
+  every time.
+
+
 What it demonstrates
 --------------------
 
@@ -35,22 +53,40 @@ What it demonstrates
 3. **Splitting an extension across modules.**
    ``src/`` contains four files: an entry (``index.js``), the popup
    plumbing (``popup.js``), the toolbar item (``toolbar.js``) and the
-   global-attribute extension (``extension.js``). Webpack joins them
-   into one IIFE; the source layout is the developer's only.
+   schema/plugin extension (``extension.js``). Webpack joins them into
+   one IIFE; the source layout is the developer's only.
 
 4. **Round-tripping a dynamic reference.**
    When the user picks an image, the toolbar inserts ``<img>`` with both
    ``src`` (the resolved URL) and ``data-cms-src="filer.image:<pk>"``.
-   The ``__init__.py`` registers a filer-aware resolver for
-   ``data-cms-src`` so the public render uses the live filer URL — even
-   if the underlying file is later renamed or moved.
+   ``__init__.py`` registers a filer-aware resolver for ``data-cms-src``
+   so the public render uses the live filer URL — even if the
+   underlying file is later renamed or moved.
 
-5. **Interoperating with django-filer's existing popup contract.**
+5. **Adding attributes to an existing node without forking it.**
+   The TipTap image extension does not declare ``class`` or
+   ``data-cms-src``; we extend its schema via ``addGlobalAttributes``
+   in a fresh ``Extension``, keeping the upstream node intact and
+   avoiding a duplicate ``image`` definition.
+
+6. **Using the host's `openCmsForm` UI from a contrib.**
+   The class picker is a `cms.formextension` dialog (the same UI the
+   dynamic-link extension uses) populated from a form schema published
+   server-side via :func:`register_toolbar_labels`. No bespoke balloon,
+   no second dialog stack.
+
+7. **Interoperating with django-filer's existing popup contract.**
    The popup is the standard
    ``admin:filer-directory_listing-last?_popup=1&_pick=file`` view.
    ``window.dismissRelatedImageLookupPopup`` is wrapped so popups our
    toolbar opened route into the editor while popups belonging to plain
    filer form widgets keep using the original handler.
+
+8. **Patching a third-party admin from `AppConfig.ready()`.**
+   ``apps.py`` adds an ``info-json/`` endpoint to filer's ``FileAdmin``
+   so the JS can upgrade the picker's thumbnail URL to the original
+   image URL after the popup dismisses. The endpoint URL is published
+   to the editor via ``additional_context``.
 
 
 Installation
@@ -82,6 +118,23 @@ Installation
            ],
        }
 
+4. *(Optional)* Declare the utility classes the class picker should
+   offer. Each entry is a ``(class_name, verbose_name)`` tuple. The
+   first entry is also used as the default class for newly inserted
+   images. Add an ``("", _("None"))`` entry first if you want a
+   no-class option (it is **not** synthesised automatically)::
+
+       from django.utils.translation import gettext_lazy as _
+
+       TEXT_FILER_IMAGE_CLASSES = (
+           ("img-fluid", _("Responsive")),
+           ("rounded", _("Rounded")),
+           ("img-thumbnail", _("Framed")),
+       )
+
+   Without this setting, the toolbar button still inserts and swaps
+   images; only the class picker form is suppressed.
+
 If filer isn't installed, the script logs a console warning when the
 button is clicked and otherwise stays out of the way.
 
@@ -104,16 +157,25 @@ Files
 -----
 
 - ``__init__.py`` — appends the script to ``DEFAULT_EDITOR.js``,
-  registers the toolbar label, contributes the popup URL, and replaces
-  the ``data-cms-src`` resolver with one that handles filer.
+  publishes the toolbar label and form schema (built from
+  ``TEXT_FILER_IMAGE_CLASSES``), contributes the popup URL via
+  ``additional_context``, and replaces the ``data-cms-src`` resolver
+  with one that handles filer's ``.url`` property.
+- ``apps.py`` — ``AppConfig.ready()`` patches filer's ``FileAdmin`` to
+  expose an ``info-json/`` endpoint and publishes the URL to the editor.
 - ``webpack.config.js`` / ``package.json`` — local build.
 - ``src/index.js`` — entry; calls into the registry on
   ``window.CMS_Editor.tiptap``.
-- ``src/extension.js`` — adds ``data-cms-src`` to the existing image
-  node via ``addGlobalAttributes`` (no second image extension).
-- ``src/popup.js`` — opens filer's directory listing in a popup and
-  wraps ``dismissRelatedImageLookupPopup`` to route the chosen image
-  back into the editor.
-- ``src/toolbar.js`` — the ``FilerImage`` toolbar item definition.
+- ``src/extension.js`` — adds ``data-cms-src``/``class`` global
+  attributes to the existing image node and installs the click /
+  dblclick mouse plugin.
+- ``src/popup.js`` — opens filer's directory listing in a popup, fetches
+  the original URL via the info-json endpoint, and wraps
+  ``dismissRelatedImageLookupPopup`` to route the chosen image back into
+  the editor (insert vs. in-place swap depending on whether an image is
+  already selected).
+- ``src/toolbar.js`` — the ``FilerImage`` toolbar item (insert when no
+  image is selected, ``openCmsForm`` when one is) plus the form's
+  ``formAction`` / ``attributes`` callbacks.
 - ``static/djangocms_text/tiptap_plugins/cms.filer_image.js`` — built
   output that Django serves alongside the main editor bundle.

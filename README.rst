@@ -343,6 +343,32 @@ Supported syntax:
 - Horizontal rules: ``---``
 
 
+Optional contrib extensions
+---------------------------
+
+Three small contrib packages ship with djangocms-text as **demos of how
+to extend the TipTap editor dynamically** — at runtime, through the
+``window.CMS_Editor.tiptap`` registry, without forking djangocms-text
+or pulling a second copy of TipTap into the page. The full registry
+contract is documented in `tiptap-extensions.md`_.
+
+Each is opt-in: add the relevant app to ``INSTALLED_APPS``. The READMEs
+linked below cover what each package adds, the configuration knobs it
+exposes, and the integration pattern it illustrates.
+
+- `djangocms_text.contrib.filer_image
+  <djangocms_text/contrib/filer_image/README.rst>`_ —
+  insert django-filer images via filer's existing picker popup,
+- `djangocms_text.contrib.youtube
+  <djangocms_text/contrib/youtube/README.rst>`_ —
+  embed YouTube videos via a toolbar button.
+- `djangocms_text.contrib.officepaste
+  <djangocms_text/contrib/officepaste/README.rst>`_ —
+  strip Word/Outlook detritus on paste.
+
+.. _tiptap-extensions.md: tiptap-extensions.md
+
+
 Migrating from djangocms-text-ckeditor
 --------------------------------------
 

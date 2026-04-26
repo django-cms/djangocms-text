@@ -87,6 +87,14 @@ describe('Filer image dynamic extension (contrib/filer_image)', () => {
         } else {
             delete window.fetch;
         }
+        // Trigger every open form dialog's `close` handler *before*
+        // destroying its editor — the handler removes the document
+        // click listener CmsForm installs (which would otherwise fire
+        // on the next test's clicks and crash trying to call back into
+        // the now-destroyed editor).
+        document.querySelectorAll('dialog.FilerImage-form').forEach(
+            (d) => d.dispatchEvent(new Event('close'))
+        );
         for (const id of Object.keys(plugin._editors)) {
             plugin.destroyEditor(document.getElementById(id));
         }
@@ -317,15 +325,21 @@ describe('Filer image dynamic extension (contrib/filer_image)', () => {
             return new Promise((resolve) => setTimeout(resolve, 0));
         }
 
-        it('auto-opens the form when the selection moves onto an image', async () => {
-            // Same content shape as the manual-action test below; the
-            // only difference is we never call the action — selecting
-            // the image alone must be enough.
-            const content = '<img src="/media/cat.jpg" alt="cat">';
-            const editor = createEditor('filer-form-auto', content);
+        function tickThroughDblclickGuard() {
+            // The click-form is deferred by ~250ms so a dblclick can
+            // cancel it. Drain that timer in tests.
+            return new Promise((resolve) => setTimeout(resolve, 300));
+        }
 
-            editor.chain().focus().setNodeSelection(0).run();
-            await tickAction();
+        it('opens the form on a single click on an image', async () => {
+            const content = '<img src="/media/cat.jpg" alt="cat">';
+            const editor = createEditor('filer-form-click', content);
+
+            const imgDom = editor.view.dom.querySelector('img');
+            imgDom.dispatchEvent(new MouseEvent('click', {
+                bubbles: true, cancelable: true,
+            }));
+            await tickThroughDblclickGuard();
 
             const dialog = editor.options.element
                 .querySelector('dialog.FilerImage-form');
@@ -333,14 +347,56 @@ describe('Filer image dynamic extension (contrib/filer_image)', () => {
             expect(dialog.querySelector('select[name="class"]')).not.toBeNull();
         });
 
-        it('does not auto-open the form when the form schema is missing', async () => {
-            // Even if the user clicks an image, with no schema published
-            // the auto-open path is a no-op — no empty dialog spawns.
+        it('does not open the form on selection change alone', async () => {
+            // Programmatic selection (keyboard nav, API call) must NOT
+            // trigger the form — only an actual click does.
+            const content = '<img src="/media/cat.jpg" alt="cat">';
+            const editor = createEditor('filer-form-no-auto', content);
+            editor.chain().focus().setNodeSelection(0).run();
+            await tickThroughDblclickGuard();
+
+            expect(editor.options.element
+                .querySelector('dialog.FilerImage-form')).toBeNull();
+        });
+
+        it('does not open the form on a dblclick — the picker wins', async () => {
+            // A dblclick fires two clicks first; the click-form must be
+            // cancelled so the user only sees the picker.
+            const content = '<img src="/media/cat.jpg" alt="cat">';
+            const editor = createEditor('filer-form-dblclick-cancels', content);
+            editor.options.settings = editor.options.settings || {};
+            editor.options.settings.filer_image_lookup_url =
+                '/admin/filer/?_popup=1&_pick=file';
+
+            const imgDom = editor.view.dom.querySelector('img');
+            // Browser order on a real dblclick: click, click, dblclick.
+            imgDom.dispatchEvent(new MouseEvent('click', {
+                bubbles: true, cancelable: true,
+            }));
+            imgDom.dispatchEvent(new MouseEvent('click', {
+                bubbles: true, cancelable: true,
+            }));
+            imgDom.dispatchEvent(new MouseEvent('dblclick', {
+                bubbles: true, cancelable: true,
+            }));
+            await tickThroughDblclickGuard();
+
+            // Picker opened, form did not.
+            expect(window.open).toHaveBeenCalledTimes(1);
+            expect(editor.options.element
+                .querySelector('dialog.FilerImage-form')).toBeNull();
+        });
+
+        it('does not open the form on click when the form schema is missing', async () => {
             plugin.lang = { FilerImage: { title: 'Filer image' } };
             const content = '<img src="/media/cat.jpg" alt="cat">';
-            const editor = createEditor('filer-form-auto-no-schema', content);
-            editor.chain().focus().setNodeSelection(0).run();
-            await tickAction();
+            const editor = createEditor('filer-form-click-no-schema', content);
+
+            const imgDom = editor.view.dom.querySelector('img');
+            imgDom.dispatchEvent(new MouseEvent('click', {
+                bubbles: true, cancelable: true,
+            }));
+            await tickThroughDblclickGuard();
 
             expect(editor.options.element
                 .querySelector('dialog.FilerImage-form')).toBeNull();

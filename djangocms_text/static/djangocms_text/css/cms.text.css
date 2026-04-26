@@ -23,7 +23,6 @@
 
 #cms-top dialog.cms-dialog {
     padding: 0;
-    resize: both;
     top: 50%;
     left: 50%;
     inset-inline-start: 50%;
@@ -37,6 +36,39 @@
         width: 100%;
         height: 100%;
         border: none;
+    }
+    .cms-modal-resize {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 24px;
+        height: 24px;
+        cursor: nwse-resize;
+        opacity: 0.5;
+        clip-path: polygon(100% 0, 100% 100%, 0 100%);
+        background: linear-gradient(
+            135deg,
+            transparent 0,
+            transparent 20%,
+            currentColor 20%,
+            currentColor 28%,
+            transparent 28%,
+            transparent 36%,
+            currentColor 36%,
+            currentColor 44%,
+            transparent 44%,
+            transparent 52%,
+            currentColor 52%,
+            currentColor 60%,
+            transparent 60%,
+            transparent 68%,
+            currentColor 68%,
+            currentColor 76%,
+            transparent 76%
+        );
+    }
+    .cms-modal-resize:hover {
+        opacity: 1;
     }
 }
 

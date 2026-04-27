@@ -90,7 +90,7 @@ rendering time, there is no runtime JS loader — deliver extension
 scripts through the regular static-file pipeline. The cleanest place to
 add them is the default editor's `RTEConfig.js` tuple, which
 `widgets.py` and the CMS toolbar both consume. See
-`djangocms_text/contrib/youtube/__init__.py` for a minimal example.
+`djangocms_text/contrib/officepaste/__init__.py` for a minimal example.
 
 ### Load-order independence
 
@@ -138,7 +138,7 @@ actually shown depends on two things:
 1. **Toolbar configuration** — the item name must appear in the
    toolbar array (e.g. `['Bold', 'Italic', '|', 'AcmeCallout']`).
    Inject it server-side next to your other contributions; see
-   `djangocms_text/contrib/youtube/__init__.py` for the pattern of
+   `djangocms_text/contrib/filer_image/__init__.py` for the pattern of
    appending to `DEFAULT_TOOLBAR_CMS` / `DEFAULT_TOOLBAR_HTMLField`.
 2. **Server-side label** — `_getRepresentation()` only renders an item
    that has a matching entry in the per-page `lang` config. Contribute

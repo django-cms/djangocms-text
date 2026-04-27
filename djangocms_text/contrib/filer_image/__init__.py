@@ -8,14 +8,14 @@ the main bundle.
 What it demonstrates
 --------------------
 
-Unlike :mod:`djangocms_text.contrib.youtube` and
-:mod:`djangocms_text.contrib.officepaste`, which ship hand-written IIFE
-files, this contrib has its **own** webpack configuration. The source
-under ``src/`` is split across ES modules and bundled into a single IIFE
-that lives in ``static/``. The webpack config has **no** ``@tiptap``
-imports — the bundled script communicates with the host editor purely
-through the ``window.CMS_Editor.tiptap`` registry contract, so no second
-copy of TipTap or ProseMirror ends up in the page.
+Unlike :mod:`djangocms_text.contrib.officepaste`, which ships a
+hand-written IIFE file, this contrib has its **own** webpack
+configuration. The source under ``src/`` is split across ES modules and
+bundled into a single IIFE that lives in ``static/``. The webpack config
+has **no** ``@tiptap`` imports — the bundled script communicates with
+the host editor purely through the ``window.CMS_Editor.tiptap`` registry
+contract, so no second copy of TipTap or ProseMirror ends up in the
+page.
 
 It also wires three things server-side:
 
@@ -52,10 +52,9 @@ if SCRIPT not in DEFAULT_EDITOR.js:
     DEFAULT_EDITOR.js = (*DEFAULT_EDITOR.js, SCRIPT)
 
 
-# Mirror the `youtube` contrib: auto-place the button in the default
-# toolbars so installing the app is enough to make it usable. Integrators
-# that want a different position can still pin `"FilerImage"` explicitly
-# in their `TEXT_EDITOR_SETTINGS`.
+# Auto-place the button in the default toolbars so installing the app is
+# enough to make it usable. Integrators that want a different position
+# can still pin `"FilerImage"` explicitly in their `TEXT_EDITOR_SETTINGS`.
 def _has_item(toolbar, name):
     for group in toolbar:
         if isinstance(group, list) and name in group:

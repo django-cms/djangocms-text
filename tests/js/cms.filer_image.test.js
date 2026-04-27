@@ -4,7 +4,7 @@
 
 // Demo contrib extension: insert django-filer images.
 //
-// Like the youtube and officepaste tests, this test loads the IIFE
+// Like the officepaste tests, this test loads the IIFE
 // (the *built* output, not the src/) so it exercises the same artefact
 // that ships in production. The IIFE registers an Extension that adds
 // `data-cms-src` to the existing image node and a `FilerImage` toolbar

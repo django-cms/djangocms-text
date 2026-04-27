@@ -4,14 +4,14 @@ filer_image
 Optional contrib package: insert django-filer images into a Tiptap rich
 text field through filer's existing image picker popup.
 
-Like :mod:`djangocms_text.contrib.youtube` and
-:mod:`djangocms_text.contrib.officepaste`, this package is a **demo of
-how to extend the Tiptap editor dynamically** — at runtime, through the
-``window.CMS_Editor.tiptap`` registry, with no second copy of TipTap or
-ProseMirror in the page. Where the other two demos ship hand-written
-IIFE files, this one shows the alternative approach: a self-contained
-package with **its own webpack configuration** that bundles a small
-multi-module source tree into the same kind of registry-friendly IIFE.
+Like :mod:`djangocms_text.contrib.officepaste`, this package is a
+**demo of how to extend the Tiptap editor dynamically** — at runtime,
+through the ``window.CMS_Editor.tiptap`` registry, with no second copy
+of TipTap or ProseMirror in the page. Where the officepaste demo ships
+a hand-written IIFE file, this one shows the alternative approach: a
+self-contained package with **its own webpack configuration** that
+bundles a small multi-module source tree into the same kind of
+registry-friendly IIFE.
 
 
 What the user sees

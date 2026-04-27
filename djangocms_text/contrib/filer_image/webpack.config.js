@@ -19,8 +19,8 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'static/djangocms_text/tiptap_plugins'),
         filename: 'cms.filer_image.js',
-        // IIFE so the bundle is a drop-in <script> like the youtube and
-        // officepaste demos.
+        // IIFE so the bundle is a drop-in <script> like the
+        // officepaste demo.
         iife: true,
     },
     // Tripwire: if a future change accidentally imports tiptap, webpack

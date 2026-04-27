@@ -56,7 +56,6 @@
     "@tiptap/extension-superscript": "^3.22.3",
     "@tiptap/extension-table": "^3.22.3",
     "@tiptap/extension-text-align": "^3.22.3",
-    "@tiptap/extension-youtube": "^3.22.3",
     "@tiptap/pm": "^3.22.3",
     "@tiptap/starter-kit": "^3.22.3",
     "html-loader": "^5.1.0",

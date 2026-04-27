@@ -358,10 +358,7 @@ exposes, and the integration pattern it illustrates.
 
 - `djangocms_text.contrib.filer_image
   <djangocms_text/contrib/filer_image/README.rst>`_ —
-  insert django-filer images via filer's existing picker popup,
-- `djangocms_text.contrib.youtube
-  <djangocms_text/contrib/youtube/README.rst>`_ —
-  embed YouTube videos via a toolbar button.
+  insert django-filer images via filer's existing picker popup.
 - `djangocms_text.contrib.officepaste
   <djangocms_text/contrib/officepaste/README.rst>`_ —
   strip Word/Outlook detritus on paste.

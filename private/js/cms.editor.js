@@ -910,7 +910,7 @@ class CMSEditor {
 window.CMS_Editor = window.CMS_Editor || new CMSEditor();
 
 // Bootstrap a queuing stub for the tiptap registry so that dynamically
-// contributed extension scripts (e.g. djangocms_text/contrib/youtube)
+// contributed extension scripts (e.g. djangocms_text/contrib/filer_image)
 // can call register()/registerToolbarItem() regardless of whether they
 // load before or after bundle.tiptap.min.js. The tiptap bundle replaces
 // this stub with the real registry on load and drains the queue.

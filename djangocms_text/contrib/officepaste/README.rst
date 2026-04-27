@@ -4,13 +4,12 @@ officepaste
 Optional contrib package: strip Microsoft Office (Word, Outlook) markup
 when content is pasted into a Tiptap rich text field.
 
-Like :mod:`djangocms_text.contrib.youtube` and
-:mod:`djangocms_text.contrib.filer_image`, this package is a **demo of
-how to extend the Tiptap editor dynamically** — at runtime, through the
-``window.CMS_Editor.tiptap`` registry, with no second copy of TipTap or
-ProseMirror in the page. It is the smallest of the three demos: a
-single hand-written IIFE, no toolbar UI, no schema changes — just a
-ProseMirror plugin that runs on every paste.
+Like :mod:`djangocms_text.contrib.filer_image`, this package is a
+**demo of how to extend the Tiptap editor dynamically** — at runtime,
+through the ``window.CMS_Editor.tiptap`` registry, with no second copy
+of TipTap or ProseMirror in the page. It is the smaller of the two
+demos: a single hand-written IIFE, no toolbar UI, no schema changes —
+just a ProseMirror plugin that runs on every paste.
 
 
 What the user sees

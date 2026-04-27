@@ -94,12 +94,17 @@ function imageMousePlugin({ Plugin, PluginKey }, editor) {
                         if (editor.isDestroyed) {
                             return;
                         }
-                        // Re-check on fire: the user may have moved the
-                        // selection in the interim (or the schema may
-                        // have been pulled out from under us).
-                        if (editor.isActive('image') && hasFormSchema()) {
-                            editor.commands.openCmsForm('FilerImage');
+                        if (!hasFormSchema()) {
+                            return;
                         }
+                        // Pin the NodeSelection ourselves before
+                        // opening the form: on the *first* click into
+                        // the editor (no prior selection), PM's own
+                        // click handling may leave the selection
+                        // somewhere other than the image, so reading
+                        // it back here would be wrong.
+                        editor.chain().focus().setNodeSelection(pos).run();
+                        editor.commands.openCmsForm('FilerImage');
                     }, DBLCLICK_GUARD_MS);
                     return false;
                 },

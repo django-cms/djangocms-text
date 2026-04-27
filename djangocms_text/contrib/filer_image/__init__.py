@@ -35,7 +35,12 @@ from django.urls import NoReverseMatch, reverse_lazy
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from djangocms_text.editors import DEFAULT_EDITOR, register_toolbar_labels
+from djangocms_text.editors import (
+    DEFAULT_EDITOR,
+    DEFAULT_TOOLBAR_CMS,
+    DEFAULT_TOOLBAR_HTMLField,
+    register_toolbar_labels,
+)
 from djangocms_text.html import dynamic_attr_pool, register_attr
 
 
@@ -45,6 +50,22 @@ TOOLBAR_ITEM = "FilerImage"
 
 if SCRIPT not in DEFAULT_EDITOR.js:
     DEFAULT_EDITOR.js = (*DEFAULT_EDITOR.js, SCRIPT)
+
+
+# Mirror the `youtube` contrib: auto-place the button in the default
+# toolbars so installing the app is enough to make it usable. Integrators
+# that want a different position can still pin `"FilerImage"` explicitly
+# in their `TEXT_EDITOR_SETTINGS`.
+def _has_item(toolbar, name):
+    for group in toolbar:
+        if isinstance(group, list) and name in group:
+            return True
+    return False
+
+
+for _toolbar in (DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField):
+    if not _has_item(_toolbar, TOOLBAR_ITEM):
+        _toolbar.append([TOOLBAR_ITEM])
 
 
 # Allowed image classes for the toolbar form's class picker. Read from

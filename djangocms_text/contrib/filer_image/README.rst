@@ -106,7 +106,9 @@ Installation
            ...
        ]
 
-3. Add ``"FilerImage"`` to your toolbar configuration::
+3. *(Optional)* The button is appended to the default toolbar
+   configurations automatically — you only need to edit
+   ``TEXT_EDITOR_SETTINGS`` if you want to pin a specific position::
 
        TEXT_EDITOR_SETTINGS = {
            "toolbar_CMS": [

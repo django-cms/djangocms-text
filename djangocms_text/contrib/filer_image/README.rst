@@ -54,7 +54,7 @@ What it demonstrates
    ``src/`` contains four files: an entry (``index.js``), the popup
    plumbing (``popup.js``), the toolbar item (``toolbar.js``) and the
    schema/plugin extension (``extension.js``). Webpack joins them into
-   one IIFE; the source layout is the developer's only.
+   one IIFE; the source layout is the developer's only concern.
 
 4. **Round-tripping a dynamic reference.**
    When the user picks an image, the toolbar inserts ``<img>`` with both

@@ -95,7 +95,7 @@ Installation
 1. Install django-filer: ``pip install django-filer``.
 
 2. Add both apps to ``INSTALLED_APPS`` (filer must come first so its
-   admin URLs are reverseable)::
+   admin URLs are reversible)::
 
        INSTALLED_APPS = [
            ...

@@ -58,8 +58,17 @@
     }
 
     .tiptap {
+        --cms-selected-outline-color: #fad507;
         min-height: 1em;
         contain: layout style;
+
+        /* Yellow outline for any selected node (image, embeds, future
+           inserts, ...). cms-plugin opts out below — it draws the
+           outline on its painted children instead. */
+        .ProseMirror-selectednode {
+            outline: 2px solid var(--cms-selected-outline-color);
+            outline-offset: 2px;
+        }
 
         /* Placeholder text for empty nodes */
         .is-empty::before {
@@ -121,9 +130,17 @@
                 pointer-events: none; /* for text-enabled link plugins */
             }
 
-            &.ProseMirror-selectednode > * {
-                outline: 2px solid #fad507;
-                outline-offset: 2px;
+            /* cms-plugin is a custom inline element; outline its painted
+               children instead of the inline box itself. The generic
+               `.ProseMirror-selectednode` rule above would add a second
+               outline on the host — disable it here. */
+            &.ProseMirror-selectednode {
+                outline: none;
+
+                > * {
+                    outline: 2px solid var(--cms-selected-outline-color);
+                    outline-offset: 2px;
+                }
             }
         }
     }

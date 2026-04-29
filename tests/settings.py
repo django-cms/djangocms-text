@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     "easy_thumbnails",
     "filer",
     "djangocms_text",
+    "djangocms_text.contrib.filer_image",
+    "djangocms_text.contrib.officepaste",
     "tests.test_app",
 ] + (
     []

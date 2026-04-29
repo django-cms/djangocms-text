@@ -35,7 +35,7 @@ jobs:
     - name: Install dependencies
       run: npm install
     - name: Build client
-      run: webpack --mode production
+      run: npm run build
     - name: Compile messages
       run: django-admin compilemessages
       working-directory: djangocms_text

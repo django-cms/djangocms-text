@@ -1,0 +1,13 @@
+{
+  "name": "djangocms-text-filer-image",
+  "private": true,
+  "description": "Self-contained Tiptap contrib that inserts django-filer images via the dynamic extension registry.",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch"
+  },
+  "devDependencies": {
+    "webpack": "^5.105.4",
+    "webpack-cli": "^7.0.0"
+  }
+}

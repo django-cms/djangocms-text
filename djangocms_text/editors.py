@@ -496,6 +496,18 @@ class RTEConfig:
 configuration = {}
 
 
+def register_toolbar_labels(updates: dict) -> None:
+    """Merge title/icon entries into the editor toolbar base config.
+
+    Used by contrib packages that contribute dynamic Tiptap extensions
+    to supply server-side i18n labels for their toolbar items. Existing
+    entries are left untouched so integrators can still override via
+    ``TEXT_EDITOR_SETTINGS``.
+    """
+    for name, entry in updates.items():
+        _EDITOR_TOOLBAR_BASE_CONFIG.setdefault(name, entry)
+
+
 def register(editor: RTEConfig):
     """
     Registers an editor configuration with the system.

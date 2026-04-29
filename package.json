@@ -2,6 +2,9 @@
   "name": "djangocms-text",
   "version": "1.0.0",
   "scripts": {
+    "build": "webpack --mode=production",
+    "build:dev": "webpack --mode=development",
+    "watch": "webpack --mode=development --watch",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

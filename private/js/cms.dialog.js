@@ -50,6 +50,7 @@ class CmsDialog {
                     <div class="cms-modal-item-buttons"><a href="#" class="cms-btn cms-btn-close-action">Cancel</a></div>
                 </div>
             </div>
+            <span class="cms-modal-resize" aria-hidden="true"></span>
         `;
 
         (window.parent || window).document.querySelector('div.cms').prepend(this.dialog);
@@ -61,6 +62,12 @@ class CmsDialog {
         });
         this.dialog.querySelector('.cms-modal-title').addEventListener('touchstart', (event) => {
             this.swipeDialog(event);
+        });
+        this.dialog.querySelector('.cms-modal-resize').addEventListener('mousedown', (event) => {
+            this.resizeDialog(event);
+        });
+        this.dialog.querySelector('.cms-modal-resize').addEventListener('touchstart', (event) => {
+            this.touchResizeDialog(event);
         });
         const closeEvent = (event) => {
             event.stopPropagation();
@@ -232,6 +239,61 @@ class CmsDialog {
         Window.addEventListener('touchmove', swipeIt, false);
         Window.addEventListener('touchend', (e) => {
             Window.removeEventListener('touchmove', swipeIt, false);
+        }, false);
+    }
+
+    /**
+     * Resizes the dialog based on the user's mouse movements on the
+     * custom resize handle. Replaces native CSS `resize` because Safari
+     * clips the native handle to the dialog's rounded corner.
+     *
+     * @param {Event} event - The mouse event that triggers the resize.
+     */
+    resizeDialog(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        const firstX = event.pageX;
+        const firstY = event.pageY;
+        const initialW = parseInt(getComputedStyle(this.dialog).width);
+        const initialH = parseInt(getComputedStyle(this.dialog).height);
+
+        const resizeIt = (e) => {
+            this.dialog.style.width = initialW + e.pageX - firstX + 'px';
+            this.dialog.style.height = initialH + e.pageY - firstY + 'px';
+        };
+        const Window = window.parent || window;
+        Window.addEventListener('mousemove', resizeIt, false);
+        Window.addEventListener('mouseup', () => {
+            Window.removeEventListener('mousemove', resizeIt, false);
+        }, false);
+    }
+
+    /**
+     * Resizes the dialog based on the user's touch movements on the
+     * custom resize handle.
+     *
+     * @param {Event} event - The touch event that triggers the resize.
+     */
+    touchResizeDialog(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const firstX = event.touches[0].pageX;
+        const firstY = event.touches[0].pageY;
+        const initialW = parseInt(getComputedStyle(this.dialog).width);
+        const initialH = parseInt(getComputedStyle(this.dialog).height);
+
+        const resizeIt = (e) => {
+            const contact = e.touches;
+            this.dialog.style.width = initialW + contact[0].pageX - firstX + 'px';
+            this.dialog.style.height = initialH + contact[0].pageY - firstY + 'px';
+        };
+        const Window = window.parent || window;
+        Window.addEventListener('touchmove', resizeIt, false);
+        Window.addEventListener('touchend', () => {
+            Window.removeEventListener('touchmove', resizeIt, false);
         }, false);
     }
 }

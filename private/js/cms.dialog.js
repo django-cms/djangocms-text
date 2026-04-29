@@ -437,7 +437,7 @@ class CmsForm {
         if (this._anchorTop == null) {
             return;
         }
-        const scroller = this.el.querySelector('.ProseMirror');
+        const scroller = this.el.querySelector('.tiptap');
         if (!scroller) {
             return;
         }

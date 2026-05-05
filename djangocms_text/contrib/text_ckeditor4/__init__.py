@@ -1,4 +1,3 @@
-from cms.utils.urlutils import static_with_version
 from django.conf import settings
 from django.templatetags.static import static
 from django.utils.functional import lazy

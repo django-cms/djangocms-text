@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class TextCKEditor4App(AppConfig):
-    name = "text_ckeditor4"
+    name = "djangocms_text.contrib.text_ckeditor4"
 
     def ready(self):
         from cms.utils.urlutils import static_with_version

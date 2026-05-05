@@ -25,7 +25,6 @@ ckeditor4 = RTEConfig(
     name="ckeditor4",
     config="CKEDITOR",
     js=(
-        static_with_version("cms/js/dist/bundle.admin.base.min.js"),
         BasePath(),
         "djangocms_text/vendor/ckeditor4/ckeditor.js",
         "djangocms_text/bundles/bundle.ckeditor4.min.js",

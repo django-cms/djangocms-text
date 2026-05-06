@@ -346,12 +346,25 @@ class CmsForm {
             } else {
                 this.dialog.style.left = (options.x - el_pos.x - 24) + 'px';
             }
-            this.dialog.style.top = (options.y - el_pos.y + 5) + 'px';
+            this._anchorTop = options.y - el_pos.y + 5;
+            this.dialog.style.top = this._anchorTop + 'px';
             this.dialog.style.transform = 'none';
         }
 
         // Add the dialog to the inline editor
         this.el.prepend(this.dialog);
+
+        // The dialog is a child of `this.el` (the wrapper), but the
+        // editor's contenteditable inside `this.el` scrolls *internally*
+        // (e.g. `.ProseMirror { overflow-y: scroll }` in the modal and
+        // `.tiptap { overflow-y: auto }` in the HTMLField fixed-toolbar
+        // layout). When that internal scroll moves the anchor, the
+        // dialog — being a sibling of the scroller, not a descendant —
+        // would otherwise stay put and "detach" from the click target.
+        // Translate the dialog's top by the scroll delta to keep them
+        // aligned. Outer page/modal scroll already moves both together,
+        // so no extra handling is needed there.
+        this._trackInternalScroll();
         this.dialog.addEventListener("close", (event) => {
             event.stopPropagation();
             this.close();
@@ -399,12 +412,58 @@ class CmsForm {
             // Do only close if the click is outside the dialog
             document.removeEventListener("click", this.close);
             this.dialog.removeEventListener("close", this.close);
+            this._stopTrackingInternalScroll();
             if (this.cancel) {
                 this.cancel(event);
             }
             this.dialog.remove();
             this.el.classList.remove('has-form-dialog');
         }
+    }
+
+    /**
+     * Listen for scroll events on the editor's contenteditable
+     * (`.tiptap` / `.ProseMirror`) — the actual scroll container
+     * inside `this.el`. Its internal scroll moves the click anchor
+     * but NOT the dialog (siblings, not parent/child), so we
+     * translate the dialog's `top` by the scroll delta to keep them
+     * aligned. As a side effect, when the dialog scrolls fully out
+     * of the scroller's visible band we hide it via `visibility`
+     * (preserves layout so re-entry can show it again without
+     * recomputing position). Runs once at open time to pick the
+     * initial state, then on every subsequent scroll.
+     */
+    _trackInternalScroll() {
+        if (this._anchorTop == null) {
+            return;
+        }
+        const scroller = this.el.querySelector('.tiptap');
+        if (!scroller) {
+            return;
+        }
+        const cs = window.getComputedStyle(scroller);
+        if (!/(auto|scroll)/.test(cs.overflowY)) {
+            return;
+        }
+        const baseline = scroller.scrollTop;
+        this._scroller = scroller;
+        this._onInternalScroll = () => {
+            this.dialog.style.top = (this._anchorTop - (scroller.scrollTop - baseline)) + 'px';
+            const dRect = this.dialog.getBoundingClientRect();
+            const cRect = scroller.getBoundingClientRect();
+            const outside = dRect.bottom <= cRect.top || dRect.top >= cRect.bottom;
+            this.dialog.style.visibility = outside ? 'hidden' : '';
+        };
+        scroller.addEventListener('scroll', this._onInternalScroll, { passive: true });
+        this._onInternalScroll();
+    }
+
+    _stopTrackingInternalScroll() {
+        if (this._scroller && this._onInternalScroll) {
+            this._scroller.removeEventListener('scroll', this._onInternalScroll);
+        }
+        this._scroller = null;
+        this._onInternalScroll = null;
     }
 
     submit() {

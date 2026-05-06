@@ -165,11 +165,16 @@ function updateBlockToolbar(editor, state) {
         return;
     }
     const blockToolbar = editor.options.blockToolbar;
-    const {resolvedPos, depth} = _getResolvedPos(state || editor.state);
+    const {resolvedPos, depth, leafNode} = _getResolvedPos(state || editor.state);
     if (depth > 0) {
-        const startPos = resolvedPos.start(depth);
-        const node = resolvedPos.node(depth);
-        const parentNode = depth > 1 ? resolvedPos.node(depth - 1) : null;
+        // For leaf-block NodeSelections (image, hr, ...) `resolvedPos`
+        // is the position before the node and `leafNode` is the node
+        // itself; resolvedPos has no further depth to descend into.
+        const startPos = leafNode ? resolvedPos.pos : resolvedPos.start(depth);
+        const node = leafNode || resolvedPos.node(depth);
+        const parentNode = leafNode
+            ? resolvedPos.parent
+            : (depth > 1 ? resolvedPos.node(depth - 1) : null);
         // Skip DOM updates if the block hasn't changed (cursor moved within same block,
         // and the block's identity is unchanged)
         if (
@@ -184,15 +189,20 @@ function updateBlockToolbar(editor, state) {
         blockToolbar._lastNode = node;
         _updateToolbarIcon(editor, node, parentNode);
         blockToolbar.dataset.start = startPos;
-        blockToolbar.dataset.end = startPos + resolvedPos.node(depth).nodeSize;
+        blockToolbar.dataset.end = startPos + node.nodeSize;
         blockToolbar.dataset.depth = depth;
         const pos = editor.view.coordsAtPos(startPos);
         const ref = (editor.options.el || editor.options.element).getBoundingClientRect();
-        blockToolbar.draggable = resolvedPos.node(depth).content.size > 0;
+        blockToolbar.draggable = !leafNode && node.content.size > 0;
         blockToolbar.style.insetBlockStart = `${pos.top - ref.top}px`;
-        let title = resolvedPos.node(1)?.type.name;
-        for (let i = 2; i <= depth; i++) {
-            title += ` > ${resolvedPos.node(i)?.type.name}`;
+        let title;
+        if (leafNode) {
+            title = node.type.name;
+        } else {
+            title = resolvedPos.node(1)?.type.name;
+            for (let i = 2; i <= depth; i++) {
+                title += ` > ${resolvedPos.node(i)?.type.name}`;
+            }
         }
         blockToolbar.title = title;
     } else {
@@ -214,6 +224,20 @@ function _getResolvedPos(state) {
     let resolvedPos, lastBlockDepth = 0;
 
     if (state.selection instanceof NodeSelection) {
+        const selectedNode = state.selection.node;
+        if (selectedNode && selectedNode.isLeaf) {
+            // Leaf nodes (image, hr, atoms) have no content to descend
+            // into — the standard `from + 1` trick lands *past* the
+            // node, collapsing depth back to the doc and leaving the
+            // toolbar unpositioned. Surface the selected node directly
+            // via `leafNode` and use the position before it as the
+            // anchor so coordsAtPos() returns the node's top edge.
+            return {
+                resolvedPos: state.selection.$from,
+                depth: state.selection.$from.depth + 1,
+                leafNode: selectedNode,
+            };
+        }
         // NodeSelection: $anchor is before the node, resolve inside it
         resolvedPos = state.doc.resolve(state.selection.from + 1);
         for (let depth = 0; depth <= resolvedPos.depth; depth++) {

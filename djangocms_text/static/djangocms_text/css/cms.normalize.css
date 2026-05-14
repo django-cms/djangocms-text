@@ -77,11 +77,14 @@ body.change-form .cms-editor-inline-wrapper.fixed {
         border: none;
         border-top: 1px solid var(--dca-gray-lighter);
     }
-    ul {
+    ul, ol {
         display: block;
         list-style: disc outside none;
         margin: 0;
         padding: 0 0 0 40px;
+    }
+    ol {
+        list-style: decimal outside none;
     }
     li {
         list-style: inherit;

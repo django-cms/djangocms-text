@@ -9,6 +9,21 @@ import {Plugin} from '@tiptap/pm/state';
 
 
 function DynLinkClickHandler(editor) {
+    // Pin the cursor inside the link mark ourselves before extending
+    // and opening the form. On the *first* click into an unfocused
+    // editor, PM's own click handling may leave the selection
+    // somewhere other than the link, so reading `editor.isActive('link')`
+    // back later would be wrong.
+    function openLinkForm(view, target) {
+        const pos = view.posAtDOM(target, 0);
+        if (pos == null || pos < 0) {
+            return;
+        }
+        editor.chain().focus().setTextSelection(pos).extendMarkRange('link').run();
+        if (editor.isActive('link')) {
+            editor.commands.openCmsForm('Link');
+        }
+    }
     return new Plugin({
         props: {
             handleDOMEvents: {
@@ -16,12 +31,7 @@ function DynLinkClickHandler(editor) {
                     const target = event.target.closest('a[href]');
                     if (target) {
                         event.preventDefault();
-                        setTimeout(() => {
-                            if (editor.isActive('link')) {
-                                editor.commands.extendMarkRange('link');
-                                editor.commands.openCmsForm('Link');
-                            }
-                        }, 0);
+                        setTimeout(() => openLinkForm(view, target), 0);
                         return true;
                     }
                     return false;
@@ -30,12 +40,7 @@ function DynLinkClickHandler(editor) {
                     const target = event.target.closest('a[href]');
                     if (target) {
                         event.preventDefault();
-                        setTimeout(() => {
-                            if (editor.isActive('link')) {
-                                editor.commands.extendMarkRange('link');
-                                editor.commands.openCmsForm('Link');
-                            }
-                        }, 0);
+                        setTimeout(() => openLinkForm(view, target), 0);
                         return true;
                     }
                     return false;

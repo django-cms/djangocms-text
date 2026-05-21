@@ -80,6 +80,13 @@ class TextEditorWidget(forms.Textarea):
         body_css_classes: A string for CSS classes to be attached to the editor body.
     """
 
+    widget_css = (
+        "djangocms_text/css/cms.text.css",
+        "djangocms_text/css/cms.normalize.css",
+    )
+
+    widget_js = ("djangocms_text/bundles/bundle.editor.min.js",)
+
     @property
     def media(self):
         rte_css = self.rte_config.css.get("all", ())
@@ -89,13 +96,12 @@ class TextEditorWidget(forms.Textarea):
             css={
                 **self.rte_config.css,
                 "all": (
-                    "djangocms_text/css/cms.text.css",
-                    "djangocms_text/css/cms.normalize.css",
+                    *self.widget_css,
                     *rte_css,
                 ),
             },
             js=(
-                "djangocms_text/bundles/bundle.editor.min.js",
+                *self.widget_js,
                 *self.rte_config.js,
             ),
         )

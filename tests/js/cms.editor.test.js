@@ -506,4 +506,216 @@ describe('CMSEditor', () => {
             expect(body.get('content')).toBe('<p>HTML content</p>');
         });
     });
+
+    describe('inline dblclick guard', () => {
+        // The guard installs document-level listeners exactly once per
+        // page load (`_inlineDblclickGuardInstalled` flag); since the
+        // module is imported by the outer suite, the listeners are
+        // already wired before this block runs. Each test just sets up
+        // the wrapper / "editor" registry state it needs.
+        let docDblclick;
+        let wrapper;
+
+        beforeEach(() => {
+            // jsdom doesn't ship `IntersectionObserver`; the rest of
+            // `initInlineEditors` constructs one. We don't exercise the
+            // observer path here, so a no-op stub is enough.
+            if (typeof window.IntersectionObserver === 'undefined') {
+                window.IntersectionObserver = class {
+                    observe() {}
+                    unobserve() {}
+                    disconnect() {}
+                };
+            }
+            // Trigger `_installInlineDblclickGuard` (idempotent after
+            // the first call). Without this we'd be relying on a side
+            // effect of an unrelated earlier test.
+            editor.CMS = { _plugins: [] };
+            editor.initInlineEditors();
+
+            // Stand-in for an inline-editor wrapper. The guard considers
+            // it editor-enabled when its id exists in
+            // `cms_editor_plugin._editors` or `_generic_editors`.
+            wrapper = document.createElement('div');
+            wrapper.id = 'inline-wrapper-1';
+            wrapper.classList.add('cms-editor-inline-wrapper');
+            document.body.appendChild(wrapper);
+
+            window.cms_editor_plugin = window.cms_editor_plugin || {};
+            window.cms_editor_plugin._editors =
+                window.cms_editor_plugin._editors || {};
+            window.cms_editor_plugin._editors[wrapper.id] = { fake: true };
+
+            // Per-wrapper guard is what `initInlineEditors` does for each
+            // editor it sets up — call it directly here.
+            editor.attachInlineDblclickGuard(wrapper);
+
+            docDblclick = jest.fn();
+            // Bubble-phase document listener stands in for jQuery's
+            // delegated `dblclick.cms.plugin` handler — if it fires, the
+            // CMS modal would have been opened.
+            document.addEventListener('dblclick', docDblclick);
+        });
+
+        afterEach(() => {
+            document.removeEventListener('dblclick', docDblclick);
+            wrapper.remove();
+            delete window.cms_editor_plugin._editors[wrapper.id];
+        });
+
+        function dispatchDblclick(target) {
+            // Real gesture: mousedown then dblclick. The mousedown lets
+            // the guard track the originating wrapper for the
+            // drag-extend fallback path.
+            target.dispatchEvent(new MouseEvent('mousedown', {
+                bubbles: true, cancelable: true, button: 0,
+            }));
+            target.dispatchEvent(new MouseEvent('dblclick', {
+                bubbles: true, cancelable: true, button: 0,
+            }));
+        }
+
+        it('lets bubble-phase listeners between target and wrapper still fire', () => {
+            // Simulate ProseMirror's `view.dom` (a descendant of the
+            // wrapper, ancestor of the actual click target).
+            const viewDom = document.createElement('div');
+            const target = document.createElement('span');
+            viewDom.appendChild(target);
+            wrapper.appendChild(viewDom);
+
+            const viewDomDblclick = jest.fn();
+            viewDom.addEventListener('dblclick', viewDomDblclick);
+
+            dispatchDblclick(target);
+
+            // Editor-side bubble listener fired...
+            expect(viewDomDblclick).toHaveBeenCalledTimes(1);
+            // ...but the event was stopped at the wrapper before
+            // reaching document, so the modal-opening delegate never sees it.
+            expect(docDblclick).not.toHaveBeenCalled();
+        });
+
+        it('lets dblclicks on nested cms-plugin tags reach the document delegate', () => {
+            const nested = document.createElement('cms-plugin');
+            wrapper.appendChild(nested);
+
+            dispatchDblclick(nested);
+
+            // Pass-through: the modal editor for the nested plugin
+            // should still open.
+            expect(docDblclick).toHaveBeenCalledTimes(1);
+        });
+
+        it('still suppresses when the wrapper itself is a cms-plugin tag', () => {
+            // Text plugins are inline-edited *in place*, so the
+            // wrapper is the cms-plugin element itself. A naive
+            // `closest('cms-plugin')` would walk up to the wrapper and
+            // misclassify every interior dblclick as "nested plugin",
+            // letting the modal handler open on every word-select.
+            const pluginWrapper = document.createElement('cms-plugin');
+            pluginWrapper.id = 'plugin-wrapper-1';
+            pluginWrapper.classList.add('cms-editor-inline-wrapper');
+            document.body.appendChild(pluginWrapper);
+            window.cms_editor_plugin._editors[pluginWrapper.id] = { fake: true };
+            editor.attachInlineDblclickGuard(pluginWrapper);
+
+            const viewDom = document.createElement('div');
+            const target = document.createElement('img');
+            viewDom.appendChild(target);
+            pluginWrapper.appendChild(viewDom);
+
+            const editorHandler = jest.fn();
+            viewDom.addEventListener('dblclick', editorHandler);
+
+            // Real gesture for this scoped wrapper.
+            target.dispatchEvent(new MouseEvent('mousedown', {
+                bubbles: true, cancelable: true, button: 0,
+            }));
+            target.dispatchEvent(new MouseEvent('dblclick', {
+                bubbles: true, cancelable: true, button: 0,
+            }));
+
+            expect(editorHandler).toHaveBeenCalledTimes(1);
+            expect(docDblclick).not.toHaveBeenCalled();
+
+            delete window.cms_editor_plugin._editors[pluginWrapper.id];
+            pluginWrapper.remove();
+        });
+
+        it('suppresses dblclicks landing outside the wrapper when the gesture started inside', () => {
+            const outside = document.createElement('div');
+            document.body.appendChild(outside);
+
+            // Gesture starts inside the wrapper, dblclick lands outside
+            // (drag-extend-by-word browser behaviour).
+            wrapper.dispatchEvent(new MouseEvent('mousedown', {
+                bubbles: true, cancelable: true, button: 0,
+            }));
+            outside.dispatchEvent(new MouseEvent('dblclick', {
+                bubbles: true, cancelable: true, button: 0,
+            }));
+
+            expect(docDblclick).not.toHaveBeenCalled();
+            outside.remove();
+        });
+
+        it('does not suppress unrelated dblclicks outside any inline wrapper', () => {
+            const unrelated = document.createElement('div');
+            document.body.appendChild(unrelated);
+
+            dispatchDblclick(unrelated);
+
+            expect(docDblclick).toHaveBeenCalledTimes(1);
+            unrelated.remove();
+        });
+
+        it('does not suppress wrappers that never had the guard attached', () => {
+            // If editor creation failed (or simply hasn't run yet), the
+            // per-wrapper guard isn't installed and dblclicks reach the
+            // document delegate — preserving the modal-editor fallback.
+            const bareWrapper = document.createElement('div');
+            bareWrapper.id = 'wrapper-without-editor';
+            bareWrapper.classList.add('cms-editor-inline-wrapper');
+            document.body.appendChild(bareWrapper);
+
+            const target = document.createElement('span');
+            bareWrapper.appendChild(target);
+
+            dispatchDblclick(target);
+
+            expect(docDblclick).toHaveBeenCalledTimes(1);
+            bareWrapper.remove();
+        });
+
+        it('stops suppressing once the wrapper\'s editor is destroyed', () => {
+            // The wrapper for an in-place text plugin is page DOM that
+            // outlives the editor instance. After the editor is
+            // destroyed (without the wrapper being removed), dblclicks
+            // should reach the document delegate again so the CMS
+            // modal can be opened by dblclick on the same plugin tag.
+            const target = document.createElement('span');
+            wrapper.appendChild(target);
+            // Simulate editor teardown: the wrapper survives in the
+            // DOM but is no longer in the editor registry.
+            delete window.cms_editor_plugin._editors[wrapper.id];
+
+            dispatchDblclick(target);
+
+            expect(docDblclick).toHaveBeenCalledTimes(1);
+        });
+
+        it('attachInlineDblclickGuard is idempotent', () => {
+            // Calling twice must not stack listeners — otherwise a
+            // second call from a re-init path would double the work
+            // (and could break if the first call already self-removed).
+            editor.attachInlineDblclickGuard(wrapper);
+            editor.attachInlineDblclickGuard(wrapper);
+
+            const target = document.createElement('span');
+            wrapper.appendChild(target);
+            dispatchDblclick(target);
+
+            expect(docDblclick).not.toHaveBeenCalled();
+        });
+    });
 });

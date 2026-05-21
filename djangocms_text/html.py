@@ -95,6 +95,25 @@ cms_parser: NH3Parser = NH3Parser()
 #: An instance of NH3Parser with the default configuration for CMS text content.
 
 
+def register_cleaner_attributes(tag_attrs: dict) -> None:
+    """Extend the default NH3 sanitizer's allowed tags and attributes.
+
+    Used by contrib packages that contribute dynamic Tiptap extensions
+    requiring tags beyond the built-in safe set (e.g. ``<iframe>`` for
+    video embeds). Both the module-level defaults and the shared
+    ``cms_parser`` instance are updated, so existing callers holding a
+    reference see the change.
+
+    Entries merge with any existing attribute set for the tag.
+    """
+    for tag, attrs in tag_attrs.items():
+        attrs = set(attrs)
+        cms_additional_attributes[tag] = cms_additional_attributes.get(tag, set()) | attrs
+        if tag != "*":
+            cms_parser.ALLOWED_TAGS.add(tag)
+        cms_parser.ALLOWED_ATTRIBUTES[tag] = cms_parser.ALLOWED_ATTRIBUTES.get(tag, set()) | attrs
+
+
 def clean_html(data: str, full: Optional[bool] = None, cleaner: NH3Parser = None) -> str:
     """
     Cleans HTML from XSS vulnerabilities using nh3
@@ -129,8 +148,13 @@ def get_xpath(pool: dict) -> str:
     :return: A string representing the xpath expression.
     :rtype: str
     """
+    # Each key needs the full ``//*[@key]`` wrapper. A naive join on the
+    # closing-bracket suffix only wraps the first key and produces e.g.
+    # ``//*[@data-cms-href] | //data-cms-src`` (a tag selector for the
+    # second key), so any element with the second attribute would never
+    # match.
     if pool:
-        return "//*[@" + "] | //".join(pool.keys())
+        return " | ".join(f"//*[@{key}]" for key in pool)
     return ""
 
 

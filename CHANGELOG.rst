@@ -2,6 +2,16 @@
 Changelog
 =========
 
+0.9.7 (07-05-2026)
+==================
+
+* feat: Allow dynamic extensions of tiptap editor by @fsbraun in https://github.com/django-cms/djangocms-text/pull/167
+* fix: Create dblClick guard to capture dblClick + drag by @fsbraun in https://github.com/django-cms/djangocms-text/pull/164
+* fix: Clamp toolbar to the viewport by @fsbraun in https://github.com/django-cms/djangocms-text/pull/165
+* fix: Doubleclick handler swallowed dbl clicks on child plugins by @fsbraun in https://github.com/django-cms/djangocms-text/pull/169
+* fix: Resize dialog on Safari by @fsbraun in https://github.com/django-cms/djangocms-text/pull/171
+* fix: Remove unused JavaScript file from ckeditor4 config by @fsbraun in https://github.com/django-cms/djangocms-text/pull/174
+
 0.9.6 (09-04-2026)
 ==================
 

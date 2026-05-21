@@ -401,6 +401,11 @@ class CmsForm {
     open() {
         this.dialog.show();
         this.el.classList.add('has-form-dialog');
+        // Now that the dialog is shown, evaluate initial scroll-clipped
+        // visibility. Doing this earlier (in formDialog) reads a zero-rect
+        // because <dialog> without [open] is display:none, which would
+        // incorrectly mark the dialog as outside the scroller and hide it.
+        this._onInternalScroll?.();
         const firstInput = this.dialog.querySelector('input');
         if (firstInput) {
             firstInput.focus();
@@ -430,8 +435,9 @@ class CmsForm {
      * aligned. As a side effect, when the dialog scrolls fully out
      * of the scroller's visible band we hide it via `visibility`
      * (preserves layout so re-entry can show it again without
-     * recomputing position). Runs once at open time to pick the
-     * initial state, then on every subsequent scroll.
+     * recomputing position). The initial state is set from `open()`
+     * once the dialog is actually shown (before that, the dialog has
+     * a zero-rect and would be wrongly classified as outside).
      */
     _trackInternalScroll() {
         if (this._anchorTop == null) {
@@ -455,7 +461,6 @@ class CmsForm {
             this.dialog.style.visibility = outside ? 'hidden' : '';
         };
         scroller.addEventListener('scroll', this._onInternalScroll, { passive: true });
-        this._onInternalScroll();
     }
 
     _stopTrackingInternalScroll() {

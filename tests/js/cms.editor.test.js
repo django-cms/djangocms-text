@@ -717,5 +717,59 @@ describe('CMSEditor', () => {
 
             expect(docDblclick).not.toHaveBeenCalled();
         });
+
+        it('unbinds CMS direct dblclick.cms.plugin on inline wrappers', () => {
+            // For generic frontend-editable plugins, CMS attaches its
+            // modal-opener via `$(container).on('dblclick.cms.plugin', …)`
+            // — a sibling listener on the same wrapper our guard lives on.
+            // `stopPropagation` cannot stop a sibling, so `initInlineEditors`
+            // must drop CMS's listener explicitly alongside the existing
+            // pointer-namespace unbind.
+            const genericEl = document.createElement('h1');
+            genericEl.classList.add('cms-plugin-myapp-mymodel-title-1');
+            genericEl.textContent = 'Title';
+            document.body.appendChild(genericEl);
+
+            // Single-field generic-inline registry (id format matches
+            // `${app}-${model}-${field}` from the plugin class split).
+            const cfg = document.createElement('script');
+            cfg.id = 'cms-generic-inline-fields';
+            cfg.type = 'application/json';
+            cfg.textContent = JSON.stringify({ 'myapp-mymodel-title': 'CharField' });
+            document.body.appendChild(cfg);
+
+            const offSpy = jest.fn();
+            // Minimal jQuery stand-in: returns an object with `.off()`
+            // that records its argument list.
+            editor.CMS = {
+                _plugins: [
+                    ['cms-plugin-myapp-mymodel-title-1', {
+                        type: 'generic',
+                        plugin_id: 1,
+                        urls: { edit_plugin: '/edit/?edit_fields=title' },
+                    }],
+                ],
+                config: { csrf: 'token' },
+                $: jest.fn(() => ({ off: offSpy })),
+                API: {
+                    Tooltip: { displayToggle: jest.fn() },
+                },
+            };
+
+            editor.initInlineEditors();
+
+            // The single `.off()` call for the generic wrapper must list
+            // all three namespaces. Lenient match: any call whose argument
+            // contains `dblclick.cms.plugin` is sufficient — order and
+            // surrounding namespaces are an implementation detail.
+            const offArgs = offSpy.mock.calls.map(c => c[0]);
+            expect(offArgs.some(arg => arg && arg.includes('dblclick.cms.plugin'))).toBe(true);
+
+            cfg.remove();
+            genericEl.remove();
+            // The wrapper created by `_initInlineRichText` was appended
+            // around the h1 — clean it up too.
+            document.querySelectorAll('.cms-editor-inline-wrapper.wrapped').forEach(el => el.remove());
+        });
     });
 });

@@ -56,16 +56,16 @@ urls.Homepage = "https://github.com/django-cms/djangocms-text"
 
 [tool.setuptools]
 packages.find.include = [ "djangocms_text*", "djangocms_text_ckeditor*" ]
-dynamic.version = { attr = "djangocms_text.__version__" }
 package-data.djangocms_text = [
+  "contrib/**/static/**",
   "locale/**/*.mo",
   "static/**",
-  "contrib/**/static/**",
   "templates/**",
 ]
 package-data.djangocms_text_ckeditor = [
   "static/**",
 ]
+dynamic.version = { attr = "djangocms_text.__version__" }
 
 [tool.ruff]
 line-length = 120
@@ -73,21 +73,9 @@ indent-width = 4
 
 [tool.isort]
 line_length = 119
-skip = [
-  ".eggs",
-  ".env",
-  ".tox",
-  ".venv",
-  "data",
-  "manage.py",
-  "*migrations*",
-  "node_modules",
-  "private",
-]
-include_trailing_comma = true
 multi_line_output = 5
+include_trailing_comma = true
 lines_after_imports = 2
-default_section = "THIRDPARTY"
 sections = [
   "FUTURE",
   "STDLIB",
@@ -97,7 +85,19 @@ sections = [
   "FIRSTPARTY",
   "LOCALFOLDER",
 ]
+default_section = "THIRDPARTY"
 known_first_party = "djangocms_text"
+skip = [
+  "*migrations*",
+  ".eggs",
+  ".env",
+  ".tox",
+  ".venv",
+  "data",
+  "manage.py",
+  "node_modules",
+  "private",
+]
 known_cms = [ "cms", "menus" ]
 known_django = "django"
 
@@ -124,12 +124,12 @@ exclude = [
 ]
 
 [tool.pytest]
-ini_options.DJANGO_SETTINGS_MODULE = "tests.settings"
-ini_options.python_files = [ "tests.py", "test_*.py" ]
+ini_options.testpaths = [ "tests" ]
+ini_options.pythonpath = [ "." ]
+ini_options.python_files = [ "test_*.py", "tests.py" ]
 ini_options.addopts = [
   "--reuse-db",
   "--nomigrations",
   "-v",
 ]
-ini_options.testpaths = [ "tests" ]
-ini_options.pythonpath = [ "." ]
+ini_options.DJANGO_SETTINGS_MODULE = "tests.settings"

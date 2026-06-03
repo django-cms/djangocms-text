@@ -342,8 +342,15 @@ class CMSEditor {
                                 this._highlightTextplugin(id);
                             }, true);
                             // Prevent CMS tooltip on hover: stop pointer events from
-                            // reaching the document-level CMS delegate handler
-                            this.CMS.$(wrapper).off('pointerover.cms.plugin pointerout.cms.plugin');
+                            // reaching the document-level CMS delegate handler.
+                            // Also drop the direct `dblclick.cms.plugin` handler
+                            // that `_setGeneric` binds straight on the container —
+                            // it is a sibling listener on the wrapper, so the
+                            // per-wrapper guard's `stopPropagation` cannot block
+                            // it and the modal would open on every word-select.
+                            this.CMS.$(wrapper).off(
+                                'pointerover.cms.plugin pointerout.cms.plugin dblclick.cms.plugin'
+                            );
                             wrapper.addEventListener('pointerover', function (event) {
                                 event.stopPropagation();
                                 window.CMS.API.Tooltip.displayToggle(false, event.target, '', id);

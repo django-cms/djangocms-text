@@ -2,6 +2,18 @@
 Changelog
 =========
 
+0.9.8 (29-05-2026)
+==================
+
+* fix: support ordered list display in plugin via normalize.css by @metaforx in https://github.com/django-cms/djangocms-text/pull/176
+* fix: Link dialog did not show in modal by @fsbraun in https://github.com/django-cms/djangocms-text/pull/179
+* fix: Neighboring CSS contexts could cover block toolbar by @fsbraun in https://github.com/django-cms/djangocms-text/pull/180
+* fix: Double-click handler triggered when inline editing non-rich text by @fsbraun in https://github.com/django-cms/djangocms-text/pull/181
+
+**New Contributors**
+
+* @metaforx made their first contribution in https://github.com/django-cms/djangocms-text/pull/176
+
 0.9.7 (07-05-2026)
 ==================
 

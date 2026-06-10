@@ -97,7 +97,9 @@ if apps.is_installed("cms"):
             unbound_plugins = self.cmsplugin_set.exclude(pk__in=ids)
 
             placeholder = self.placeholder
-            if hasattr(placeholder, "delete_plugin"):  # since CMS v4
+            if hasattr(placeholder, "delete_plugins"):  # since CMS v5.1
+                placeholder.delete_plugins(unbound_plugins)
+            elif hasattr(placeholder, "delete_plugin"):  # since CMS v4
                 # Delete via the placeholder so the remaining plugin positions are
                 # compacted, avoiding gaps that can later corrupt plugin positions
                 # (see django-cms#8665). delete_plugin() relies on the plugin's

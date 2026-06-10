@@ -96,9 +96,22 @@ if apps.is_installed("cms"):
             ids = self._get_inline_plugin_ids()
             unbound_plugins = self.cmsplugin_set.exclude(pk__in=ids)
 
-            for plugin in unbound_plugins:
-                # delete plugins that are not referenced in the text anymore
-                plugin.delete()
+            placeholder = self.placeholder
+            if hasattr(placeholder, "delete_plugin"):  # since CMS v4
+                # Delete via the placeholder so the remaining plugin positions are
+                # compacted, avoiding gaps that can later corrupt plugin positions
+                # (see django-cms#8665). delete_plugin() relies on the plugin's
+                # cached ``position``, so each plugin must be re-fetched right
+                # before deletion: a previous delete may have shifted it.
+                unbound_ids = list(unbound_plugins.values_list("pk", flat=True))
+                for pk in unbound_ids:
+                    plugin = self.cmsplugin_set.filter(pk=pk).first()
+                    if plugin is not None:  # may already be gone as a descendant
+                        placeholder.delete_plugin(plugin)
+            else:  # up to CMS v3.11
+                for plugin in unbound_plugins:
+                    # delete plugins that are not referenced in the text anymore
+                    plugin.delete()
 
         def copy_referenced_plugins(self):
             if referenced_plugins := self.get_referenced_plugins():

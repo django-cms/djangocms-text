@@ -305,6 +305,16 @@ html.cms-toolbar-expanded {
     }
 
     /* Block toolbar */
+    /* Keep the toolbar and its open dropdown visible even if the editor
+       momentarily loses focus, so clicks on the dropdown are not lost */
+    .cms-block-toolbar.show {
+        visibility: visible;
+        opacity: 1;
+        .cms-block-dropdown {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
     .ProseMirror-focused .cms-block-toolbar, &.has-form-dialog .cms-block-toolbar {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;

@@ -124,6 +124,11 @@ function _createBlockToolbar(editor, blockToolbar) {
         // mousedown blurs the editor, whose focus-driven CSS hides the toolbar
         // before the click event can fire. The drag handle (first child) must
         // keep its default behavior so dragstart still works.
+        // Only intercept primary-button clicks so middle-click, context menus,
+        // and other non-primary interactions continue to work as expected.
+        if (event.button !== 0) {
+            return;
+        }
         if (toolbar.lastElementChild?.contains(event.target)) {
             event.preventDefault();
         }

@@ -62,6 +62,11 @@ function _createBlockToolbarPlugin(editor) {
                 click (view, event) {
                     const blockToolbar = editor.options?.blockToolbar;
                     if (blockToolbar?.contains(event.target)) {
+                        // Refocus the editor so the focus-driven CSS keeps the
+                        // toolbar visible and the blur handler does not save
+                        if (!editor.isFocused) {
+                            editor.commands.focus();
+                        }
                         if (blockToolbar.lastElementChild?.contains(event.target)) {
                             // clicked somewhere in dropdown?
                             _handleToolbarClick(event, editor);
@@ -114,6 +119,15 @@ function _createBlockToolbar(editor, blockToolbar) {
     toolbar.innerHTML = `${_drag_icon}<div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`;
 
     toolbar.draggable = true;
+    toolbar.addEventListener('mousedown', (event) => {
+        // Keep the editor focused when clicking dropdown items: an unprevented
+        // mousedown blurs the editor, whose focus-driven CSS hides the toolbar
+        // before the click event can fire. The drag handle (first child) must
+        // keep its default behavior so dragstart still works.
+        if (toolbar.lastElementChild?.contains(event.target)) {
+            event.preventDefault();
+        }
+    });
     toolbar.addEventListener("dragstart", (event) => {
         toolbar.classList.remove('show');
         const start = parseInt(editor.options.blockToolbar.dataset.start);

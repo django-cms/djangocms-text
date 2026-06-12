@@ -426,7 +426,9 @@ const BlockStyle = Node.create({
                     if (commands.activeBlockStyle(id)) {
                         return commands.updateAttributes(textblock.type, {blockStyle: null});
                     }
+                    const currentAttrs = editor.getAttributes(textblock.type) || {};
                     return commands.setNode(textblock.type, {
+                        ...currentAttrs,
                         ...textblock.attrs,
                         blockStyle: style.attributes || null,
                     });

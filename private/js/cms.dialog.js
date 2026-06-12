@@ -542,6 +542,10 @@ function populateForm(htmlForm,  attributes, formObject) {
     'use strict';
     if (attributes && formObject) {
         for (const input of formObject) {
+            if (input.type === 'section') {
+                populateForm(htmlForm, attributes, input.content);
+                continue;
+            }
             let value;
             if (input.name in attributes) {
                 value = attributes[input.name] || '';
@@ -554,6 +558,13 @@ function populateForm(htmlForm,  attributes, formObject) {
                 if (field.getAttribute('type') === 'hidden') {
                     // Trigger change event for hidden fields
                     field.dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
+                }
+                if (value) {
+                    // Reveal a populated field hidden in a collapsed section
+                    const details = field.closest('details');
+                    if (details) {
+                        details.open = true;
+                    }
                 }
             }
         }

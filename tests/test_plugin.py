@@ -311,6 +311,70 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         common_children_ids = _get_common_children_ids(text_plugin_copy_from, text_plugin_copy_to)
         self.assertFalse(common_children_ids)
 
+    @skipIf(not DJANGO_CMS4, "Plugin positions only exist on django CMS 4+")
+    def test_clean_plugins_keeps_positions_contiguous(self):
+        """
+        Regression test for django-cms#8665: removing inline child plugins via
+        ``clean_plugins()`` must not leave gaps in the placeholder's plugin
+        positions. Gaps can later corrupt plugin positions when the CMS
+        recalculates them (IntegrityError on the unique position constraint).
+        """
+        simple_page = self.create_page("test page", template="page.html", language="en")
+        simple_placeholder = self.get_placeholders(simple_page, "en").get(slot="content")
+
+        text_plugin = add_plugin(
+            simple_placeholder,
+            "TextPlugin",
+            "en",
+            body="Text plugin with children",
+        )
+        child_plugin_1 = add_plugin(
+            simple_placeholder,
+            "PicturePlugin",
+            "en",
+            target=text_plugin,
+            picture=self.create_filer_image_object(),
+            caption_text="Child plugin one",
+        )
+        child_plugin_2 = add_plugin(
+            simple_placeholder,
+            "PicturePlugin",
+            "en",
+            target=text_plugin,
+            picture=self.create_filer_image_object(),
+            caption_text="Child plugin two",
+        )
+        self.add_plugin_to_text(text_plugin, child_plugin_1)
+        self.add_plugin_to_text(text_plugin, child_plugin_2)
+
+        # A sibling plugin positioned *after* the text plugin and its children.
+        # Its position is what gets corrupted if a gap is left behind.
+        add_plugin(
+            simple_placeholder,
+            "TextPlugin",
+            "en",
+            body="Trailing sibling",
+        )
+
+        def positions():
+            return list(simple_placeholder.get_plugins("en").values_list("position", flat=True))
+
+        # Sanity check: positions are contiguous to start with.
+        initial = positions()
+        self.assertEqual(initial, list(range(initial[0], initial[0] + len(initial))))
+
+        # Drop both child references from the body so they become unbound, then
+        # clean them up.
+        text_plugin.body = "Text plugin with children"
+        text_plugin.save()
+        text_plugin.clean_plugins()
+
+        self.assertEqual(text_plugin.cmsplugin_set.count(), 0)
+
+        # Positions must remain contiguous (no gaps) after the deletions.
+        remaining = positions()
+        self.assertEqual(remaining, list(range(remaining[0], remaining[0] + len(remaining))))
+
     def test_add_and_cancel_child_plugin(self):
         """
         Test that you can add a text plugin

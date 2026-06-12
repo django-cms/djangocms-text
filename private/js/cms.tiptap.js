@@ -243,7 +243,16 @@ class CMSTipTapPlugin {
             const extensions = [
                 ...filterExtensions(options.extensions, toolbarItems),
                 ...CmsTiptapRegistry.buildExtensions(),
-            ];
+            ].map((ext) => {
+                // blockstyle registers global attributes at schema-build time,
+                // before editor options are available - pass styles as
+                // extension options
+                const name = ext.name || ext?.config?.name;
+                if (name === 'blockstyle' && options.blockStyles) {
+                    return ext.configure({styles: options.blockStyles});
+                }
+                return ext;
+            });
 
             const firstInput = document.querySelector('textarea, input:not([type="hidden"]), select');
             const shouldAutofocus = el.tagName === 'TEXTAREA' && firstInput === el;

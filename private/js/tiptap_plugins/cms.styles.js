@@ -170,6 +170,28 @@ function renderStyleMenu(styles, editor, defaultTag = 'span') {
     return menu.join('');
 }
 
+/**
+ * Block elements whose HTML content model is phrasing content only and which
+ * map to an existing textblock node in the schema. Styles targeting these
+ * elements must not use the blockstyle wrapper node: wrapping would nest
+ * block content inside them (e.g. <p> inside <p>), which is invalid HTML
+ * that browsers split apart when re-parsing. Such styles are applied as
+ * attributes on the existing node instead.
+ */
+const styleableTextblocks = {
+    p: {type: 'paragraph', attrs: {}},
+    h1: {type: 'heading', attrs: {level: 1}},
+    h2: {type: 'heading', attrs: {level: 2}},
+    h3: {type: 'heading', attrs: {level: 3}},
+    h4: {type: 'heading', attrs: {level: 4}},
+    h5: {type: 'heading', attrs: {level: 5}},
+    h6: {type: 'heading', attrs: {level: 6}},
+};
+
+function textblockStyle(style) {
+    return (style.element && styleableTextblocks[style.element.toLowerCase()]) || null;
+}
+
 function validateAttributes(node, styleAttributes) {
     if (!styleAttributes) {
         return true;
@@ -235,7 +257,12 @@ const Style = {
     },
 
     parseHTML() {
-        const styles = resolveStyles(this);
+        let styles = resolveStyles(this);
+        if (this.name === 'blockstyle') {
+            // Textblock styles (p, h1-h6) are handled as attributes on the
+            // existing nodes via addGlobalAttributes, not as wrapper nodes
+            styles = styles.filter(style => !textblockStyle(style));
+        }
 
        return styles.map(style => {
            return {
@@ -357,12 +384,52 @@ const BlockStyle = Node.create({
     defaultTag: 'div',
     ...Style,
 
+    addGlobalAttributes() {
+        // Styles targeting textblock elements are stored as a `blockStyle`
+        // attribute on the paragraph/heading node itself. Editor-level
+        // blockStyles must be passed in as extension options (see
+        // cms.tiptap.js) because this hook runs at schema-build time,
+        // before an editor instance is available.
+        const styles = (this.options.styles || []).filter(style => textblockStyle(style));
+        return [{
+            types: ['paragraph', 'heading'],
+            attributes: {
+                blockStyle: {
+                    default: null,
+                    parseHTML: element => {
+                        for (const style of styles) {
+                            if (element.tagName === style.element.toUpperCase() &&
+                                    validateAttributes(element, style.attributes)) {
+                                return style.attributes || null;
+                            }
+                        }
+                        return null;
+                    },
+                    renderHTML: attributes => attributes.blockStyle || {},
+                },
+            },
+        }];
+    },
+
     addCommands() {
         return {
-            toggleBlockStyle: (id) => ({commands}) => {
+            toggleBlockStyle: (id) => ({editor, commands}) => {
                 const style = resolveStyles(this)[id];
                 if (!style) {
                     return false;
+                }
+                const textblock = textblockStyle(style);
+                if (textblock) {
+                    if (!editor.schema.nodes[textblock.type]) {
+                        return false;
+                    }
+                    if (commands.activeBlockStyle(id)) {
+                        return commands.updateAttributes(textblock.type, {blockStyle: null});
+                    }
+                    return commands.setNode(textblock.type, {
+                        ...textblock.attrs,
+                        blockStyle: style.attributes || null,
+                    });
                 }
                 return commands.toggleWrap(this.name, {
                         tag: style.element,
@@ -371,7 +438,18 @@ const BlockStyle = Node.create({
             },
             activeBlockStyle: (id) => ({editor}) => {
                 const style = resolveStyles(this)[id];
-                return style && editor.isActive(this.name, {
+                if (!style) {
+                    return false;
+                }
+                const textblock = textblockStyle(style);
+                if (textblock) {
+                    if (!editor.isActive(textblock.type, textblock.attrs)) {
+                        return false;
+                    }
+                    const active = editor.getAttributes(textblock.type).blockStyle;
+                    return JSON.stringify(active || null) === JSON.stringify(style.attributes || null);
+                }
+                return editor.isActive(this.name, {
                     tag: style.element,
                     attributes: style.attributes,
                 });

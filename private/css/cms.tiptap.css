@@ -142,6 +142,31 @@
                     outline-offset: 2px;
                 }
             }
+
+            /* Fallback for plugins that render zero-width content (e.g. an empty
+               text-enabled plugin) so the user can still see and edit them. */
+            &.cms-plugin-empty {
+                display: inline-block;
+                vertical-align: middle;
+                cursor: pointer;
+            }
+            .cms-plugin-placeholder {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 1.4rem;
+                height: 1.4rem;
+                color: var(--dca-gray, #666);
+                background-color: var(--dca-gray-lightest, #f5f5f5);
+                border: 1px dashed var(--dca-gray, #999);
+                border-radius: 3px;
+                vertical-align: middle;
+                pointer-events: none;
+                svg {
+                    width: 1rem;
+                    height: 1rem;
+                }
+            }
         }
     }
 }

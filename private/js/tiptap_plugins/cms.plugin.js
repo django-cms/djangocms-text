@@ -210,6 +210,23 @@ const cmsPluginNodes = {
             });
             // store the getPos function in the node to be able to edit the node from the menu bar later
             node.getPos = getPos;
+            // Detect zero-width plugins after layout. Insert the plugin's icon
+            // (or a generic puzzle icon) as a real DOM child so the user can
+            // still see, select, and edit the plugin.
+            requestAnimationFrame(() => {
+                if (dom.offsetWidth === 0 || dom.offsetHeight === 0) {
+                    dom.classList.add('cms-plugin-empty');
+                    const placeholder = document.createElement('span');
+                    placeholder.classList.add('cms-plugin-placeholder');
+                    // Look up the plugin's own icon from the installed plugins list
+                    const pluginType = node.attrs.HTMLAttributes.type;
+                    const installed = window.CMS_Editor?.getInstalledPlugins?.() || [];
+                    const pluginDef = installed.find(p => p.value === pluginType);
+                    placeholder.innerHTML = pluginDef?.icon ||
+                        TiptapToolbar.CMSPlugins?.icon || pluginType || '';
+                    dom.appendChild(placeholder);
+                }
+            });
             return {dom};
         };
     },

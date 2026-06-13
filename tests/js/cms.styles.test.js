@@ -168,6 +168,81 @@ describe('Tiptap style extensions', () => {
             expect(editor.can().toggleBlockStyle(0)).toBe(false);
         });
 
+        it('round-trips a paragraph block style without nesting or splitting', () => {
+            const content = '<p class="lead">Lead text</p><p>Normal text</p>';
+            const editor = createEditorWithContent('test-block-lead-1', content, {
+                toolbar: [['Bold', 'BlockStyles']],
+                blockStyles: [
+                    { name: 'Lead', element: 'p', attributes: { class: 'lead' } },
+                ],
+            });
+
+            const html = editor.getHTML();
+            expect(html).toBe('<p class="lead">Lead text</p><p>Normal text</p>');
+            // No wrapper node: the doc contains two plain paragraphs
+            expect(editor.state.doc.childCount).toBe(2);
+            expect(editor.state.doc.child(0).type.name).toBe('paragraph');
+        });
+
+        it('strips unconfigured classes from paragraphs', () => {
+            const content = '<p class="random">Some text</p>';
+            const editor = createEditorWithContent('test-block-lead-2', content, {
+                toolbar: [['Bold', 'BlockStyles']],
+                blockStyles: [
+                    { name: 'Lead', element: 'p', attributes: { class: 'lead' } },
+                ],
+            });
+
+            const html = editor.getHTML();
+            expect(html).not.toContain('random');
+            expect(html).toContain('Some text');
+        });
+
+        it('applies a paragraph block style as an attribute via toggleBlockStyle', () => {
+            const editor = createEditorWithContent('test-block-lead-3', '<p>Some text</p>', {
+                toolbar: [['Bold', 'BlockStyles']],
+                blockStyles: [
+                    { name: 'Lead', element: 'p', attributes: { class: 'lead' } },
+                ],
+            });
+
+            editor.commands.selectAll();
+            editor.commands.toggleBlockStyle(0);
+            expect(editor.getHTML()).toBe('<p class="lead">Some text</p>');
+            expect(editor.commands.activeBlockStyle(0)).toBe(true);
+
+            // Toggling again removes the style
+            editor.commands.toggleBlockStyle(0);
+            expect(editor.getHTML()).toBe('<p>Some text</p>');
+            expect(editor.commands.activeBlockStyle(0)).toBe(false);
+        });
+
+        it('round-trips a heading block style', () => {
+            const content = '<h2 class="display-2">Big heading</h2>';
+            const editor = createEditorWithContent('test-block-heading', content, {
+                toolbar: [['Heading2', 'BlockStyles']],
+                blockStyles: [
+                    { name: 'Display', element: 'h2', attributes: { class: 'display-2' } },
+                ],
+            });
+
+            expect(editor.getHTML()).toBe('<h2 class="display-2">Big heading</h2>');
+        });
+
+        it('does not apply a heading style to a paragraph with the same class', () => {
+            const content = '<p class="display-2">Not a heading</p>';
+            const editor = createEditorWithContent('test-block-mismatch', content, {
+                toolbar: [['Heading2', 'BlockStyles']],
+                blockStyles: [
+                    { name: 'Display', element: 'h2', attributes: { class: 'display-2' } },
+                ],
+            });
+
+            const html = editor.getHTML();
+            expect(html).not.toContain('display-2');
+            expect(html).toContain('Not a heading');
+        });
+
         it('strips all block styles when none are configured', () => {
             const content = '<div class="special"><p>wrapped</p></div><p>normal</p>';
             const editor = createEditorWithContent('test-block-2', content, {

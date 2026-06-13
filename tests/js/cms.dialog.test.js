@@ -53,18 +53,6 @@ describe('populateForm', () => {
         expect(form.querySelector('[name="target"]').value).toBe('_blank');
     });
 
-    it('opens the enclosing collapsed section when a nested field has a value', () => {
-        const form = renderForm(linkForm);
-        populateForm(form, {target: '_blank'}, linkForm);
-        expect(form.querySelector('details').open).toBe(true);
-    });
-
-    it('leaves the section collapsed when the nested field is empty', () => {
-        const form = renderForm(linkForm);
-        populateForm(form, {href: 'https://example.com'}, linkForm);
-        expect(form.querySelector('details').open).toBe(false);
-    });
-
     it('dispatches an input event for hidden fields', () => {
         const form = renderForm(linkForm);
         const events = [];

@@ -559,13 +559,6 @@ function populateForm(htmlForm,  attributes, formObject) {
                     // Trigger change event for hidden fields
                     field.dispatchEvent(new Event('input', {bubbles: true, cancelable: true}));
                 }
-                if (value) {
-                    // Reveal a populated field hidden in a collapsed section
-                    const details = field.closest('details');
-                    if (details) {
-                        details.open = true;
-                    }
-                }
             }
         }
     }

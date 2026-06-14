@@ -210,11 +210,18 @@ const cmsPluginNodes = {
             });
             // store the getPos function in the node to be able to edit the node from the menu bar later
             node.getPos = getPos;
-            // Detect zero-width plugins after layout. Insert the plugin's icon
+            // Detect descendant visiblilty after layout. Insert the plugin's icon
             // (or a generic puzzle icon) as a real DOM child so the user can
             // still see, select, and edit the plugin.
+	    function hasVisibleContent(el){
+	        for (const child of el.querySelectorAll('*')){
+		    const rect = child.getBoundingClientRect();
+		    if (rect.width > 0 && rect.height > 0) return true;
+		}
+		return false;
+	    }
             requestAnimationFrame(() => {
-                if (dom.offsetWidth === 0 || dom.offsetHeight === 0) {
+                if (!hasVisibleContent(dom)){
                     dom.classList.add('cms-plugin-empty');
                     const placeholder = document.createElement('span');
                     placeholder.classList.add('cms-plugin-placeholder');

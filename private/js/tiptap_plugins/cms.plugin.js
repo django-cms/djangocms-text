@@ -215,8 +215,9 @@ const cmsPluginNodes = {
             // still see, select, and edit the plugin.
 	    function hasVisibleContent(el){
 	        for (const child of el.querySelectorAll('*')){
-		    const rect = child.getBoundingClientRect();
-		    if (rect.width > 18 && rect.height > 18) return true;
+		        const rect = child.getBoundingClientRect();
+		        if (rect.width > 0 && rect.height > 0) 
+                    return true;
 		}
 		return false;
 	    }

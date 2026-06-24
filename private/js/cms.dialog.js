@@ -542,6 +542,10 @@ function populateForm(htmlForm,  attributes, formObject) {
     'use strict';
     if (attributes && formObject) {
         for (const input of formObject) {
+            if (input.type === 'section') {
+                populateForm(htmlForm, attributes, input.content);
+                continue;
+            }
             let value;
             if (input.name in attributes) {
                 value = attributes[input.name] || '';

@@ -8,12 +8,15 @@ html.cms-toolbar-expanded {
     --tiptap-ease: 100ms;
     /* Lift the active editor above neighbouring columns so the block
        toolbar (which paints outside the editor's bounds) is not covered
-       by sibling stacking contexts. */
+       by sibling stacking contexts. Note: do NOT add `isolation: isolate`
+       here — it creates a stacking context that traps the block toolbar's
+       own high z-index inside the wrapper, so it would only compete with
+       siblings at z-index:10 and could still be covered (and clicks lost
+       the moment focus drops). */
     &:has(.ProseMirror-focused),
     &.has-form-dialog,
     &.has-focused-editor {
         z-index: 10;
-        isolation: isolate;
     }
     .ProseMirror-focused [role="menubar"],
     &.has-form-dialog [role="menubar"],
@@ -305,6 +308,16 @@ html.cms-toolbar-expanded {
     }
 
     /* Block toolbar */
+    /* Keep the toolbar and its open dropdown visible even if the editor
+       momentarily loses focus, so clicks on the dropdown are not lost */
+    .cms-block-toolbar.show {
+        visibility: visible;
+        opacity: 1;
+        .cms-block-dropdown {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
     .ProseMirror-focused .cms-block-toolbar, &.has-form-dialog .cms-block-toolbar {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;

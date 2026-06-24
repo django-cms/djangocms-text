@@ -216,7 +216,7 @@ const cmsPluginNodes = {
 	    function hasVisibleContent(el){
 	        for (const child of el.querySelectorAll('*')){
 		    const rect = child.getBoundingClientRect();
-		    if (rect.width > 0 && rect.height > 0) return true;
+		    if (rect.width > 18 && rect.height > 18) return true;
 		}
 		return false;
 	    }

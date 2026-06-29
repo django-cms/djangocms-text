@@ -23,11 +23,16 @@
 
 #cms-top dialog.cms-dialog {
     padding: 0;
+    margin: 0;
     top: 50%;
-    left: 50%;
     inset-inline-start: 50%;
     inset-inline-end: unset;
-    transform: translate(calc(-50% + 250px), calc(-50% + 121px));
+    /* Anchor by the inline-start edge only (no physical `left`), so the
+       dialog is positioned by `left` in LTR and `right` in RTL without
+       being over-constrained. The horizontal translate is mirrored for
+       RTL via --cms-dialog-tx below. */
+    --cms-dialog-tx: -50%;
+    transform: translate(var(--cms-dialog-tx), calc(-50% + 21px));
     width: 32rem;
     height: 24rem;
     min-height: 16rem;
@@ -39,7 +44,7 @@
     }
     .cms-modal-resize {
         position: absolute;
-        right: 0;
+        inset-inline-end: 0;
         bottom: 0;
         width: 24px;
         height: 24px;
@@ -70,11 +75,25 @@
     .cms-modal-resize:hover {
         opacity: 1;
     }
-}
-
-[dir="rtl"] dialog.cms-dialog {
-    inset-inline-start: unset;
-    inset-inline-end: 50%;
+    /* RTL: mirror the resize handle and flip the centering translate.
+       Nested under the `#cms-top dialog.cms-dialog` selector so it
+       outranks the base rule (the previous standalone `[dir="rtl"]`
+       selector had lower specificity than `#cms-top …` and never
+       applied). */
+    &:dir(rtl) {
+        /* `inset-inline-start: 50%` resolves to `right: 50%` in RTL, so it
+           pins the dialog's *right* edge to the centre line instead of the
+           left edge. `transform` is physical (does not mirror), so the
+           centering term flips sign: +50% pushes the box back to centre.
+           The base rule's `+250px` is a physical nudge needed only for the
+           left-anchored (LTR) case; right-anchored RTL needs no offset
+           (verified empirically — see PR discussion). */
+        --cms-dialog-tx: 50%;
+        .cms-modal-resize {
+            cursor: nesw-resize;
+            transform: scaleX(-1);  /* flip handle to the bottom-start corner */
+        }
+    }
 }
 
 dialog.cms-form-dialog, .cms-editor-inline-wrapper .cms-block-dropdown {

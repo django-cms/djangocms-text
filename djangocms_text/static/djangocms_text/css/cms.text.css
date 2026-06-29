@@ -30,7 +30,7 @@
     /* Anchor by the inline-start edge only (no physical `left`), so the
        dialog is positioned by `left` in LTR and `right` in RTL without
        being over-constrained. The horizontal translate is mirrored for
-       RTL via --cms-dialog-tx below. */
+       RTL via --cms-dialog-tx below. 21px give a small offset down. */
     --cms-dialog-tx: -50%;
     transform: translate(var(--cms-dialog-tx), calc(-50% + 21px));
     width: 32rem;

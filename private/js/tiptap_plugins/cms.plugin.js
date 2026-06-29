@@ -1,6 +1,6 @@
 /* eslint-env es6 */
 /* jshint esversion: 9 */
-/* global document, window, console */
+/* global document, window, console, DOMParser */
 
 import { Node } from '@tiptap/core';
 import CmsDialog from "../cms.dialog.js";
@@ -18,6 +18,25 @@ function getNodeType(plugin) {
         return blockTags.includes(plugin.tagName) ? 'cmsBlockPlugin': 'cmsPlugin';
     }
     return 'cmsPlugin';
+}
+
+
+/**
+ * Turn a trusted SVG icon *string* (from the server-side plugin registry,
+ * never user input) into a DOM node without going through an `innerHTML`
+ * sink. The string is parsed as XML (`image/svg+xml`), which does not
+ * execute scripts, then the resulting <svg> element is imported.
+ *
+ * @param {string} svg - The SVG markup string.
+ * @return {SVGElement|null} - The imported <svg> node, or null if invalid.
+ */
+function svgStringToNode(svg) {
+    'use strict';
+    const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+    if (doc.querySelector('parsererror') || doc.documentElement.tagName.toLowerCase() !== 'svg') {
+        return null;
+    }
+    return document.importNode(doc.documentElement, true);
 }
 
 
@@ -230,8 +249,16 @@ const cmsPluginNodes = {
                     const pluginType = node.attrs.HTMLAttributes.type;
                     const installed = window.CMS_Editor?.getInstalledPlugins?.() || [];
                     const pluginDef = installed.find(p => p.value === pluginType);
-                    placeholder.innerHTML = pluginDef?.icon ||
-                        TiptapToolbar.CMSPlugins?.icon || pluginType || '';
+                    // Icons are trusted SVG strings from the plugin registry;
+                    // parse and append them as nodes rather than via innerHTML.
+                    // Fall back to the plugin type as plain text.
+                    const icon = pluginDef?.icon || TiptapToolbar.CMSPlugins?.icon;
+                    const iconNode = icon ? svgStringToNode(icon) : null;
+                    if (iconNode) {
+                        placeholder.appendChild(iconNode);
+                    } else {
+                        placeholder.textContent = pluginType || '';
+                    }
                     dom.appendChild(placeholder);
                 }
             });

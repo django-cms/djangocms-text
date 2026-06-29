@@ -191,6 +191,40 @@ class CmsDialog {
     }
 
     /**
+     * Whether the dialog is laid out right-to-left. In RTL the dialog is
+     * anchored by its `right` edge (see the `inset-inline-start` rule in
+     * cms.text.css), so drag/resize move along `right` and invert the
+     * horizontal delta.
+     *
+     * @return {boolean}
+     */
+    isRtl() {
+        return getComputedStyle(this.dialog).direction === 'rtl';
+    }
+
+    /**
+     * The physical inset property the dialog is anchored by (`right` in RTL,
+     * `left` otherwise).
+     *
+     * @return {string}
+     */
+    inlineProp() {
+        return this.isRtl() ? 'right' : 'left';
+    }
+
+    /**
+     * Pointer movement along the inline axis, mirrored for RTL so a positive
+     * value always grows towards the inline-end edge.
+     *
+     * @param {number} firstX - The pointer's starting page X.
+     * @param {number} currentX - The pointer's current page X.
+     * @return {number}
+     */
+    inlineDelta(firstX, currentX) {
+        return this.isRtl() ? firstX - currentX : currentX - firstX;
+    }
+
+    /**
      * Allows dragging the dialog based on the user's mouse movements.
      *
      * @param {Event} event - The mouse event that triggers the drag.
@@ -200,19 +234,14 @@ class CmsDialog {
             return;
         }
         event.preventDefault();
-        // In RTL the dialog is anchored by its `right` edge (see the
-        // `inset-inline-start` rule in cms.text.css), so we move it along
-        // `right` and invert the horizontal delta.
-        const rtl = getComputedStyle(this.dialog).direction === 'rtl';
-        const inlineProp = rtl ? 'right' : 'left';
+        const inlineProp = this.inlineProp();
         const firstX = event.pageX;
         const firstY = event.pageY;
         const initialX = parseInt(getComputedStyle(this.dialog)[inlineProp]);
         const initialY = parseInt(getComputedStyle(this.dialog).top);
 
         const dragIt = (e) => {
-            const dx = rtl ? firstX - e.pageX : e.pageX - firstX;
-            this.dialog.style[inlineProp] = initialX + dx + 'px';
+            this.dialog.style[inlineProp] = initialX + this.inlineDelta(firstX, e.pageX) + 'px';
             this.dialog.style.top = initialY + e.pageY - firstY + 'px';
         };
         const Window = window.parent || window;
@@ -230,8 +259,7 @@ class CmsDialog {
     swipeDialog(event) {
         event.preventDefault();
 
-        const rtl = getComputedStyle(this.dialog).direction === 'rtl';
-        const inlineProp = rtl ? 'right' : 'left';
+        const inlineProp = this.inlineProp();
         const firstX = event.pageX;
         const firstY = event.pageY;
         const initialX = parseInt(getComputedStyle(this.dialog)[inlineProp]);
@@ -239,8 +267,7 @@ class CmsDialog {
 
         const swipeIt = (e) => {
             const contact = e.touches;
-            const dx = rtl ? firstX - contact[0].pageX : contact[0].pageX - firstX;
-            this.dialog.style[inlineProp] = initialX + dx + 'px';
+            this.dialog.style[inlineProp] = initialX + this.inlineDelta(firstX, contact[0].pageX) + 'px';
             this.dialog.style.top = initialY + contact[0].pageY - firstY + 'px';
         };
 
@@ -264,18 +291,15 @@ class CmsDialog {
         }
         event.preventDefault();
         event.stopPropagation();
-        // In RTL the dialog grows towards the inline-start (left) edge and
-        // the handle sits in the bottom-left corner, so the horizontal
-        // delta is inverted.
-        const rtl = getComputedStyle(this.dialog).direction === 'rtl';
+        // In RTL the handle sits in the bottom-left corner and the dialog
+        // grows towards the inline-start edge, so the width delta is mirrored.
         const firstX = event.pageX;
         const firstY = event.pageY;
         const initialW = parseInt(getComputedStyle(this.dialog).width);
         const initialH = parseInt(getComputedStyle(this.dialog).height);
 
         const resizeIt = (e) => {
-            const dw = rtl ? firstX - e.pageX : e.pageX - firstX;
-            this.dialog.style.width = initialW + dw + 'px';
+            this.dialog.style.width = initialW + this.inlineDelta(firstX, e.pageX) + 'px';
             this.dialog.style.height = initialH + e.pageY - firstY + 'px';
         };
         const Window = window.parent || window;
@@ -294,7 +318,6 @@ class CmsDialog {
     touchResizeDialog(event) {
         event.preventDefault();
         event.stopPropagation();
-        const rtl = getComputedStyle(this.dialog).direction === 'rtl';
         const firstX = event.touches[0].pageX;
         const firstY = event.touches[0].pageY;
         const initialW = parseInt(getComputedStyle(this.dialog).width);
@@ -302,8 +325,7 @@ class CmsDialog {
 
         const resizeIt = (e) => {
             const contact = e.touches;
-            const dw = rtl ? firstX - contact[0].pageX : contact[0].pageX - firstX;
-            this.dialog.style.width = initialW + dw + 'px';
+            this.dialog.style.width = initialW + this.inlineDelta(firstX, contact[0].pageX) + 'px';
             this.dialog.style.height = initialH + contact[0].pageY - firstY + 'px';
         };
         const Window = window.parent || window;

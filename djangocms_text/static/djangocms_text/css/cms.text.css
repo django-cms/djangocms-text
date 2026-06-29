@@ -23,7 +23,7 @@
 
 #cms-top dialog.cms-dialog {
     padding: 0;
-    margin: 0;
+    margin: 0;  /* Resets some values from django CMS core */
     top: 50%;
     inset-inline-start: 50%;
     inset-inline-end: unset;
@@ -75,12 +75,19 @@
     .cms-modal-resize:hover {
         opacity: 1;
     }
-    /* RTL: `inset-inline-start` resolves to `right`, pinning the dialog's
-       right edge to the centre line, so the centering translate flips sign
-       (transform is physical and does not mirror). Nested so it outranks
-       the base `#cms-top …` rule (a standalone `[dir="rtl"]` selector
-       would have lower specificity and never apply). */
+    /* RTL: mirror the resize handle and flip the centering translate.
+       Nested under the `#cms-top dialog.cms-dialog` selector so it
+       outranks the base rule (the previous standalone `[dir="rtl"]`
+       selector had lower specificity than `#cms-top …` and never
+       applied). */
     &:dir(rtl) {
+        /* `inset-inline-start: 50%` resolves to `right: 50%` in RTL, so it
+           pins the dialog's *right* edge to the centre line instead of the
+           left edge. `transform` is physical (does not mirror), so the
+           centering term flips sign: +50% pushes the box back to centre.
+           The base rule's `+250px` is a physical nudge needed only for the
+           left-anchored (LTR) case; right-anchored RTL needs no offset
+           (verified empirically — see PR discussion). */
         --cms-dialog-tx: 50%;
         .cms-modal-resize {
             cursor: nesw-resize;

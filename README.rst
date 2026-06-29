@@ -131,7 +131,9 @@ Example TipTap configuration (matches the defaults):
         ],
         "blockStyles": [],
         # Block styles menu, e.g., for paragraphs; empty by default.
-        # Example: [{"name": "Lead", "element": "div", "attributes": {"class": "lead"}}]
+        # Example: [{"name": "Lead", "element": "p", "attributes": {"class": "lead"}}]
+        # Styles for p and h1-h6 set the attributes on the element itself;
+        # styles for container elements (div, section, ...) wrap the selected blocks.
         "textColors": {  # Colors offered for the text color menu - the keys are CSS classes
             'text-primary': {"name": "Primary"},
             'text-secondary': {"name": "Secondary"},

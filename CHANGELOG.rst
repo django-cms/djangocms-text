@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.9.9 (13-06-2026)
+==================
+
+* fix: Cleaning orphaned child plugins left the plugin tree corrupted by @fsbraun in https://github.com/django-cms/djangocms-text/pull/185
+* fix: Block toolbar item clicks sometimes were lost by @fsbraun in https://github.com/django-cms/djangocms-text/pull/186
+* fix: p, and h1...h6 were nested by block toolbar by @fsbraun in https://github.com/django-cms/djangocms-text/pull/189
+* fix: Link form did not get fully populated by @fsbraun in https://github.com/django-cms/djangocms-text/pull/188
+
+
 0.9.8 (29-05-2026)
 ==================
 

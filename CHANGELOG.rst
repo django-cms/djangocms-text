@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.9.10 (03-07-2026)
+===================
+
+* feat: Render icon for empty text-enabled plugins when editing by @fsbraun in https://github.com/django-cms/djangocms-text/pull/168
+* fix: In RTL languages the modal was mispositioned by @fsbraun in https://github.com/django-cms/djangocms-text/pull/193
+
 0.9.9 (13-06-2026)
 ==================
 

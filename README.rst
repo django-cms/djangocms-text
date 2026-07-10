@@ -298,6 +298,12 @@ HTML sanitizer
 ``djangocms-text`` uses `nh3 <https://nh3.readthedocs.io/en/latest/>`_ to
 sanitize HTML, both for security and to enforce well-formed markup.
 Sanitization may strip tags useful for some use cases (e.g. ``iframe``).
+
+HTML is sanitized when it is written through Django's ORM. It is not sanitized
+again when read from the database; stored values are treated as trusted HTML.
+Code that writes directly to the database, bypassing the ORM, must therefore
+sanitize HTML before storing it.
+
 Customize allowed tags and attributes via ``TEXT_ADDITIONAL_ATTRIBUTES``::
 
     TEXT_ADDITIONAL_ATTRIBUTES = {

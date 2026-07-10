@@ -1,7 +1,9 @@
 from django.template import Context, Template
+from django.test import override_settings
 from django.utils.safestring import SafeData
 
-from djangocms_text.fields import HTMLFormField
+from djangocms_text.fields import HTMLField, HTMLFormField
+from djangocms_text.widgets import TextEditorWidget
 
 from .base import BaseTestCase
 from .test_app.forms import SimpleTextForm
@@ -12,6 +14,13 @@ class HtmlFieldTestCase(BaseTestCase):
     def test_html_form_field(self):
         html_field = HTMLFormField()
         self.assertTrue(isinstance(html_field.clean("some text"), SafeData))
+
+    @override_settings(TEST_TEXT_EDITOR={"toolbar": "HTMLField"})
+    def test_html_form_field_uses_configured_widget(self):
+        html_field = HTMLFormField(configuration="TEST_TEXT_EDITOR")
+
+        self.assertIsInstance(html_field.widget, TextEditorWidget)
+        self.assertEqual(html_field.widget.configuration["toolbar"], "HTMLField")
 
 
 class FieldTestCase(BaseTestCase):
@@ -25,6 +34,12 @@ class FieldTestCase(BaseTestCase):
         '<p>some non malicious text</p>&lt;script&gt;alert("Hello! I am an alert box!");&lt;/script&gt;'
     )
 
+    def test_model_field_preserves_none_when_preparing_for_database(self):
+        self.assertIsNone(HTMLField().get_prep_value(None))
+
+    def test_model_field_preserves_none_when_loading_from_database(self):
+        self.assertIsNone(HTMLField().from_db_value(None, None, None))
+
     def test_model_field_text_is_safe(self):
         original = "Hello <h2>There</h2>"
         template = Template("{{ obj.text }}")
@@ -34,6 +49,15 @@ class FieldTestCase(BaseTestCase):
         text = SimpleText.objects.get(pk=text.pk)
         rendered = template.render(Context({"obj": text}))
         self.assertEqual(original, rendered)
+
+    def test_model_field_is_sanitized_on_orm_update(self):
+        text = SimpleText.objects.create(text=self.text_normal)
+        SimpleText.objects.filter(pk=text.pk).update(text=self.text_with_script)
+
+        text = SimpleText.objects.get(pk=text.pk)
+
+        self.assertIsInstance(text.text, SafeData)
+        self.assertEqual(text.text, self.text_normal)
 
     def test_model_field_sanitized(self):
         obj = SimpleText(text=self.text_normal)

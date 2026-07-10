@@ -512,7 +512,8 @@ class TextPlugin(CMSPluginBase):
         return HttpResponse(status=204)
 
     def get_available_urls(self, request):
-        if not (request.user.is_active and request.user.is_staff):
+        permission = f"{self.model._meta.app_label}.view_{self.model._meta.model_name}"
+        if not (request.user.is_active and request.user.is_staff and request.user.has_perm(permission)):
             raise PermissionDenied
 
         if request.GET.get("g"):

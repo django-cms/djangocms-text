@@ -1039,6 +1039,21 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.json()["url"], page.get_absolute_url())
 
+    def test_url_resolution_requires_view_text_permission(self):
+        endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
+        staff_user = self._create_user("url-staff", is_staff=True, is_superuser=False)
+
+        with self.login_user_context(staff_user):
+            result = self.client.get(endpoint + "?q=test")
+
+        self.assertEqual(result.status_code, 403)
+
+        self._give_permission(staff_user, Text, "view")
+        with self.login_user_context(staff_user):
+            result = self.client.get(endpoint + "?q=test")
+
+        self.assertEqual(result.status_code, 200)
+
     def test_failed_url_resolution(self):
         page = self.create_page("test page", template="page.html", language="en")
         endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")

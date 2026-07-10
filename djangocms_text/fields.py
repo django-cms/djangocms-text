@@ -7,6 +7,11 @@ from .html import clean_html, render_dynamic_attributes
 from .widgets import TextEditorWidget
 
 
+def sanitize_and_mark_safe(value):
+    """Sanitize HTML immediately before marking it safe for templates."""
+    return mark_safe(clean_html(value))
+
+
 class HTMLFormField(CharField):
     widget = TextEditorWidget
 
@@ -23,15 +28,11 @@ class HTMLFormField(CharField):
     def clean(self, value):
         value = super().clean(value)
         value = render_dynamic_attributes(value, admin_objects=False, remove_attr=False)
-        clean_value = clean_html(value)
-
         # We `mark_safe` here (as well as in the correct places) because Django
         # Parler cache's the value directly from the in-memory object as it
         # also stores the value in the database. So the cached version is never
         # processed by `from_db_value()`.
-        clean_value = mark_safe(clean_value)
-
-        return clean_value
+        return sanitize_and_mark_safe(value)
 
 
 class HTMLField(models.TextField):
@@ -47,6 +48,12 @@ class HTMLField(models.TextField):
             return value
         value = render_dynamic_attributes(value, admin_objects=False, remove_attr=False)
         return mark_safe(value)
+
+    def get_prep_value(self, value):
+        value = super().get_prep_value(value)
+        if value is None:
+            return value
+        return clean_html(value)
 
     def to_python(self, value):
         # We don't need to add mark_safe
@@ -72,5 +79,5 @@ class HTMLField(models.TextField):
         # This needs to be marked safe as well because the form field's
         # clean method is not called on model.full_clean()
         value = render_dynamic_attributes(value, admin_objects=False, remove_attr=False)
-        value = clean_html(super().clean(value, model_instance))
-        return mark_safe(value)
+        value = super().clean(value, model_instance)
+        return sanitize_and_mark_safe(value)

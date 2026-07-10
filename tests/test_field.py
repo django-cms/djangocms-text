@@ -35,6 +35,15 @@ class FieldTestCase(BaseTestCase):
         rendered = template.render(Context({"obj": text}))
         self.assertEqual(original, rendered)
 
+    def test_model_field_is_sanitized_on_orm_update(self):
+        text = SimpleText.objects.create(text=self.text_normal)
+        SimpleText.objects.filter(pk=text.pk).update(text=self.text_with_script)
+
+        text = SimpleText.objects.get(pk=text.pk)
+
+        self.assertIsInstance(text.text, SafeData)
+        self.assertEqual(text.text, self.text_normal)
+
     def test_model_field_sanitized(self):
         obj = SimpleText(text=self.text_normal)
         obj.full_clean()

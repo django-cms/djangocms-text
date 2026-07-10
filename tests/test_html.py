@@ -302,8 +302,8 @@ class DynamicAttributesTestCase(TestCase):
         mock_obj.url = None
         mock_obj.get_absolute_url.return_value = "/resolved.jpg"
         with _patch("djangocms_text.html.apps.get_model") as mock_get_model:
-            mock_get_model.return_value.objects.filter.return_value = [mock_obj]
             mock_obj.id = 7
+            mock_get_model.return_value.objects.in_bulk.return_value = {mock_obj.id: mock_obj}
             html_in = '<img src="/old.jpg" alt="cat" data-cms-src="app.model:7">'
             html_out = render_dynamic_attributes(html_in)
         self.assertIn('src="/resolved.jpg"', html_out)

@@ -17,6 +17,7 @@ from djangocms_text import settings
 
 
 dyn_attr_pattern = re.compile(r"<[^>]*data-cms-[^>]*>")
+image_data_pattern = re.compile(r'data:(?P<mime_type>[^"]*);(?P<encoding>[^"]*),(?P<data>[^"]*)')
 cms_additional_attributes = {
     "a": {"href", "target", "rel"},
     "cms-plugin": {"id", "title", "name", "alt", "render-plugin", "type"},
@@ -173,18 +174,15 @@ def get_data_from_db(models: dict, admin_objects: bool = False) -> dict:
     """
     result = {}
     for model, ids in models.items():
-        result[model] = {}
         try:
             DjangoModel = apps.get_model(*model.split(".")[:2])
             if admin_objects and hasattr(DjangoModel, "admin_manager"):
-                DjangoModel = DjangoModel.admin_manager
+                manager = DjangoModel.admin_manager
             else:
-                DjangoModel = DjangoModel.objects
-
-            for obj in DjangoModel.filter(id__in=ids):
-                result[model][obj.id] = obj
+                manager = DjangoModel.objects
+            result[model] = manager.in_bulk(ids)
         except Exception:
-            pass
+            result[model] = {}
     return result
 
 
@@ -238,7 +236,7 @@ def dynamic_src(elem: Element, obj: models.Model, attr: str, edit_mode: bool = F
     if hasattr(obj, "get_absolute_url"):
         target_value = obj.get_absolute_url()
         if target_value:
-            elem.attrib[attr] = obj.get_absolute_url()
+            elem.attrib[attr] = target_value
     if not target_value:
         elem.attrib["data-cms-error"] = "ref-not-found"
 
@@ -339,8 +337,7 @@ def extract_images(data, plugin):
         width = img.getAttribute("width")
         height = img.getAttribute("height")
         # extract the image data
-        data_re = re.compile(r'data:(?P<mime_type>[^"]*);(?P<encoding>[^"]*),(?P<data>[^"]*)')
-        m = data_re.search(src)
+        m = image_data_pattern.search(src)
         dr = m.groupdict()
         mime_type = dr["mime_type"]
         image_data = dr["data"]

@@ -1034,9 +1034,11 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
     def test_safe_text_plugin_body_is_written_once(self):
         page = self.create_page("test page", template="page.html", language="en")
         placeholder = self.get_placeholders(page, "en").get(slot="content")
+        plugin = add_plugin(placeholder, "TextPlugin", "en", body="Initial safe text")
 
         with CaptureQueriesContext(connection) as queries:
-            add_plugin(placeholder, "TextPlugin", "en", body="Regular safe text")
+            plugin.body = "Regular safe text"
+            plugin.save(update_fields={"body"})
 
         text_table = connection.ops.quote_name(Text._meta.db_table)
         text_writes = [

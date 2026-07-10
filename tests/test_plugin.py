@@ -1048,6 +1048,23 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         ]
         self.assertEqual(len(text_writes), 1, text_writes)
 
+    def test_new_unsafe_text_plugin_is_sanitized_with_follow_up_write(self):
+        page = self.create_page("test page", template="page.html", language="en")
+        placeholder = self.get_placeholders(page, "en").get(slot="content")
+        unsafe_body = '<p>Safe</p><script>alert("unsafe")</script>'
+
+        with CaptureQueriesContext(connection) as queries:
+            plugin = add_plugin(placeholder, "TextPlugin", "en", body=unsafe_body)
+
+        text_table = connection.ops.quote_name(Text._meta.db_table)
+        text_writes = [
+            query["sql"]
+            for query in queries
+            if query["sql"].lstrip().upper().startswith(("INSERT", "UPDATE")) and text_table in query["sql"]
+        ]
+        self.assertEqual(plugin.body, "<p>Safe</p>")
+        self.assertEqual(len(text_writes), 3, text_writes)
+
     def test_url_resolution(self):
         page = self.create_page("test page", template="page.html", language="en")
         endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")

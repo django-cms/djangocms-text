@@ -1,5 +1,7 @@
 import json
+import importlib.util
 from importlib import reload
+from unittest import skipIf
 from unittest.mock import MagicMock, patch
 
 from django.http import Http404
@@ -105,5 +107,6 @@ class CKEditor4ContribTestCase(SimpleTestCase):
         self.assertIn('data-ckeditor-basepath="/custom/ckeditor/"', rendered)
         self.assertIn("djangocms_text/js/basepath.js", rendered)
 
+    @skipIf(importlib.util.find_spec("cms") is None, "django CMS is not installed")
     def test_app_adds_cms_admin_bundle_to_widget(self):
         self.assertTrue(any("bundle.admin.base.min.js" in str(script) for script in TextEditorWidget.widget_js))

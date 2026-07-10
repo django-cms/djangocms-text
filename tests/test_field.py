@@ -1,7 +1,7 @@
 from django.template import Context, Template
 from django.utils.safestring import SafeData
 
-from djangocms_text.fields import HTMLFormField
+from djangocms_text.fields import HTMLField, HTMLFormField
 
 from .base import BaseTestCase
 from .test_app.forms import SimpleTextForm
@@ -24,6 +24,9 @@ class FieldTestCase(BaseTestCase):
     text_with_script_escaped = (
         '<p>some non malicious text</p>&lt;script&gt;alert("Hello! I am an alert box!");&lt;/script&gt;'
     )
+
+    def test_model_field_preserves_none_when_preparing_for_database(self):
+        self.assertIsNone(HTMLField().get_prep_value(None))
 
     def test_model_field_text_is_safe(self):
         original = "Hello <h2>There</h2>"

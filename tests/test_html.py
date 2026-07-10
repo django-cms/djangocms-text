@@ -9,7 +9,14 @@ try:
     from lxml.etree import Element
 
     from djangocms_text import html, settings
-    from djangocms_text.html import NH3Parser, dynamic_href, dynamic_src, render_dynamic_attributes
+    from djangocms_text.html import (
+        NH3Parser,
+        dynamic_href,
+        dynamic_src,
+        get_data_from_db,
+        get_xpath,
+        render_dynamic_attributes,
+    )
 
     SKIP_CMS_TEST = False
 except ModuleNotFoundError:
@@ -256,6 +263,30 @@ class DynamicAttributesTestCase(TestCase):
         dynamic_src(elem, mock_obj, "src")
         self.assertEqual(elem.attrib["src"], "/test-url")
 
+    def test_dynamic_src_marks_missing_reference(self):
+        elem = Element("img")
+
+        dynamic_src(elem, None, "src")
+
+        self.assertEqual(elem.attrib["data-cms-error"], "ref-not-found")
+
+    def test_get_data_from_db_uses_admin_manager(self):
+        model = MagicMock()
+        expected = {1: MagicMock()}
+        model.admin_manager.in_bulk.return_value = expected
+
+        with patch("djangocms_text.html.apps.get_model", return_value=model):
+            result = get_data_from_db({"app.model": {1}}, admin_objects=True)
+
+        self.assertEqual(result, {"app.model": expected})
+        model.admin_manager.in_bulk.assert_called_once_with({1})
+
+    def test_get_data_from_db_handles_unknown_model(self):
+        with patch("djangocms_text.html.apps.get_model", side_effect=LookupError):
+            result = get_data_from_db({"unknown.model": {1}})
+
+        self.assertEqual(result, {"unknown.model": {}})
+
     def test_render_dynamic_attributes_changes_html(self):
         page = create_page("page", "page.html", language="en")
         html = f'<a data-cms-href="cms.page:{page.pk}">Link</a>'
@@ -286,6 +317,33 @@ class DynamicAttributesTestCase(TestCase):
 
         xpath = get_xpath({"data-cms-href": None, "data-cms-src": None})
         self.assertEqual(xpath, "//*[@data-cms-href] | //*[@data-cms-src]")
+
+    def test_get_xpath_handles_empty_pool(self):
+        self.assertEqual(get_xpath({}), "")
+
+    def test_render_dynamic_attributes_batches_repeated_models(self):
+        obj_one = MagicMock(id=1)
+        obj_one.get_absolute_url.return_value = "/one/"
+        obj_two = MagicMock(id=2)
+        obj_two.get_absolute_url.return_value = "/two/"
+
+        with patch("djangocms_text.html.apps.get_model") as mock_get_model:
+            mock_get_model.return_value.objects.in_bulk.return_value = {1: obj_one, 2: obj_two}
+            result = render_dynamic_attributes(
+                '<a data-cms-href="app.model:1">One</a><a data-cms-href="app.model:2">Two</a>'
+            )
+
+        mock_get_model.return_value.objects.in_bulk.assert_called_once_with({1, 2})
+        self.assertIn('href="/one/"', result)
+        self.assertIn('href="/two/"', result)
+
+    def test_render_dynamic_attributes_preserves_source_in_edit_mode(self):
+        result = render_dynamic_attributes(
+            '<a data-cms-href="invalid-reference">Link</a>', admin_objects=True, remove_attr=False
+        )
+
+        self.assertIn('data-cms-href="invalid-reference"', result)
+        self.assertIn('data-cms-error="ref-not-found"', result)
 
     def test_render_dynamic_attributes_resolves_data_cms_src(self):
         # Regression for the same get_xpath bug above: with both
@@ -336,3 +394,14 @@ class DjangoCMSPictureIntegrationTestCase(CMSTestCase):
                 'P8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==">',
             )
             mock_save_image.assert_called_once()
+
+    def test_extract_images_returns_unchanged_html_without_embedded_images(self):
+        body = '<img src="https://example.com/image.png">'
+
+        self.assertEqual(html.extract_images(body, plugin=None), body)
+
+    def test_extract_images_returns_unchanged_html_when_disabled(self):
+        body = '<img src="data:image/png;base64,AAAA">'
+
+        with patch.object(settings, "TEXT_SAVE_IMAGE_FUNCTION", None):
+            self.assertEqual(html.extract_images(body, plugin=None), body)

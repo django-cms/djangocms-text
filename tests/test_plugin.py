@@ -10,6 +10,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.template import RequestContext
 from django.utils.encoding import force_str
 from django.utils.html import escape
@@ -1028,6 +1030,21 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             response = self.client.post(endpoint, data)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(self.reload(plugin).body, "<div>divcontent</div><a>acontent</a>")
+
+    def test_safe_text_plugin_body_is_written_once(self):
+        page = self.create_page("test page", template="page.html", language="en")
+        placeholder = self.get_placeholders(page, "en").get(slot="content")
+
+        with CaptureQueriesContext(connection) as queries:
+            add_plugin(placeholder, "TextPlugin", "en", body="Regular safe text")
+
+        text_table = connection.ops.quote_name(Text._meta.db_table)
+        text_writes = [
+            query["sql"]
+            for query in queries
+            if query["sql"].lstrip().upper().startswith(("INSERT", "UPDATE")) and text_table in query["sql"]
+        ]
+        self.assertEqual(len(text_writes), 1, text_writes)
 
     def test_url_resolution(self):
         page = self.create_page("test page", template="page.html", language="en")

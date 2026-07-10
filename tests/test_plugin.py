@@ -10,6 +10,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission
+from django.core.exceptions import PermissionDenied
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.template import RequestContext
 from django.utils.encoding import force_str
 from django.utils.html import escape
@@ -1029,6 +1032,57 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(self.reload(plugin).body, "<div>divcontent</div><a>acontent</a>")
 
+    def test_safe_text_plugin_body_is_written_once(self):
+        page = self.create_page("test page", template="page.html", language="en")
+        placeholder = self.get_placeholders(page, "en").get(slot="content")
+        plugin = add_plugin(placeholder, "TextPlugin", "en", body="Initial safe text")
+
+        with CaptureQueriesContext(connection) as queries:
+            plugin.body = "Regular safe text"
+            plugin.save(update_fields={"body"})
+
+        text_table = connection.ops.quote_name(Text._meta.db_table)
+        text_writes = [
+            query["sql"]
+            for query in queries
+            if query["sql"].lstrip().upper().startswith(("INSERT", "UPDATE")) and text_table in query["sql"]
+        ]
+        self.assertEqual(len(text_writes), 1, text_writes)
+
+    def test_existing_safe_text_plugin_without_update_fields_is_written_once(self):
+        page = self.create_page("test page", template="page.html", language="en")
+        placeholder = self.get_placeholders(page, "en").get(slot="content")
+        plugin = add_plugin(placeholder, "TextPlugin", "en", body="Initial safe text")
+
+        with CaptureQueriesContext(connection) as queries:
+            plugin.body = "Updated safe text"
+            plugin.save()
+
+        text_table = connection.ops.quote_name(Text._meta.db_table)
+        text_writes = [
+            query["sql"]
+            for query in queries
+            if query["sql"].lstrip().upper().startswith(("INSERT", "UPDATE")) and text_table in query["sql"]
+        ]
+        self.assertEqual(len(text_writes), 1, text_writes)
+
+    def test_new_unsafe_text_plugin_is_sanitized_with_follow_up_write(self):
+        page = self.create_page("test page", template="page.html", language="en")
+        placeholder = self.get_placeholders(page, "en").get(slot="content")
+        unsafe_body = '<p>Safe</p><script>alert("unsafe")</script>'
+
+        with CaptureQueriesContext(connection) as queries:
+            plugin = add_plugin(placeholder, "TextPlugin", "en", body=unsafe_body)
+
+        text_table = connection.ops.quote_name(Text._meta.db_table)
+        text_writes = [
+            query["sql"]
+            for query in queries
+            if query["sql"].lstrip().upper().startswith(("INSERT", "UPDATE")) and text_table in query["sql"]
+        ]
+        self.assertEqual(plugin.body, "<p>Safe</p>")
+        self.assertEqual(len(text_writes), 3, text_writes)
+
     def test_url_resolution(self):
         page = self.create_page("test page", template="page.html", language="en")
         endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
@@ -1038,6 +1092,46 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.json()["url"], page.get_absolute_url())
+
+    def test_url_resolution_requires_view_text_permission(self):
+        endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
+        staff_user = self._create_user("url-staff", is_staff=True, is_superuser=False)
+
+        with self.login_user_context(staff_user):
+            result = self.client.get(endpoint + "?q=test")
+
+        self.assertEqual(result.status_code, 403)
+
+        self._give_permission(staff_user, Text, "view")
+        with self.login_user_context(staff_user):
+            result = self.client.get(endpoint + "?q=test")
+
+        self.assertEqual(result.status_code, 200)
+
+    def test_url_resolution_rejects_non_staff_and_inactive_users(self):
+        plugin_admin = TextPlugin()
+
+        for user in (
+            self._create_user("url-non-staff", is_staff=False),
+            self._create_user("url-inactive", is_staff=True),
+        ):
+            if user.username == "url-inactive":
+                user.is_active = False
+                user.save(update_fields={"is_active"})
+            request = self.get_request()
+            request.user = user
+
+            with self.assertRaises(PermissionDenied):
+                plugin_admin.get_available_urls(request)
+
+    def test_url_resolution_rejects_invalid_model(self):
+        endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
+
+        with self.login_user_context(self.superuser):
+            result = self.client.get(endpoint + "?g=invalid.model:1")
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn("error", result.json())
 
     def test_failed_url_resolution(self):
         page = self.create_page("test page", template="page.html", language="en")

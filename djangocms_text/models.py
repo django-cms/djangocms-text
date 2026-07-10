@@ -76,7 +76,14 @@ if apps.is_installed("cms"):
             self.body = plugin_tags_to_db(self.body)
 
         def save(self, *args, **kwargs):
-            super().save(*args, **kwargs)
+            adding = self._state.adding
+            original_body = self.body
+
+            # Embedded image plugins need a persisted parent. Existing text
+            # plugins can transform their body before their only write.
+            if adding:
+                super().save(*args, **kwargs)
+
             body = self.body
             body = extract_images(body, self)
             body = clean_html(body)
@@ -86,11 +93,14 @@ if apps.is_installed("cms"):
                 except (TypeError, CMSPlugin.DoesNotExist):
                     body = hyphenate(body)
             self.body = body
-            # no need to pass args or kwargs here
-            # this 2nd save() call is internal and should be
-            # fully managed by us.
-            # think of it as an update() vs save()
-            super().save(update_fields=("body",))
+
+            if adding:
+                if body != original_body:
+                    super().save(update_fields=("body",))
+            else:
+                if kwargs.get("update_fields") is not None:
+                    kwargs["update_fields"] = set(kwargs["update_fields"]) | {"body"}
+                super().save(*args, **kwargs)
 
         def clean_plugins(self):
             ids = self._get_inline_plugin_ids()

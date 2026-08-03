@@ -6,6 +6,7 @@ class TextCKEditor4App(AppConfig):
 
     def ready(self):
         from cms.utils.urlutils import static_with_version
+
         from djangocms_text.widgets import TextEditorWidget
 
         # The legacy CKEditor4 widget needs CMS.$ from bundle.admin.base.min.js

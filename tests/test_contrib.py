@@ -1,12 +1,11 @@
-import json
 import importlib.util
+import json
 from importlib import reload
 from unittest import skipIf
 from unittest.mock import MagicMock, patch
 
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, override_settings
-
 from lxml.etree import Element
 
 from djangocms_text.contrib import filer_image, officepaste, text_ckeditor4

@@ -1,6 +1,6 @@
+import importlib.util
 import os
 from tempfile import mkdtemp
-import importlib.util
 
 CMS_NOT_USED = importlib.util.find_spec("cms") is None
 

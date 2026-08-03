@@ -3,8 +3,8 @@ from types import SimpleNamespace
 from unittest import skipIf
 from unittest.mock import patch
 
-from django.conf import settings
 from django import forms
+from django.conf import settings
 from django.test import SimpleTestCase
 
 from djangocms_text.apps import (

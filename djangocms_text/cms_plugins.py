@@ -3,6 +3,8 @@ import operator
 import re
 from functools import lru_cache
 
+from cms.models import CMSPlugin, Page
+from cms.utils import get_language_from_request
 from django.apps import apps
 from django.contrib.admin.utils import unquote
 from django.contrib.messages import get_messages
@@ -27,11 +29,7 @@ from django.utils.translation import gettext, override
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
-from cms.models import CMSPlugin, Page
-from cms.utils import get_language_from_request
-
 from .settings import TEXT_CHILDREN_ENABLED
-
 
 try:
     from cms.models import PageContent
@@ -51,7 +49,7 @@ from . import settings
 from .editors import get_editor_config
 from .forms import ActionTokenValidationForm, RenderPluginForm, TextForm
 from .html import render_dynamic_attributes
-from .models import Text, _MAX_RTE_LENGTH
+from .models import _MAX_RTE_LENGTH, Text
 from .utils import (
     OBJ_ADMIN_WITH_CONTENT_RE_PATTERN,
     _plugin_tags_to_html,
@@ -64,7 +62,6 @@ from .utils import (
     replace_plugin_tags,
 )
 from .widgets import TextEditorWidget
-
 
 rte_config = get_editor_config()
 
@@ -468,7 +465,7 @@ class TextPlugin(CMSPluginBase):
 
         if not (
             plugin_class.has_change_permission(request, obj=text_plugin)
-            and text_plugin.placeholder.has_change_permission(request.user)  # noqa
+            and text_plugin.placeholder.has_change_permission(request.user)
         ):
             raise PermissionDenied
         return HttpResponse(form.render_plugin(request))
@@ -489,7 +486,7 @@ class TextPlugin(CMSPluginBase):
         # The following is needed for permission checking
         plugin_class.opts = plugin_class.model._meta
         if not (
-            plugin_class.has_add_permission(request) and text_plugin.placeholder.has_change_permission(request.user)  # noqa
+            plugin_class.has_add_permission(request) and text_plugin.placeholder.has_change_permission(request.user)
         ):
             raise PermissionDenied
 

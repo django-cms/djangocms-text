@@ -11,7 +11,6 @@ except ModuleNotFoundError:  # pragma: no cover
 class BaseTestCase(CMSTestCase):
     def create_filer_image_object(self):
         from django.core.files import File as DjangoFile
-
         from filer.models import Image
         from PIL import Image as PilImage
         from PIL import ImageDraw

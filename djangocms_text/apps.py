@@ -118,9 +118,7 @@ def check_ckeditor_cms_plugin_settings(settings: object) -> list:  # pragma: no 
 
         for key, value in ckeditor_settings.items():
             if "toolbar" in key and isinstance(value, list):
-                change_required = change_required or recursive_replace(
-                    ckeditor_settings[key], "cmsplugins", "CMSPlugins"
-                )
+                change_required = change_required or recursive_replace(value, "cmsplugins", "CMSPlugins")
         return change_required
     return False
 

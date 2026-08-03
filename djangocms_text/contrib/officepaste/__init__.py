@@ -15,7 +15,6 @@ etc.) before the clipboard content is parsed into the document.
 
 from djangocms_text.editors import DEFAULT_EDITOR
 
-
 SCRIPT = "djangocms_text/tiptap_plugins/cms.officepaste.js"
 
 

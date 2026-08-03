@@ -7,7 +7,6 @@ from django.utils.html import strip_tags
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
-
 _MAX_RTE_LENGTH = 16
 
 
@@ -174,7 +173,7 @@ if apps.is_installed("cms"):
             Strings are "%(_tag_child_<order>)s" with the inserted order of children
             """
             replacements = {
-                f"_tag_child_{str(order)}": plugin_to_tag(child) for order, child in enumerate(children, start=1)
+                f"_tag_child_{order!s}": plugin_to_tag(child) for order, child in enumerate(children, start=1)
             }
             self.body = self.body % replacements
             self.save()

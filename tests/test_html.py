@@ -1,10 +1,11 @@
 import copy
 from unittest import skipIf
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from django.test import TestCase
 
 try:
-    from cms.api import create_page, add_plugin
+    from cms.api import add_plugin, create_page
     from cms.test_utils.testcases import CMSTestCase
     from lxml.etree import Element
 

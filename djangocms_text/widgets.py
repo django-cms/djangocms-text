@@ -16,8 +16,8 @@ from django.utils.translation.trans_real import get_language, gettext
 
 from . import settings as text_settings
 from .editors import DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField, get_editor_config
-from .utils import admin_reverse, cms_placeholder_add_plugin
 from .utils import __version__ as cms_version
+from .utils import admin_reverse, cms_placeholder_add_plugin
 
 
 @cache

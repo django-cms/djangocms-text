@@ -43,7 +43,6 @@ from djangocms_text.editors import (
 )
 from djangocms_text.html import dynamic_attr_pool, register_attr
 
-
 SCRIPT = "djangocms_text/tiptap_plugins/cms.filer_image.js"
 TOOLBAR_ITEM = "FilerImage"
 

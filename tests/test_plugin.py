@@ -3,7 +3,7 @@ import json
 import re
 import unittest
 from unittest import skipIf
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -12,18 +12,20 @@ from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.db import connection
-from django.test.utils import CaptureQueriesContext
 from django.template import RequestContext
+from django.test.utils import CaptureQueriesContext
 from django.utils.encoding import force_str
 from django.utils.html import escape
 from django.utils.http import urlencode
+
 from .fixtures import DJANGO_CMS4, DJANGOCMS_VERSIONING, TestFixture
 
 try:
     try:
         from cms.api import add_plugin, create_page_content
     except ImportError:
-        from cms.api import add_plugin, create_title as create_page_content
+        from cms.api import add_plugin
+        from cms.api import create_title as create_page_content
     from cms.models import CMSPlugin, Page, Placeholder
     from cms.utils.urlutils import admin_reverse
 
@@ -867,7 +869,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         simple_placeholder = self.get_placeholders(simple_page, "en").get(slot="content")
         text_plugin = self._add_text_plugin(simple_placeholder)
 
-        for i in range(0, 10):
+        for i in range(10):
             plugin = self._add_child_plugin(
                 text_plugin,
                 plugin_type="LinkPlugin",
@@ -881,7 +883,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             context["request"] = request
             rendered = _render_cms_plugin(text_plugin, context)
 
-        for i in range(0, 10):
+        for i in range(10):
             self.assertTrue("LinkPlugin record %d" % i in rendered)
 
     def test_render_extended_plugin(self):
@@ -889,7 +891,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         simple_placeholder = self.get_placeholders(simple_page, "en").get(slot="content")
         text_plugin = self._add_text_plugin(simple_placeholder, "ExtendedTextPlugin")
 
-        for i in range(0, 10):
+        for i in range(10):
             plugin = self._add_child_plugin(
                 text_plugin,
                 plugin_type="LinkPlugin",
@@ -904,7 +906,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             context["request"] = request
             rendered = _render_cms_plugin(text_plugin, context)
 
-        for i in range(0, 10):
+        for i in range(10):
             self.assertTrue("LinkPlugin record %d" % i in rendered)
 
     def test_copy_plugin_integrity(self):
@@ -1209,8 +1211,8 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
         child1 = add_plugin(self.placeholder, "DummyLinkPlugin", "en", target=parent, label="CLICK ON LINK1")
         parent_body = (
             '<p>Please <cms-plugin alt="Dummy Link Plugin - dummy link object "'
-            'title="Dummy Link Plugin - dummy link object" id="{}"></cms-plugin> to go to link1.</p>'
-        ).format(child1.pk)
+            f'title="Dummy Link Plugin - dummy link object" id="{child1.pk}"></cms-plugin> to go to link1.</p>'
+        )
         parent.body = parent_body
         parent.save()
 
@@ -1230,10 +1232,10 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
         child2 = add_plugin(self.placeholder, "DummyLinkPlugin", "en", target=parent, label="CLICK ON LINK2")
         parent_body = (
             '<p>Please <cms-plugin alt="Dummy Link Plugin - dummy link object "'
-            'title="Dummy Link Plugin - dummy link object" id="{}"></cms-plugin> to go to link1 '
+            f'title="Dummy Link Plugin - dummy link object" id="{child1.pk}"></cms-plugin> to go to link1 '
             'or <cms-plugin alt="Dummy Link Plugin - dummy link object "'
-            'title="Dummy Link Plugin - dummy link object" id="{}"></cms-plugin> to go to link2.</p>'
-        ).format(child1.pk, child2.pk)
+            f'title="Dummy Link Plugin - dummy link object" id="{child2.pk}"></cms-plugin> to go to link2.</p>'
+        )
         parent.body = parent_body
         parent.save()
 
@@ -1255,10 +1257,10 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
         child2 = add_plugin(self.placeholder, "DummyLinkPlugin", "en", target=parent, label="CLICK ON LINK2")
         parent_body = (
             '<p>Please <cms-plugin alt="Dummy Link Plugin - dummy link object "'
-            'title="Dummy Link Plugin - dummy link object" id="{}"></cms-plugin> to go to link1 '
+            f'title="Dummy Link Plugin - dummy link object" id="{child1.pk}"></cms-plugin> to go to link1 '
             'or <cms-plugin alt="Dummy Link Plugin - dummy link object "'
-            'title="Dummy Link Plugin - dummy link object" id="{}"></cms-plugin> to go to link2.</p>'
-        ).format(child1.pk, child2.pk)
+            f'title="Dummy Link Plugin - dummy link object" id="{child2.pk}"></cms-plugin> to go to link2.</p>'
+        )
         parent.body = parent_body
         parent.save()
 
@@ -1271,8 +1273,8 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
         expected = (
             "<p>Please  to go to link1 "
             'or <cms-plugin alt="Dummy Link Plugin - dummy link object "'
-            'title="Dummy Link Plugin - dummy link object" id="{}">CLICK ON LINK2</cms-plugin> to go to link2.</p>'
-        ).format(child2.pk)
+            f'title="Dummy Link Plugin - dummy link object" id="{child2.pk}">CLICK ON LINK2</cms-plugin> to go to link2.</p>'
+        )
         self.assertEqual(result, expected)
         self.assertEqual(children_included_in_this_content, [child2.pk])
 
@@ -1284,8 +1286,8 @@ class DjangoCMSTranslationsIntegrationTestCase(BaseTestCase):
         child1 = add_plugin(self.placeholder, "DummySpacerPlugin", "en", target=parent)
         parent_body = (
             '<p>This is cool <cms-plugin alt="Dummy Spacer Plugin - dummy spacer object "'
-            'title="Dummy Spacer Plugin - dummy spacer object" id="{}"></cms-plugin> this is nice</p>'
-        ).format(child1.pk)
+            f'title="Dummy Spacer Plugin - dummy spacer object" id="{child1.pk}"></cms-plugin> this is nice</p>'
+        )
         parent.body = parent_body
         parent.save()
 

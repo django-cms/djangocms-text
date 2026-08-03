@@ -3,8 +3,8 @@ from collections import OrderedDict
 from functools import WRAPPER_ASSIGNMENTS, wraps
 from typing import Optional
 
-from django.template.defaultfilters import force_escape
 from django.template import Context
+from django.template.defaultfilters import force_escape
 from django.template.loader import render_to_string
 
 try:
@@ -13,7 +13,6 @@ try:
     from cms.utils.urlutils import admin_reverse
 except ModuleNotFoundError:  # pragma: no cover
     from django.db.models import Model as CMSPlugin
-
     from django.urls import reverse
 
     __version__ = "0"
@@ -23,7 +22,6 @@ except ModuleNotFoundError:  # pragma: no cover
 
 
 from packaging.version import Version
-
 
 OBJ_ADMIN_RE_PATTERN = r'<cms-plugin .*?\bid="(?P<pk>\d+)".*?>.*?</cms-plugin>'
 OBJ_ADMIN_WITH_CONTENT_RE_PATTERN = r'<cms-plugin .*?\bid="(?P<pk>\d+)".*?>(?P<content>.*?)</cms-plugin>'

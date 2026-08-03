@@ -1,7 +1,7 @@
-import pytest
-from pytest_django.live_server_helper import LiveServer
 import asyncio
 
+import pytest
+from pytest_django.live_server_helper import LiveServer
 
 from tests.fixtures import DJANGO_CMS4
 

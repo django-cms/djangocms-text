@@ -1,9 +1,11 @@
 from unittest import skipIf
-from .fixtures import TestFixture
+
 from .base import BaseTestCase
+from .fixtures import TestFixture
 
 try:
     from cms.api import add_plugin
+
     from djangocms_text import html, settings
     from djangocms_text.utils import plugin_to_tag
 
@@ -116,6 +118,7 @@ class WidgetConfigurationTestCase(BaseTestCase):
         """Regression test for #136: HTMLField(configuration=...) should not
         raise AttributeError when TEXT_EDITOR_SETTINGS is not in Django settings."""
         from django.conf import settings
+
         from djangocms_text.widgets import TextEditorWidget
 
         # Ensure TEXT_EDITOR_SETTINGS is not set in Django settings

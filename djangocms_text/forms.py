@@ -1,10 +1,9 @@
+from cms.models import CMSPlugin
 from django import forms
 from django.core import signing
 from django.core.signing import BadSignature
 from django.forms.models import ModelForm
 from django.template import RequestContext
-
-from cms.models import CMSPlugin
 
 from .models import Text
 from .utils import _render_cms_plugin, plugin_to_tag

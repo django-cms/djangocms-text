@@ -6,15 +6,13 @@ import warnings
 from copy import deepcopy
 from typing import Optional, Union
 
+import nh3
 from django.apps import apps
 from django.db import models
-
-import nh3
 from lxml import etree
 from lxml.etree import Element
 
 from djangocms_text import settings
-
 
 dyn_attr_pattern = re.compile(r"<[^>]*data-cms-[^>]*>")
 image_data_pattern = re.compile(r'data:(?P<mime_type>[^"]*);(?P<encoding>[^"]*),(?P<data>[^"]*)')

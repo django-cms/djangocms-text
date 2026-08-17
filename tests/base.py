@@ -24,5 +24,6 @@ class BaseTestCase(CMSTestCase):
         image_name = "test_file.jpg"
         filename = os.path.join(settings.FILE_UPLOAD_TEMP_DIR, image_name)
         image.save(filename, "JPEG")
-        file_obj = DjangoFile(open(filename, "rb"), name=image_name)
-        return Image.objects.create(owner=self.superuser, file=file_obj, original_filename=image_name)
+        with open(filename, "rb") as fh:
+            file_obj = DjangoFile(fh, name=image_name)
+            return Image.objects.create(owner=self.superuser, file=file_obj, original_filename=image_name)

@@ -463,7 +463,6 @@ class RTEConfig:
         configuration: dict | None = None,
         additional_context: dict | None = None,
     ):
-        """ """
         self.name = name
         self.config = config
         self.js = js or []

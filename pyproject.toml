@@ -70,6 +70,7 @@ dynamic.version = { attr = "djangocms_text.__version__" }
 [tool.ruff]
 line-length = 120
 indent-width = 4
+lint.ignore = [ "RUF012" ]
 
 [tool.isort]
 line_length = 119

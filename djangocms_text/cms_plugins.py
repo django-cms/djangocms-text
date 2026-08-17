@@ -524,7 +524,7 @@ class TextPlugin(CMSPluginBase):
                     obj = obj.pagecontent_set(manager="admin_manager").current_content().first()
                     return JsonResponse({"text": obj.title, "url": obj.get_absolute_url()})
                 return JsonResponse({"text": str(obj), "url": obj.get_absolute_url()})
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 — untrusted "g" param: split, get_model and get() all raise differently
                 return JsonResponse({"error": str(e)})
 
         search = request.GET.get("q", "").strip("  ").lower()
@@ -550,8 +550,11 @@ class TextPlugin(CMSPluginBase):
                 PageContent.objects.filter(language=language, title__icontains=search).order_by("page__node__path")
             )
             for page_content in qs:
-                # Patch the missing get_absolute_url method
-                page_content.get_absolute_url = lambda: page_content.page.get_absolute_url()
+                # Patch the missing get_absolute_url method. Binding the page's own method
+                # rather than wrapping it in a lambda: a lambda would close over the loop
+                # variable and resolve it at call time, by which point it points at the last
+                # item of `qs`, leaving every entry with the same URL.
+                page_content.get_absolute_url = page_content.page.get_absolute_url
         urls = {
             "results": [
                 {

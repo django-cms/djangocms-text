@@ -25,19 +25,40 @@ const TOOLBAR_BUTTON_SELECTOR = '#cms-top .cms-toolbar a, #cms-top .cms-toolbar 
 let _inlineDblclickGuardInstalled = false;
 
 /**
- * Will activating this toolbar control take the user off the page (or post)?
- * Menu toggles and other in-page controls are left alone so the toolbar keeps
- * feeling instant while there are unsaved edits.
+ * Will activating this toolbar control post or take the user off the page?
+ *
+ * Deliberately conservative: only controls that clearly unload the page are
+ * intercepted, so dropdowns, overlays and toggles keep opening instantly. The
+ * mirror of django CMS' own `_delegate` (`cms.toolbar.js`), which is what
+ * decides the fate of a toolbar click.
+ *
+ * Being wrong in the "no" direction is cheap — the editor's blur handler still
+ * saves, and nothing navigated away to cut the request short.
  *
  * @param {HTMLElement} el - The toolbar link or button that was clicked.
  * @return {boolean}
  */
 function _leavesPage(el) {
-    if (el.classList.contains('cms-form-post-method') || el.dataset.rel) {
+    // `_delegate` bails on disabled controls, and a dropdown caret only opens
+    // the menu it belongs to — despite inheriting the primary button's classes.
+    if (
+        el.classList.contains('cms-btn-disabled') ||
+        el.classList.contains('cms-dropdown-toggle') ||
+        el.closest('.cms-toolbar-item-navigation-disabled')
+    ) {
+        return false;
+    }
+    if (el.dataset.rel) {
+        // Of the `data-rel` branches only `ajax` posts; `modal`, `sideframe`,
+        // `message` and `color-toggle` stay on the page.
+        return el.dataset.rel === 'ajax';
+    }
+    if (el.classList.contains('cms-form-post-method')) {
+        // PUBLISH and friends: submits a generated form, unloading the page.
         return true;
     }
-    const href = el.getAttribute('href');
-    return !!href && !href.startsWith('#');
+    const href = (el.getAttribute('href') || '').trim();
+    return !!href && !href.startsWith('#') && !/^javascript:/i.test(href);
 }
 
 // Find the enclosing inline editor wrapper for a target element.

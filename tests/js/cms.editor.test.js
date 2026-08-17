@@ -613,16 +613,55 @@ describe('CMSEditor', () => {
             expect(cmsHandler).toHaveBeenCalledTimes(1);
         });
 
-        it('ignores toolbar controls that stay on the page', () => {
+        // Controls that open a menu, an overlay or toggle something in place must
+        // stay instant — the editor's blur handler still saves them, and since
+        // nothing unloads, that request is never cut short.
+        it.each([
+            ['menu toggle', '<a href="#">Page</a>'],
+            ['dropdown caret', '<a href="javascript: void 0" class="cms-dropdown-toggle cms-form-post-method">v</a>'],
+            ['dark mode toggle', '<a href="#" data-rel="color-toggle">Dark</a>'],
+            ['modal link', '<a href="/settings/" data-rel="modal">Settings</a>'],
+            ['sideframe link', '<a href="/pages/" data-rel="sideframe">Pages</a>'],
+            ['structure switcher', '<a href="/structure/" class="cms-btn cms-btn-disabled">Structure</a>'],
+            ['disabled menu item', '<li class="cms-toolbar-item-navigation-disabled"><a href="/x/">X</a></li>'],
+        ])('leaves the %s alone', (_name, markup) => {
             makeEditable(true);
-            const menuLink = document.querySelector('.cms-toolbar-item-navigation-link');
-            const menuHandler = jest.fn((e) => e.preventDefault());
-            menuLink.addEventListener('click', menuHandler);
+            const toolbar = document.querySelector('#cms-top .cms-toolbar');
+            toolbar.insertAdjacentHTML('beforeend', markup);
+            const control = toolbar.lastElementChild.matches('a')
+                ? toolbar.lastElementChild
+                : toolbar.lastElementChild.querySelector('a');
+            const handler = jest.fn((e) => e.preventDefault());
+            control.addEventListener('click', handler);
 
-            menuLink.click();
+            control.click();
 
             expect(fetchMock).not.toHaveBeenCalled();
-            expect(menuHandler).toHaveBeenCalledTimes(1);
+            expect(handler).toHaveBeenCalledTimes(1);
+        });
+
+        // The counterpart: controls that really do unload the page.
+        it.each([
+            ['post-method button', '<a href="/publish/" class="cms-form-post-method">Publish</a>'],
+            ['ajax item', '<a href="/revert/" data-rel="ajax" data-method="POST">Revert</a>'],
+            ['plain link', '<a href="/other-page/">Other page</a>'],
+        ])('flushes before the %s acts', async (_name, markup) => {
+            makeEditable(true);
+            const toolbar = document.querySelector('#cms-top .cms-toolbar');
+            toolbar.insertAdjacentHTML('beforeend', markup);
+            const control = toolbar.lastElementChild;
+            const handler = jest.fn((e) => e.preventDefault());
+            control.addEventListener('click', handler);
+
+            control.click();
+
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+            expect(handler).not.toHaveBeenCalled();
+
+            await editor.flushPendingSaves();
+            await Promise.resolve();
+
+            expect(handler).toHaveBeenCalledTimes(1);
         });
 
         it('reports unsaved changes for the unload prompt', () => {

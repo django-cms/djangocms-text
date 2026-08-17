@@ -505,6 +505,132 @@ describe('CMSEditor', () => {
             const body = fetchMock.mock.calls[0][1].body;
             expect(body.get('content')).toBe('<p>HTML content</p>');
         });
+
+        it('only sends one request when a save is triggered twice', () => {
+            const el = document.createElement('div');
+            el.id = 'double-save-1';
+            el.textContent = 'Title';
+            el.dataset.changed = 'true';
+            el.dataset.cmsEditUrl = '/edit/1/';
+            el.dataset.cmsCsrfToken = 'test-token';
+            el.dataset.cmsField = 'title';
+            el.dataset.cmsType = 'CharField';
+            document.body.appendChild(el);
+
+            // The toolbar guard and the debounced blur handler can both ask for the
+            // same save; the second one must be a no-op.
+            editor.saveData(el);
+            editor.saveData(el);
+
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('toolbar save guard', () => {
+        let fetchMock;
+        let publishBtn;
+        let cmsHandler;
+
+        function makeEditable(changed) {
+            const el = document.createElement('div');
+            el.id = 'toolbar-guard-editable';
+            el.classList.add('cms-editor-inline-wrapper');
+            el.textContent = 'Edited text';
+            el.dataset.changed = changed ? 'true' : 'false';
+            el.dataset.cmsEditUrl = '/edit/1/';
+            el.dataset.cmsCsrfToken = 'test-token';
+            el.dataset.cmsField = 'title';
+            el.dataset.cmsType = 'CharField';
+            document.body.appendChild(el);
+            return el;
+        }
+
+        beforeEach(() => {
+            fetchMock = mockFetch(
+                '<html><body><div class="messagelist"><div class="success">OK</div></div></body></html>'
+            );
+            window.fetch = fetchMock;
+
+            // Minimal stand-in for the CMS toolbar: `#cms-top > .cms-toolbar` with the
+            // PUBLISH button django CMS renders as a post-method link.
+            const toolbar = document.createElement('div');
+            toolbar.id = 'cms-top';
+            toolbar.innerHTML = `
+                <div class="cms-toolbar">
+                    <a href="/publish/1/" class="cms-btn cms-form-post-method">Publish</a>
+                    <a href="#" class="cms-toolbar-item-navigation-link">Page</a>
+                </div>
+            `;
+            document.body.appendChild(toolbar);
+            publishBtn = toolbar.querySelector('.cms-form-post-method');
+
+            // django CMS binds its own click handler on the button; it must not run
+            // before pending edits have been flushed.
+            cmsHandler = jest.fn((e) => e.preventDefault());
+            publishBtn.addEventListener('click', cmsHandler);
+
+            // Idempotent — the document-level listener is installed at most once.
+            editor._installToolbarSaveGuard();
+        });
+
+        afterEach(() => {
+            document.getElementById('cms-top')?.remove();
+            document.getElementById('toolbar-guard-editable')?.remove();
+        });
+
+        it('saves pending changes before the toolbar acts on the click', async () => {
+            makeEditable(true);
+
+            publishBtn.click();
+
+            // The CMS handler is held back until the save request went out.
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+            expect(cmsHandler).not.toHaveBeenCalled();
+
+            await editor.flushPendingSaves();
+            await Promise.resolve();
+
+            expect(cmsHandler).toHaveBeenCalledTimes(1);
+        });
+
+        it('replays the click only once', async () => {
+            makeEditable(true);
+
+            publishBtn.click();
+            await editor.flushPendingSaves();
+            await Promise.resolve();
+
+            expect(cmsHandler).toHaveBeenCalledTimes(1);
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not interfere when there is nothing to save', () => {
+            makeEditable(false);
+
+            publishBtn.click();
+
+            expect(fetchMock).not.toHaveBeenCalled();
+            expect(cmsHandler).toHaveBeenCalledTimes(1);
+        });
+
+        it('ignores toolbar controls that stay on the page', () => {
+            makeEditable(true);
+            const menuLink = document.querySelector('.cms-toolbar-item-navigation-link');
+            const menuHandler = jest.fn((e) => e.preventDefault());
+            menuLink.addEventListener('click', menuHandler);
+
+            menuLink.click();
+
+            expect(fetchMock).not.toHaveBeenCalled();
+            expect(menuHandler).toHaveBeenCalledTimes(1);
+        });
+
+        it('reports unsaved changes for the unload prompt', () => {
+            const el = makeEditable(true);
+            expect(editor.hasUnsavedChanges()).toBe(true);
+            el.dataset.changed = 'false';
+            expect(editor.hasUnsavedChanges()).toBe(false);
+        });
     });
 
     describe('inline dblclick guard', () => {

@@ -15,6 +15,25 @@ import json
 from django.apps import AppConfig
 from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.urls import NoReverseMatch, path, reverse
+from django.utils.functional import lazy
+
+
+def _info_url() -> str:
+    """Resolve the info endpoint, or "" if it is not reachable.
+
+    Wrapped in :func:`~django.utils.functional.lazy` below so nothing
+    touches the URLconf until the value is actually rendered. Returning
+    "" rather than propagating ``NoReverseMatch`` keeps a project whose
+    URLconf does not include filer's admin from 500-ing on every page
+    with an editor — the JS treats a missing URL as "feature off".
+    """
+    try:
+        return reverse("admin:filer_file_info_json")
+    except NoReverseMatch:
+        return ""
+
+
+_lazy_info_url = lazy(_info_url, str)
 
 
 class FilerImageContribConfig(AppConfig):
@@ -51,15 +70,17 @@ class FilerImageContribConfig(AppConfig):
 
         # Publish the endpoint URL via the editor's additional_context
         # so the JS in the page can locate it without hardcoding paths.
-        # Set lazily on first request resolution; importing here avoids
-        # a circular import with djangocms_text.editors at app-load.
+        # Importing here avoids a circular import with
+        # djangocms_text.editors at app-load.
         from djangocms_text.editors import DEFAULT_EDITOR
 
-        try:
-            info_url = reverse("admin:filer_file_info_json")
-        except NoReverseMatch:
-            return
-        DEFAULT_EDITOR.additional_context.setdefault("filer_image_info_url", info_url)
+        # Deliberately lazy: resolving here would force the whole URLconf
+        # to be built while the app registry is still initializing, which
+        # in turn triggers Django's "Accessing the database during app
+        # initialization is discouraged" RuntimeWarning for any project
+        # whose URLconf queries on import. `json_script` serialises the
+        # promise through DjangoJSONEncoder, which str()s it.
+        DEFAULT_EDITOR.additional_context.setdefault("filer_image_info_url", _lazy_info_url())
 
 
 def _file_info_view(request):

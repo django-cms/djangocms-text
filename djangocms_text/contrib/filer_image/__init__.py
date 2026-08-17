@@ -31,8 +31,8 @@ It also wires three things server-side:
 """
 
 from django.conf import settings
-from django.urls import NoReverseMatch, reverse_lazy
-from django.utils.text import format_lazy
+from django.urls import NoReverseMatch, reverse
+from django.utils.functional import lazy
 from django.utils.translation import gettext_lazy as _
 
 from djangocms_text.editors import (
@@ -110,27 +110,26 @@ if _image_classes:
 register_toolbar_labels({TOOLBAR_ITEM: _filer_image_label})
 
 
-# Lazily-resolved popup URL handed to the JS via global_settings. We use
-# ``reverse_lazy`` so this module can be imported before django.urls is
-# fully ready (e.g. during AppConfig.ready ordering).
+# Lazily-resolved popup URL handed to the JS via global_settings. The
+# resolution has to stay lazy: this module is imported while the app
+# registry is still initializing, and forcing the URLconf to build that
+# early makes Django warn about database access during app init.
 #
 # `_popup=1` puts the directory listing into popup mode (without it
 # filer's templates do not render the "select this file" links);
 # `_pick=file` switches it into picker mode for files (the only allowed
 # pick type alongside "folder"; filer's image widget uses the same).
-try:
-    DEFAULT_EDITOR.additional_context.setdefault(
-        "filer_image_lookup_url",
-        format_lazy(
-            "{url}?_popup=1&_pick=file",
-            url=reverse_lazy("admin:filer-directory_listing-last"),
-        ),
-    )
-except NoReverseMatch:
-    # filer is not installed; the JS will show a console warning when
-    # the user clicks the button. Importing this contrib without filer
-    # is not an error in itself.
-    pass
+def _lookup_url() -> str:
+    try:
+        return reverse("admin:filer-directory_listing-last") + "?_popup=1&_pick=file"
+    except NoReverseMatch:
+        # filer is not installed; the JS will show a console warning when
+        # the user clicks the button. Importing this contrib without filer
+        # is not an error in itself.
+        return ""
+
+
+DEFAULT_EDITOR.additional_context.setdefault("filer_image_lookup_url", lazy(_lookup_url, str)())
 
 
 def _filer_aware_dynamic_src(elem, obj, attr, edit_mode=False):

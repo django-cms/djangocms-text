@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 import json
 import uuid
 from copy import deepcopy
 from functools import cache
 from itertools import groupby
-from typing import Union
 
 from django import forms
 from django.conf import settings
@@ -108,18 +109,18 @@ class TextEditorWidget(forms.Textarea):
 
     def __init__(
         self,
-        attrs: dict[str, str] = None,
+        attrs: dict[str, str] | None = None,
         installed_plugins=None,
-        pk: Union[str, int] = None,
+        pk: str | int | None = None,
         placeholder=None,
-        plugin_language: str = None,
-        plugin_position: int = None,
+        plugin_language: str | None = None,
+        plugin_position: int | None = None,
         configuration=None,
-        cancel_url: str = None,
-        url_endpoint: str = None,
-        render_plugin_url: str = None,
-        messages_url: str = None,
-        action_token: str = None,
+        cancel_url: str | None = None,
+        url_endpoint: str | None = None,
+        render_plugin_url: str | None = None,
+        messages_url: str | None = None,
+        action_token: str | None = None,
         revert_on_cancel: bool = False,
         body_css_classes: str = "",
         add_admin_css: bool = False,

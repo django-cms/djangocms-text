@@ -524,7 +524,7 @@ class TextPlugin(CMSPluginBase):
                     obj = obj.pagecontent_set(manager="admin_manager").current_content().first()
                     return JsonResponse({"text": obj.title, "url": obj.get_absolute_url()})
                 return JsonResponse({"text": str(obj), "url": obj.get_absolute_url()})
-            except Exception as e:  # noqa: BLE001 — untrusted "g" param: split, get_model and get() all raise differently
+            except Exception as e:  # noqa: BLE001 — untrusted "g" param; split/get_model/get() all raise differently
                 return JsonResponse({"error": str(e)})
 
         search = request.GET.get("q", "").strip("  ").lower()

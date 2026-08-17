@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.9.11 (17-08-2026)
+===================
+
+* fix: Prevent stored XSS in HTMLField by @fsbraun in https://github.com/django-cms/djangocms-text/pull/196
+* fix: Publishing ignored inline editing changes by @fsbraun in https://github.com/django-cms/djangocms-text/pull/204
+* fix: Avoid db access during startup for contrib.filer_image by @fsbraun in https://github.com/django-cms/djangocms-text/pull/205
+
 0.9.10 (03-07-2026)
 ===================
 

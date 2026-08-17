@@ -6,9 +6,12 @@ from unittest.mock import MagicMock, patch
 
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, override_settings
+from django.urls import NoReverseMatch, reverse
+from django.utils.functional import Promise
 from lxml.etree import Element
 
 from djangocms_text.contrib import filer_image, officepaste, text_ckeditor4
+from djangocms_text.contrib.filer_image import apps as filer_image_apps
 from djangocms_text.contrib.filer_image.apps import _file_info_view
 from djangocms_text.editors import DEFAULT_EDITOR, DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField
 from djangocms_text.html import dynamic_attr_pool
@@ -57,6 +60,32 @@ class FilerImageContribTestCase(SimpleTestCase):
         missing_elem = Element("img")
         filer_image._filer_aware_dynamic_src(missing_elem, None, "src")
         self.assertEqual(missing_elem.attrib["data-cms-error"], "ref-not-found")
+
+    def test_published_urls_stay_lazy_until_rendered(self):
+        """Neither URL may be resolved at app-load time.
+
+        Resolving during ``AppConfig.ready()``/module import forces the
+        whole URLconf to be built while the app registry is still
+        initializing, which makes Django warn about database access
+        during app initialization (issue #200).
+        """
+        context = DEFAULT_EDITOR.additional_context
+
+        for key in ("filer_image_info_url", "filer_image_lookup_url"):
+            with self.subTest(key=key):
+                self.assertIsInstance(context[key], Promise)
+
+        self.assertEqual(str(context["filer_image_info_url"]), reverse("admin:filer_file_info_json"))
+        self.assertEqual(
+            str(context["filer_image_lookup_url"]),
+            reverse("admin:filer-directory_listing-last") + "?_popup=1&_pick=file",
+        )
+
+    def test_published_urls_degrade_to_empty_string_without_filer_urls(self):
+        with patch("djangocms_text.contrib.filer_image.apps.reverse", side_effect=NoReverseMatch):
+            self.assertEqual(filer_image_apps._info_url(), "")
+        with patch("djangocms_text.contrib.filer_image.reverse", side_effect=NoReverseMatch):
+            self.assertEqual(filer_image._lookup_url(), "")
 
     def test_file_info_view_validates_id(self):
         request = RequestFactory().get("/info-json/")

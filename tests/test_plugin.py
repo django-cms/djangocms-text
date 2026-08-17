@@ -884,7 +884,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             rendered = _render_cms_plugin(text_plugin, context)
 
         for i in range(10):
-            self.assertTrue("LinkPlugin record %d" % i in rendered)
+            self.assertTrue(f"LinkPlugin record {i}" in rendered)
 
     def test_render_extended_plugin(self):
         simple_page = self.create_page("test page", template="page.html", language="en")
@@ -907,7 +907,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             rendered = _render_cms_plugin(text_plugin, context)
 
         for i in range(10):
-            self.assertTrue("LinkPlugin record %d" % i in rendered)
+            self.assertTrue(f"LinkPlugin record {i}" in rendered)
 
     def test_copy_plugin_integrity(self):
         """
@@ -1339,7 +1339,9 @@ class TestGetChildPluginCandidates(BaseTestCase):
         plugin_b = MagicMock(__name__="PluginB")
         get_text_enabled_plugins_mock.return_value = [plugin_a, plugin_b]
 
-        with patch("djangocms_text.settings.TEXT_CHILDREN_WHITELIST", None):
-            with patch("djangocms_text.settings.TEXT_CHILDREN_BLACKLIST", []):
-                candidates = TextPlugin.get_child_plugin_candidates(slot, page)
-                self.assertEqual(list(candidates), [plugin_a, plugin_b])
+        with (
+            patch("djangocms_text.settings.TEXT_CHILDREN_WHITELIST", None),
+            patch("djangocms_text.settings.TEXT_CHILDREN_BLACKLIST", []),
+        ):
+            candidates = TextPlugin.get_child_plugin_candidates(slot, page)
+            self.assertEqual(list(candidates), [plugin_a, plugin_b])

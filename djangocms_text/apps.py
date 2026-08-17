@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.apps import AppConfig, apps
 from django.core.checks import Error, Warning, register
 
@@ -29,8 +31,8 @@ def discover_inline_editable_models(blacklist_apps: list[str] | None = None) -> 
 
         for field_name in getattr(modeladmin, "frontend_editable_fields", []):
             try:
-                form = modeladmin.get_form(request=None, fields=(field_name,))  # Worth a try
-            except Exception:
+                form = modeladmin.get_form(request=None, fields=(field_name,))  # Worth a try depsite missing request
+            except Exception:  # noqa: BLE001 — third-party get_form() overrides fail in unknowable ways
                 form = getattr(modeladmin, "form", None)
             if form:
                 field_instance = form.base_fields.get(field_name, None)
@@ -77,7 +79,7 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
                 obj="settings.TEXT_ADDITIONAL_TAGS",
             )
         )
-    if not isinstance(getattr(settings, "TEXT_ADDITIONAL_ATTRIBUTES", dict()), dict):
+    if not isinstance(getattr(settings, "TEXT_ADDITIONAL_ATTRIBUTES", {}), dict):
         warnings.append(
             Warning(
                 f"The TEXT_ADDITIONAL_ATTRIBUTES setting has changed.\n{change_msg}",

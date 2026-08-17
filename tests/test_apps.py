@@ -28,9 +28,11 @@ class AppsConfigTestCase(SimpleTestCase):
         app_config = TextConfig("djangocms_text", import_module("djangocms_text"))
         expected_inline_models = {"tests-sample-field": "CharField"}
 
-        with patch("djangocms_text.apps.discover_inline_editable_models", return_value=expected_inline_models):
-            with patch("djangocms_text.apps.register") as register_mock:
-                app_config.ready()
+        with (
+            patch("djangocms_text.apps.discover_inline_editable_models", return_value=expected_inline_models),
+            patch("djangocms_text.apps.register") as register_mock,
+        ):
+            app_config.ready()
 
         self.assertEqual(app_config.inline_models, expected_inline_models)
         self.assertEqual(register_mock.call_count, 2)
@@ -118,10 +120,12 @@ class DiscoverInlineEditableModelsTestCase(SimpleTestCase):
             }
         )
 
-        with patch("django.contrib.admin.site", fake_site):
-            with patch("djangocms_text.apps.apps.is_installed", return_value=True):
-                with patch("cms.plugin_pool.plugin_pool", fake_plugin_pool):
-                    inline_models = discover_inline_editable_models(blacklist_apps=["blacklisted"])
+        with (
+            patch("django.contrib.admin.site", fake_site),
+            patch("djangocms_text.apps.apps.is_installed", return_value=True),
+            patch("cms.plugin_pool.plugin_pool", fake_plugin_pool),
+        ):
+            inline_models = discover_inline_editable_models(blacklist_apps=["blacklisted"])
 
         self.assertEqual(
             inline_models,
@@ -146,8 +150,10 @@ class DiscoverInlineEditableModelsTestCase(SimpleTestCase):
 
         fake_site = SimpleNamespace(_registry={admin_model: StandaloneAdmin()})
 
-        with patch("django.contrib.admin.site", fake_site):
-            with patch("djangocms_text.apps.apps.is_installed", return_value=False):
-                inline_models = discover_inline_editable_models()
+        with (
+            patch("django.contrib.admin.site", fake_site),
+            patch("djangocms_text.apps.apps.is_installed", return_value=False),
+        ):
+            inline_models = discover_inline_editable_models()
 
         self.assertEqual(inline_models, {"tests-standalonemodel-text": "CharField"})

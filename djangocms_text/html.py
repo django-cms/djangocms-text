@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import base64
+import binascii
 import io
 import re
 import uuid
 import warnings
 from copy import deepcopy
-from typing import Optional, Union
 
 import nh3
 from django.apps import apps
@@ -42,8 +44,8 @@ class NH3Parser:
 
     def __init__(
         self,
-        additional_attributes: Optional[dict[str, set[str]]] = None,
-        generic_attribute_prefixes: Optional[set[str]] = None,
+        additional_attributes: dict[str, set[str]] | None = None,
+        generic_attribute_prefixes: set[str] | None = None,
     ):
         if additional_attributes is None:
             additional_attributes = cms_additional_attributes
@@ -62,11 +64,11 @@ class NH3Parser:
                 additional_attributes[tag] = attributes
 
         if additional_attributes:
-            self.ALLOWED_TAGS |= {key for key in additional_attributes.keys() if key != "*"}
+            self.ALLOWED_TAGS |= {key for key in additional_attributes if key != "*"}
             for tag, attributes in additional_attributes.items():
                 self.ALLOWED_ATTRIBUTES[tag] = self.ALLOWED_ATTRIBUTES.get(tag, set()) | attributes
 
-    def __call__(self) -> dict[str, Union[dict[str, set[str]], set[str], None]]:
+    def __call__(self) -> dict[str, dict[str, set[str]] | set[str] | None]:
         """
         Return a dictionary containing the attributes, tags, generic_attribute_prefixes, and link_rel values for
         immediate passing to the nh3.clean function.
@@ -113,7 +115,7 @@ def register_cleaner_attributes(tag_attrs: dict) -> None:
         cms_parser.ALLOWED_ATTRIBUTES[tag] = cms_parser.ALLOWED_ATTRIBUTES.get(tag, set()) | attrs
 
 
-def clean_html(data: str, full: Optional[bool] = None, cleaner: NH3Parser = None) -> str:
+def clean_html(data: str, full: bool | None = None, cleaner: NH3Parser = None) -> str:
     """
     Cleans HTML from XSS vulnerabilities using nh3
     If full is False, only the contents inside <body> will be returned (without
@@ -179,7 +181,7 @@ def get_data_from_db(models: dict, admin_objects: bool = False) -> dict:
             else:
                 manager = DjangoModel.objects
             result[model] = manager.in_bulk(ids)
-        except Exception:
+        except Exception:  # noqa: BLE001 — model labels and ids come from stored HTML, so anything goes
             result[model] = {}
     return result
 
@@ -343,7 +345,8 @@ def extract_images(data, plugin):
             mime_type = mime_type.split(";")[0]
         try:
             image_data = base64.b64decode(image_data)
-        except Exception:
+        except binascii.Error:
+            # Standard alphabet rejected it — the payload may use the URL-safe one
             image_data = base64.urlsafe_b64decode(image_data)
         try:
             image_type = mime_type.split("/")[1]

@@ -1,4 +1,4 @@
-from typing import Union
+from __future__ import annotations
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 # See http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html
 # for all settings
 
-TEXT_EDITOR_SETTINGS: dict[str, Union[str, list]] = {
+TEXT_EDITOR_SETTINGS: dict[str, str | list] = {
     "language": "{{ language }}",
     "toolbar": "CMS",
     "skin": "moono-lisa",
@@ -19,7 +19,7 @@ TEXT_EDITOR_SETTINGS: dict[str, Union[str, list]] = {
 
 TEXT_SAVE_IMAGE_FUNCTION = getattr(settings, "TEXT_SAVE_IMAGE_FUNCTION", None)
 TEXT_ADDITIONAL_TAGS = getattr(settings, "TEXT_ADDITIONAL_TAGS", ())
-TEXT_ADDITIONAL_ATTRIBUTES = getattr(settings, "TEXT_ADDITIONAL_ATTRIBUTES", dict())
+TEXT_ADDITIONAL_ATTRIBUTES = getattr(settings, "TEXT_ADDITIONAL_ATTRIBUTES", {})
 # Compatibility with djanogcms-text-ckeditor settings convention
 
 if not isinstance(TEXT_ADDITIONAL_ATTRIBUTES, dict):

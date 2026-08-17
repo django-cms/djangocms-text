@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import re
 from collections import OrderedDict
 from functools import WRAPPER_ASSIGNMENTS, wraps
-from typing import Optional
 
 from django.template import Context
 from django.template.defaultfilters import force_escape
@@ -105,7 +106,7 @@ def plugin_tags_to_id_list(text, regex=OBJ_ADMIN_RE):
     return [int(_id) for _id in _find_plugins()]
 
 
-def _plugin_tags_to_html(text: str, output_func: callable, child_plugin_instances: Optional[list[CMSPlugin]]) -> str:
+def _plugin_tags_to_html(text: str, output_func: callable, child_plugin_instances: list[CMSPlugin] | None) -> str:
     """
     Convert plugin object 'tags' into the form for public site.
 

@@ -2,10 +2,10 @@
 Changelog
 =========
 
-0.9.12 (2026-08-07)
+1.0.0 (2026-08-07)
 ===================
 
-* feat: django CMS 5.1 API update
+* feat: django CMS 5.1 API update, drop django CMS 3.11, 4.1 support
 * security: Enforce permissions for copied child plugins, link resolution,
   filer URLs, and message retrieval.
 * security: Validate and limit embedded images before storage.

@@ -5,6 +5,7 @@ Changelog
 0.9.12 (2026-08-07)
 ===================
 
+* feat: django CMS 5.1 API update
 * security: Enforce permissions for copied child plugins, link resolution,
   filer URLs, and message retrieval.
 * security: Validate and limit embedded images before storage.

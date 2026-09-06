@@ -1,5 +1,6 @@
 import base64
 import copy
+import io
 from unittest import skipIf
 from unittest.mock import MagicMock, patch
 
@@ -445,3 +446,57 @@ class DjangoCMSPictureIntegrationTestCase(CMSTestCase):
             self.assertEqual(html.extract_images(body, plugin=None), body)
 
         mock_save_image.assert_not_called()
+
+    def test_extract_images_rejects_malformed_and_invalid_base64_data(self):
+        bodies = (
+            '<img src="data:image/png,not-base64">',
+            '<img src="data:image/png;base64,@@@@">',
+        )
+
+        with patch("tests.test_html.save_image") as mock_save_image:
+            for body in bodies:
+                with self.subTest(body=body):
+                    self.assertEqual(html.extract_images(body, plugin=None), body)
+
+        mock_save_image.assert_not_called()
+
+    def test_extract_images_checks_decoded_size_after_base64_validation(self):
+        payload = base64.b64encode(b"abcdef").decode()
+        body = f'<img src="data:image/png;base64,{payload}">'
+
+        with (
+            patch.object(settings, "TEXT_SAVE_IMAGE_MAX_BYTES", 4),
+            patch("tests.test_html.save_image") as mock_save_image,
+        ):
+            self.assertEqual(html.extract_images(body, plugin=None), body)
+
+        mock_save_image.assert_not_called()
+
+    def test_extract_images_enforces_pixel_limit(self):
+        image = io.BytesIO()
+        html.Image.new("RGB", (1, 1)).save(image, "PNG")
+        payload = base64.b64encode(image.getvalue()).decode()
+        body = f'<img src="data:image/png;base64,{payload}">'
+
+        with (
+            patch.object(settings, "TEXT_SAVE_IMAGE_MAX_PIXELS", 0),
+            patch("tests.test_html.save_image") as mock_save_image,
+        ):
+            self.assertEqual(html.extract_images(body, plugin=None), body)
+
+        mock_save_image.assert_not_called()
+
+    def test_extract_images_normalizes_jpeg_and_gif(self):
+        for image_format, extension in (("JPEG", ".jpg"), ("GIF", ".gif")):
+            with self.subTest(image_format=image_format):
+                image = io.BytesIO()
+                html.Image.new("RGB", (1, 1)).save(image, image_format)
+                payload = base64.b64encode(image.getvalue()).decode()
+                body = f'<img src="data:image/unknown;base64,{payload}">'
+
+                with patch("tests.test_html.save_image") as mock_save_image:
+                    html.extract_images(body, plugin=None)
+
+                filename, normalized = mock_save_image.call_args.args[:2]
+                self.assertTrue(filename.endswith(extension))
+                self.assertGreater(len(normalized.getvalue()), 0)

@@ -601,12 +601,21 @@ class TextPlugin(CMSPluginBase):
             return f'<span class="{icon}"></span>'
         return icon
 
+    @staticmethod
+    def _get_plugin_restriction_context(placeholder):
+        """Return the object django CMS uses to filter allowed plugins."""
+        if callable(getattr(plugin_pool, "get_all_plugins_for_model", None)):
+            # django CMS 5.1 filters plugins by the model attached to the
+            # placeholder and explicitly rejects the legacy cms.Page grouper.
+            return placeholder.source
+        return placeholder.page if hasattr(placeholder, "page") else None
+
     def get_plugins(self, obj=None):
         plugin = getattr(self, "cms_plugin_instance", None) or obj
         if not plugin or not TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support:
             return []
         get_plugin = plugin_pool.get_plugin
-        page = self.placeholder.page if hasattr(self.placeholder, "page") else None
+        page = self._get_plugin_restriction_context(plugin.placeholder)
         child_plugin_types = self.get_child_classes(
             slot=plugin.placeholder.slot,
             page=page,
@@ -742,7 +751,7 @@ class TextPlugin(CMSPluginBase):
         if len(source_plugins) != len(source_ids):
             raise PermissionDenied
 
-        page = obj.placeholder.page if hasattr(obj.placeholder, "page") else None
+        page = self._get_plugin_restriction_context(obj.placeholder)
         allowed_plugin_types = set(self.get_child_classes(slot=obj.placeholder.slot, page=page))
         for source_plugin in source_plugins:
             if source_plugin.pk == obj.pk or source_plugin.plugin_type not in allowed_plugin_types:

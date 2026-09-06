@@ -11,6 +11,7 @@ from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.template import RequestContext
+from django.test import RequestFactory
 from django.test.utils import CaptureQueriesContext
 from django.utils.encoding import force_str
 from django.utils.html import escape
@@ -25,6 +26,7 @@ try:
         from cms.api import add_plugin
         from cms.api import create_title as create_page_content
     from cms.models import CMSPlugin, Page, Placeholder
+    from cms.plugin_pool import plugin_pool
     from cms.utils.urlutils import admin_reverse
 
     from djangocms_text.cms_plugins import TextPlugin
@@ -290,6 +292,26 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
             self.assertRaises(PermissionDenied),
         ):
             plugin_admin._validate_referenced_plugins(request, destination)
+
+        destination.body = plugin_to_tag(child).replace(f'id="{child.pk}"', 'id="999999999"')
+        with self.assertRaises(PermissionDenied):
+            plugin_admin._validate_referenced_plugins(request, destination)
+
+        destination.body = plugin_to_tag(child)
+        with (
+            patch.object(plugin_admin, "get_child_classes", return_value=[]),
+            self.assertRaises(PermissionDenied),
+        ):
+            plugin_admin._validate_referenced_plugins(request, destination)
+
+    def test_plugin_restriction_context_supports_django_cms_51(self):
+        placeholder = MagicMock()
+
+        with patch.object(type(plugin_pool), "get_all_plugins_for_model", MagicMock(), create=True):
+            self.assertIs(TextPlugin._get_plugin_restriction_context(placeholder), placeholder.source)
+
+        with patch.object(type(plugin_pool), "get_all_plugins_for_model", None, create=True):
+            self.assertIs(TextPlugin._get_plugin_restriction_context(placeholder), placeholder.page)
 
     @skipIf(not DJANGO_CMS4, "Plugin positions only exist on django CMS 4+")
     def test_clean_plugins_keeps_positions_contiguous(self):
@@ -1103,6 +1125,47 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         self.assertEqual(result.status_code, 403)
 
+    def test_url_resolution_rejects_malformed_reference(self):
+        endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
+
+        with self.login_user_context(self.superuser):
+            result = self.client.get(endpoint + "?g=not-a-reference")
+
+        self.assertEqual(result.status_code, 400)
+        self.assertEqual(result.json(), {"error": "Invalid object reference."})
+
+    def test_url_resolution_handles_unknown_allowlisted_model(self):
+        request = RequestFactory().get("/urls/", {"g": "unknown.model:1"})
+        request.user = self.superuser
+
+        with (
+            patch("djangocms_text.cms_plugins.settings.TEXT_LINKABLE_MODELS", {"unknown.model"}),
+            patch("djangocms_text.cms_plugins.apps.get_model", side_effect=LookupError),
+        ):
+            result = TextPlugin().get_available_urls(request)
+
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(json.loads(result.content), {"error": "Object not found."})
+
+    def test_url_resolution_requires_registered_object_admin_and_link(self):
+        page = self.create_page("test page", template="page.html", language="en")
+        placeholder = self.get_placeholders(page, "en").get(slot="content")
+        text = add_plugin(placeholder, "TextPlugin", "en", body="Text")
+        endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
+        model_label = Text._meta.label_lower
+
+        with (
+            patch("djangocms_text.cms_plugins.settings.TEXT_LINKABLE_MODELS", {model_label}),
+            self.login_user_context(self.superuser),
+        ):
+            unregistered = self.client.get(endpoint + f"?g={model_label}:{text.pk}")
+            with patch.dict(admin.site._registry, {Text: MagicMock(has_view_permission=MagicMock(return_value=True))}):
+                not_linkable = self.client.get(endpoint + f"?g={model_label}:{text.pk}")
+
+        self.assertEqual(unregistered.status_code, 403)
+        self.assertEqual(not_linkable.status_code, 400)
+        self.assertEqual(not_linkable.json(), {"error": "Object is not linkable."})
+
     def test_failed_url_resolution(self):
         page = self.create_page("test page", template="page.html", language="en")
         endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
@@ -1160,6 +1223,11 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         self.assertEqual(get_result.status_code, 405)
         self.assertEqual(result.json(), {"messages": []})
+
+        with self.login_user_context(self.get_standard_user()):
+            denied = self.client.post(endpoint)
+
+        self.assertEqual(denied.status_code, 403)
 
 
 @skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")

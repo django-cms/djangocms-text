@@ -487,7 +487,7 @@ class CMSEditor {
         // Add event listener to delete data on modal cancel (only for modal/admin editors)
         if (settings.revert_on_cancel && el.tagName === 'TEXTAREA') {
             const CMS = this.CMS;
-            const csrf = CMS.config?.csrf || document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            const csrf = CMS.config?.csrf || document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
             CMS.API.Helpers.addEventListener(
                 'modal-close.text-plugin.text-plugin-' + settings.plugin_id,
                 function(e, opts) {
@@ -719,7 +719,12 @@ class CMSEditor {
                         // Show messages if any
                         const settings = this.getSettings(el);
                         if (settings.messages_url) {
-                            fetch(settings.messages_url)
+                            const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                            const csrf = this.CMS.config?.csrf || csrfInput?.value || '';
+                            fetch(settings.messages_url, {
+                                method: 'POST',
+                                headers: csrf ? {'X-CSRFToken': csrf} : {},
+                            })
                                 .then(response => response.json())
                                 .then(messages => {
                                     let error = "success", message_text = "";
@@ -727,7 +732,9 @@ class CMSEditor {
                                         if (message.level_tag === "error") {
                                             error = "error";
                                         }
-                                        message_text += `<p>${message.message}</p>`;
+                                        const paragraph = document.createElement('p');
+                                        paragraph.textContent = message.message;
+                                        message_text += paragraph.outerHTML;
                                     }
                                     if (message_text.length > 0) {
                                         this.CMS.API.Messages.open({
@@ -1085,4 +1092,3 @@ window.CMS_Editor = window.CMS_Editor || new CMSEditor();
         registerToolbarItem: enqueue('registerToolbarItem'),
     };
 })();
-

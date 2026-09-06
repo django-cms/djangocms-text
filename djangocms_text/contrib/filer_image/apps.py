@@ -13,6 +13,7 @@ registered before we can patch ``FileAdmin.get_urls``.
 import json
 
 from django.apps import AppConfig
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.urls import NoReverseMatch, path, reverse
 from django.utils.functional import lazy
@@ -102,6 +103,8 @@ def _file_info_view(request):
         obj = File.objects.get(pk=file_id)
     except File.DoesNotExist:
         raise Http404
+    if not obj.has_read_permission(request):
+        raise PermissionDenied
 
     return JsonResponse(
         {

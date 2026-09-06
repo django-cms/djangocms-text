@@ -168,6 +168,23 @@ Three ways to configure the classes added to new tables::
     }
 
 
+Security and resource limits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The link picker resolves django CMS pages by default. Additional model types
+must be explicitly allowlisted, registered with Django's admin, implement
+``get_absolute_url()``, and grant the requesting user view permission::
+
+    TEXT_LINKABLE_MODELS = ("cms.page", "news.article")
+
+Embedded base64 images are decoded with Pillow and re-encoded before the
+configured ``TEXT_SAVE_IMAGE_FUNCTION`` receives them. The default limits are
+5 MiB of decoded data and 25 million pixels; deployments can lower them::
+
+    TEXT_SAVE_IMAGE_MAX_BYTES = 2 * 1024 * 1024
+    TEXT_SAVE_IMAGE_MAX_PIXELS = 12_000_000
+
+
 Inline editing
 ~~~~~~~~~~~~~~
 
@@ -186,6 +203,10 @@ When enabled, a toolbar toggle lets users switch inline editing on and off
 for the current session. If only text changes, editing continues seamlessly.
 If a text-enabled plugin was added, changed, or removed, the page refreshes
 to update the page tree and re-render the affected plugins.
+
+For security, opening a new Text plugin form no longer creates a temporary
+database record. Save the new Text plugin once before adding inline child
+plugins such as images or links.
 
 Custom plugin templates
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -405,8 +426,11 @@ points in mind:
 - **Keep using CKEditor 4 if needed** — If retaining CKEditor 4 behavior is
   essential, use the CKEditor 4 backend that ships with djangocms-text.
 
-**You can continue to use CKEditor 4.** Compared to djangocms-text-ckeditor,
-the CKEditor 4 sources have moved to
+**You can continue to use CKEditor 4 for migration compatibility.** CKEditor 4
+is end-of-life, so TipTap is recommended for new deployments. The bundled
+integration disables source editing and other unsafe legacy plugins, and its
+content-filter restrictions cannot be relaxed through editor settings.
+Compared to djangocms-text-ckeditor, the CKEditor 4 sources have moved to
 ``static/djangocms_text/vendor/ckeditor4``. Update any custom CKEditor 4
 plugins accordingly.
 

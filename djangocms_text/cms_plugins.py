@@ -6,6 +6,7 @@ from functools import lru_cache
 from cms.models import CMSPlugin, Page
 from cms.utils import get_language_from_request
 from django.apps import apps
+from django.contrib import admin
 from django.contrib.admin.utils import unquote
 from django.contrib.messages import get_messages
 from django.core import signing
@@ -16,8 +17,6 @@ from django.http import (
     Http404,
     HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseRedirect,
     JsonResponse,
 )
 from django.shortcuts import get_object_or_404
@@ -43,7 +42,6 @@ except ImportError:
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 from cms.utils.placeholder import get_placeholder_conf
-from cms.utils.urlutils import admin_reverse
 
 from . import settings
 from .editors import get_editor_config
@@ -53,7 +51,6 @@ from .models import _MAX_RTE_LENGTH, Text
 from .utils import (
     OBJ_ADMIN_WITH_CONTENT_RE_PATTERN,
     _plugin_tags_to_html,
-    cms_placeholder_add_plugin,
     plugin_tags_to_admin_html,
     plugin_tags_to_id_list,
     plugin_tags_to_user_html,
@@ -344,74 +341,14 @@ class TextPlugin(CMSPluginBase):
 
         return TextPluginForm
 
-    @staticmethod
-    def _create_ghost_plugin(placeholder, plugin):
-        """CMS version-save function to add a plugin to a placeholder"""
-        if hasattr(placeholder, "add_plugin"):  # available as of CMS v4
-            placeholder.add_plugin(plugin)
-        else:  # CMS < v4
-            plugin.save()
-
     @xframe_options_sameorigin
     def add_view(self, request, form_url="", extra_context=None):
-        if "plugin" in request.GET:
-            # CMS >= 3.4 compatibility
-            self.cms_plugin_instance = self._get_plugin_or_404(request.GET["plugin"])
-
-        if (
-            not settings.TEXT_CHILDREN_ENABLED
-            or not rte_config.child_plugin_support
-            or getattr(self, "cms_plugin_instance", None)
-        ):
-            # This can happen if the user did not properly cancel the plugin
-            # and so a "ghost" plugin instance is left over.
-            # The instance is a record that points to the Text plugin
-            # but is not a real text plugin instance.
-            return super().add_view(
-                request,
-                form_url,
-                extra_context,
-            )
-
-        if not self.has_add_permission(request):
-            # this permission check is done by Django on the normal
-            # workflow of adding a plugin.
-            # This is NOT the normal workflow because we create a plugin
-            # on GET request to the /add/ endpoint and so we bypass
-            # django's add_view, thus bypassing permission check.
-            message = gettext("You do not have permission to add a plugin.")
-            return HttpResponseForbidden(force_str(message))
-
-        _data = self._cms_initial_attributes
-        data = {
-            "plugin_language": _data["language"],
-            "placeholder_id": _data["placeholder"],
-            "parent": _data["parent"],
-            "position": _data["position"],
-            "plugin_type": _data["plugin_type"],
-            "plugin_parent": _data["parent"],
-        }
-
-        # Sadly we have to create the CmsPlugin record on add GET request
-        # because we need this record in order to allow the user to add
-        # child plugins to the text (image, link, etc..)
-        plugin = CMSPlugin(
-            language=data["plugin_language"],
-            plugin_type=data["plugin_type"],
-            placeholder=data["placeholder_id"],
-            position=data["position"],
-            parent=data.get("plugin_parent"),
-        )
-        self._create_ghost_plugin(data["placeholder_id"], plugin)
-
-        query = request.GET.copy()
-        query["plugin"] = str(plugin.pk)
-
-        success_url = admin_reverse(cms_placeholder_add_plugin)  # Version dependent
-        # Because we've created the cmsplugin record
-        # we need to delete the plugin when a user cancels.
-        success_url += "?revert-on-cancel&" + query.urlencode()
-        return HttpResponseRedirect(success_url)
+        # Creating a database-backed "ghost" plugin from this GET used to make
+        # child plugins available before the text was first saved. Besides
+        # violating HTTP semantics, that made the endpoint a login-CSRF write
+        # primitive. Save the text normally first; child plugins are available
+        # as soon as the persisted plugin is edited.
+        return super().add_view(request, form_url, extra_context)
 
     def get_plugin_urls(self):
         def pattern(regex, func):
@@ -516,16 +453,51 @@ class TextPlugin(CMSPluginBase):
         if request.GET.get("g"):
             # Get name of a reference
             try:
-                model, pk = request.GET.get("g").split(":")
-                app, model = model.split(".")
-                model = apps.get_model(app, model)
+                model_label, pk = request.GET["g"].rsplit(":", 1)
+                model_label = model_label.lower()
+                app_label, model_name = model_label.split(".", 1)
+            except (TypeError, ValueError):
+                return JsonResponse({"error": "Invalid object reference."}, status=400)
+
+            if model_label not in settings.TEXT_LINKABLE_MODELS:
+                raise PermissionDenied
+
+            try:
+                model = apps.get_model(app_label, model_name)
+            except LookupError:
+                model = None
+            if model is None:
+                return JsonResponse({"error": "Object not found."}, status=404)
+            try:
                 obj = model.objects.get(pk=pk)
-                if isinstance(obj, Page) and _version >= 4:
-                    obj = obj.pagecontent_set(manager="admin_manager").current_content().first()
-                    return JsonResponse({"text": obj.title, "url": obj.get_absolute_url()})
-                return JsonResponse({"text": str(obj), "url": obj.get_absolute_url()})
-            except Exception as e:  # noqa: BLE001 — untrusted "g" param; split/get_model/get() all raise differently
-                return JsonResponse({"error": str(e)})
+            except (model.DoesNotExist, ValidationError, ValueError):
+                return JsonResponse({"error": "Object not found."}, status=404)
+
+            if isinstance(obj, Page):
+                if not obj.has_view_permission(request.user):
+                    raise PermissionDenied
+            else:
+                view_permission = f"{model._meta.app_label}.view_{model._meta.model_name}"
+                if not request.user.has_perm(view_permission):
+                    raise PermissionDenied
+                model_admin = admin.site._registry.get(model)
+                if model_admin is None or not model_admin.has_view_permission(request, obj):
+                    raise PermissionDenied
+
+            get_absolute_url = getattr(obj, "get_absolute_url", None)
+            if not callable(get_absolute_url):
+                return JsonResponse({"error": "Object is not linkable."}, status=400)
+
+            if isinstance(obj, Page) and _version >= 4:
+                obj = obj.pagecontent_set(manager="admin_manager").current_content().first()
+                if obj is None:
+                    return JsonResponse({"error": "Object not found."}, status=404)
+            return JsonResponse(
+                {
+                    "text": obj.title if isinstance(obj, PageContent) else str(obj),
+                    "url": obj.get_absolute_url(),
+                }
+            )
 
         search = request.GET.get("q", "").strip("  ").lower()
         language = get_language_from_request(request)
@@ -555,6 +527,7 @@ class TextPlugin(CMSPluginBase):
                 # variable and resolve it at call time, by which point it points at the last
                 # item of `qs`, leaving every entry with the same URL.
                 page_content.get_absolute_url = page_content.page.get_absolute_url
+        qs = [page_content for page_content in qs if page_content.page.has_view_permission(request.user)]
         urls = {
             "results": [
                 {
@@ -574,8 +547,11 @@ class TextPlugin(CMSPluginBase):
         }
         return JsonResponse(urls)
 
+    @method_decorator(require_POST)
     def get_messages(self, request):
         """Serve the messages that the admin might have started piling"""
+        if not (request.user.is_active and request.user.is_staff):
+            raise PermissionDenied
         messages = get_messages(request)
         return JsonResponse(
             {
@@ -690,7 +666,12 @@ class TextPlugin(CMSPluginBase):
                 editor_settings = widget.get_editor_settings(request.toolbar.toolbar_language.split("-")[0])
                 global_settings = widget.get_global_settings(request.toolbar.toolbar_language.split("-")[0])
 
-            body = render_dynamic_attributes(instance.body, admin_objects=True, remove_attr=False)
+            body = render_dynamic_attributes(
+                instance.body,
+                admin_objects=True,
+                remove_attr=False,
+                request=request,
+            )
 
             context.update(
                 {
@@ -706,7 +687,12 @@ class TextPlugin(CMSPluginBase):
                 }
             )
         else:
-            body = render_dynamic_attributes(instance.body, admin_objects=False, remove_attr=True)
+            body = render_dynamic_attributes(
+                instance.body,
+                admin_objects=False,
+                remove_attr=True,
+                request=request,
+            )
             context.update(
                 {
                     "body": plugin_tags_to_user_html(
@@ -719,6 +705,7 @@ class TextPlugin(CMSPluginBase):
         return context
 
     def save_model(self, request, obj, form, change):
+        self._validate_referenced_plugins(request, obj)
         if getattr(self, "cms_plugin_instance", None):
             # Because the plugin was created by manually
             # creating the CmsPlugin record, it's important
@@ -739,6 +726,31 @@ class TextPlugin(CMSPluginBase):
         # See this ticket for details https://github.com/divio/djangocms-text-ckeditor/issues/212
         obj.clean_plugins()
         obj.copy_referenced_plugins()
+
+    def _validate_referenced_plugins(self, request, obj):
+        """Authorize plugin references copied in through the editor HTML."""
+        referenced_ids = set(plugin_tags_to_id_list(obj.body))
+        if not referenced_ids:
+            return
+
+        child_ids = set(obj.cmsplugin_set.values_list("pk", flat=True)) if obj.pk else set()
+        source_ids = referenced_ids - child_ids
+        if not source_ids:
+            return
+
+        source_plugins = list(CMSPlugin.objects.select_related("placeholder").filter(pk__in=source_ids))
+        if len(source_plugins) != len(source_ids):
+            raise PermissionDenied
+
+        page = obj.placeholder.page if hasattr(obj.placeholder, "page") else None
+        allowed_plugin_types = set(self.get_child_classes(slot=obj.placeholder.slot, page=page))
+        for source_plugin in source_plugins:
+            if source_plugin.pk == obj.pk or source_plugin.plugin_type not in allowed_plugin_types:
+                raise PermissionDenied
+            if not source_plugin.placeholder.has_change_plugin_permission(request.user, source_plugin):
+                raise PermissionDenied
+            if not obj.placeholder.has_add_plugin_permission(request.user, source_plugin.plugin_type):
+                raise PermissionDenied
 
     @staticmethod
     def get_action_token(request, obj):

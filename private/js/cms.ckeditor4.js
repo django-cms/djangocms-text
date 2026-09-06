@@ -37,8 +37,7 @@ window.cms_editor_plugin = {
             ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
             ['HorizontalRule'],
             ['NumberedList', 'BulletedList'],
-            ['Outdent', 'Indent', '-', 'Blockquote', '-', 'Link', 'Unlink', '-', 'Table'],
-            ['Source']
+            ['Outdent', 'Indent', '-', 'Blockquote', '-', 'Link', 'Unlink', '-', 'Table']
         ],
         toolbar_HTMLField: [
             ['Undo', 'Redo'],
@@ -52,18 +51,31 @@ window.cms_editor_plugin = {
             ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
             ['HorizontalRule'],
             ['NumberedList', 'BulletedList'],
-            ['Outdent', 'Indent', '-', 'Blockquote', '-', 'Link', 'Unlink', '-', 'Table'],
-            ['Source']
+            ['Outdent', 'Indent', '-', 'Blockquote', '-', 'Link', 'Unlink', '-', 'Table']
         ],
-        allowedContent: true,
+        allowedContent: false,
+        extraAllowedContent: 'cms-plugin[id,title,name,alt,render-plugin,type]',
+        disallowedContent: 'script;style;iframe;object;embed;link;meta;base;form;*[on*]',
         toolbarCanCollapse: false,
-        removePlugins: 'resize,flash',
+        removePlugins: 'resize,flash,exportpdf,preview,print,iframe,forms,sourcearea,sourcedialog',
         extraPlugins: ''
     },
 
     // initializes the editor on the target element, with the given html code
     create: function(el, inModal, content, settings, save_callback) {
         const all_options = Object.assign({}, this.options, settings.options);
+
+        // These restrictions are security invariants, not site-customizable
+        // presentation options. Server-side sanitization happens only after
+        // submit and cannot protect the administrator while CKEditor parses.
+        all_options.allowedContent = false;
+        all_options.extraAllowedContent = this.options.extraAllowedContent;
+        all_options.disallowedContent = this.options.disallowedContent;
+        all_options.removePlugins = this.options.removePlugins;
+        if (CKEDITOR.dtd.$cdata) {
+            delete CKEDITOR.dtd.$cdata.script;
+            delete CKEDITOR.dtd.$cdata.style;
+        }
 
         // add extra plugins that we absolutely must have
         all_options.extraPlugins = all_options.extraPlugins +=

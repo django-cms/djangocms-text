@@ -132,13 +132,21 @@ def _lookup_url() -> str:
 DEFAULT_EDITOR.additional_context.setdefault("filer_image_lookup_url", lazy(_lookup_url, str)())
 
 
-def _filer_aware_dynamic_src(elem, obj, attr, edit_mode=False):
+def _filer_aware_dynamic_src(elem, obj, attr, edit_mode=False, request=None):
     """``data-cms-src`` resolver that also handles filer File/Image objects.
 
     Falls back to ``obj.get_absolute_url()`` for non-filer models so the
     behaviour for already-stored references stays the same.
     """
     target_value = ""
+    if obj is not None and edit_mode:
+        has_read_permission = getattr(obj, "has_read_permission", None)
+        if callable(has_read_permission) and (request is None or not has_read_permission(request)):
+            obj = None
+    elif obj is not None and getattr(obj, "is_public", True) is False:
+        # Public rendering has no editor permission context. Never resolve a
+        # private filer's storage URL into public HTML.
+        obj = None
     if obj is not None:
         target_value = getattr(obj, "url", None) or ""
         if not target_value and hasattr(obj, "get_absolute_url"):

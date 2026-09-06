@@ -1,10 +1,8 @@
 import copy
 import json
-import re
 import unittest
 from unittest import skipIf
 from unittest.mock import MagicMock, patch
-from urllib.parse import unquote
 
 from django.conf import settings
 from django.contrib import admin
@@ -136,12 +134,6 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
     def get_post_request(self, data):
         return self.get_request(post_data=data)
 
-    def get_plugin_id_from_response(self, response):
-        url = unquote(response.url)
-        # Ideal case, this looks like:
-        # /en/admin/cms/placeholder/add-plugin/...?...&plugin=123
-        return re.findall(r"plugin=\d+", url)[0][7:]
-
     def test_add_and_edit_plugin(self):
         """
         Test that you can add a text plugin
@@ -155,49 +147,22 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         with self.login_user_context(admin):
             response = self.client.get(endpoint)
 
-        text_plugin_pk = self.get_plugin_id_from_response(response)
-
-        self.assertIn("?revert-on-cancel", response.url)
-        self.assertEqual(response.status_code, 302)
-
-        # Assert "ghost" plugin has been created
-        self.assertObjectExist(CMSPlugin.objects.all(), pk=text_plugin_pk)
-
-        cms_plugin = CMSPlugin.objects.get(pk=text_plugin_pk)
-        text_plugin_class = cms_plugin.get_plugin_class_instance()
-
-        # Assert "real" plugin has not been created yet
-        self.assertObjectDoesNotExist(Text.objects.all(), pk=text_plugin_pk)
-
-        add_url = response.url
-
-        with self.login_user_context(admin):
-            request = self.get_request()
-            action_token = text_plugin_class.get_action_token(request, cms_plugin)
-            response = self.client.get(add_url)
-
-            self.assertEqual(response.status_code, 200)
-
-            # Assert cancel token is present
-            self.assertContains(response, action_token)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CMSPlugin.objects.filter(placeholder=simple_placeholder).exists())
 
         with self.login_user_context(admin):
             data = {"body": "Hello world"}
-            response = self.client.post(add_url, data)
+            response = self.client.post(endpoint, data)
 
         self.assertEqual(response.status_code, 200)
-
-        # Assert "real" plugin has been created yet
-        self.assertObjectExist(Text.objects.all(), pk=text_plugin_pk)
-
-        text_plugin = Text.objects.get(pk=text_plugin_pk)
+        text_plugin = Text.objects.get(placeholder=simple_placeholder)
 
         # Assert the text was correctly saved
         self.assertEqual(text_plugin.body, "Hello world")
 
     def test_add_and_cancel_plugin(self):
         """
-        Test that you can add a text plugin
+        Opening and cancelling the add form must not create database records.
         """
         simple_page = self.create_page("test page", template="page.html", language="en")
         simple_placeholder = self.get_placeholders(simple_page, "en").get(slot="content")
@@ -207,31 +172,10 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         with self.login_user_context(self.get_superuser()):
             response = self.client.get(endpoint)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CMSPlugin.objects.filter(placeholder=simple_placeholder).exists())
 
-        # Point to the newly created text plugin
-        text_plugin_pk = self.get_plugin_id_from_response(response)
-        cms_plugin = CMSPlugin.objects.get(pk=text_plugin_pk)
-        text_plugin_class = cms_plugin.get_plugin_class_instance()
-
-        # Assert "ghost" plugin has been created
-        self.assertObjectExist(CMSPlugin.objects.all(), pk=text_plugin_pk)
-
-        with self.login_user_context(self.get_superuser()):
-            request = self.get_request()
-            action_token = text_plugin_class.get_action_token(request, cms_plugin)
-            data = {"token": action_token}
-            request = self.get_post_request(data)
-            response = text_plugin_class.revert_on_cancel(request)
-            self.assertEqual(response.status_code, 204)
-
-        # Assert "ghost" plugin has been removed
-        self.assertObjectDoesNotExist(CMSPlugin.objects.all(), pk=text_plugin_pk)
-
-        # Assert "real" plugin was never created
-        self.assertObjectDoesNotExist(Text.objects.all(), pk=text_plugin_pk)
-
-        # Assert user can't delete a non "ghost" plugin
+        # The compatibility endpoint still cannot delete a saved plugin.
         text_plugin = add_plugin(
             simple_placeholder,
             "TextPlugin",
@@ -241,6 +185,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         with self.login_user_context(self.get_superuser()):
             request = self.get_request()
+            text_plugin_class = text_plugin.get_plugin_class_instance()
             action_token = text_plugin_class.get_action_token(request, text_plugin)
             data = {"token": action_token}
             request = self.get_post_request(data)
@@ -315,6 +260,36 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         common_children_ids = _get_common_children_ids(text_plugin_copy_from, text_plugin_copy_to)
         self.assertFalse(common_children_ids)
+
+    def test_copy_referenced_plugins_requires_source_and_destination_permissions(self):
+        page = self.create_page("test page", template="page.html", language="en")
+        placeholder = self.get_placeholders(page, "en").get(slot="content")
+        source = add_plugin(placeholder, "TextPlugin", "en", body="Source")
+        child = self._add_child_plugin(source)
+        destination = add_plugin(
+            placeholder,
+            "TextPlugin",
+            "en",
+            body=plugin_to_tag(child),
+        )
+        request = self.get_request()
+        request.user = self.superuser
+        plugin_admin = TextPlugin()
+
+        plugin_admin._validate_referenced_plugins(request, destination)
+
+        with (
+            patch.object(Placeholder, "has_change_plugin_permission", return_value=False),
+            self.assertRaises(PermissionDenied),
+        ):
+            plugin_admin._validate_referenced_plugins(request, destination)
+
+        with (
+            patch.object(Placeholder, "has_change_plugin_permission", return_value=True),
+            patch.object(Placeholder, "has_add_plugin_permission", return_value=False),
+            self.assertRaises(PermissionDenied),
+        ):
+            plugin_admin._validate_referenced_plugins(request, destination)
 
     @skipIf(not DJANGO_CMS4, "Plugin positions only exist on django CMS 4+")
     def test_clean_plugins_keeps_positions_contiguous(self):
@@ -504,18 +479,12 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
 
         endpoint = self.get_add_plugin_uri(simple_placeholder, "TextPlugin")
 
-        with self.login_user_context(self.superuser):
-            response = self.client.post(endpoint, {})
-            self.assertEqual(response.status_code, 302)
-
-        # Point to the newly created text plugin
-        text_plugin_pk = self.get_plugin_id_from_response(response)
-        cms_plugin = CMSPlugin.objects.get(pk=text_plugin_pk)
+        cms_plugin = add_plugin(simple_placeholder, "TextPlugin", "en", body="Saved")
         text_plugin_class = cms_plugin.get_plugin_class_instance()
 
         endpoint = self.get_custom_admin_url(TextPlugin, "revert_on_cancel")
 
-        # Assert a standard user (no staff) can't delete ghost plugin
+        # A non-staff user cannot invoke this state-changing endpoint.
         with self.login_user_context(self.get_standard_user()):
             request = self.get_request()
             action_token = text_plugin_class.get_action_token(request, cms_plugin)
@@ -1132,8 +1101,7 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         with self.login_user_context(self.superuser):
             result = self.client.get(endpoint + "?g=invalid.model:1")
 
-        self.assertEqual(result.status_code, 200)
-        self.assertIn("error", result.json())
+        self.assertEqual(result.status_code, 403)
 
     def test_failed_url_resolution(self):
         page = self.create_page("test page", template="page.html", language="en")
@@ -1142,8 +1110,22 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         with self.login_user_context(self.superuser):
             result = self.client.get(endpoint + f"?g=cms.page:{page.pk + 1}")
 
-        self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.json(), {"error": "Page matching query does not exist."})
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.json(), {"error": "Object not found."})
+
+    def test_url_resolution_enforces_page_object_permissions(self):
+        page = self.create_page("private page", template="page.html", language="en")
+        endpoint = admin_reverse("djangocms_text_textplugin_get_available_urls")
+
+        with (
+            patch.object(Page, "has_view_permission", return_value=False),
+            self.login_user_context(self.superuser),
+        ):
+            direct = self.client.get(endpoint + f"?g=cms.page:{page.pk}")
+            search = self.client.get(endpoint + "?q=private")
+
+        self.assertEqual(direct.status_code, 403)
+        self.assertEqual(search.json()["results"][0]["children"], [])
 
     def test_url_query(self):
         page = self.create_page("test page", template="page.html", language="en")
@@ -1173,9 +1155,10 @@ class PluginActionsTestCase(TestFixture, BaseTestCase):
         endpoint = admin_reverse("djangocms_text_textplugin_get_messages")
 
         with self.login_user_context(self.superuser):
-            result = self.client.get(endpoint)
+            get_result = self.client.get(endpoint)
+            result = self.client.post(endpoint)
 
-        # Just see that it returns a 200
+        self.assertEqual(get_result.status_code, 405)
         self.assertEqual(result.json(), {"messages": []})
 
 

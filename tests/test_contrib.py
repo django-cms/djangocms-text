@@ -4,6 +4,7 @@ from importlib import reload
 from unittest import skipIf
 from unittest.mock import MagicMock, patch
 
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.test import RequestFactory, SimpleTestCase, override_settings
 from django.urls import NoReverseMatch, reverse
@@ -61,6 +62,27 @@ class FilerImageContribTestCase(SimpleTestCase):
         filer_image._filer_aware_dynamic_src(missing_elem, None, "src")
         self.assertEqual(missing_elem.attrib["data-cms-error"], "ref-not-found")
 
+    def test_dynamic_source_resolver_does_not_expose_private_files(self):
+        private_obj = MagicMock(url="/media/private.jpg", is_public=False)
+
+        public_elem = Element("img")
+        filer_image._filer_aware_dynamic_src(public_elem, private_obj, "src")
+        self.assertNotIn("src", public_elem.attrib)
+        self.assertEqual(public_elem.attrib["data-cms-error"], "ref-not-found")
+
+        denied_elem = Element("img")
+        private_obj.has_read_permission.return_value = False
+        request = RequestFactory().get("/")
+        filer_image._filer_aware_dynamic_src(
+            denied_elem,
+            private_obj,
+            "src",
+            edit_mode=True,
+            request=request,
+        )
+        self.assertNotIn("src", denied_elem.attrib)
+        private_obj.has_read_permission.assert_called_once_with(request)
+
     def test_published_urls_stay_lazy_until_rendered(self):
         """Neither URL may be resolved at app-load time.
 
@@ -96,7 +118,12 @@ class FilerImageContribTestCase(SimpleTestCase):
 
     @patch("filer.models.File.objects.get")
     def test_file_info_view_returns_compact_json(self, get_file):
-        get_file.return_value = MagicMock(id=7, url="/media/image.jpg", label="Image")
+        get_file.return_value = MagicMock(
+            id=7,
+            url="/media/image.jpg",
+            label="Image",
+            has_read_permission=MagicMock(return_value=True),
+        )
         request = RequestFactory().get("/info-json/", {"id": "7"})
 
         response = _file_info_view(request)
@@ -104,6 +131,14 @@ class FilerImageContribTestCase(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content), {"id": 7, "url": "/media/image.jpg", "label": "Image"})
         self.assertNotIn(b" ", response.content)
+
+    @patch("filer.models.File.objects.get")
+    def test_file_info_view_enforces_file_permissions(self, get_file):
+        get_file.return_value = MagicMock(has_read_permission=MagicMock(return_value=False))
+        request = RequestFactory().get("/info-json/", {"id": "7"})
+
+        with self.assertRaises(PermissionDenied):
+            _file_info_view(request)
 
     @patch("filer.models.File.objects.get")
     def test_file_info_view_returns_404_for_unknown_file(self, get_file):

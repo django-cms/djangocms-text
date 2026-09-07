@@ -12,7 +12,7 @@ from copy import deepcopy
 import nh3
 from django.apps import apps
 from django.db import models
-from lxml import etree
+from lxml import etree  # nosec B410 - HTMLParser below is hardened (resolve_entities=False, no_network=True)
 from lxml.etree import Element
 
 from djangocms_text import settings
@@ -270,7 +270,7 @@ def render_dynamic_attributes(
         return dyn_html
 
     req_model_obj = {}
-    tree = etree.fromstring(dyn_html, parser=etree.HTMLParser())
+    tree = etree.fromstring(dyn_html, parser=etree.HTMLParser(resolve_entities=False, no_network=True))
     if tree is None:
         return dyn_html
     xpath = get_xpath(dynamic_attr_pool)

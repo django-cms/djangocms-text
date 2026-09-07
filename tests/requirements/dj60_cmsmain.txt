@@ -1,0 +1,5 @@
+-r dj_cms.txt
+
+Django>=6.0,<6.1
+django-cms @ git+https://github.com/django-cms/django-cms.git@main
+django-treebeard<5

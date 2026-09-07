@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import inspect
 import io
 import re
 import uuid
@@ -17,7 +18,10 @@ from lxml.etree import Element
 from djangocms_text import settings
 
 dyn_attr_pattern = re.compile(r"<[^>]*data-cms-[^>]*>")
-image_data_pattern = re.compile(r'data:(?P<mime_type>[^"]*);(?P<encoding>[^"]*),(?P<data>[^"]*)')
+image_data_pattern = re.compile(
+    r"\Adata:(?P<mime_type>image/[a-z0-9.+-]+);base64,(?P<data>[^\s]+)\Z",
+    flags=re.IGNORECASE,
+)
 cms_additional_attributes = {
     "a": {"href", "target", "rel"},
     "cms-plugin": {"id", "title", "name", "alt", "render-plugin", "type"},
@@ -241,7 +245,12 @@ def dynamic_src(elem: Element, obj: models.Model, attr: str, edit_mode: bool = F
         elem.attrib["data-cms-error"] = "ref-not-found"
 
 
-def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove_attr=True) -> str:
+def render_dynamic_attributes(
+    dyn_html: str,
+    admin_objects: bool = False,
+    remove_attr=True,
+    request=None,
+) -> str:
     """
     Render method to update dynamic attributes in HTML
 
@@ -250,6 +259,7 @@ def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove
     - admin_objects (bool) (optional): Flag to indicate whether to fetch data from admin objects (default: False)
     - remove_attr (bool) (optional): Flag to indicate whether to remove dynamic attributes from the final HTML
       (default: True)
+    - request (HttpRequest) (optional): Request used by resolvers that need object-level permission checks
 
     Returns:
     - str: The updated HTML content with dynamic attributes
@@ -289,7 +299,15 @@ def render_dynamic_attributes(dyn_html: str, admin_objects: bool = False, remove
                     obj = from_db[model.strip()][int(pk.strip())]
                 except (KeyError, ValueError):
                     obj = None
-                dynamic_attr_pool[attr](elem, obj, target_attr, edit_mode=admin_objects)
+                render_func = dynamic_attr_pool[attr]
+                try:
+                    accepts_request = "request" in inspect.signature(render_func).parameters
+                except (TypeError, ValueError):
+                    accepts_request = False
+                if accepts_request:
+                    render_func(elem, obj, target_attr, edit_mode=admin_objects, request=request)
+                else:
+                    render_func(elem, obj, target_attr, edit_mode=admin_objects)
                 if remove_attr:
                     # Remove dynamic attribute's source for public view
                     del elem.attrib[attr]
@@ -336,39 +354,55 @@ def extract_images(data, plugin):
             continue
         width = img.getAttribute("width")
         height = img.getAttribute("height")
-        # extract the image data
-        m = image_data_pattern.search(src)
-        dr = m.groupdict()
-        mime_type = dr["mime_type"]
-        image_data = dr["data"]
-        if mime_type.find(";"):
-            mime_type = mime_type.split(";")[0]
+        # Extract the image data. Malformed values are left to the HTML
+        # sanitizer, which removes unsupported data: sources.
+        match = image_data_pattern.fullmatch(src)
+        if match is None:
+            continue
+        encoded_image = match.group("data")
+        # Base64 expands data by roughly 4/3. Check before decoding so a large
+        # value does not need to be duplicated in memory before rejection.
+        max_encoded_size = ((settings.TEXT_SAVE_IMAGE_MAX_BYTES + 2) // 3) * 4
+        if len(encoded_image) > max_encoded_size:
+            continue
         try:
-            image_data = base64.b64decode(image_data)
-        except binascii.Error:
-            # Standard alphabet rejected it — the payload may use the URL-safe one
-            image_data = base64.urlsafe_b64decode(image_data)
+            image_data = base64.b64decode(encoded_image, altchars=b"-_", validate=True)
+        except (binascii.Error, ValueError):
+            continue
+        if len(image_data) > settings.TEXT_SAVE_IMAGE_MAX_BYTES:
+            continue
+
+        # Never trust the MIME type supplied by the browser. Decode and
+        # re-encode every image so disguised files, trailing polyglot data and
+        # dangerous metadata are not handed to the configured storage hook.
         try:
-            image_type = mime_type.split("/")[1]
-        except IndexError:
-            # No image type specified -- will convert to jpg below if it's valid image data
-            image_type = ""
-        image = io.BytesIO(image_data)
-        # genarate filename and normalize image format
-        if image_type == "jpg" or image_type == "jpeg":
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", Image.DecompressionBombWarning)
+                with Image.open(io.BytesIO(image_data)) as source_image:
+                    width_px, height_px = source_image.size
+                    if width_px * height_px > settings.TEXT_SAVE_IMAGE_MAX_PIXELS:
+                        continue
+                    source_image.seek(0)
+                    source_image.load()
+                    normalized_image = source_image.copy()
+                    detected_format = (source_image.format or "").upper()
+        except (OSError, ValueError, Image.DecompressionBombError, Image.DecompressionBombWarning):
+            continue
+
+        image = io.BytesIO()
+        if detected_format == "JPEG":
             file_ending = "jpg"
-        elif image_type == "png":
-            file_ending = "png"
-        elif image_type == "gif":
+            if normalized_image.mode not in ("L", "RGB"):
+                normalized_image = normalized_image.convert("RGB")
+            normalized_image.save(image, "JPEG")
+        elif detected_format == "GIF":
             file_ending = "gif"
+            normalized_image.save(image, "GIF")
         else:
-            # any not "web-safe" image format we try to convert to jpg
-            im = Image.open(image)
-            new_image = io.BytesIO()
-            file_ending = "jpg"
-            im.save(new_image, "JPEG")
-            new_image.seek(0)
-            image = new_image
+            # Normalize every other Pillow-supported raster format to PNG.
+            file_ending = "png"
+            normalized_image.save(image, "PNG")
+        image.seek(0)
         filename = f"{uuid.uuid4()}.{file_ending}"
         # transform image into a cms plugin
         image_plugin = img_data_to_plugin(

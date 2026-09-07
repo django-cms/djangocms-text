@@ -36,7 +36,6 @@
     "jest-environment-jsdom": "^30.3.0",
     "license-webpack-plugin": "^4.0.2",
     "mini-css-extract-plugin": "^2.10.2",
-    "npm-upgrade": "^3.1.2",
     "sass": "^1.99.0",
     "sass-loader": "^16.0.7",
     "source-map-loader": "^5.0.0",
@@ -45,20 +44,20 @@
     "webpack-cli": "^7.0.2"
   },
   "dependencies": {
-    "@tiptap/core": "^3.22.3",
-    "@tiptap/extension-bubble-menu": "^3.22.3",
-    "@tiptap/extension-character-count": "^3.22.3",
-    "@tiptap/extension-image": "^3.22.3",
-    "@tiptap/extension-link": "^3.22.3",
-    "@tiptap/extension-placeholder": "^3.22.3",
-    "@tiptap/extension-subscript": "^3.22.3",
-    "@tiptap/extension-superscript": "^3.22.3",
-    "@tiptap/extension-table": "^3.22.3",
-    "@tiptap/extension-text-align": "^3.22.3",
-    "@tiptap/pm": "^3.22.3",
-    "@tiptap/starter-kit": "^3.22.3",
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-bubble-menu": "^3.31.3",
+    "@tiptap/extension-character-count": "^3.31.3",
+    "@tiptap/extension-image": "^3.31.3",
+    "@tiptap/extension-link": "^3.31.3",
+    "@tiptap/extension-placeholder": "^3.31.3",
+    "@tiptap/extension-subscript": "^3.31.3",
+    "@tiptap/extension-superscript": "^3.31.3",
+    "@tiptap/extension-table": "^3.31.3",
+    "@tiptap/extension-text-align": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
+    "dompurify": "^3.3.0",
     "html-loader": "^5.1.0",
-    "quill": "^2.0.3",
-    "showdown": "^2.1.0"
+    "marked": "^18.0.11"
   }
 }

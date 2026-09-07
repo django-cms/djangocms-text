@@ -18,6 +18,8 @@ TEXT_EDITOR_SETTINGS: dict[str, str | list] = {
 }
 
 TEXT_SAVE_IMAGE_FUNCTION = getattr(settings, "TEXT_SAVE_IMAGE_FUNCTION", None)
+TEXT_SAVE_IMAGE_MAX_BYTES = getattr(settings, "TEXT_SAVE_IMAGE_MAX_BYTES", 5 * 1024 * 1024)
+TEXT_SAVE_IMAGE_MAX_PIXELS = getattr(settings, "TEXT_SAVE_IMAGE_MAX_PIXELS", 25_000_000)
 TEXT_ADDITIONAL_TAGS = getattr(settings, "TEXT_ADDITIONAL_TAGS", ())
 TEXT_ADDITIONAL_ATTRIBUTES = getattr(settings, "TEXT_ADDITIONAL_ATTRIBUTES", {})
 # Compatibility with djanogcms-text-ckeditor settings convention
@@ -43,3 +45,4 @@ TEXT_INLINE_EDITING = getattr(settings, "TEXT_INLINE_EDITING", True)
 TEXT_CHILDREN_ENABLED = getattr(settings, "TEXT_CHILDREN_ENABLED", True)
 TEXT_CHILDREN_WHITELIST = getattr(settings, "TEXT_CHILDREN_WHITELIST", None)
 TEXT_CHILDREN_BLACKLIST = getattr(settings, "TEXT_CHILDREN_BLACKLIST", [])
+TEXT_LINKABLE_MODELS = {model_label.lower() for model_label in getattr(settings, "TEXT_LINKABLE_MODELS", ("cms.page",))}

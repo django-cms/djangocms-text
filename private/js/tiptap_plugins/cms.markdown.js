@@ -5,7 +5,8 @@
 
 import {Extension} from "@tiptap/core";
 import {Plugin} from "@tiptap/pm/state";
-import showdown from "showdown";
+import DOMPurify from "dompurify";
+import {marked} from "marked";
 
 // Weighted markdown patterns: each has a score reflecting how strong a signal it is.
 // A higher threshold reduces false positives from plain text that happens to contain
@@ -43,6 +44,19 @@ export function isProbablyMarkdown(text) {
     return score >= MARKDOWN_THRESHOLD;
 }
 
+export function markdownToSafeHtml(text) {
+    const options = Object.assign(
+        {gfm: true, breaks: false},
+        window.cms_editor_plugin?.markdownOptions || {},
+        // Keep parsing synchronous: insertContent expects HTML, not a promise
+        // returned by Marked's async mode.
+        {async: false},
+    );
+    return DOMPurify.sanitize(marked.parse(text, options), {
+        USE_PROFILES: {html: true},
+    });
+}
+
 const markdownPasteHandler = Extension.create({
     name: 'markdownPasteHandler',
 
@@ -60,13 +74,7 @@ const markdownPasteHandler = Extension.create({
                         }
                         const text = event.clipboardData?.getData('text/plain');
                         if (isProbablyMarkdown(text)) {
-                            const converter = new showdown.Converter(window.cms_editor_plugin?.markdownOptions || {
-                                tables: true,
-                                strikethrough: true,
-                                tasklists: true
-                            });
-                            const html = converter.makeHtml(text);
-                            editor.commands.insertContent(html);
+                            editor.commands.insertContent(markdownToSafeHtml(text));
                             return true;
                         }
                         return false;

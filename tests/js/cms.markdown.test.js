@@ -1,7 +1,10 @@
 /* eslint-env es11 */
 /* jshint esversion: 11 */
 
-import {isProbablyMarkdown} from '../../private/js/tiptap_plugins/cms.markdown';
+import {
+    isProbablyMarkdown,
+    markdownToSafeHtml,
+} from '../../private/js/tiptap_plugins/cms.markdown';
 
 
 describe('isProbablyMarkdown', () => {
@@ -205,5 +208,19 @@ describe('isProbablyMarkdown', () => {
             // score 2, below threshold
             expect(isProbablyMarkdown('This is **bold**.')).toBe(false);
         });
+    });
+});
+
+describe('markdownToSafeHtml', () => {
+    it('preserves normal markdown formatting', () => {
+        expect(markdownToSafeHtml('## Heading\n\n**safe**')).toContain('<strong>safe</strong>');
+    });
+
+    it('removes executable HTML from converted markdown', () => {
+        const converted = markdownToSafeHtml(
+            '# Heading\n\n<img src=x onerror="alert(1)"><script>alert(2)</script>'
+        );
+
+        expect(converted).not.toMatch(/onerror|<script/i);
     });
 });

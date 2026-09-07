@@ -8,6 +8,9 @@ module.exports = {
     testMatch: [
         '**/tests/js/**/*.test.js'
     ],
+    // marked is ESM-only; let babel-jest transform it for Jest's CommonJS
+    // runtime while keeping the rest of node_modules excluded.
+    transformIgnorePatterns: ['/node_modules/(?!marked/)'],
     coverageDirectory: 'coverage',
     collectCoverageFrom: [
         'private/js/**/*.js',

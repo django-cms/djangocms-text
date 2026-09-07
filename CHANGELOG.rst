@@ -2,20 +2,31 @@
 Changelog
 =========
 
-0.9.11 (17-08-2026)
+1.0.0 (2026-08-07)
+===================
+
+* feat: django CMS 5.1 API update, drop django CMS 3.11, 4.1 support
+* security: Enforce permissions for copied child plugins, link resolution,
+  filer URLs, and message retrieval.
+* security: Validate and limit embedded images before storage.
+* security: Upgrade TipTap, replace Showdown with sanitized Markdown parsing,
+  remove unused Quill, and harden the legacy CKEditor 4 integration.
+* security: Stop creating temporary Text plugin records from GET requests.
+
+0.9.11 (2026-08-17)
 ===================
 
 * fix: Prevent stored XSS in HTMLField by @fsbraun in https://github.com/django-cms/djangocms-text/pull/196
 * fix: Publishing ignored inline editing changes by @fsbraun in https://github.com/django-cms/djangocms-text/pull/204
 * fix: Avoid db access during startup for contrib.filer_image by @fsbraun in https://github.com/django-cms/djangocms-text/pull/205
 
-0.9.10 (03-07-2026)
+0.9.10 (2026-07-03)
 ===================
 
 * feat: Render icon for empty text-enabled plugins when editing by @fsbraun in https://github.com/django-cms/djangocms-text/pull/168
 * fix: In RTL languages the modal was mispositioned by @fsbraun in https://github.com/django-cms/djangocms-text/pull/193
 
-0.9.9 (13-06-2026)
+0.9.9 (2026-06-13)
 ==================
 
 * fix: Cleaning orphaned child plugins left the plugin tree corrupted by @fsbraun in https://github.com/django-cms/djangocms-text/pull/185
@@ -24,7 +35,7 @@ Changelog
 * fix: Link form did not get fully populated by @fsbraun in https://github.com/django-cms/djangocms-text/pull/188
 
 
-0.9.8 (29-05-2026)
+0.9.8 (2026-05-29)
 ==================
 
 * fix: support ordered list display in plugin via normalize.css by @metaforx in https://github.com/django-cms/djangocms-text/pull/176
@@ -36,7 +47,7 @@ Changelog
 
 * @metaforx made their first contribution in https://github.com/django-cms/djangocms-text/pull/176
 
-0.9.7 (07-05-2026)
+0.9.7 (2026-05-07)
 ==================
 
 * feat: Allow dynamic extensions of tiptap editor by @fsbraun in https://github.com/django-cms/djangocms-text/pull/167
@@ -46,12 +57,12 @@ Changelog
 * fix: Resize dialog on Safari by @fsbraun in https://github.com/django-cms/djangocms-text/pull/171
 * fix: Remove unused JavaScript file from ckeditor4 config by @fsbraun in https://github.com/django-cms/djangocms-text/pull/174
 
-0.9.6 (09-04-2026)
+0.9.6 (2026-04-09)
 ==================
 
 * fix: Memory leak when updating inline editors
 
-0.9.5 (08-04-2026)
+0.9.5 (2026-04-08)
 ==================
 
 * feat: Allow inline editing with wrappers (custom `text.html` template)
@@ -63,7 +74,7 @@ Changelog
 * fix: Show cursor in empty HTMLFields
 * fix: Revert on cancel was called for non-editor modals
 
-0.9.4 (15-03-2026)
+0.9.4 (2026-03-15)
 ==================
 
 * feat: Upgrade to Tiptap 3 by @fsbraun in https://github.com/django-cms/djangocms-text/pull/149

@@ -16,4 +16,4 @@ Release logic:
 10. Github actions will publish the new package to pypi
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"

@@ -2,7 +2,12 @@
 Changelog
 =========
 
-1.0.0 (2026-08-07)
+1.0.1 (2026-09-08)
+==================
+
+* fix: Failed with static file storage
+
+1.0.0 (2026-09-07)
 ===================
 
 * feat: django CMS 5.1 API update, drop django CMS 3.11, 4.1 support

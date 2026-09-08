@@ -86,7 +86,11 @@ module.exports = {
                 use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
             },
             {
-                test: /\.js$/,
+                // Dependencies can publish ES modules with an .mjs suffix. Their
+                // sourceMappingURL comments must be consumed too, otherwise they
+                // are copied into our bundle and treated as static dependencies by
+                // Django's ManifestStaticFilesStorage.
+                test: /\.m?js$/,
                 enforce: "pre",
                 use: ["source-map-loader"],
             },

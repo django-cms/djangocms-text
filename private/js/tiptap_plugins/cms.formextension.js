@@ -104,7 +104,7 @@ const CmsFormExtension = Extension.create({
                     () => editor.commands.closeCmsForm()
                 );
                 // editor.commands.focus();
-                const formRepresentation = window.cms_editor_plugin._getRepresentation(action);
+                const formRepresentation = window.cms_editor_plugin._getRepresentation(action, undefined, editor);
                 const formElement = dialog.formDialog(formToHtml(formRepresentation.form), options);
 
                 if (TiptapToolbar[action] && TiptapToolbar[action].attributes) {

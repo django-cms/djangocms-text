@@ -5,6 +5,86 @@
 import CMSEditor from '../../private/js/cms.editor';
 import CMSTipTapPlugin from '../../private/js/cms.tiptap';
 
+describe('CMS plugin menus use the current editor settings', () => {
+    const linkPlugins = [{value: 'LinkPlugin', name: 'Link', module: 'Generic'}];
+    const imagePlugins = [{value: 'ImagePlugin', name: 'Image', module: 'Generic'}];
+    let originalSettings;
+    let originalLang;
+    let editors;
+
+    beforeEach(() => {
+        document.body.innerHTML = '';
+        originalSettings = window.CMS_Editor._editor_settings;
+        window.CMS_Editor._editor_settings = {};
+        originalLang = window.cms_editor_plugin.lang;
+        window.cms_editor_plugin.lang = {CMSPlugins: {title: 'Plugins'}};
+        editors = [];
+    });
+
+    afterEach(() => {
+        for (const editor of editors) {
+            window.cms_editor_plugin.destroyEditor(editor.options.el);
+        }
+        window.CMS_Editor._editor_settings = originalSettings;
+        window.cms_editor_plugin.lang = originalLang;
+    });
+
+    async function createInlineEditor(id, installedPlugins) {
+        const el = document.createElement('div');
+        el.id = id;
+        el.className = 'cms-editor-inline-wrapper';
+        document.body.appendChild(el);
+        const settings = {installed_plugins: installedPlugins, options: {
+            toolbar: ['CMSPlugins', 'LinkPlugin', 'ImagePlugin'],
+        }};
+        window.CMS_Editor._editor_settings[id] = settings;
+        window.cms_editor_plugin.create(el, false, '<p>Text</p>', settings, () => {});
+        const editor = window.cms_editor_plugin._editors[id];
+        editors.push(editor);
+        await new Promise(resolve => setTimeout(resolve, 40));
+        return editor;
+    }
+
+    it.each([
+        [[], linkPlugins],
+        [linkPlugins, []],
+        [linkPlugins, imagePlugins],
+        [linkPlugins, undefined],
+    ])('keeps each inline menu and standalone plugin buttons independent (%j, %j)', async (first, second) => {
+        await createInlineEditor('first-inline', first);
+        await createInlineEditor('second-inline', second);
+
+        for (const [index, expected] of [first, second].entries()) {
+            const editor = editors[index];
+            // jsdom places the editor at x=0: the left-edge, top-toolbar-only path.
+            expect(editor.options.blockToolbar).toBeUndefined();
+            const toolbar = editor.options.topToolbar;
+            const menu = toolbar.querySelector('.dropdown-content.plugins');
+            if (expected?.length) {
+                expect(menu).not.toBeNull();
+                expect(Array.from(menu.querySelectorAll('button'), el => el.dataset.cmsplugin))
+                    .toEqual(expected.map(plugin => plugin.value));
+                menu.parentElement.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+                expect(menu.parentElement).toHaveClass('show');
+            } else {
+                expect(menu).toBeNull();
+                expect(toolbar.querySelector('.dropdown')).toBeNull();
+            }
+            expect(Array.from(toolbar.querySelectorAll(':scope > button'), el => el.dataset.cmsplugin))
+                .toEqual((expected || []).map(plugin => plugin.value));
+        }
+    });
+
+    it('returns an empty list before any editor is registered', () => {
+        expect(window.CMS_Editor.getInstalledPlugins()).toEqual([]);
+    });
+
+    it('preserves the legacy lookup when no editor is supplied', () => {
+        window.CMS_Editor._editor_settings = {first: {installed_plugins: linkPlugins}};
+        expect(window.CMS_Editor.getInstalledPlugins()).toEqual(linkPlugins);
+    });
+});
+
 
 describe('CmsPluginNode addNodeView', () => {
     let plugin;

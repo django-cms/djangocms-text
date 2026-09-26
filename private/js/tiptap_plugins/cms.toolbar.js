@@ -634,7 +634,7 @@ function _populateToolbar(editor, array, filter) {
         }
         if (item in TiptapToolbar && (TiptapToolbar[item].items || TiptapToolbar[item].insitu)) {
             // Create submenu
-            item = window.cms_editor_plugin._getRepresentation(item, filter);
+            item = window.cms_editor_plugin._getRepresentation(item, filter, editor);
             if (!item) {
                 return '';
             }
@@ -674,7 +674,7 @@ function _createToolbarButton(editor, itemName, filter) {
 
     const item = itemName.split(' ')[0];
 
-    const repr = window.cms_editor_plugin._getRepresentation(item, filter);
+    const repr = window.cms_editor_plugin._getRepresentation(item, filter, editor);
     if (repr) {
         repr.dataaction = repr.dataaction || item;
         const title = repr.icon ? `title='${repr.title}' ` : '';
@@ -742,7 +742,7 @@ function _updateToolbar(editor, toolbar) {
         const {action} = button.dataset;
         if (TiptapToolbar[action]) {
               // Cache representation lookup on the button element
-              const toolbarItem = button._cachedRepr || (button._cachedRepr = window.cms_editor_plugin._getRepresentation(action));
+              const toolbarItem = button._cachedRepr || (button._cachedRepr = window.cms_editor_plugin._getRepresentation(action, undefined, editor));
               try {
                   if (toolbarItem.enabled !== undefined) {
                       const disabled = !toolbarItem.enabled(editor, button);

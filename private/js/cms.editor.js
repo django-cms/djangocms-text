@@ -593,13 +593,19 @@ class CMSEditor {
     }
 
     /**
-     * Retrieves the list of installed plugins. (Returns empty list of no editor has been initialized.)
+     * Retrieves the plugins available to a Tiptap editor. Without an editor,
+     * retain the legacy lookup from the first registered editor's settings.
      *
+     * @param {Object} [editor] - The Tiptap editor whose settings to use.
      * @returns {Array} - The list of installed plugins.
      */
-    getInstalledPlugins() {
-        if (this._editor_settings) {
-            return this.getSettings(Object.keys(this._editor_settings)[0]).installed_plugins || [];
+    getInstalledPlugins(editor) {
+        if (editor) {
+            return editor.options.settings?.installed_plugins || [];
+        }
+        const firstId = Object.keys(this._editor_settings || {})[0];
+        if (firstId) {
+            return this.getSettings(firstId).installed_plugins || [];
         }
         return [];
     }

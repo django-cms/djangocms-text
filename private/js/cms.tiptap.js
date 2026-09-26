@@ -425,9 +425,9 @@ class CMSTipTapPlugin {
      * @param {string} item - The item to get the representation for.
      * @return {string} - The representation of the specified item, or the "failed" representation from the TiptapToolbar.
      */
-    _getRepresentation(item, filter) {
+    _getRepresentation(item, filter, editor) {
         if (item.endsWith('Plugin')) {
-            for (const plugin of window.CMS_Editor.getInstalledPlugins()) {
+            for (const plugin of window.CMS_Editor.getInstalledPlugins(editor)) {
                 if (plugin.value === item && filter !== 'block') {
                     return {
                         title: plugin.name,

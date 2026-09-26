@@ -124,9 +124,9 @@ function renderCmsPluginMenu(editor, item, filter) {
     const icon = item.icon || item.title;
     let dropdown = '';
 
-    const plugins = window.CMS_Editor.getInstalledPlugins();
+    const plugins = window.CMS_Editor.getInstalledPlugins(editor);
 
-    if (!plugins) {
+    if (!plugins?.length) {
         return '';
     }
     let module = '';
@@ -247,7 +247,7 @@ const cmsPluginNodes = {
                     placeholder.classList.add('cms-plugin-placeholder');
                     // Look up the plugin's own icon from the installed plugins list
                     const pluginType = node.attrs.HTMLAttributes.type;
-                    const installed = window.CMS_Editor?.getInstalledPlugins?.() || [];
+                    const installed = window.CMS_Editor?.getInstalledPlugins?.(editor) || [];
                     const pluginDef = installed.find(p => p.value === pluginType);
                     // Icons are trusted SVG strings from the plugin registry;
                     // parse and append them as nodes rather than via innerHTML.

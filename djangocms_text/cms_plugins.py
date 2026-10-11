@@ -489,7 +489,8 @@ class TextPlugin(CMSPluginBase):
                 return JsonResponse({"error": "Object is not linkable."}, status=400)
 
             if isinstance(obj, Page) and _version >= 4:
-                obj = obj.pagecontent_set(manager="admin_manager").current_content().first()
+                language = get_language_from_request(request)
+                obj = obj.pagecontent_set(manager="admin_manager").filter(language=language).current_content().first()
                 if obj is None:
                     return JsonResponse({"error": "Object not found."}, status=404)
             return JsonResponse(

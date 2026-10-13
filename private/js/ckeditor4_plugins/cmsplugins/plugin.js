@@ -387,10 +387,38 @@ import CmsDialog from "../../cms.dialog";
             );
         },
 
+        /**
+         * Creates the filter applied to rendered plugin previews. Previews are server-rendered
+         * markup that is discarded on save, so they must not be subject to the toolbar-derived
+         * allowed content (which, e.g., strips images). The editor's disallowed content
+         * (scripts, event handlers, ...) is still enforced.
+         *
+         * @method getPluginContentFilter
+         * @param {CKEDITOR.editor} editor
+         * @returns {CKEDITOR.filter}
+         */
+        getPluginContentFilter: function (editor) {
+            var extraElements = ['cms-plugin', 'picture', 'source', 'track', 'video', 'audio', 'figure', 'figcaption'];
+            var elements = Object.keys(CKEDITOR.dtd).filter(function (name) {
+                return name.charAt(0) !== '$';
+            }).concat(extraElements);
+            // eslint-disable-next-line new-cap
+            var filter = new CKEDITOR.filter(elements.join(' ') + '[*]{*}(*)');
+
+            if (editor.config.disallowedContent) {
+                filter.disallow(editor.config.disallowedContent);
+            }
+            return filter;
+        },
+
         setupDataProcessor: function (editor) {
             // priorities of callback execution, see http://docs.ckeditor.com/#!/api/CKEDITOR.editor-event-toHtml
             var BEFORE_PROCESSING_STARTED = 1;
             var BEFORE_MARKUP_IS_PARSED = 4;
+            // the advanced content filter runs at priority 6, the data filter (widget upcasting) at 10
+            var AFTER_CONTENT_FILTERED = 7;
+            var PLUGIN_CONTENT_PLACEHOLDER = 'cms-plugin-content-placeholder-';
+            var pluginContentFilter = this.getPluginContentFilter(editor);
 
             /**
              * This override is required for the inline plugins that have preceding space, because otherwise CKEditor
@@ -460,6 +488,14 @@ import CmsDialog from "../../cms.dialog";
             // ckeditor treats them as flow / phrasing elements correctly
             // + we check if plugin markup should be rendered or not
             editor.on('toHtml', function (e) {
+                // Plugin content is replaced by a placeholder to protect it from the
+                // advanced content filter and restored once filtering is done
+                var pluginContents = e.data.cmsPluginContents = [];
+                var protectContent = function (markup) {
+                    pluginContents.push(markup);
+                    return PLUGIN_CONTENT_PLACEHOLDER + (pluginContents.length - 1);
+                };
+
                 // now i have two problems
                 var newMarkup = e.data.dataValue.replace(
                     /<cms-plugin(.*?)>([\s\S]*?)<\/cms-plugin>/gi,
@@ -468,14 +504,16 @@ import CmsDialog from "../../cms.dialog";
 
                         if (attributes.match(/render-plugin=["']?false/gi)) {
                             return '<cms-plugin data-cke-real-element-type="' + fakeRealType + '" ' + attributes + '>' +
-                                    '<' + fakeRealType + ' class="cms-ckeditor-plugin-label">' +
-                                        attributes.replace(/[\s\S]*alt=["']([\s\S]*?)['"][\s\S]*/, '$1') +
-                                    '</' + fakeRealType + '>' +
+                                    protectContent(
+                                        '<' + fakeRealType + ' class="cms-ckeditor-plugin-label">' +
+                                            attributes.replace(/[\s\S]*alt=["']([\s\S]*?)['"][\s\S]*/, '$1') +
+                                        '</' + fakeRealType + '>'
+                                    ) +
                                 '</cms-plugin>';
                         }
 
                         return '<cms-plugin data-cke-real-element-type="' + fakeRealType + '" ' + attributes + '>' +
-                            pluginMarkup +
+                            protectContent(pluginMarkup) +
                             '</cms-plugin>';
                     }
                 );
@@ -500,6 +538,31 @@ import CmsDialog from "../../cms.dialog";
 
                 e.data.dataValue = newMarkup;
             }, null, null, BEFORE_MARKUP_IS_PARSED);
+
+            editor.on('toHtml', function (e) {
+                var pluginContents = e.data.cmsPluginContents;
+
+                if (!pluginContents || !pluginContents.length) {
+                    return;
+                }
+                e.data.dataValue.forEach(function (element) {
+                    var placeholder = element.children.length === 1 && element.children[0];
+
+                    if (element.name !== 'cms-plugin' || !placeholder || placeholder.type !== CKEDITOR.NODE_TEXT ||
+                        placeholder.value.indexOf(PLUGIN_CONTENT_PLACEHOLDER) !== 0) {
+                        return;
+                    }
+
+                    var markup = pluginContents[placeholder.value.substring(PLUGIN_CONTENT_PLACEHOLDER.length)];
+                    var fragment = CKEDITOR.htmlParser.fragment.fromHtml(markup || '', null, false);
+
+                    pluginContentFilter.applyTo(fragment, true, false, e.data.enterMode || editor.enterMode);
+                    element.children = [];
+                    fragment.children.slice().forEach(function (child) {
+                        element.add(child);
+                    });
+                }, CKEDITOR.NODE_ELEMENT);
+            }, null, null, AFTER_CONTENT_FILTERED);
 
             editor.on('toHtml', function () {
                 // reset widgets to inline again to avoid creating block-level inline widget

@@ -2,6 +2,20 @@
 Changelog
 =========
 
+1.0.2 (2026-10-15)
+==================
+
+* fix: Empty plugin menu shown by @fsbraun in https://github.com/django-cms/djangocms-text/pull/213
+* fix language for obj in get_available_urls by @stahlnow in https://github.com/django-cms/djangocms-text/pull/216
+* fix: CKEditor 4 removed images by @fsbraun in https://github.com/django-cms/djangocms-text/pull/219
+* ci: add Python 3.15 to CI by @vinitkumar in https://github.com/django-cms/djangocms-text/pull/217
+
+**New Contributors**
+
+* @stahlnow made their first contribution in https://github.com/django-cms/djangocms-text/pull/216
+* @vinitkumar made their first contribution in https://github.com/django-cms/djangocms-text/pull/217
+
+
 1.0.1 (2026-09-08)
 ==================
 

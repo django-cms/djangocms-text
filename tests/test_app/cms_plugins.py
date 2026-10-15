@@ -24,6 +24,12 @@ class SekizaiPlugin(CMSPluginBase):
 
 
 @plugin_pool.register_plugin
+class DummyImagePlugin(CMSPluginBase):
+    name = "Dummy image"
+    render_template = "test_app/dummy_image_plugin.html"
+
+
+@plugin_pool.register_plugin
 class ExtendedTextPlugin(TextPlugin):
     name = "Extended"
 

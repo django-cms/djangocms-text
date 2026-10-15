@@ -70,3 +70,28 @@ def test_editor_saves(live_server, page, text_plugin, superuser, use_ckeditor4):
 
     messagelist = page.locator("div.messagelist")
     assert '<div class="success"></div>' in messagelist.inner_html().strip()
+
+
+@pytest.mark.django_db
+@pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
+def test_editor_keeps_child_plugin_images(live_server, page, text_plugin, superuser, use_ckeditor4):
+    """Rendered child plugin previews (e.g., images) must not be removed by CKEditor's content filter (#218)"""
+    from cms.api import add_plugin
+
+    from djangocms_text.utils import plugin_to_tag
+
+    image_plugin = add_plugin(text_plugin.placeholder, "DummyImagePlugin", "en", target=text_plugin)
+    text_plugin.body = f"<p>Before {plugin_to_tag(image_plugin)} after</p>"
+    text_plugin.save()
+
+    login(live_server, page, superuser)
+    page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
+
+    frame = page.frame_locator("iframe.cke_wysiwyg_frame")
+    image = frame.locator(f'cms-plugin[id="{image_plugin.pk}"] picture img.dummy-image')
+    expect(image).to_have_count(1)
+    expect(image).to_have_attribute("alt", "Dummy image")
+    expect(frame.locator(f'cms-plugin[id="{image_plugin.pk}"] picture source')).to_have_count(1)
+    # Event handlers are still removed
+    assert image.get_attribute("onerror") is None
+    assert not page.evaluate("() => !!document.querySelector('iframe.cke_wysiwyg_frame').contentWindow.dummyImageXss")

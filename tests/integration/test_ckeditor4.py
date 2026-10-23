@@ -58,6 +58,44 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
 
 @pytest.mark.django_db
 @pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
+def test_icon_brightness_without_admin_theme_variable(live_server, page, text_plugin, superuser, use_ckeditor4):
+    login(live_server, page, superuser)
+    page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
+    icon = page.locator(".cke_button__bold_icon")
+    expect(icon).to_be_visible()
+
+    cases = [
+        ({"data-theme": "dark"}, "light", None, "brightness(3)"),
+        ({"data-theme": "light"}, "dark", None, "brightness(1.35)"),
+        ({"data-theme": "auto"}, "dark", None, "brightness(3)"),
+        ({"data-theme": "auto"}, "light", None, "brightness(1.35)"),
+        ({"data-color-scheme": "dark"}, "light", None, "brightness(3)"),
+        ({"data-color-scheme": "auto"}, "dark", None, "brightness(3)"),
+        ({"data-color-scheme": "light", "data-theme": "dark"}, "dark", None, "brightness(1.35)"),
+        ({}, "dark", None, "brightness(3)"),
+        ({}, "light", None, "brightness(1.35)"),
+        ({"data-theme": "dark"}, "dark", "1.6", "brightness(2.4)"),
+        ({"data-theme": "light"}, "light", "0.9", "brightness(1.35)"),
+    ]
+    for attributes, os_theme, admin_brightness, expected in cases:
+        page.emulate_media(color_scheme=os_theme)
+        page.evaluate(
+            """([attributes, brightness]) => {
+            const root = document.documentElement;
+            root.removeAttribute('data-theme');
+            root.removeAttribute('data-color-scheme');
+            for (const [name, value] of Object.entries(attributes)) root.setAttribute(name, value);
+            // A CSS-wide initial value simulates an absent theme variable,
+            // even when the installed admin stylesheet normally defines it.
+            root.style.setProperty('--active-brightness', brightness || 'initial');
+        }""",
+            [attributes, admin_brightness],
+        )
+        expect(icon).to_have_css("filter", expected)
+
+
+@pytest.mark.django_db
+@pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
 def test_editor_saves(live_server, page, text_plugin, superuser, use_ckeditor4):
     """Test that tiptap editor loads and initializes properly"""
     # Navigate to the text plugin add view

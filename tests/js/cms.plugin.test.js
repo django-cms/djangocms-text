@@ -64,8 +64,11 @@ describe('CMS plugin menus use the current editor settings', () => {
                 expect(menu).not.toBeNull();
                 expect(Array.from(menu.querySelectorAll('button'), el => el.dataset.cmsplugin))
                     .toEqual(expected.map(plugin => plugin.value));
-                menu.parentElement.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+                const toggle = menu.parentElement.querySelector(':scope > button.dropdown-toggle');
+                expect(toggle).toHaveAttribute('aria-controls', menu.id);
+                toggle.click();
                 expect(menu.parentElement).toHaveClass('show');
+                expect(toggle).toHaveAttribute('aria-expanded', 'true');
             } else {
                 expect(menu).toBeNull();
                 expect(toolbar.querySelector('.dropdown')).toBeNull();

@@ -5,6 +5,40 @@ html.cms-toolbar-expanded {
 
 
 .cms-editor-inline-wrapper {
+    button:focus, [tabindex]:focus-visible {
+        outline: 3px solid var(--dca-primary, Highlight);
+        outline-offset: 2px;
+    }
+    .dropdown-content button:focus, .cms-block-dropdown button:focus {
+        outline-offset: -3px;
+        background: var(--dca-primary, Highlight) !important;
+        color: var(--dca-white, HighlightText) !important;
+    }
+    .dropdown {
+        display: inline-flex;
+        align-items: center;
+        position: relative;
+        &::after {
+            content: none !important;
+        }
+        > .dropdown-toggle {
+            align-items: center;
+            &::after {
+                content: "";
+                display: inline-block;
+                flex: none;
+                align-self: center;
+                width: 0;
+                height: 0;
+                margin: 0 0.25em;
+                border-inline: 0.25em solid transparent;
+                border-top: 0.35em solid currentColor;
+            }
+            > span {
+                margin-block: 0;
+            }
+        }
+    }
     --tiptap-ease: 100ms;
     /* Lift the active editor above neighbouring columns so the block
        toolbar (which paints outside the editor's bounds) is not covered
@@ -18,16 +52,16 @@ html.cms-toolbar-expanded {
     &.has-focused-editor {
         z-index: 10;
     }
-    .ProseMirror-focused [role="menubar"],
-    &.has-form-dialog [role="menubar"],
-    &.has-focused-editor [role="menubar"] {
+    .ProseMirror-focused [role="toolbar"],
+    &.has-form-dialog [role="toolbar"],
+    &.has-focused-editor [role="toolbar"] {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
         opacity: 1;
         transition: opacity var(--tiptap-ease, 100ms) ease-in;
     }
     /* Dropdowns inside any toolbar (visible or fixed) */
-    [role="menubar"] [role="button"].show {
+    [role="toolbar"] .dropdown.show {
         z-index: 10;
         > .dropdown-content {
             visibility: visible;
@@ -36,7 +70,7 @@ html.cms-toolbar-expanded {
         }
     }
 
-    [role="menubar"] {
+    [role="toolbar"] {
         font-family: var(--font-family-primary, Helvetica, Arial, sans-serif);
         min-width: 375px;
         z-index: 88889; /* Above #cms-top (z-index: 88888) */
@@ -66,7 +100,7 @@ html.cms-toolbar-expanded {
         }
 
     }
-    &.fixed [role="menubar"]  {
+    &.fixed [role="toolbar"]  {
         display: block;
         position: sticky;
         top: 0;
@@ -194,21 +228,6 @@ html.cms-toolbar-expanded {
             span {
                 margin-top: 0.1rem;
             }
-            &:has([data-action="TextColor"]) > svg {
-                border-bottom: 2px solid currentColor;
-            }
-            button[data-action="TextColor"] {
-                background: currentColor;
-                border: 1px solid var(--dca-gray-lighter, var(--hairline-color)) !important;
-                margin-inline-end: 0.5rem;
-                width: 1.6rem !important;
-                height: 1.2rem;
-                &:hover, &.active {
-                    background-color: currentColor !important;
-                    outline: 3px solid var(--dca-primary, var(--primary));
-                };
-
-            }
         }
         svg {
             display: inline;
@@ -217,8 +236,31 @@ html.cms-toolbar-expanded {
             height: 1.2rem;
         }
     }
+    .dropdown:has([data-action="TextColor"]) > .dropdown-toggle > svg {
+        border-bottom: 2px solid currentColor;
+    }
+    .dropdown-content button[data-action="TextColor"] {
+        box-sizing: border-box;
+        align-items: center;
+        flex: none;
+        width: 2.25rem !important;
+        min-width: 2.25rem;
+        height: 2.25rem;
+        padding: 0.25rem !important;
+        margin-inline-end: 0.25rem;
+        .cms-color-swatch {
+            display: block;
+            box-sizing: border-box;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin: 0;
+            background-color: currentColor;
+            border: 1px solid var(--dca-gray, var(--border-color, #777));
+            border-radius: 2px;
+        }
+    }
     /* Allow to disable the full menubar */
-    [role="menubar"].disabled {
+    [role="toolbar"].disabled {
         button, [role="button"] {
             cursor: not-allowed;
             pointer-events: none;
@@ -303,7 +345,7 @@ html.cms-toolbar-expanded {
     .toolbar-dropback {
         display: none;
     }
-    [role="menubar"].has-dropdown-open .toolbar-dropback {
+    [role="toolbar"].has-dropdown-open .toolbar-dropback {
         display: block;
     }
 
@@ -318,7 +360,8 @@ html.cms-toolbar-expanded {
             opacity: 1;
         }
     }
-    .ProseMirror-focused .cms-block-toolbar, &.has-form-dialog .cms-block-toolbar {
+    .ProseMirror-focused .cms-block-toolbar, &.has-form-dialog .cms-block-toolbar,
+    .cms-block-toolbar:focus-within {
         /* show toolbar if editor is focused or form dialog is open */
         visibility: visible;
         opacity: 1;
@@ -347,8 +390,22 @@ html.cms-toolbar-expanded {
         width: calc(1.6 * var(--size));
         height:  calc(1.6 * var(--size));
         line-height: calc(0.8 * var(--size));
-        padding: calc(0.3 * var(--size));
+        padding: 0;
         cursor: pointer;
+        > .cms-block-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            padding: 0 !important;
+            background: transparent;
+            width: 100% !important;
+            height: 100%;
+            > svg {
+                display: block;
+                flex-shrink: 0;
+            }
+        }
         svg {
             width: var(--size);
             height: var(--size);
@@ -358,7 +415,7 @@ html.cms-toolbar-expanded {
             pointer-events: none;
             color: var(--dca-gray-light);
         }
-        [role="menubar"] {
+        [role="toolbar"] {
             padding: 3px;
             position: absolute;
             inset-block-start: 100%;

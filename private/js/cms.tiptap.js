@@ -3,6 +3,7 @@
 /* global document, window, console */
 
 import {Editor} from '@tiptap/core';
+import {a11yText, focusToolbarControl, labelControl} from './cms.a11y';
 import {StarterKit} from "@tiptap/starter-kit";
 import CharacterCount from '@tiptap/extension-character-count';
 import CmsDynLink from './tiptap_plugins/cms.dynlink';
@@ -284,6 +285,20 @@ class CMSTipTapPlugin {
             if (window.scrollY !== scrollY) {
                 window.scrollTo({top: scrollY});
             }
+            labelControl(el, editor.view.dom, settings.lang?.edit || a11yText('editor', 'Text editor'));
+            editor.view.dom.setAttribute('aria-multiline', 'true');
+            editor.view.dom.addEventListener('keydown', event => {
+                if (event.altKey && event.key === 'F10') {
+                    const first = Array.from(editor.options.topToolbar?.querySelectorAll('button:not(:disabled)') || [])
+                        .find(button => !button.closest('.dropdown-content'));
+                    if (first) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        focusToolbarControl(editor, first);
+                    }
+                }
+            });
+            editor.view.dom.setAttribute('aria-keyshortcuts', 'Alt+F10');
             editor.on('blur', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });
@@ -356,6 +371,13 @@ class CMSTipTapPlugin {
         return undefined;
     }
 
+    // Optional backend lifecycle hook: the source textarea can remain connected
+    // after its generated editor container has been removed.
+    isConnected(el) {
+        const editor = this._editors[el.id];
+        return !!editor && editor.options.element.isConnected;
+    }
+
     /**
      * Destroys the editor associated with the provided element.
      * If an editor is found for the element, it is removed from the DOM and destroyed.
@@ -407,9 +429,10 @@ class CMSTipTapPlugin {
             // They need to refocus the editor to avoid a save
             const {id} = editor.options.el;
             const cms_dialog = document.querySelector(`#cms-top .cms-dialog[data-editor="${id}"]`);
-            if(!editor.options.el.contains(document.activeElement) && !cms_dialog) {
+            if(!editor.options.el.contains(document.activeElement) &&
+                !editor.options.topToolbar?.contains(document.activeElement) && !cms_dialog) {
                 // hide the toolbar
-                editor.options.element.querySelectorAll('[role="menubar"], [role="button"]')
+                editor.options.element.querySelectorAll('[role="toolbar"], [role="button"]')
                     .forEach((el) => el.classList.remove('show'));
                 // save the content (is no-op for non-inline calls)
                 editor.options.save_callback();
@@ -450,7 +473,7 @@ class CMSTipTapPlugin {
 
     _handleDblClick(event, editor) {
         const buttons = editor.options.element.querySelectorAll(
-            '.cms-toolbar button, .cms-toolbar [role="button"], ' +
+            '.cms-text-toolbar button, .cms-text-toolbar [role="button"], ' +
             '.cms-balloon button, .cms-balloon [role="button"]'
         );
         for (const button of buttons) {

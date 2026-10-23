@@ -5,6 +5,8 @@
 import CmsTextEditor from './cms.texteditor.js';
 import LinkField from "./cms.linkfield";
 import CmsDialog from "./cms.dialog";
+import InlineEditing from "./cms.inline";
+import NavigationSaveGuard from "./cms.navigation";
 
 // #############################################################################
 // CMS Editor
@@ -15,174 +17,8 @@ const WRAPPER_TAGS = new Set([
     'HEADER', 'FOOTER', 'NAV', 'CMS-PLUGIN',
 ]);
 
-// Clickable chrome of the django CMS toolbar. Deliberately scoped to `.cms-toolbar`:
-// `#cms-top` also hosts the editor's own dialogs and modals, whose clicks must not be
-// intercepted.
-const TOOLBAR_BUTTON_SELECTOR = '#cms-top .cms-toolbar a, #cms-top .cms-toolbar button';
-
-// Module-level flag so multiple CMSEditor instances don't each install the
-// document-level dblclick guard listeners.
-let _inlineDblclickGuardInstalled = false;
-
-/**
- * Will activating this toolbar control post or take the user off the page?
- *
- * Deliberately conservative: only controls that clearly unload the page are
- * intercepted, so dropdowns, overlays and toggles keep opening instantly. The
- * mirror of django CMS' own `_delegate` (`cms.toolbar.js`), which is what
- * decides the fate of a toolbar click.
- *
- * Being wrong in the "no" direction is cheap — the editor's blur handler still
- * saves, and nothing navigated away to cut the request short.
- *
- * @param {HTMLElement} el - The toolbar link or button that was clicked.
- * @return {boolean}
- */
-function _leavesPage(el) {
-    // `_delegate` bails on disabled controls, and a dropdown caret only opens
-    // the menu it belongs to — despite inheriting the primary button's classes.
-    if (
-        el.classList.contains('cms-btn-disabled') ||
-        el.classList.contains('cms-dropdown-toggle') ||
-        el.closest('.cms-toolbar-item-navigation-disabled')
-    ) {
-        return false;
-    }
-    if (el.dataset.rel) {
-        // Of the `data-rel` branches only `ajax` posts; `modal`, `sideframe`,
-        // `message` and `color-toggle` stay on the page.
-        return el.dataset.rel === 'ajax';
-    }
-    if (el.classList.contains('cms-form-post-method')) {
-        // PUBLISH and friends: submits a generated form, unloading the page.
-        return true;
-    }
-    const href = (el.getAttribute('href') || '').trim();
-    return !!href && !href.startsWith('#') && !/^javascript:/i.test(href);
-}
-
-// Find the enclosing inline editor wrapper for a target element.
-function _findInlineWrapper(target) {
-    if (!target || target.nodeType !== 1 || !target.closest) {
-        return null;
-    }
-    return target.closest('.cms-editor-inline-wrapper');
-}
-
-
-// Has this wrapper got an *initialised* editor right now? Inline text
-// plugin wrappers are page DOM (we don't own them), so they outlive
-// the editor instance — the dblclick guard must consult the live
-// editor registry on each event rather than assume "still active".
-function _wrapperHasEditor(wrapper) {
-    if (!wrapper || !wrapper.id) {
-        return false;
-    }
-    const tiptapEditors = window.cms_editor_plugin && window.cms_editor_plugin._editors;
-    const genericEditors = window.CMS_Editor && window.CMS_Editor._generic_editors;
-    return !!(
-        (tiptapEditors && wrapper.id in tiptapEditors) ||
-        (genericEditors && wrapper.id in genericEditors)
-    );
-}
-
-
-/**
- * Per-wrapper bubble-phase boundary. Mirrors the
- * `pointerover.cms.plugin` / `pointerout.cms.plugin` idiom used elsewhere
- * in this file: each inline-editor wrapper owns a bubble listener that
- * keeps the event from bubbling out to django-cms's delegated
- * `dblclick.cms.plugin` handler on `document`. Editor-side handlers on
- * descendants (e.g. ProseMirror's `view.dom` dblclick listeners) live
- * deeper in the bubble path and have already fired by then.
- *
- * Pass-through: if a *descendant* `<cms-plugin>` is between the target
- * and this wrapper, the event must continue to the document delegate so
- * the nested plugin's modal editor can open. The wrapper itself is
- * frequently a `<cms-plugin>` tag (text plugins are inline-edited in
- * place), which is why we walk up explicitly rather than using
- * `target.closest('cms-plugin')` and comparing identity.
- *
- * Lifecycle: the listener is gated on `_wrapperHasEditor`. After the
- * editor is destroyed (without the wrapper being removed — the common
- * case for in-place text-plugin editing) the listener stays attached
- * but becomes a no-op, so a dblclick on the now-editorless cms-plugin
- * tag correctly opens the CMS modal editor again.
- */
-function _attachInlineDblclickGuard(wrapper) {
-    if (!wrapper || wrapper._cmsInlineDblclickGuardAttached) {
-        return;
-    }
-    wrapper._cmsInlineDblclickGuardAttached = true;
-
-    wrapper.addEventListener('dblclick', (event) => {
-        if (event.button !== 0) {
-            return;
-        }
-        if (!_wrapperHasEditor(wrapper)) {
-            return;
-        }
-        for (let cur = event.target; cur && cur !== wrapper; cur = cur.parentElement) {
-            if (cur.tagName === 'CMS-PLUGIN') {
-                return;
-            }
-        }
-        event.stopPropagation();
-    });
-}
-
-
-/**
- * Document-level fallback for the "double-click + drag to extend by
- * word" gesture: the synthesised dblclick can land on a node *outside*
- * the wrapper, so the per-wrapper guard never sees it. We track the
- * wrapper the mousedown started in and stop the event in capture if
- * the dblclick lands elsewhere — there is no editor handler in that
- * bubble path, so a plain `stopPropagation` is safe.
- */
-function _installInlineDblclickGuard() {
-    if (_inlineDblclickGuardInstalled) {
-        return;
-    }
-    _inlineDblclickGuardInstalled = true;
-
-    let mouseDownWrapper = null;
-
-    document.addEventListener('mousedown', (event) => {
-        // Only primary button starts a double-click gesture we care about
-        if (event.button !== 0) {
-            mouseDownWrapper = null;
-            return;
-        }
-        mouseDownWrapper = _findInlineWrapper(event.target);
-    }, true);
-
-    document.addEventListener('dblclick', (event) => {
-        if (event.button !== 0) {
-            return;
-        }
-        // In-wrapper dblclicks are handled by the per-wrapper guard
-        // installed at editor mount; we only care about the
-        // out-of-wrapper drag-extend case here.
-        if (_findInlineWrapper(event.target)) {
-            mouseDownWrapper = null;
-            return;
-        }
-        if (mouseDownWrapper && _wrapperHasEditor(mouseDownWrapper)) {
-            event.stopPropagation();
-        }
-        mouseDownWrapper = null;
-    }, true);
-
-    // Safety net: clear the gesture state on mouseup if no dblclick follows.
-    document.addEventListener('mouseup', () => {
-        // Defer to the next tick so a dblclick handler that fires after
-        // mouseup can still observe the wrapper reference.
-        setTimeout(() => { mouseDownWrapper = null; }, 0);
-    }, true);
-}
-
-
+// Coordinates editor backends and CMS persistence. Inline event boundaries and
+// navigation protection live separately from backend-owned toolbars/dialogs.
 class CMSEditor {
 
     // CMS Editor: constructor
@@ -191,7 +27,20 @@ class CMSEditor {
         this._global_settings = {};
         this._editor_settings = {};
         this._generic_editors = {};
+        this._richTextElements = new Map();
+        this._adminRows = new WeakSet();
+        this._inlineWrappers = new WeakSet();
         this._pendingSaves = new Set();
+        this._inlineEditing = new InlineEditing(document, wrapper => !!this.getEditor(wrapper));
+        this._navigationGuard = new NavigationSaveGuard(
+            document, () => this.hasUnsavedChanges(), () => this.flushPendingSaves()
+        );
+        this._beforeUnload = event => {
+            if (this.hasUnsavedChanges()) {
+                event.preventDefault();
+                event.returnValue = true;
+            }
+        };
         this._admin_selector = 'textarea.CMS_Editor';
         this._admin_add_row_selector = 'body.change-form .add-row a';
         this._inline_admin_selector = 'body.change-form .form-row';
@@ -247,6 +96,8 @@ class CMSEditor {
         if (this._admin_add_row_selector) {
             setTimeout(() => {
                 for (const el of document.querySelectorAll(this._admin_add_row_selector)) {
+                    if (this._adminRows.has(el)) continue;
+                    this._adminRows.add(el);
                     el.addEventListener('click', (event) => {
                         setTimeout(() => {
                             document.querySelectorAll(this._admin_selector).forEach(
@@ -259,6 +110,10 @@ class CMSEditor {
         }
     }
 
+    handleInlineEscape(event) {
+        return this._inlineEditing.handleEscape(event);
+    }
+
     // CMS Editor: init
     // Initialize a single editor
     init (el) {
@@ -269,11 +124,13 @@ class CMSEditor {
         if (!el.id) {
             el.id = "cms-edit-" + Math.random().toString(36).slice(2, 9);
         }
+        if (el.tagName !== 'TEXTAREA') this._inlineEditing.attachEscape(el);
+        if (this.getEditor(el)) return;
         // Create editor
         if (!el.dataset.cmsType || el.dataset.cmsType === 'TextPlugin' || el.dataset.cmsType === 'HTMLField') {
             this._createRTE(el);
         } else if (el.dataset.cmsType === 'CharField') {
-            // Creat simple generic text editor
+            // Create a plain text editor for a generic field.
             this._generic_editors[el.id] = new CmsTextEditor(el, {
                     spellcheck: el.dataset.spellcheck || 'false',
                 },
@@ -294,7 +151,7 @@ class CMSEditor {
      * wrappers outside `initInlineEditors` can opt in to the guard.
      */
     attachInlineDblclickGuard(wrapper) {
-        _attachInlineDblclickGuard(wrapper);
+        this._inlineEditing.attachDoubleClick(wrapper);
     }
 
     initInlineEditors() {
@@ -309,8 +166,8 @@ class CMSEditor {
             : (cb) => setTimeout(cb, 0);
 
         // Guard CMS's delegated dblclick handler for all inline editors.
-        // Shared across all CMSEditor instances via a module-level flag.
-        _installInlineDblclickGuard();
+        // Installed once for this editor manager.
+        this._inlineEditing.installGestureGuard();
 
         this.observer = this.observer || new IntersectionObserver( (entries) => {
             entries.forEach((entry) => {
@@ -374,12 +231,12 @@ class CMSEditor {
                     // document-delegated `dblclick.cms.plugin` handler — the
                     // canonical "block events from leaving my component"
                     // pattern, mirroring the pointer-event setup below.
-                    _attachInlineDblclickGuard(wrapper);
+                    this._inlineEditing.attachDoubleClick(wrapper);
 
                     // Catch CMS single click event to highlight the plugin.
-                    if (!Array.from(this.observer.root?.children || []).includes(wrapper)) {
-                        // Only add to the observer if not already observed (e.g., if the page only was update partially)
-                        this.observer.observe(wrapper);
+                    this.observer.observe(wrapper);
+                    if (!this._inlineWrappers.has(wrapper)) {
+                        this._inlineWrappers.add(wrapper);
                         if (this.CMS) {
                             wrapper.addEventListener('focusin', () => {
                                 this._highlightTextplugin(id);
@@ -409,71 +266,18 @@ class CMSEditor {
 
         this._installToolbarSaveGuard();
 
-        window.addEventListener('beforeunload', (event) =>  {
-            if (this.hasUnsavedChanges()) {
-                event.preventDefault();
-                event.returnValue = true;
-                return 'Do you really want to leave this page?';
-            }
-        });
+        window.addEventListener('beforeunload', this._beforeUnload);
     }
 
-    /**
-     * Make the CMS toolbar wait for pending inline edits.
-     *
-     * Toolbar buttons post and navigate straight from their click handler. Inline
-     * editors, on the other hand, only save on blur, debounced, and via an async
-     * request — so clicking PUBLISH right after typing used to leave the page before
-     * the edit was sent, dropping the change and raising the unsaved-changes prompt.
-     *
-     * This listener runs in the capture phase, i.e. before django CMS' own handlers
-     * on the button. If anything is unsaved it swallows the click, flushes the
-     * editors, and only then replays it so the toolbar acts on saved content.
-     */
+    // Preserve the integration entry point while the guard owns click replay.
     _installToolbarSaveGuard() {
-        if (this._toolbarSaveGuardInstalled) {
-            return;
-        }
-        this._toolbarSaveGuardInstalled = true;
-
-        document.addEventListener('click', (event) => {
-            if (this._replayingToolbarClick || event.defaultPrevented || event.button) {
-                return;
-            }
-            const button = event.target?.closest?.(TOOLBAR_BUTTON_SELECTOR);
-            if (!button || !_leavesPage(button) || !this.hasUnsavedChanges()) {
-                return;
-            }
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.flushPendingSaves().then(() => this._replayToolbarClick(button));
-        }, true);
+        this._navigationGuard.install();
     }
 
-    _replayToolbarClick(button) {
-        // Saving may have refreshed the toolbar markup (django CMS 3), which detaches
-        // the original node. Look for its replacement before giving up.
-        const target = button.isConnected ? button : this._findToolbarButton(button);
-        if (!target) {
-            return;
-        }
-        this._replayingToolbarClick = true;
-        try {
-            target.click();
-        } finally {
-            this._replayingToolbarClick = false;
-        }
-    }
-
-    _findToolbarButton(button) {
-        const href = button.getAttribute('href');
-        const label = button.textContent.trim();
-        for (const candidate of document.querySelectorAll(TOOLBAR_BUTTON_SELECTOR)) {
-            if (candidate.getAttribute('href') === href && candidate.textContent.trim() === label) {
-                return candidate;
-            }
-        }
-        return null;
+    getEditor(el) {
+        const id = typeof el === 'string' ? el : el?.id;
+        if (!id) return undefined;
+        return this._generic_editors[id] || window.cms_editor_plugin?._editors?.[id];
     }
 
     _createRTE(el) {
@@ -534,6 +338,7 @@ class CMSEditor {
             // el = el.insertAdjacentElement('afterend', document.createElement('div'));
         }
 
+        this._richTextElements.set(el.id, el);
         window.cms_editor_plugin.create(
             el,
             inModal,
@@ -617,19 +422,25 @@ class CMSEditor {
     }
 
     destroyRTE() {
-        for (const el of Object.keys(this._editor_settings)) {
-            const element = document.getElementById(el);
-            window.cms_editor_plugin.destroyEditor(el);
-        }
+        for (const id of Object.keys(window.cms_editor_plugin?._editors || {})) this._destroyRTE(id);
         this._editor_settings = {};
+        this._richTextElements.clear();
     }
 
-    // CMS Editor: destroyGenericEditor
-    destroyGenericEditor (el) {
-        if (el in this._generic_editors) {
-            this._generic_editors[el].destroy();
-            delete this._generic_editors[el];
-            this._generic_editors.pop(el);
+    _destroyRTE(id) {
+        const el = this._richTextElements.get(id) || document.getElementById(id) || {id};
+        // Backends accept an element; Tiptap also accepts an ID, CKEditor does not.
+        window.cms_editor_plugin.destroyEditor(el);
+        this._richTextElements.delete(id);
+        delete this._editor_settings[id];
+    }
+
+    destroyGenericEditor(el) {
+        const ids = el === undefined ? Object.keys(this._generic_editors) :
+            [typeof el === 'string' ? el : el.id];
+        for (const id of ids) {
+            this._generic_editors[id]?.destroy();
+            delete this._generic_editors[id];
         }
     }
 
@@ -952,26 +763,18 @@ class CMSEditor {
     _resetInlineEditors () {
         // Destroy editors whose DOM elements are no longer in the document
         // (e.g., after CMS replaces plugin HTML on save)
-        const plugin = window.cms_editor_plugin;
-        if (plugin && plugin._editors) {
-            for (const id of Object.keys(plugin._editors)) {
-                const editorInstance = plugin._editors[id];
-                if (!editorInstance || !editorInstance.options) {
-                    delete plugin._editors[id];
-                    continue;
-                }
-                const editorElement = editorInstance.options.element;
-                if (!editorElement || !document.contains(editorElement)) {
-                    plugin.destroyEditor(id);
-                }
+        const backend = window.cms_editor_plugin;
+        for (const id of Object.keys(backend?._editors || {})) {
+            const el = this._richTextElements.get(id) || document.getElementById(id);
+            if (!el?.isConnected || (backend.isConnected && !backend.isConnected(el))) {
+                this._destroyRTE(id);
             }
         }
         // Clean up orphaned plain text editors
         for (const id of Object.keys(this._generic_editors)) {
             const el = this._generic_editors[id].el;
             if (!el || !document.contains(el)) {
-                this._generic_editors[id].destroy();
-                delete this._generic_editors[id];
+                this.destroyGenericEditor(id);
             }
         }
         this.initInlineEditors();

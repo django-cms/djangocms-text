@@ -9,6 +9,7 @@ import {Decoration, DecorationSet} from "@tiptap/pm/view";
 import {Plugin} from "@tiptap/pm/state";
 import TiptapToolbar from "./cms.tiptap.toolbar";
 import {formToHtml, populateForm} from "../cms.dialog";
+import {a11yText, focusToolbarControl, uniqueId} from '../cms.a11y';
 
 import "../../css/cms.toolbar.css";
 import "../../css/cms.linkfield.css";
@@ -116,7 +117,26 @@ function _createBlockToolbar(editor, blockToolbar) {
 
     toolbar.classList.add('cms-block-toolbar');
     toolbar.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
-    toolbar.innerHTML = `${_drag_icon}<div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`;
+    toolbar.innerHTML = `<button type="button" class="cms-block-toggle" aria-label="${a11yText('block_actions', 'Block actions')}" aria-expanded="false">${_drag_icon}</button><div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`;
+    toolbar.setAttribute('contenteditable', 'false');
+    toolbar.setAttribute('role', 'group');
+    toolbar.setAttribute('aria-label', a11yText('block_formatting', 'Block formatting'));
+    const trigger = toolbar.firstElementChild;
+    const menu = toolbar.lastElementChild;
+    menu.id = uniqueId('cms-block-menu');
+    trigger.setAttribute('aria-controls', menu.id);
+    _setupToolbarKeyboard(toolbar, editor);
+    trigger.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        const open = toolbar.classList.toggle('show');
+        trigger.setAttribute('aria-expanded', String(open));
+        if (open) _focusMenu(editor, menu, trigger);
+    });
+    menu.addEventListener('click', event => {
+        event.stopPropagation();
+        _handleToolbarClick(event, editor);
+    });
 
     toolbar.draggable = true;
     toolbar.addEventListener('mousedown', (event) => {
@@ -311,7 +331,12 @@ function _replaceIcon(node, string) {
     'use strict';
     const icon = document.createElement('span');
     icon.innerHTML = string;
-    node.replaceWith(icon.firstElementChild);
+    if (node.tagName === 'BUTTON') {
+        node.innerHTML = string;
+        node.querySelector('svg')?.setAttribute('aria-hidden', 'true');
+    } else {
+        node.replaceWith(icon.firstElementChild);
+    }
 }
 
 /**
@@ -364,6 +389,12 @@ function _initTopToolbar(editor, filter) {
             }, 200);
         });
         editor.options._toolbarHost = toolbarHost;
+        toolbarHost.addEventListener('focusin', () => toolbarHost.classList.add('has-focused-editor'));
+        toolbarHost.addEventListener('focusout', event => {
+            if (!toolbarHost.contains(event.relatedTarget) && !editor.isFocused) {
+                toolbarHost.classList.remove('has-focused-editor');
+            }
+        });
     } else {
         // Fixed editors: prepend to the editor container so the toolbar
         // sits above the .tiptap content area
@@ -372,20 +403,16 @@ function _initTopToolbar(editor, filter) {
 
     // Prevent toolbar clicks from blurring the editor
     topToolbar.addEventListener('mousedown', (e) => {
-        const form = e.target.closest('form.cms-inline-form');
-        if (!form) {
+        const form = e.target.closest('form');
+        if (!form || !topToolbar.contains(form)) {
             e.preventDefault();
         }
     });
     // Handle toolbar clicks
     topToolbar.addEventListener('click', (e) => {
-        if (!editor.isFocused) {
-            editor.commands.focus();
-        }
-        const form = e.target.closest('form.cms-inline-form');
-        if (!form) {
-            _handleToolbarClick(e, editor);
-        }
+        const form = e.target.closest('form');
+        if (form && topToolbar.contains(form)) return;
+        _handleToolbarClick(e, editor);
     });
 }
 
@@ -394,6 +421,19 @@ function _createTopToolbarPlugin(editor, filter) {
     return new Plugin({
         props: {
             handleDOMEvents: {
+                keydown(view, event) {
+                    if (event.key === 'Escape' && !event.defaultPrevented && !event.isComposing) {
+                        if (_closeAllDropdowns(event, editor, true) > 0) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            return true;
+                        }
+                        // ProseMirror's built-in captureKeyDown always prevents
+                        // Escape. Run the shared exit handler before that fallback.
+                        return window.CMS_Editor?.handleInlineEscape(event) || false;
+                    }
+                    return false;
+                },
                 click (view, event) {
                     // Close dropdowns when clicking inside the editor content
                     if (!editor.options.topToolbar?.contains(event.target)) {
@@ -510,7 +550,7 @@ function _findScrollParent(element) {
 
 /**
  * Creates a toolbar element for the editor.
- * A toolbar is a div element with role="toolbar" and class cms-toolbar.
+ * A toolbar is a div element with role="toolbar" and class cms-text-toolbar.
  *
  * @param {Object} editor - The editor instance.
  * @param {Object} toolbar - The toolbar configuration.
@@ -521,22 +561,152 @@ function _createToolbar(editor, toolbar, filter) {
     'use strict';
 
     const toolbarElement = document.createElement('div');
-    toolbarElement.setAttribute('role', 'menubar');
-    toolbarElement.classList.add('cms-toolbar');
+    toolbarElement.setAttribute('role', 'toolbar');
+    toolbarElement.setAttribute('aria-label', editor.options.settings?.lang?.toolbar || a11yText('formatting', 'Formatting'));
+    // CMS owns .cms-toolbar and captures its navigation keys on document.
+    // Keep editor UI separate so its own keyboard handler receives those keys.
+    toolbarElement.classList.add('cms-text-toolbar');
     // create the toolbar html from the settings
     toolbarElement.innerHTML = _populateToolbar(editor, toolbar, filter);
+    _setupToolbarKeyboard(toolbarElement, editor);
 
     if (!editor.options.element.classList.contains('fixed')) {
         toolbarElement.style.zIndex = editor.options.baseFloatZIndex || 8888888;
         // Limit its width to the available space
         toolbarElement.style.maxWidth = (window.innerWidth - toolbarElement.getBoundingClientRect().left - 16) + 'px';
     }
-    setTimeout(() => {
-        if (toolbarElement.contains(document.activeElement)) {
-            editor.commands.focus();
-        }
-    }, 10);
     return toolbarElement;
+}
+
+function _menuControls(menu) {
+    return Array.from(menu.querySelectorAll(
+        'button:not(:disabled), input:not(:disabled):not([type="hidden"]), select:not(:disabled), textarea:not(:disabled)'
+    )).filter(control => control.closest('.dropdown-content, .cms-block-dropdown') === menu);
+}
+
+function _focusMenu(editor, menu, toggle, last = false) {
+    const controls = _menuControls(menu);
+    focusToolbarControl(editor, (last ? controls[controls.length - 1] : controls[0]) || toggle);
+}
+
+function _setupToolbarKeyboard(toolbar, editor) {
+    toolbar.querySelectorAll('button').forEach(button => {
+        if (button.title && !button.hasAttribute('aria-label')) button.setAttribute('aria-label', button.title);
+        button.querySelectorAll('svg').forEach(svg => svg.setAttribute('aria-hidden', 'true'));
+    });
+    const controls = () => Array.from(toolbar.querySelectorAll('button:not(:disabled)'))
+        .filter(button => !button.closest('.dropdown-content, .cms-block-dropdown'));
+    const setStop = button => controls().forEach(control => {
+        control.tabIndex = control === button ? 0 : -1;
+    });
+    toolbar.querySelectorAll('button').forEach(button => { button.tabIndex = -1; });
+    toolbar.querySelectorAll('.dropdown-content button, .cms-block-dropdown button').forEach(button => { button.tabIndex = 0; });
+    setStop(controls()[0]);
+    toolbar.addEventListener('focusin', event => {
+        if (controls().includes(event.target)) setStop(event.target);
+    });
+    toolbar.addEventListener('submit', event => _submitToolbarForm(event, editor));
+    toolbar.addEventListener('click', event => {
+        const form = event.target.closest('form');
+        if (!form || !form.closest('.dropdown')) return;
+        if (event.target.closest('.submit')) _submitToolbarForm(event, editor);
+        if (event.target.closest('.cancel')) {
+            event.preventDefault();
+            const toggle = form.closest('.dropdown').querySelector(':scope > .dropdown-toggle');
+            _closeAllDropdowns(event, editor, true);
+            focusToolbarControl(editor, toggle);
+        }
+    });
+    toolbar.addEventListener('keydown', event => {
+        if (event.isComposing || event.defaultPrevented) return;
+        if (event.altKey && event.key === 'F10') {
+            const first = Array.from(editor.options.topToolbar?.querySelectorAll('button:not(:disabled)') || [])
+                .find(button => !button.closest('.dropdown-content'));
+            if (first) {
+                event.preventDefault();
+                event.stopPropagation();
+                focusToolbarControl(editor, first);
+            }
+            return;
+        }
+        const dropdown = event.target.closest('.dropdown');
+        const toggle = dropdown?.querySelector(':scope > .dropdown-toggle');
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            if (dropdown?.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded', 'false');
+                if (!toolbar.querySelector('.dropdown.show')) toolbar.classList.remove('has-dropdown-open');
+                focusToolbarControl(editor, toggle);
+            } else if (toolbar.classList.contains('cms-block-toolbar') && toolbar.classList.contains('show')) {
+                toolbar.classList.remove('show');
+                const trigger = toolbar.querySelector('.cms-block-toggle');
+                trigger.setAttribute('aria-expanded', 'false');
+                focusToolbarControl(editor, trigger);
+            } else {
+                // Tiptap's focus command schedules another focus in a frame;
+                // on Safari that can steal focus back after the next toolbar key.
+                editor.view.focus();
+            }
+            return;
+        }
+        if (event.target.matches('input, select, textarea')) return;
+        if (event.target.tagName === 'BUTTON' && ['Enter', ' '].includes(event.key)) {
+            // The block toolbar lives inside contenteditable. Consume activation
+            // before ProseMirror can interpret Enter/Space as editing commands.
+            event.preventDefault();
+            event.stopPropagation();
+            if (!event.repeat && !event.target.disabled) event.target.click();
+            return;
+        }
+        if (event.target.classList.contains('cms-block-toggle') && ['ArrowDown', 'ArrowUp'].includes(event.key)) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!toolbar.classList.contains('show')) event.target.click();
+            _focusMenu(editor, toolbar.querySelector('.cms-block-dropdown'), event.target, event.key === 'ArrowUp');
+            return;
+        }
+        if (event.target === toggle && ['ArrowDown', 'ArrowUp'].includes(event.key)) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!dropdown.classList.contains('show')) toggle.click();
+            _focusMenu(editor, dropdown.querySelector('.dropdown-content'), toggle, event.key === 'ArrowUp');
+            return;
+        }
+        const inMenu = event.target.closest('.dropdown-content, .cms-block-dropdown');
+        const horizontal = !inMenu || inMenu.classList.contains('cms-block-dropdown');
+        if (inMenu && !horizontal && ['ArrowLeft', 'ArrowRight'].includes(event.key)) {
+            const main = editor.options.topToolbar;
+            const buttons = Array.from(main.querySelectorAll('button:not(:disabled)'))
+                .filter(button => !button.closest('.dropdown-content'));
+            const owner = event.target.closest('.dropdown')?.querySelector(':scope > .dropdown-toggle');
+            const step = (event.key === 'ArrowLeft' ? -1 : 1) * (getComputedStyle(main).direction === 'rtl' ? -1 : 1);
+            const current = buttons.indexOf(owner);
+            const index = current < 0 ? (step > 0 ? 0 : buttons.length - 1) :
+                (current + step + buttons.length) % buttons.length;
+            event.preventDefault();
+            event.stopPropagation();
+            _closeAllDropdowns(event, editor, true);
+            focusToolbarControl(editor, buttons[index]);
+            return;
+        }
+        const buttons = inMenu ? _menuControls(inMenu).filter(control => control.tagName === 'BUTTON') : controls();
+        const keys = horizontal ? ['ArrowLeft', 'ArrowRight'] : ['ArrowUp', 'ArrowDown'];
+        if (![...keys, 'Home', 'End'].includes(event.key) || !buttons.length) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (!inMenu) _closeAllDropdowns(event, editor, true);
+        let index = buttons.indexOf(event.target);
+        if (event.key === 'Home') index = 0;
+        else if (event.key === 'End') index = buttons.length - 1;
+        else {
+            const rtl = horizontal && getComputedStyle(toolbar).direction === 'rtl';
+            const step = (event.key === keys[0] ? -1 : 1) * (rtl ? -1 : 1);
+            index = (index + step + buttons.length) % buttons.length;
+        }
+        focusToolbarControl(editor, buttons[index]);
+    });
 }
 
 /**
@@ -550,7 +720,8 @@ function _createToolbar(editor, toolbar, filter) {
 function _handleToolbarClick(event, editor) {
     'use strict';
     event.preventDefault();
-    const button = event.target.closest('button, .dropdown');
+    let button = event.target.closest('button, .dropdown');
+    if (button?.classList.contains('dropdown-toggle')) button = button.parentElement;
     const editorEl = editor.options.el || editor.options.element;
     if (button && !button.disabled && !editorEl.querySelector('dialog.cms-form-dialog')) {
         const {action} = button.dataset;
@@ -560,14 +731,17 @@ function _handleToolbarClick(event, editor) {
             if (!button.classList.contains('show')) {
                 _closeAllDropdowns(event, editor);
                 button.classList.add('show');
-                button.closest('[role="menubar"]')?.classList.add('has-dropdown-open');
+                button.querySelector(':scope > .dropdown-toggle')?.setAttribute('aria-expanded', 'true');
+                button.closest('[role="toolbar"]')?.classList.add('has-dropdown-open');
                 content.style.top = button.offsetHeight + 'px';
+                _focusMenu(editor, content, button.querySelector(':scope > .dropdown-toggle'));
                 if (button.offsetLeft + content.offsetWidth > window.innerWidth) {
                     content.style.left = (window.innerWidth - content.offsetWidth - button.offsetLeft - 25) + 'px';
                 }
             } else {
                 button.classList.remove('show');
-                button.closest('[role="menubar"]')?.classList.remove('has-dropdown-open');
+                button.querySelector(':scope > .dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+                button.closest('[role="toolbar"]')?.classList.remove('has-dropdown-open');
             }
         } else if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, button);
@@ -586,14 +760,16 @@ function _closeAllDropdowns(event, editor, force) {
         .forEach((el) => {
             if (!el.contains(event.target) || force) {
                 el.classList.remove('show');
+                el.querySelector(':scope > .cms-block-toggle')?.setAttribute('aria-expanded', 'false');
                 count++;
             }
         });
-    document.documentElement.querySelectorAll('.cms-editor-inline-wrapper [role="menubar"] .dropdown.show')
+    document.documentElement.querySelectorAll('.cms-editor-inline-wrapper [role="toolbar"] .dropdown.show')
         .forEach((el) => {
             if (!el.contains(event.target) || force) {
                 el.classList.remove('show');
-                el.closest('[role="menubar"]')?.classList.remove('has-dropdown-open');
+                el.querySelector(':scope > .dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+                el.closest('[role="toolbar"]')?.classList.remove('has-dropdown-open');
                 count++;
             }
         });
@@ -613,7 +789,8 @@ function _createDropdown(editor, item, filter) {
     const title = item.title && item.icon ? `title='${item.title}' ` : '';
     const attr = item.attr ? `data-attr="${item.attr}" ` : '';
     const icon = item.icon || `<span>${item.title}</span>`;
-    return `<span ${title}${attr}class="dropdown" tabindex="-1" role="button">${icon}<div title class="dropdown-content ${item.class || ''}">${dropdown}</div></span>`;
+    const id = uniqueId('cms-dropdown');
+    return `<div ${attr}class="dropdown"><button type="button" class="dropdown-toggle" ${title}aria-expanded="false" aria-controls="${id}">${icon}</button><div id="${id}" class="dropdown-content ${item.class || ''}">${dropdown}</div></div>`;
 }
 
 function _populateGroup(editor, array, filter) {
@@ -694,17 +871,22 @@ function _createToolbarButton(editor, itemName, filter) {
             form = `<form class="cms-form dropdown-content">
                 <div class="cms-form-inputs">${formToHtml(repr.toolbarForm)}</div>
                 <div class="cms-form-buttons">
-                    <span class="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                    <button type="button" class="submit" aria-label="${a11yText('save', 'Save')}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
                         <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
-                        </svg></span>
-                    <span class="cancel"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                        </svg></button>
+                    <button type="button" class="cancel" aria-label="${a11yText('cancel', 'Cancel')}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-                        </svg></span>
+                        </svg></button>
                 </div>
             </form>`;
         }
         const content = repr.icon || `<span>${repr.title}</span>`;
-        return `<button data-action="${repr.dataaction}" ${cmsplugin}${title}${position}${attr}class="${classes}">${content}${form}</button>`;
+        if (form) {
+            const id = uniqueId('cms-toolbar-form');
+            form = form.replace('<form ', `<form id="${id}" `);
+            return `<div data-action="${repr.dataaction}" class="${classes}"><button type="button" class="dropdown-toggle" ${title}aria-expanded="false" aria-controls="${id}">${content}</button>${form}</div>`;
+        }
+        return `<button type="button" data-action="${repr.dataaction}" ${cmsplugin}${title}${position}${attr}class="${classes}">${content}</button>`;
     }
     return '';
 }
@@ -755,6 +937,7 @@ function _updateToolbar(editor, toolbar) {
                       if (isActive !== button.classList.contains('active')) {
                           button.classList.toggle('active', isActive);
                       }
+                      if (toolbarItem.active) button.setAttribute('aria-pressed', String(isActive));
                       if (TiptapToolbar[action].attributes) {
                           populateForm(button, TiptapToolbar[action].attributes(editor), toolbarItem.form);
                       }
@@ -779,6 +962,11 @@ function _updateToolbar(editor, toolbar) {
             dropdown.classList.toggle('has-active-child', hasActive);
         }
     }
+    const controls = Array.from(topToolbar.querySelectorAll('button:not(:disabled)'))
+        .filter(button => !button.closest('.dropdown-content'));
+    const tabStop = controls.includes(document.activeElement) ? document.activeElement :
+        controls.find(button => button.tabIndex === 0) || controls[0];
+    controls.forEach(button => { button.tabIndex = button === tabStop ? 0 : -1; });
     editorEl.dataset.selecting = 'false';
 }
 
@@ -788,8 +976,8 @@ function _submitToolbarForm(event, editor) {
     event.stopPropagation();
     const form = event.target.closest('form');
     if (form.reportValidity()) {
-        _closeAllDropdowns(event, editor);
-        const {action} = form.closest('[role=button]').dataset;
+        _closeAllDropdowns(event, editor, true);
+        const {action} = form.closest('.dropdown').dataset;
         if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, event.target.closest('button, [role="button"]'), new FormData(form));
         }

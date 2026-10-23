@@ -1,6 +1,7 @@
 /* eslint-env es11 */
 /* jshint esversion: 11 */
 /* global document, window, console */
+import {a11yText, labelControl, uniqueId} from './cms.a11y';
 
 
 class LinkField {
@@ -32,6 +33,14 @@ class LinkField {
         this.inputElement.setAttribute('placeholder', this.urlElement.getAttribute('placeholder') ||'');
         this.inputElement.className = this.urlElement.className;
         this.inputElement.classList.add('cms-linkfield-input');
+        this.inputElement.id = uniqueId('cms-link-input');
+        labelControl(this.urlElement, this.inputElement, 'URL');
+        this.inputElement.setAttribute('role', 'combobox');
+        this.inputElement.setAttribute('aria-autocomplete', 'list');
+        this.inputElement.setAttribute('aria-expanded', 'false');
+        this.inputElement.required = this.urlElement.required;
+        this.inputElement.disabled = this.urlElement.disabled;
+        this.inputElement.readOnly = this.urlElement.readOnly;
 
         this.wrapper = document.createElement('div');
         this.wrapper.classList.add('cms-linkfield-wrapper');
@@ -39,11 +48,19 @@ class LinkField {
         this.urlElement.setAttribute('type', 'hidden');
         this.dropdown = document.createElement('div');
         this.dropdown.classList.add('cms-linkfield-dropdown');
+        this.dropdown.id = uniqueId('cms-link-results');
+        this.dropdown.setAttribute('role', 'listbox');
+        this.dropdown.setAttribute('aria-label', a11yText('suggestions', 'Link suggestions'));
+        this.inputElement.setAttribute('aria-controls', this.dropdown.id);
         if (this.form.style.zIndex) {
             this.dropdown.style.zIndex = this.form.style.zIndex + 1;
         }
         this.wrapper.appendChild(this.inputElement);
         this.wrapper.appendChild(this.dropdown);
+        this.status = document.createElement('span');
+        this.status.className = 'cms-visually-hidden';
+        this.status.setAttribute('role', 'status');
+        this.wrapper.appendChild(this.status);
         if (hasFocus) {
             this.inputElement.focus();
         }
@@ -90,12 +107,25 @@ class LinkField {
                 this.search();
             }
         });
-        // Keyboard navigation (open dropdown on ArrowDown)
         this.inputElement.addEventListener('keydown', event => {
-            if ((event.key === 'ArrowDown' || event.key === 'Down') && !this.dropdownIsOpen) {
-                event.preventDefault();  // Prevent cursor movement
-                event.stopPropagation();  // Prevent closing the input
-                this.search();
+            if (event.isComposing) return;
+            if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (!this.dropdownIsOpen) this.search();
+                const options = Array.from(this.dropdown.querySelectorAll('[role="option"]'));
+                const current = options.findIndex(option => option.id === this.inputElement.getAttribute('aria-activedescendant'));
+                const index = current < 0 ? (event.key === 'ArrowDown' ? 0 : options.length - 1) :
+                    (current + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+                this.activateOption(options[index]);
+            }
+            if (event.key === 'Enter' && this.dropdownIsOpen) {
+                const active = this.dropdown.querySelector('[aria-selected="true"]');
+                if (active) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    active.click();
+                }
             }
             if ((event.key === 'Escape' || event.key === 'Esc') && this.dropdownIsOpen) {
                 event.preventDefault();  // Prevent closing the input
@@ -110,6 +140,10 @@ class LinkField {
         });
         this.selectElement.addEventListener('input', event => this.handleChange(event));
         this.dropdown.addEventListener('click', this.handleSelection.bind(this));
+        this.dropdown.addEventListener('mousedown', event => event.preventDefault());
+        this.wrapper.addEventListener('focusout', event => {
+            if (!this.wrapper.contains(event.relatedTarget)) this.closeDropdown();
+        });
         this.intersection = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -134,6 +168,7 @@ class LinkField {
             // First page clears the dropdown
             this.dropdown.innerHTML = '';
             currentSection = '';
+            this.inputElement.removeAttribute('aria-activedescendant');
         } else {
             // Remove the more link
             const more = this.dropdown.querySelector('.cms-linkfield-more');
@@ -146,10 +181,14 @@ class LinkField {
             more.classList.add('cms-linkfield-more');
             more.setAttribute('data-page', page + 1);
             more.setAttribute('data-group', currentSection);
-            more.textContent = '...';
+            more.textContent = a11yText('more', 'More results');
+            more.id = uniqueId('cms-link-more');
+            more.setAttribute('role', 'option');
+            more.setAttribute('aria-selected', 'false');
             this.dropdown.appendChild(more);
             this.intersection.observe(more);
         }
+        this.status.textContent = a11yText('result_count', 'Suggestions: {count}').replace('{count}', this.dropdown.querySelectorAll('.cms-linkfield-option').length);
     }
 
     _addResult(result, currentSection = '') {
@@ -160,6 +199,10 @@ class LinkField {
             item.setAttribute('data-value', result.id);
             item.setAttribute('data-href', result.url || '#');
             item.setAttribute('data-text', result.verbose || result.text);
+            item.id = uniqueId('cms-link-option');
+            item.setAttribute('role', 'option');
+            item.setAttribute('aria-selected', 'false');
+            if (currentSection) item.setAttribute('aria-label', `${currentSection}: ${result.text}`);
         }
         if (result.children && result.children.length > 0) {
             item.classList.add('cms-linkfield-parent');
@@ -168,7 +211,7 @@ class LinkField {
                 currentSection = result.text;
             }
             result.children.forEach(child => {
-                this._addResult(child);
+                this._addResult(child, result.text);
             });
         } else {
             this.dropdown.appendChild(item);
@@ -179,13 +222,14 @@ class LinkField {
     handleSelection(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.classList.contains('cms-linkfield-option')) {
+        if (event.target.classList.contains('cms-linkfield-more')) {
+            this.updateSearch();
+        } else if (event.target.classList.contains('cms-linkfield-option')) {
             const value = event.target.getAttribute('data-text') || event.target.textContent;
             this.inputElement.value = value.trim();
             this.inputElement.classList.add('cms-linkfield-selected');
             this.urlElement.value = event.target.getAttribute('data-href');
             this.selectElement.value = event.target.getAttribute('data-value');
-            this.inputElement.blur();
             this.closeDropdown(event);
         }
         // this.dropdown.innerHTML = '';  // CSS hides dropdown when empty
@@ -194,6 +238,7 @@ class LinkField {
     openDropdown(event) {
         if (!this.dropdownIsOpen) {
             this.dropdownIsOpen = true;
+            this.inputElement.setAttribute('aria-expanded', 'true');
             this.dropdown.classList.add('open');
             document.addEventListener('click', this.boundCloseDropdown);
         }
@@ -202,6 +247,8 @@ class LinkField {
     closeDropdown(event) {
         if (!event || !this.wrapper.contains(event.target) || this.dropdown.contains(event.target)) {
             this.dropdownIsOpen = false;
+            this.inputElement.setAttribute('aria-expanded', 'false');
+            this.activateOption(null);
             this.dropdown.classList.remove('open');
             document.removeEventListener('click', this.boundCloseDropdown);
         }
@@ -209,6 +256,18 @@ class LinkField {
 
     toggleDropdown() {
        this.dropdownIsOpen ? this.closeDropdown() : this.openDropdown();
+    }
+
+    activateOption(option) {
+        this.dropdown.querySelectorAll('[role="option"]').forEach(item => {
+            item.setAttribute('aria-selected', String(item === option));
+        });
+        if (option) {
+            this.inputElement.setAttribute('aria-activedescendant', option.id);
+            option.scrollIntoView?.({block: 'nearest'});
+        } else {
+            this.inputElement.removeAttribute('aria-activedescendant');
+        }
     }
 
     handleChange(event) {
@@ -230,6 +289,7 @@ class LinkField {
             this.showResults(response, page);
         }).catch (error => {
            this.dropdown.innerHTML = `<div class="cms-linkfield-error">${error.message}</div>`;
+           this.status.textContent = error.message;
         });
     }
 

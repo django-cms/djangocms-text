@@ -1,3 +1,26 @@
+.cke {
+    --cms-text-ckeditor-icon-brightness: 0.9;
+}
+
+:root[data-color-scheme="dark"] .cke,
+:root:not([data-color-scheme])[data-theme="dark"] .cke {
+    --cms-text-ckeditor-icon-brightness: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root[data-color-scheme="auto"] .cke,
+    :root:not([data-color-scheme])[data-theme="auto"] .cke,
+    :root:not([data-color-scheme]):not([data-theme]) .cke {
+        --cms-text-ckeditor-icon-brightness: 2;
+    }
+}
+
+/* Preserve the admin theme's value when available. The more specific selector
+   also takes precedence over the dynamically loaded Moono-Lisa skin. */
+.cke .cke_button_icon {
+    filter: brightness(calc(1.5 * var(--active-brightness, var(--cms-text-ckeditor-icon-brightness))));
+}
+
 .cke_reset_all div.cke_dialog_page_contents {
     height: 100%;
 }

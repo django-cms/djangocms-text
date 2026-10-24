@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 try:
@@ -58,13 +60,9 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
 
 @pytest.mark.django_db
 @pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
-def test_icon_brightness_without_admin_theme_variable(live_server, page, text_plugin, superuser, use_ckeditor4):
-    login(live_server, page, superuser)
-    page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
-    icon = page.locator(".cke_button__bold_icon")
-    expect(icon).to_be_visible()
-
-    cases = [
+@pytest.mark.parametrize(
+    "attributes,os_theme,admin_brightness,expected",
+    [
         ({"data-theme": "dark"}, "light", None, "brightness(3)"),
         ({"data-theme": "light"}, "dark", None, "brightness(1.35)"),
         ({"data-theme": "auto"}, "dark", None, "brightness(3)"),
@@ -76,11 +74,33 @@ def test_icon_brightness_without_admin_theme_variable(live_server, page, text_pl
         ({}, "light", None, "brightness(1.35)"),
         ({"data-theme": "dark"}, "dark", "1.6", "brightness(2.4)"),
         ({"data-theme": "light"}, "light", "0.9", "brightness(1.35)"),
-    ]
-    for attributes, os_theme, admin_brightness, expected in cases:
-        page.emulate_media(color_scheme=os_theme)
-        page.evaluate(
-            """([attributes, brightness]) => {
+    ],
+    ids=[
+        "django-dark",
+        "django-light",
+        "django-auto-dark",
+        "django-auto-light",
+        "cms-dark",
+        "cms-auto-dark",
+        "cms-overrides-django",
+        "os-dark",
+        "os-light",
+        "admin-brightness-dark",
+        "admin-brightness-light",
+    ],
+)
+def test_icon_brightness_without_admin_theme_variable(
+    live_server, page, text_plugin, superuser, use_ckeditor4, attributes, os_theme, admin_brightness, expected
+):
+    # The function-scoped page fixture gives each theme case a fresh browser context.
+    page.emulate_media(color_scheme=os_theme)
+    login(live_server, page, superuser)
+    page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")
+    icon = page.locator(".cke_button__bold_icon")
+    expect(icon).to_be_visible()
+
+    page.evaluate(
+        """([attributes, brightness]) => {
             const root = document.documentElement;
             root.removeAttribute('data-theme');
             root.removeAttribute('data-color-scheme');
@@ -89,9 +109,34 @@ def test_icon_brightness_without_admin_theme_variable(live_server, page, text_pl
             // even when the installed admin stylesheet normally defines it.
             root.style.setProperty('--active-brightness', brightness || 'initial');
         }""",
-            [attributes, admin_brightness],
-        )
+        [attributes, admin_brightness],
+    )
+    try:
         expect(icon).to_have_css("filter", expected)
+    except AssertionError as error:
+        diagnostics = icon.evaluate(
+            """icon => {
+                const root = document.documentElement;
+                const snapshot = element => {
+                    const style = getComputedStyle(element);
+                    return {
+                        inlineStyle: element.getAttribute('style'),
+                        activeBrightness: style.getPropertyValue('--active-brightness'),
+                        fallbackBrightness: style.getPropertyValue('--cms-text-ckeditor-icon-brightness'),
+                        filter: style.filter,
+                    };
+                };
+                return {
+                    theme: root.getAttribute('data-theme'),
+                    colorScheme: root.getAttribute('data-color-scheme'),
+                    prefersDark: matchMedia('(prefers-color-scheme: dark)').matches,
+                    root: snapshot(root),
+                    editor: snapshot(icon.closest('.cke')),
+                    icon: snapshot(icon),
+                };
+            }"""
+        )
+        raise AssertionError(f"{error}\nBrightness diagnostics:\n{json.dumps(diagnostics, indent=2)}") from error
 
 
 @pytest.mark.django_db

@@ -10,6 +10,7 @@ import {Plugin} from "@tiptap/pm/state";
 import TiptapToolbar from "./cms.tiptap.toolbar";
 import {formToHtml, populateForm} from "../cms.dialog";
 import {a11yText, focusToolbarControl, uniqueId} from '../cms.a11y';
+import DOMPurify from 'dompurify';
 
 import "../../css/cms.toolbar.css";
 import "../../css/cms.linkfield.css";
@@ -117,11 +118,12 @@ function _createBlockToolbar(editor, blockToolbar) {
 
     toolbar.classList.add('cms-block-toolbar');
     toolbar.style.zIndex = editor.options.baseFloatZIndex || 8888888;  //
-    toolbar.innerHTML = `<button type="button" class="cms-block-toggle" aria-label="${a11yText('block_actions', 'Block actions')}" aria-expanded="false">${_drag_icon}</button><div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`;
+    toolbar.replaceChildren(DOMPurify.sanitize(`<button type="button" class="cms-block-toggle" aria-expanded="false">${_drag_icon}</button><div class="cms-block-dropdown">${_populateToolbar(editor, blockToolbar, 'block')}</div>`, {RETURN_DOM_FRAGMENT: true}));
     toolbar.setAttribute('contenteditable', 'false');
     toolbar.setAttribute('role', 'group');
     toolbar.setAttribute('aria-label', a11yText('block_formatting', 'Block formatting'));
     const trigger = toolbar.firstElementChild;
+    trigger.setAttribute('aria-label', a11yText('block_actions', 'Block actions'));
     const menu = toolbar.lastElementChild;
     menu.id = uniqueId('cms-block-menu');
     trigger.setAttribute('aria-controls', menu.id);
@@ -329,10 +331,9 @@ function _updateToolbarIcon (editor, node, parentNode) {
 
 function _replaceIcon(node, string) {
     'use strict';
-    const icon = document.createElement('span');
-    icon.innerHTML = string;
+    const icon = DOMPurify.sanitize(string, {RETURN_DOM_FRAGMENT: true});
     if (node.tagName === 'BUTTON') {
-        node.innerHTML = string;
+        node.replaceChildren(icon);
         node.querySelector('svg')?.setAttribute('aria-hidden', 'true');
     } else {
         node.replaceWith(icon.firstElementChild);

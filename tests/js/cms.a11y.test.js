@@ -180,6 +180,71 @@ describe('editor accessibility', () => {
         expect(form.dialog).not.toBeInTheDocument();
     });
 
+    it('keeps translated dialog labels as literal attribute values', () => {
+        const label = '\"><img src=x onerror="alert(1)"> & Close';
+        window.cms_editor_plugin.lang.Accessibility = {close: label, save: label, cancel: label};
+        const el = document.createElement('div');
+        el.id = 'plugin';
+        document.body.appendChild(el);
+        jest.spyOn(window.CMS_Editor, 'getSettings').mockReturnValue({lang: {edit: 'Edit', toolbar: 'Text'}});
+        const dialog = new CmsDialog(el, jest.fn(), jest.fn());
+        dialog.pluginDialog();
+        expect(dialog.dialog.querySelector('.cms-modal-close')).toHaveAttribute('aria-label', label);
+        expect(dialog.dialog.querySelector('img')).toBeNull();
+        dialog.close();
+
+        const form = new CmsForm(el, jest.fn(), jest.fn());
+        form.formDialog('<input name="url">');
+        for (const button of form.dialog.querySelectorAll('.cms-form-buttons button')) {
+            expect(button).toHaveAttribute('aria-label', label);
+            expect(button.querySelector('svg')).not.toBeNull();
+        }
+        expect(form.dialog.querySelector('img')).toBeNull();
+        form.close();
+    });
+
+    it.each([false, true])('sanitizes form markup with toolbar=%s while preserving controls', toolbar => {
+        const el = document.createElement('div');
+        document.body.appendChild(el);
+        const form = new CmsForm(el, jest.fn(), jest.fn());
+        form.formDialog('<label for="url">URL</label><input id="url" name="href" required data-test="value" onfocus="alert(1)"><script>alert(1)</script><a href="javascript:alert(1)">Bad link</a>', {toolbar});
+        expect(form.dialog.querySelector('script')).toBeNull();
+        expect(form.dialog.querySelector('a')).not.toHaveAttribute('href');
+        const input = form.dialog.querySelector('input[name="href"]');
+        expect(input).not.toHaveAttribute('onfocus');
+        expect(input).toHaveAttribute('required');
+        expect(input).toHaveAttribute('data-test', 'value');
+        expect(input).toHaveAccessibleName('URL');
+        form.close();
+    });
+
+    it('keeps block toolbar labels literal and sanitizes icons when the block changes', async () => {
+        const label = '\"><img src=x onerror="alert(1)">';
+        const plugin = window.cms_editor_plugin;
+        plugin.lang.Accessibility = {block_actions: label};
+        for (const title of ['Blockquote', 'BulletedList', 'NumberedList', 'CodeBlock']) {
+            plugin.lang[title] = {title, icon: '<svg><path d="M0 0h1"></path></svg>'};
+        }
+        plugin.lang.Heading1.icon = '<svg onload="alert(1)"><path d="M0 0h1"></path><script>alert(1)</script></svg>';
+        const el = document.createElement('div');
+        el.id = 'inline-block';
+        el.className = 'cms-editor-inline-wrapper';
+        el.getBoundingClientRect = () => new DOMRect(100, 100, 300, 100);
+        document.body.appendChild(el);
+        plugin.create(el, false, '<p>Hello</p>', {options: {toolbar: ['Format']}}, () => {});
+        await tick();
+        const editor = plugin._editors[el.id];
+        const trigger = editor.options.blockToolbar.querySelector('.cms-block-toggle');
+        expect(trigger).toHaveAttribute('aria-label', label);
+        editor.commands.toggleHeading({level: 1});
+        await tick();
+        expect(trigger.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+        expect(trigger.querySelector('svg')).not.toHaveAttribute('onload');
+        expect(trigger.querySelector('script')).toBeNull();
+        expect(editor.options.blockToolbar.querySelector('img')).toBeNull();
+        expect(editor.options.blockToolbar.querySelector('script')).toBeNull();
+    });
+
     it('names plugin dialogs and supplies a keyboard accessible close button', () => {
         const el = document.createElement('div');
         el.id = 'plugin';

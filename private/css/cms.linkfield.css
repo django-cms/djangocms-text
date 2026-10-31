@@ -62,9 +62,13 @@
                 &.cms-linkfield-option {
                     cursor: pointer;
                 }
-                &.cms-linkfield-option:hover, &[aria-selected="true"] {
+                &.cms-linkfield-option:hover {
                     background: var(--dca-primary, var(--parimary, #79aec8));
                     color: var(--dca-white, var(--body-bg, #fff));
+                }
+                &[aria-selected="true"] {
+                    outline: 2px solid Highlight;
+                    outline-offset: -2px;
                 }
             }
         }

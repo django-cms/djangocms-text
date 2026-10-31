@@ -4,13 +4,15 @@ from django.db import migrations, models
 
 
 def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
+    CMSPlugin = apps.get_model("cms", "CMSPlugin")
+
     class CKEditorText(models.Model):
         class Meta:
             managed = False
             db_table = "djangocms_text_ckeditor_text"
 
         cmsplugin_ptr_id = models.PositiveIntegerField(primary_key=True)
-        body = models.TextField()
+        body = models.TextField(null=True)  # tolerate NULLs coming from the old table
 
     class Text_Text(models.Model):  # Name must not be used elsewhere as model
         class Meta:
@@ -23,11 +25,26 @@ def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
         rte = models.CharField(max_length=16, blank=True)
 
     if CKEditorText._meta.db_table in schema_editor.connection.introspection.table_names():
-        existing_texts = Text_Text.objects.all().values_list("cmsplugin_ptr_id", flat=True)
-        qs = CKEditorText.objects.using(schema_editor.connection.alias).exclude(cmsplugin_ptr_id__in=existing_texts)
-        Text_Text.objects.using(schema_editor.connection.alias).bulk_create(
-            Text_Text(body=ckeditor_text.body, rte="text_ckeditor4", cmsplugin_ptr_id=ckeditor_text.cmsplugin_ptr_id)
-            for ckeditor_text in qs
+        alias = schema_editor.connection.alias
+        existing_texts = Text_Text.objects.using(alias).values_list("cmsplugin_ptr_id", flat=True)
+        # Only copy rows whose cms_cmsplugin parent still exists, so the FK insert cannot fail.
+        # Passing the querysets (not materialized lists) keeps these as SQL subqueries.
+        valid_plugin_ids = CMSPlugin.objects.using(alias).values_list("pk", flat=True)
+        qs = (
+            CKEditorText.objects.using(alias)
+            .exclude(cmsplugin_ptr_id__in=existing_texts)
+            .filter(cmsplugin_ptr_id__in=valid_plugin_ids)
+        )
+        Text_Text.objects.using(alias).bulk_create(
+            (
+                Text_Text(
+                    body=ckeditor_text.body or "",  # coerce NULL body to the NOT NULL target
+                    rte="text_ckeditor4",
+                    cmsplugin_ptr_id=ckeditor_text.cmsplugin_ptr_id,
+                )
+                for ckeditor_text in qs.iterator()
+            ),
+            batch_size=1000,
         )
 
 

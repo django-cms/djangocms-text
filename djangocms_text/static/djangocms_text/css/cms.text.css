@@ -206,6 +206,15 @@ form.cms-form {
         margin: 0.3em -1em;
     }
     .cms-form-buttons {
+        button {
+            border: 0;
+            background: transparent;
+            padding: 0.25rem;
+            &:focus-visible {
+                outline: 3px solid Highlight;
+                outline-offset: 2px;
+            }
+        }
         display: inline-flex;
         margin-inline-start: 1em;
         .cancel {

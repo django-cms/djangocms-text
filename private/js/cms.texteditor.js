@@ -1,6 +1,19 @@
 /* eslint-env es6 */
 /* jshint esversion: 6 */
 /* global document, window, console */
+import {a11yText, labelControl} from './cms.a11y';
+
+function stopSpacePropagation(event) {
+    if (event.key === ' ' || event.key === 'Spacebar' || event.code === 'Space') {
+        // Preserve native text insertion, but keep accordion/page shortcuts
+        // from treating typing inside this field as their own activation.
+        event.stopPropagation();
+        // An editable title can be inside a native accordion <button>. Its
+        // Space activation is a keyup default action, independent of bubbling.
+        // Text insertion has already happened on keydown/keypress.
+        if (event.type === 'keyup') event.preventDefault();
+    }
+}
 
 class CmsTextEditor {
     constructor (el, options, save_callback) {
@@ -19,6 +32,8 @@ class CmsTextEditor {
         this.el.removeEventListener('blur', this._boundBlur);
         this.el.removeEventListener('input', this._change);
         this.el.removeEventListener('keydown', this._key_down);
+        this.el.removeEventListener('keypress', stopSpacePropagation);
+        this.el.removeEventListener('keyup', stopSpacePropagation);
         this.el.removeEventListener('paste', this._paste);
         this.el.setAttribute('contenteditable', 'false');
     }
@@ -31,6 +46,9 @@ class CmsTextEditor {
 
         }
         this.el.setAttribute('spellcheck', this.options.spellcheck || 'false');
+        this.el.setAttribute('role', 'textbox');
+        this.el.setAttribute('aria-multiline', 'false');
+        labelControl(this.el, this.el, a11yText('editor', 'Text editor'));
         // Bind once and store references for proper removal in destroy()
         this._boundFocus = this._focus.bind(this);
         this._boundBlur = this._blur.bind(this);
@@ -38,22 +56,17 @@ class CmsTextEditor {
         this.el.addEventListener('focus', this._boundFocus);
         this.el.addEventListener('blur', this._boundBlur);
         this.el.addEventListener('keydown', this._key_down);
+        this.el.addEventListener('keypress', stopSpacePropagation);
+        this.el.addEventListener('keyup', stopSpacePropagation);
         if (this.options.enforcePlaintext) {
             this.el.addEventListener('paste', this._paste);
         }
     }
 
     _key_down (e) {
+        stopSpacePropagation(e);
         if (e.key === 'Enter') {
             e.preventDefault();
-            e.target.blur();
-        }
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            if (e.target.dataset.undo) {
-                e.target.innerText = e.target.dataset.undo;
-                e.target.dataset.changed = false;
-            }
             e.target.blur();
         }
     }

@@ -99,6 +99,73 @@ describe('CMSEditor', () => {
         }
     });
 
+    function plainTextField(id) {
+        const el = document.createElement('div');
+        el.id = id;
+        el.className = 'cms-editor-inline-wrapper cms-plugin-app-model-title-1';
+        el.dataset.cmsType = 'CharField';
+        el.textContent = 'Title';
+        document.body.appendChild(el);
+        return el;
+    }
+
+    it('initializes plain text fields once and saves once on blur', () => {
+        const el = plainTextField('title');
+        const save = jest.spyOn(editor, 'saveData').mockImplementation(() => {});
+        try {
+            editor.init(el);
+            const instance = editor.getEditor(el);
+            editor.init(el);
+            expect(editor.getEditor(el.id)).toBe(instance);
+            el.focus();
+            el.textContent = 'Changed title';
+            el.dispatchEvent(new Event('input'));
+            el.blur();
+            expect(save).toHaveBeenCalledTimes(1);
+        } finally {
+            save.mockRestore();
+        }
+    });
+
+    it('destroys individual plain text fields and all remaining fields', () => {
+        const first = plainTextField('first-title');
+        const second = plainTextField('second-title');
+        editor.init(first);
+        editor.init(second);
+        editor.destroyGenericEditor(first);
+        expect(first).toHaveAttribute('contenteditable', 'false');
+        expect(editor.getEditor(first)).toBeUndefined();
+        expect(editor.getEditor(second)).toBeDefined();
+        editor.destroyAll();
+        expect(second).toHaveAttribute('contenteditable', 'false');
+        expect(editor._generic_editors).toEqual({});
+    });
+
+    it('cleans up a replaced source through an element-based backend without Tiptap options', () => {
+        const originalBackend = window.cms_editor_plugin;
+        const el = document.getElementById('editor1');
+        const backend = {
+            _editors: {},
+            create: jest.fn(source => { backend._editors[source.id] = {}; }),
+            destroyEditor: jest.fn(source => { delete backend._editors[source.id]; }),
+        };
+        const initInline = jest.spyOn(editor, 'initInlineEditors').mockImplementation(() => {});
+        window.cms_editor_plugin = backend;
+        try {
+            editor.init(el);
+            expect(editor.getEditor(el)).toBe(backend._editors[el.id]);
+            const replacement = el.cloneNode(true);
+            el.replaceWith(replacement);
+            editor._resetInlineEditors();
+            expect(backend.destroyEditor).toHaveBeenCalledWith(el);
+            expect(editor.getEditor(replacement)).toBeUndefined();
+            expect(editor._richTextElements.has(el.id)).toBe(false);
+        } finally {
+            window.cms_editor_plugin = originalBackend;
+            initInline.mockRestore();
+        }
+    });
+
     it('destroyRTE clears _editor_settings', () => {
         editor.initAll();
         expect(Object.keys(editor._editor_settings).length).toBe(2);

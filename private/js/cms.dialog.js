@@ -1,6 +1,8 @@
 /* eslint-env es6 */
 /* jshint esversion: 6 */
 /* global document, window, console */
+import {a11yText, uniqueId} from './cms.a11y';
+import DOMPurify from 'dompurify';
 
 
 class CmsDialog {
@@ -30,6 +32,7 @@ class CmsDialog {
      * @return {HTMLIFrameElement} - The newly created iframe element.
      */
     pluginDialog() {
+        this.returnFocus = document.activeElement;
         this.dialog = document.createElement("dialog");
         this.dialog.classList.add("cms-dialog");
         this.dialog.dataset.editor = this.el.id;
@@ -38,7 +41,7 @@ class CmsDialog {
                 <span class="cms-modal-title">
                     <span class="cms-modal-title-prefix"></span>
                     <span class="cms-modal-title-suffix"></span>
-                    <span class="cms-modal-close cms-icon cms-icon-close"></span>
+                    <button type="button" class="cms-modal-close cms-icon cms-icon-close"></button>
                 </span>
             </div>
             <div class="cms-modal-body">
@@ -52,15 +55,21 @@ class CmsDialog {
             </div>
             <span class="cms-modal-resize" aria-hidden="true"></span>
         `;
+        this.dialog.querySelector('.cms-modal-close').setAttribute('aria-label', a11yText('close', 'Close'));
 
         (window.parent || window).document.querySelector('div.cms').prepend(this.dialog);
         const settings = window.CMS_Editor.getSettings(this.el);
+        const title = this.dialog.querySelector('.cms-modal-title-suffix');
+        title.id = uniqueId('cms-dialog-title');
+        this.dialog.setAttribute('aria-labelledby', title.id);
         this.dialog.querySelector(".cms-modal-title-suffix").textContent = settings.lang.edit;
         this.dialog.querySelector(".cms-modal-title-prefix").textContent = settings.lang.toolbar;
         this.dialog.querySelector('.cms-modal-title').addEventListener('mousedown', (event) => {
+            if (event.target.closest('button')) return;
             this.dragDialog(event);
         });
         this.dialog.querySelector('.cms-modal-title').addEventListener('touchstart', (event) => {
+            if (event.target.closest('button')) return;
             this.swipeDialog(event);
         });
         this.dialog.querySelector('.cms-modal-resize').addEventListener('mousedown', (event) => {
@@ -91,6 +100,7 @@ class CmsDialog {
             }
         });
         const iframe = document.createElement('iframe');
+        iframe.title = settings.lang.edit;
         this.dialog.querySelector(".cms-modal-body").append(iframe);
         return iframe;
     }
@@ -188,6 +198,7 @@ class CmsDialog {
     _close() {
         this.dialog.removeEventListener("close", this.close);
         this.dialog.remove();
+        if (this.returnFocus?.isConnected) this.returnFocus.focus({preventScroll: true});
     }
 
     /**
@@ -356,24 +367,28 @@ class CmsForm {
         this.close = this._close.bind(this);
     }
 
-    formDialog(form, options) {
+    formDialog(form, options = {}) {
+        this.returnFocus = document.activeElement;
         this.dialog = document.createElement("dialog");
         this.dialog.classList.add("cms-form-dialog");
+        this.dialog.setAttribute('aria-label', options.title || a11yText('options', 'Editor options'));
         if (options.toolbar) {
-            this.dialog.innerHTML = form;
+            this.dialog.replaceChildren(DOMPurify.sanitize(form, {RETURN_DOM_FRAGMENT: true}));
         } else {
-            this.dialog.innerHTML = `
+            this.dialog.replaceChildren(DOMPurify.sanitize(`
                 <form class="cms-form">
                     <div class="cms-form-inputs">${form}</div>
                     <div class="cms-form-buttons">
-                        <span class="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                        <button type="button" class="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
                             <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
-                            </svg></span>
-                        <span class="cancel"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                            </svg></button>
+                        <button type="button" class="cancel"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                             <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-                            </svg></span>
+                            </svg></button>
                     </div>
-                </form>`;
+                </form>`, {RETURN_DOM_FRAGMENT: true}));
+            this.dialog.querySelector('.submit').setAttribute('aria-label', a11yText('save', 'Save'));
+            this.dialog.querySelector('.cancel').setAttribute('aria-label', a11yText('cancel', 'Cancel'));
         }
 
         if (options && options.x && options.y) {
@@ -391,6 +406,7 @@ class CmsForm {
 
         // Add the dialog to the inline editor
         this.el.prepend(this.dialog);
+        this.dialog.querySelectorAll('button svg').forEach(svg => svg.setAttribute('aria-hidden', 'true'));
 
         // The dialog is a child of `this.el` (the wrapper), but the
         // editor's contenteditable inside `this.el` scrolls *internally*
@@ -452,15 +468,16 @@ class CmsForm {
 
     _close(event) {
         if (!event || !this.dialog.contains(event.target)) {
+            if (this._closed) return;
+            const restoreFocus = !event || event.type === 'close';
             // Do only close if the click is outside the dialog
-            document.removeEventListener("click", this.close);
-            this.dialog.removeEventListener("close", this.close);
-            this._stopTrackingInternalScroll();
+            this._dispose();
             if (this.cancel) {
                 this.cancel(event);
             }
-            this.dialog.remove();
-            this.el.classList.remove('has-form-dialog');
+            if (restoreFocus && this.returnFocus?.isConnected) {
+                this.returnFocus.focus({preventScroll: true});
+            }
         }
     }
 
@@ -511,8 +528,16 @@ class CmsForm {
 
     submit() {
         const data = new FormData(this.dialog.querySelector('form'));
-        this.dialog.remove();
+        this._dispose();
         this.saveSuccess(data);
+    }
+
+    _dispose() {
+        this._closed = true;
+        document.removeEventListener('click', this.close);
+        this._stopTrackingInternalScroll();
+        this.dialog.remove();
+        this.el.classList.remove('has-form-dialog');
     }
 }
 

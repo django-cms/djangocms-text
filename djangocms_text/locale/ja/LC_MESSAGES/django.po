@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-15 21:11+0100\n"
+"POT-Creation-Date: 2026-11-18 13:35+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Japanese (https://www.transifex.com/divio/teams/58664/ja/)\n"
@@ -21,278 +21,330 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: cms_plugins.py:385
-msgid "You do not have permission to add a plugin."
-msgstr "プラグインを追加する権限がありません。"
-
-#: cms_plugins.py:449
+#: cms_plugins.py:383
 msgid "Unable to process your request. Invalid token."
 msgstr "リクエストを処理できません。無効なトークンです。"
 
-#: cms_toolbars.py:58
+#: cms_toolbars.py:56
 msgid "Toggle inline editing mode for text plugins"
 msgstr "テキストプラグインのインライン編集モードを切り替え"
 
+#: contrib/filer_image/__init__.py:87
+msgid "Filer image"
+msgstr ""
+
+#: contrib/filer_image/__init__.py:102
+msgid "Image class"
+msgstr ""
+
 #: editors.py:33
+msgid "Text editor"
+msgstr ""
+
+#: editors.py:34
+msgid "Formatting"
+msgstr ""
+
+#: editors.py:35
+msgid "Block formatting"
+msgstr ""
+
+#: editors.py:36
+msgid "Block actions"
+msgstr ""
+
+#: editors.py:37
+msgid "Editor options"
+msgstr ""
+
+#: editors.py:38
+msgid "Save"
+msgstr ""
+
+#: editors.py:39
+msgid "Cancel"
+msgstr ""
+
+#: editors.py:40
+msgid "Close"
+msgstr ""
+
+#: editors.py:41
+msgid "Link suggestions"
+msgstr ""
+
+#: editors.py:42
+msgid "More results"
+msgstr ""
+
+#: editors.py:43
+#, python-brace-format
+msgid "Suggestions: {count}"
+msgstr ""
+
+#: editors.py:46
 msgid "Undo"
 msgstr "元に戻す"
 
-#: editors.py:37
+#: editors.py:50
 msgid "Redo"
 msgstr "やり直す"
 
-#: editors.py:41
+#: editors.py:54
 msgid "Bold"
 msgstr "太字"
 
-#: editors.py:47
+#: editors.py:60
 msgid "Italic"
 msgstr "斜体"
 
-#: editors.py:53
+#: editors.py:66
 msgid "Underline"
 msgstr "下線"
 
-#: editors.py:59
+#: editors.py:72
 msgid "Strike"
 msgstr "取り消し線"
 
-#: editors.py:63
+#: editors.py:76
 msgid "Subscript"
 msgstr "下付き文字"
 
-#: editors.py:69
+#: editors.py:82
 msgid "Superscript"
 msgstr "上付き文字"
 
-#: editors.py:75
+#: editors.py:88
 msgid "Text color"
 msgstr "文字色"
 
-#: editors.py:78
+#: editors.py:91
 msgid "Inline quote"
 msgstr "インライン引用"
 
-#: editors.py:81
+#: editors.py:94
 msgid "Mark"
 msgstr "マーク"
 
-#: editors.py:84
+#: editors.py:97
 msgid "Remove formatting"
 msgstr "書式を解除"
 
-#: editors.py:97
+#: editors.py:110
 msgid "Align left"
 msgstr "左揃え"
 
-#: editors.py:103
+#: editors.py:116
 msgid "Align center"
 msgstr "中央揃え"
 
-#: editors.py:109
+#: editors.py:122
 msgid "Align right"
 msgstr "右揃え"
 
-#: editors.py:115
+#: editors.py:128
 msgid "Justify"
 msgstr "両端揃え"
 
-#: editors.py:121
+#: editors.py:134
 msgid "Horizontal rule"
 msgstr "水平線"
 
-#: editors.py:127
+#: editors.py:140
 msgid "Numbered list"
 msgstr "番号付きリスト"
 
-#: editors.py:134
+#: editors.py:147
 msgid "Bullet list"
 msgstr "箇条書きリスト"
 
-#: editors.py:140
+#: editors.py:153
 msgid "Outdent"
 msgstr "インデント解除"
 
-#: editors.py:147
+#: editors.py:160
 msgid "Indent"
 msgstr "インデント"
 
-#: editors.py:154
+#: editors.py:167
 msgid "Blockquote"
 msgstr "引用"
 
-#: editors.py:160
+#: editors.py:173
 msgid "Link"
 msgstr "リンク"
 
-#: editors.py:169
+#: editors.py:182
 msgid "Type URL or search for a destination"
 msgstr "URLを入力するか、移動先を検索"
 
-#: editors.py:170
+#: editors.py:183
 msgid "URL or search"
 msgstr "URLまたは検索"
 
-#: editors.py:177
+#: editors.py:190
 msgid "Link options"
 msgstr "リンクオプション"
 
-#: editors.py:181
+#: editors.py:194
 msgid "Target"
 msgstr "ターゲット"
 
-#: editors.py:185
+#: editors.py:198
 msgid "New window"
 msgstr "新しいウィンドウ"
 
-#: editors.py:186
+#: editors.py:199
 msgid "Same window"
 msgstr "同じウィンドウ"
 
-#: editors.py:187
+#: editors.py:200
 msgid "Parent window"
 msgstr "親ウィンドウ"
 
-#: editors.py:200
+#: editors.py:213
 msgid "Unlink"
 msgstr "リンク解除"
 
-#: editors.py:208
+#: editors.py:221
 msgid "Table"
 msgstr "表"
 
-#: editors.py:212
+#: editors.py:225
 msgid "Header row"
 msgstr "ヘッダー行"
 
-#: editors.py:216
+#: editors.py:229
 msgid "Header column"
 msgstr "ヘッダー列"
 
-#: editors.py:220
+#: editors.py:233
 msgid "Add row before"
 msgstr "上に行を追加"
 
-#: editors.py:224
+#: editors.py:237
 msgid "Add row after"
 msgstr "下に行を追加"
 
-#: editors.py:228
+#: editors.py:241
 msgid "Add column before"
 msgstr "左に列を追加"
 
-#: editors.py:232
+#: editors.py:245
 msgid "Add column after"
 msgstr "右に列を追加"
 
-#: editors.py:236
+#: editors.py:249
 msgid "Delete row"
 msgstr "行を削除"
 
-#: editors.py:240
+#: editors.py:253
 msgid "Delete column"
 msgstr "列を削除"
 
-#: editors.py:244
+#: editors.py:257
 msgid "Delete table"
 msgstr "表を削除"
 
-#: editors.py:247
+#: editors.py:260
 msgid "Merge/split cells"
 msgstr "セルの結合/分割"
 
-#: editors.py:252
+#: editors.py:265
 msgid "Code"
 msgstr "コード"
 
-#: editors.py:258
+#: editors.py:271
 msgid "Small"
 msgstr "小さい文字"
 
-#: editors.py:261
+#: editors.py:274
 msgid "Keyboard input"
 msgstr "キーボード入力"
 
-#: editors.py:267
+#: editors.py:280
 msgid "Code block"
 msgstr "コードブロック"
 
-#: editors.py:274
+#: editors.py:287
 msgid "Heading 1"
 msgstr "見出し 1"
 
-#: editors.py:280
+#: editors.py:293
 msgid "Heading 2"
 msgstr "見出し 2"
 
-#: editors.py:286
+#: editors.py:299
 msgid "Heading 3"
 msgstr "見出し 3"
 
-#: editors.py:292
+#: editors.py:305
 msgid "Heading 4"
 msgstr "見出し 4"
 
-#: editors.py:298
+#: editors.py:311
 msgid "Heading 5"
 msgstr "見出し 5"
 
-#: editors.py:304
+#: editors.py:317
 msgid "Heading 6"
 msgstr "見出し 6"
 
-#: editors.py:310
+#: editors.py:323
 msgid "Paragraph"
 msgstr "段落"
 
-#: editors.py:316
+#: editors.py:329
 msgid "Anchor"
 msgstr "アンカー"
 
-#: editors.py:319
+#: editors.py:332
 msgid "Format"
 msgstr "書式"
 
-#: editors.py:322 editors.py:325
+#: editors.py:335 editors.py:338
 msgid "Styles"
 msgstr "スタイル"
 
-#: editors.py:328
+#: editors.py:341
 msgid "Blocks"
 msgstr "ブロック"
 
-#: editors.py:331
+#: editors.py:344
 msgid "Font"
 msgstr "フォント"
 
-#: editors.py:334
+#: editors.py:347
 msgid "Font size"
 msgstr "フォントサイズ"
 
-#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
+#: editors.py:350 editors.py:351 widgets.py:247 widgets.py:250
 msgid "CMS Plugins"
 msgstr "CMSプラグイン"
 
-#: editors.py:339 widgets.py:242
+#: editors.py:352 widgets.py:249
 msgid "Edit CMS Plugin"
 msgstr "CMSプラグインを編集"
 
-#: editors.py:340 widgets.py:241
+#: editors.py:353 widgets.py:248
 msgid "Add CMS Plugin"
 msgstr "CMSプラグインを追加"
 
-#: models.py:54
+#: models.py:53
 msgid "body"
 msgstr "本文"
 
-#: models.py:55
+#: models.py:54
 msgid "json"
 msgstr "JSON"
 
-#: settings.py:40
+#: settings.py:41
 msgid "Text"
 msgstr "テキスト"
 
-#: settings.py:41
+#: settings.py:42
 msgid "Generic"
 msgstr "一般"
+
+#~ msgid "You do not have permission to add a plugin."
+#~ msgstr "プラグインを追加する権限がありません。"

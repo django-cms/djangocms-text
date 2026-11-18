@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.encoding import force_str
 from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
+
+from . import settings
 
 
 class LazyEncoder(DjangoJSONEncoder):
@@ -540,7 +541,7 @@ def get_editor_config(editor: str | None = None) -> RTEConfig:
     :rtype: RTEConfig
     """
 
-    config = editor or getattr(settings, "TEXT_EDITOR", "tiptap")
+    config = editor or settings.TEXT_EDITOR
     config_name = config.rsplit(".", 1)[-1]
     if config_name not in configuration:
         # Load the configuration from the module

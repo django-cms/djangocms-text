@@ -439,6 +439,26 @@ from djangocms-text-ckeditor and clean up old tables. To migrate:
 from the database (to avoid referential integrity issues). Make a backup
 beforehand to be safe.
 
+Deprecated compatibility features
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following compatibility features for djangocms-text-ckeditor projects are
+deprecated and will be removed in djangocms-text 2.0. Where they are used from
+Python code they raise a
+``djangocms_text.deprecation.RemovedInDjangoCMSText20Warning``:
+
+- The ``djangocms_text_ckeditor`` compatibility package
+  (``djangocms_text_ckeditor.fields.HTMLField``, ``HTMLFormField`` and
+  ``djangocms_text_ckeditor.widgets.TextEditorWidget``). Import from
+  ``djangocms_text.fields`` and ``djangocms_text.widgets`` instead.
+- The ``TEXT_ADDITIONAL_TAGS`` setting and non-dictionary values for
+  ``TEXT_ADDITIONAL_ATTRIBUTES``. Use a ``TEXT_ADDITIONAL_ATTRIBUTES``
+  dictionary instead.
+- The ``full`` argument of ``djangocms_text.html.clean_html``.
+
+To turn the warnings into errors in your test suite, run it with
+``python -W error::DeprecationWarning``.
+
 Switching from CKEditor 4 to TipTap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -495,6 +515,19 @@ The repo uses pre-commit git hooks to ensure code quality. Install with::
 
     pip install pre-commit
     pre-commit install
+
+Running the tests
+~~~~~~~~~~~~~~~~~
+
+Install one of the requirement sets in ``tests/requirements`` and the package
+itself, build the JavaScript bundles (see below), then run pytest::
+
+    pip install -r tests/requirements/dj52_cms51.txt -e .
+    playwright install
+    pytest
+
+``pytest --ignore=tests/integration`` skips the browser tests. The JavaScript
+tests run with ``npm test``.
 
 Building the JavaScript
 ~~~~~~~~~~~~~~~~~~~~~~~

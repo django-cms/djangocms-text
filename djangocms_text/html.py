@@ -16,6 +16,7 @@ from lxml import etree
 from lxml.etree import Element
 
 from djangocms_text import settings
+from djangocms_text.deprecation import RemovedInDjangoCMSText20Warning
 
 dyn_attr_pattern = re.compile(r"<[^>]*data-cms-[^>]*>")
 image_data_pattern = re.compile(
@@ -131,8 +132,8 @@ def clean_html(data: str, full: bool | None = None, cleaner: NH3Parser = None) -
 
     if full is not None:
         warnings.warn(
-            "full argument is deprecated and will be removed",
-            category=DeprecationWarning,
+            "The full argument of clean_html is deprecated and will be removed in djangocms-text 2.0.",
+            category=RemovedInDjangoCMSText20Warning,
             stacklevel=2,
         )
     cleaner = cleaner or cms_parser

@@ -28,8 +28,6 @@ from django.utils.translation import gettext, override
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
-from .settings import TEXT_CHILDREN_ENABLED
-
 try:
     from cms.models import PageContent
 
@@ -613,7 +611,7 @@ class TextPlugin(CMSPluginBase):
 
     def get_plugins(self, obj=None):
         plugin = getattr(self, "cms_plugin_instance", None) or obj
-        if not plugin or not TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support:
+        if not plugin or not settings.TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support:
             return []
         get_plugin = plugin_pool.get_plugin
         page = self._get_plugin_restriction_context(plugin.placeholder)

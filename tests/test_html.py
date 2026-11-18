@@ -4,7 +4,7 @@ import io
 from unittest import skipIf
 from unittest.mock import MagicMock, patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 try:
     from cms.api import add_plugin, create_page
@@ -48,12 +48,8 @@ class SanitizerTestCase(TestCase):
         body = html.clean_html(body, cleaner=NH3Parser(generic_attribute_prefixes=set()))
         self.assertEqual("<span>some text</span>", body)
 
+    @override_settings(TEXT_ADDITIONAL_ATTRIBUTES={"span": {"global-attr"}})
     def test_attribute_merging(self):
-        # Backup the original global attributes.
-        original_global_attributes = copy.deepcopy(getattr(settings, "TEXT_ADDITIONAL_ATTRIBUTES", {}))
-        # Configure global attributes.
-        settings.TEXT_ADDITIONAL_ATTRIBUTES = {"span": {"global-attr"}}
-
         # Instantiate NH3Parser with instance-specific additional attributes.
         parser = NH3Parser(additional_attributes={"span": {"local-attr"}})
         input_html = '<span global-attr="g" local-attr="l">text</span>'
@@ -63,14 +59,11 @@ class SanitizerTestCase(TestCase):
         self.assertIn('global-attr="g"', cleaned)
         self.assertIn('local-attr="l"', cleaned)
 
-        # Restore the original global settings.
-        settings.TEXT_ADDITIONAL_ATTRIBUTES = original_global_attributes
-
 
 @skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
 class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
+    @override_settings(TEXT_ADDITIONAL_ATTRIBUTES={})
     def test_default_tag_removal(self):
-        settings.TEXT_ADDITIONAL_ATTRIBUTES = {}
         text = html.clean_html(
             '<iframe src="rtmp://testurl.com/"></iframe>',
             cleaner=NH3Parser(),
@@ -117,16 +110,16 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
             text,
         )
 
+    @override_settings(TEXT_ADDITIONAL_PROTOCOLS=[])
     def test_default_protocol_removal(self):
-        settings.TEXT_ADDITIONAL_PROTOCOLS = []
         text = html.clean_html(
             '<source src="rtmp://testurl.com/">',
             cleaner=NH3Parser(),
         )
         self.assertEqual("<source>", text)
 
+    @override_settings(TEXT_ADDITIONAL_PROTOCOLS=["rtmp"])
     def test_custom_protocol_enabled(self):
-        settings.TEXT_ADDITIONAL_PROTOCOLS = ["rtmp"]
         text = html.clean_html('<source src="rtmp://testurl.com/">', cleaner=NH3Parser())
         self.assertEqual('<source src="rtmp://testurl.com/">', text)
 
@@ -165,31 +158,21 @@ class HtmlSanitizerAdditionalProtocolsTests(CMSTestCase):
             cms_parser.ALLOWED_ATTRIBUTES.clear()
             cms_parser.ALLOWED_ATTRIBUTES.update(orig_attrs)
 
+    @override_settings(TEXT_HTML_SANITIZE=True)
     def test_clean_html_with_sanitize_enabled(self):
-        old_text_html_sanitize = settings.TEXT_HTML_SANITIZE
-        settings.TEXT_HTML_SANITIZE = True
-
         original = '<span test-attr="2">foo</span>'
         cleaned = html.clean_html(
             original,
         )
-        try:
-            self.assertHTMLEqual("<span>foo</span>", cleaned)
-        finally:
-            settings.TEXT_HTML_SANITIZE = old_text_html_sanitize
+        self.assertHTMLEqual("<span>foo</span>", cleaned)
 
+    @override_settings(TEXT_HTML_SANITIZE=False)
     def test_clean_html_with_sanitize_disabled(self):
-        old_text_html_sanitize = settings.TEXT_HTML_SANITIZE
-        settings.TEXT_HTML_SANITIZE = False
-
         original = '<span test-attr="2" onclick="alert();">foo</span>'
         cleaned = html.clean_html(
             original,
         )
-        try:
-            self.assertHTMLEqual(original, cleaned)
-        finally:
-            settings.TEXT_HTML_SANITIZE = old_text_html_sanitize
+        self.assertHTMLEqual(original, cleaned)
 
     def test_clean_html_preserves_aria_attributes(self):
         original = '<span aria-label="foo">foo</span>'

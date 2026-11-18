@@ -125,3 +125,5 @@ bundle.tiptap.min.css
 bundle.ckeditor4.min.css
 THIRD_PARTY_LICENSES.txt
 djangocms_text/contrib/filer_image/static/djangocms_text/tiptap_plugins/
+
+filer_public/

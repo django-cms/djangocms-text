@@ -1,4 +1,0 @@
--r dj_cms.txt
-
-Django>=4.2,<5.0
-django-cms>=3.11,<3.12

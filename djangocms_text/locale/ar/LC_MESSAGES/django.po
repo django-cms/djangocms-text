@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-15 21:11+0100\n"
+"POT-Creation-Date: 2026-11-18 13:35+0100\n"
 "PO-Revision-Date: 2019-01-23 16:28+0000\n"
 "Last-Translator: Angelo Dini <angelo.dini@divio.ch>, 2019\n"
 "Language-Team: Arabic (https://www.transifex.com/divio/teams/58664/ar/)\n"
@@ -19,281 +19,332 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
-"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: cms_plugins.py:385
-msgid "You do not have permission to add a plugin."
-msgstr "ليس لديك إذن لإضافة إضافة."
-
-#: cms_plugins.py:449
+#: cms_plugins.py:383
 msgid "Unable to process your request. Invalid token."
 msgstr "تعذّر معالجة طلبك. رمز غير صالح."
 
-#: cms_toolbars.py:58
+#: cms_toolbars.py:56
 msgid "Toggle inline editing mode for text plugins"
 msgstr "تبديل وضع التحرير المضمّن لإضافات النص"
 
+#: contrib/filer_image/__init__.py:87
+msgid "Filer image"
+msgstr ""
+
+#: contrib/filer_image/__init__.py:102
+msgid "Image class"
+msgstr ""
+
 #: editors.py:33
+msgid "Text editor"
+msgstr ""
+
+#: editors.py:34
+msgid "Formatting"
+msgstr ""
+
+#: editors.py:35
+msgid "Block formatting"
+msgstr ""
+
+#: editors.py:36
+msgid "Block actions"
+msgstr ""
+
+#: editors.py:37
+msgid "Editor options"
+msgstr ""
+
+#: editors.py:38
+msgid "Save"
+msgstr ""
+
+#: editors.py:39
+msgid "Cancel"
+msgstr ""
+
+#: editors.py:40
+msgid "Close"
+msgstr ""
+
+#: editors.py:41
+msgid "Link suggestions"
+msgstr ""
+
+#: editors.py:42
+msgid "More results"
+msgstr ""
+
+#: editors.py:43
+#, python-brace-format
+msgid "Suggestions: {count}"
+msgstr ""
+
+#: editors.py:46
 msgid "Undo"
 msgstr "تراجع"
 
-#: editors.py:37
+#: editors.py:50
 msgid "Redo"
 msgstr "إعادة"
 
-#: editors.py:41
+#: editors.py:54
 msgid "Bold"
 msgstr "غامق"
 
-#: editors.py:47
+#: editors.py:60
 msgid "Italic"
 msgstr "مائل"
 
-#: editors.py:53
+#: editors.py:66
 msgid "Underline"
 msgstr "تسطير"
 
-#: editors.py:59
+#: editors.py:72
 msgid "Strike"
 msgstr "يتوسطه خط"
 
-#: editors.py:63
+#: editors.py:76
 msgid "Subscript"
 msgstr "نص سفلي"
 
-#: editors.py:69
+#: editors.py:82
 msgid "Superscript"
 msgstr "نص علوي"
 
-#: editors.py:75
+#: editors.py:88
 msgid "Text color"
 msgstr "لون النص"
 
-#: editors.py:78
+#: editors.py:91
 msgid "Inline quote"
 msgstr "اقتباس مضمّن"
 
-#: editors.py:81
+#: editors.py:94
 msgid "Mark"
 msgstr "تمييز"
 
-#: editors.py:84
+#: editors.py:97
 msgid "Remove formatting"
 msgstr "إزالة التنسيق"
 
-#: editors.py:97
+#: editors.py:110
 msgid "Align left"
 msgstr "محاذاة لليسار"
 
-#: editors.py:103
+#: editors.py:116
 msgid "Align center"
 msgstr "توسيط"
 
-#: editors.py:109
+#: editors.py:122
 msgid "Align right"
 msgstr "محاذاة لليمين"
 
-#: editors.py:115
+#: editors.py:128
 msgid "Justify"
 msgstr "ضبط"
 
-#: editors.py:121
+#: editors.py:134
 msgid "Horizontal rule"
 msgstr "خط أفقي"
 
-#: editors.py:127
+#: editors.py:140
 msgid "Numbered list"
 msgstr "قائمة مرقّمة"
 
-#: editors.py:134
+#: editors.py:147
 msgid "Bullet list"
 msgstr "قائمة نقطية"
 
-#: editors.py:140
+#: editors.py:153
 msgid "Outdent"
 msgstr "تقليل المسافة البادئة"
 
-#: editors.py:147
+#: editors.py:160
 msgid "Indent"
 msgstr "زيادة المسافة البادئة"
 
-#: editors.py:154
+#: editors.py:167
 msgid "Blockquote"
 msgstr "اقتباس"
 
-#: editors.py:160
+#: editors.py:173
 msgid "Link"
 msgstr "رابط"
 
-#: editors.py:169
+#: editors.py:182
 msgid "Type URL or search for a destination"
 msgstr "اكتب عنوان URL أو ابحث عن وجهة"
 
-#: editors.py:170
+#: editors.py:183
 msgid "URL or search"
 msgstr "عنوان URL أو بحث"
 
-#: editors.py:177
+#: editors.py:190
 msgid "Link options"
 msgstr "خيارات الرابط"
 
-#: editors.py:181
+#: editors.py:194
 msgid "Target"
 msgstr "الهدف"
 
-#: editors.py:185
+#: editors.py:198
 msgid "New window"
 msgstr "نافذة جديدة"
 
-#: editors.py:186
+#: editors.py:199
 msgid "Same window"
 msgstr "نفس النافذة"
 
-#: editors.py:187
+#: editors.py:200
 msgid "Parent window"
 msgstr "النافذة الأصل"
 
-#: editors.py:200
+#: editors.py:213
 msgid "Unlink"
 msgstr "إزالة الرابط"
 
-#: editors.py:208
+#: editors.py:221
 msgid "Table"
 msgstr "جدول"
 
-#: editors.py:212
+#: editors.py:225
 msgid "Header row"
 msgstr "صف الرأس"
 
-#: editors.py:216
+#: editors.py:229
 msgid "Header column"
 msgstr "عمود الرأس"
 
-#: editors.py:220
+#: editors.py:233
 msgid "Add row before"
 msgstr "إضافة صف قبل"
 
-#: editors.py:224
+#: editors.py:237
 msgid "Add row after"
 msgstr "إضافة صف بعد"
 
-#: editors.py:228
+#: editors.py:241
 msgid "Add column before"
 msgstr "إضافة عمود قبل"
 
-#: editors.py:232
+#: editors.py:245
 msgid "Add column after"
 msgstr "إضافة عمود بعد"
 
-#: editors.py:236
+#: editors.py:249
 msgid "Delete row"
 msgstr "حذف الصف"
 
-#: editors.py:240
+#: editors.py:253
 msgid "Delete column"
 msgstr "حذف العمود"
 
-#: editors.py:244
+#: editors.py:257
 msgid "Delete table"
 msgstr "حذف الجدول"
 
-#: editors.py:247
+#: editors.py:260
 msgid "Merge/split cells"
 msgstr "دمج/تقسيم الخلايا"
 
-#: editors.py:252
+#: editors.py:265
 msgid "Code"
 msgstr "كود"
 
-#: editors.py:258
+#: editors.py:271
 msgid "Small"
 msgstr "صغير"
 
-#: editors.py:261
+#: editors.py:274
 msgid "Keyboard input"
 msgstr "إدخال لوحة المفاتيح"
 
-#: editors.py:267
+#: editors.py:280
 msgid "Code block"
 msgstr "كتلة كود"
 
-#: editors.py:274
+#: editors.py:287
 msgid "Heading 1"
 msgstr "عنوان 1"
 
-#: editors.py:280
+#: editors.py:293
 msgid "Heading 2"
 msgstr "عنوان 2"
 
-#: editors.py:286
+#: editors.py:299
 msgid "Heading 3"
 msgstr "عنوان 3"
 
-#: editors.py:292
+#: editors.py:305
 msgid "Heading 4"
 msgstr "عنوان 4"
 
-#: editors.py:298
+#: editors.py:311
 msgid "Heading 5"
 msgstr "عنوان 5"
 
-#: editors.py:304
+#: editors.py:317
 msgid "Heading 6"
 msgstr "عنوان 6"
 
-#: editors.py:310
+#: editors.py:323
 msgid "Paragraph"
 msgstr "فقرة"
 
-#: editors.py:316
+#: editors.py:329
 msgid "Anchor"
 msgstr "مرساة"
 
-#: editors.py:319
+#: editors.py:332
 msgid "Format"
 msgstr "تنسيق"
 
-#: editors.py:322 editors.py:325
+#: editors.py:335 editors.py:338
 msgid "Styles"
 msgstr "أنماط"
 
-#: editors.py:328
+#: editors.py:341
 msgid "Blocks"
 msgstr "كتل"
 
-#: editors.py:331
+#: editors.py:344
 msgid "Font"
 msgstr "خط"
 
-#: editors.py:334
+#: editors.py:347
 msgid "Font size"
 msgstr "حجم الخط"
 
-#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
+#: editors.py:350 editors.py:351 widgets.py:247 widgets.py:250
 msgid "CMS Plugins"
 msgstr "إضافات CMS"
 
-#: editors.py:339 widgets.py:242
+#: editors.py:352 widgets.py:249
 msgid "Edit CMS Plugin"
 msgstr "تعديل إضافة CMS"
 
-#: editors.py:340 widgets.py:241
+#: editors.py:353 widgets.py:248
 msgid "Add CMS Plugin"
 msgstr "إضافة إضافة CMS"
 
-#: models.py:54
+#: models.py:53
 msgid "body"
 msgstr "المحتوى"
 
-#: models.py:55
+#: models.py:54
 msgid "json"
 msgstr "JSON"
 
-#: settings.py:40
+#: settings.py:41
 msgid "Text"
 msgstr "النص"
 
-#: settings.py:41
+#: settings.py:42
 msgid "Generic"
 msgstr "عام"
+
+#~ msgid "You do not have permission to add a plugin."
+#~ msgstr "ليس لديك إذن لإضافة إضافة."

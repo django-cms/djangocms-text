@@ -29,7 +29,7 @@ def _allow_sync_db_in_playwright_session():
 
 @pytest.fixture(scope="session")
 def live_server():
-    server = LiveServer("127.0.0.1:9090")
+    server = LiveServer("127.0.0.1:0")
     yield server
     server.stop()
 

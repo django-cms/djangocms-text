@@ -60,7 +60,7 @@ const Highlight = Mark.create({
 function renderColorMenu(editor) {
     const items = [];
     for (const [cls, def] of Object.entries(editor.options?.textColors || TextColor.options.textColors)) {
-        items.push(`<button data-action="TextColor" data-class="${cls}" title="${def.name}" class="${cls}"></button>`);
+        items.push(`<button type="button" data-action="TextColor" data-class="${cls}" title="${def.name}" aria-label="${def.name}"><span class="cms-color-swatch ${cls}" aria-hidden="true"></span></button>`);
     }
     return items.join('');
 

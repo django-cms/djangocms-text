@@ -423,6 +423,10 @@ const TiptapToolbar = {
     },
     Paragraph: {
         action: (editor) => {
+            if (editor.isActive('paragraph')) {
+                editor.view.focus();
+                return;
+            }
             if (editor.can().setParagraph()) {
                 editor.chain().focus().setParagraph().run();
             } else {

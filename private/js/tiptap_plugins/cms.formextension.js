@@ -47,7 +47,7 @@ function addFakeSelection(view) {
     // Add meta to trigger the plugin
     tr.setMeta("fake-selection", "add");
     dispatch(tr);
-    view.dom.parentNode.querySelector('.cms-toolbar')?.classList.add('disabled');
+    view.dom.parentNode.querySelector('.cms-text-toolbar')?.classList.add('disabled');
     view.dom.parentNode.querySelector('.cms-balloon')?.classList.add('disabled');
 }
 
@@ -57,7 +57,7 @@ function clearFakeSelection(view) {
     // Add meta to trigger the plugin
     tr.setMeta("fake-selection", "remove");
     dispatch(tr);
-    view.dom.parentNode.querySelector('.cms-toolbar')?.classList.remove('disabled');
+    view.dom.parentNode.querySelector('.cms-text-toolbar')?.classList.remove('disabled');
     view.dom.parentNode.querySelector('.cms-balloon')?.classList.remove('disabled');
 }
 
@@ -101,10 +101,11 @@ const CmsFormExtension = Extension.create({
                         TiptapToolbar[action].formAction(editor, data);
                         editor.commands.closeCmsForm();
                     },
-                    () => editor.commands.closeCmsForm()
+                    () => clearFakeSelection(editor.view)
                 );
                 // editor.commands.focus();
                 const formRepresentation = window.cms_editor_plugin._getRepresentation(action, undefined, editor);
+                options.title = formRepresentation.title;
                 const formElement = dialog.formDialog(formToHtml(formRepresentation.form), options);
 
                 if (TiptapToolbar[action] && TiptapToolbar[action].attributes) {

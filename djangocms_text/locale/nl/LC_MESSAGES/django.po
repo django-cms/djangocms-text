@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-15 21:11+0100\n"
+"POT-Creation-Date: 2026-11-18 13:35+0100\n"
 "PO-Revision-Date: 2024-02-15 10:49+0000\n"
 "Last-Translator: Fabian Braun <fsbraun@gmx.de>, 2024\n"
 "Language-Team: Dutch (https://app.transifex.com/divio/teams/58664/nl/)\n"
@@ -21,278 +21,330 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: cms_plugins.py:385
-msgid "You do not have permission to add a plugin."
-msgstr "U heeft geen toestemming om een plugin toe te voegen."
-
-#: cms_plugins.py:449
+#: cms_plugins.py:383
 msgid "Unable to process your request. Invalid token."
 msgstr "Kan verzoek niet verwerken; ongeldige toegangssleutel."
 
-#: cms_toolbars.py:58
+#: cms_toolbars.py:56
 msgid "Toggle inline editing mode for text plugins"
 msgstr "Schakel de inline bewerkingsmodus voor tekstplugins in/uit"
 
+#: contrib/filer_image/__init__.py:87
+msgid "Filer image"
+msgstr ""
+
+#: contrib/filer_image/__init__.py:102
+msgid "Image class"
+msgstr ""
+
 #: editors.py:33
+msgid "Text editor"
+msgstr ""
+
+#: editors.py:34
+msgid "Formatting"
+msgstr ""
+
+#: editors.py:35
+msgid "Block formatting"
+msgstr ""
+
+#: editors.py:36
+msgid "Block actions"
+msgstr ""
+
+#: editors.py:37
+msgid "Editor options"
+msgstr ""
+
+#: editors.py:38
+msgid "Save"
+msgstr ""
+
+#: editors.py:39
+msgid "Cancel"
+msgstr ""
+
+#: editors.py:40
+msgid "Close"
+msgstr ""
+
+#: editors.py:41
+msgid "Link suggestions"
+msgstr ""
+
+#: editors.py:42
+msgid "More results"
+msgstr ""
+
+#: editors.py:43
+#, python-brace-format
+msgid "Suggestions: {count}"
+msgstr ""
+
+#: editors.py:46
 msgid "Undo"
 msgstr "Ongedaan maken"
 
-#: editors.py:37
+#: editors.py:50
 msgid "Redo"
 msgstr "Opnieuw"
 
-#: editors.py:41
+#: editors.py:54
 msgid "Bold"
 msgstr "Vet"
 
-#: editors.py:47
+#: editors.py:60
 msgid "Italic"
 msgstr "Cursief"
 
-#: editors.py:53
+#: editors.py:66
 msgid "Underline"
 msgstr "Onderstreept"
 
-#: editors.py:59
+#: editors.py:72
 msgid "Strike"
 msgstr "Doorgestreept"
 
-#: editors.py:63
+#: editors.py:76
 msgid "Subscript"
 msgstr "Subscript"
 
-#: editors.py:69
+#: editors.py:82
 msgid "Superscript"
 msgstr "Superscript"
 
-#: editors.py:75
+#: editors.py:88
 msgid "Text color"
 msgstr "Tekstkleur"
 
-#: editors.py:78
+#: editors.py:91
 msgid "Inline quote"
 msgstr "Inline citaat"
 
-#: editors.py:81
+#: editors.py:94
 msgid "Mark"
 msgstr "Markeren"
 
-#: editors.py:84
+#: editors.py:97
 msgid "Remove formatting"
 msgstr "Opmaak verwijderen"
 
-#: editors.py:97
+#: editors.py:110
 msgid "Align left"
 msgstr "Links uitlijnen"
 
-#: editors.py:103
+#: editors.py:116
 msgid "Align center"
 msgstr "Centreren"
 
-#: editors.py:109
+#: editors.py:122
 msgid "Align right"
 msgstr "Rechts uitlijnen"
 
-#: editors.py:115
+#: editors.py:128
 msgid "Justify"
 msgstr "Uitvullen"
 
-#: editors.py:121
+#: editors.py:134
 msgid "Horizontal rule"
 msgstr "Horizontale lijn"
 
-#: editors.py:127
+#: editors.py:140
 msgid "Numbered list"
 msgstr "Genummerde lijst"
 
-#: editors.py:134
+#: editors.py:147
 msgid "Bullet list"
 msgstr "Opsommingslijst"
 
-#: editors.py:140
+#: editors.py:153
 msgid "Outdent"
 msgstr "Inspringen verkleinen"
 
-#: editors.py:147
+#: editors.py:160
 msgid "Indent"
 msgstr "Inspringen vergroten"
 
-#: editors.py:154
+#: editors.py:167
 msgid "Blockquote"
 msgstr "Citaat"
 
-#: editors.py:160
+#: editors.py:173
 msgid "Link"
 msgstr "Koppeling"
 
-#: editors.py:169
+#: editors.py:182
 msgid "Type URL or search for a destination"
 msgstr "Typ een URL of zoek een bestemming"
 
-#: editors.py:170
+#: editors.py:183
 msgid "URL or search"
 msgstr "URL of zoeken"
 
-#: editors.py:177
+#: editors.py:190
 msgid "Link options"
 msgstr "Koppelingopties"
 
-#: editors.py:181
+#: editors.py:194
 msgid "Target"
 msgstr "Doel"
 
-#: editors.py:185
+#: editors.py:198
 msgid "New window"
 msgstr "Nieuw venster"
 
-#: editors.py:186
+#: editors.py:199
 msgid "Same window"
 msgstr "Zelfde venster"
 
-#: editors.py:187
+#: editors.py:200
 msgid "Parent window"
 msgstr "Bovenliggend venster"
 
-#: editors.py:200
+#: editors.py:213
 msgid "Unlink"
 msgstr "Koppeling verwijderen"
 
-#: editors.py:208
+#: editors.py:221
 msgid "Table"
 msgstr "Tabel"
 
-#: editors.py:212
+#: editors.py:225
 msgid "Header row"
 msgstr "Koptekstrij"
 
-#: editors.py:216
+#: editors.py:229
 msgid "Header column"
 msgstr "Koptekstkolom"
 
-#: editors.py:220
+#: editors.py:233
 msgid "Add row before"
 msgstr "Rij boven toevoegen"
 
-#: editors.py:224
+#: editors.py:237
 msgid "Add row after"
 msgstr "Rij onder toevoegen"
 
-#: editors.py:228
+#: editors.py:241
 msgid "Add column before"
 msgstr "Kolom links toevoegen"
 
-#: editors.py:232
+#: editors.py:245
 msgid "Add column after"
 msgstr "Kolom rechts toevoegen"
 
-#: editors.py:236
+#: editors.py:249
 msgid "Delete row"
 msgstr "Rij verwijderen"
 
-#: editors.py:240
+#: editors.py:253
 msgid "Delete column"
 msgstr "Kolom verwijderen"
 
-#: editors.py:244
+#: editors.py:257
 msgid "Delete table"
 msgstr "Tabel verwijderen"
 
-#: editors.py:247
+#: editors.py:260
 msgid "Merge/split cells"
 msgstr "Cellen samenvoegen/splitsen"
 
-#: editors.py:252
+#: editors.py:265
 msgid "Code"
 msgstr "Code"
 
-#: editors.py:258
+#: editors.py:271
 msgid "Small"
 msgstr "Klein"
 
-#: editors.py:261
+#: editors.py:274
 msgid "Keyboard input"
 msgstr "Toetsenbordinvoer"
 
-#: editors.py:267
+#: editors.py:280
 msgid "Code block"
 msgstr "Codeblok"
 
-#: editors.py:274
+#: editors.py:287
 msgid "Heading 1"
 msgstr "Kop 1"
 
-#: editors.py:280
+#: editors.py:293
 msgid "Heading 2"
 msgstr "Kop 2"
 
-#: editors.py:286
+#: editors.py:299
 msgid "Heading 3"
 msgstr "Kop 3"
 
-#: editors.py:292
+#: editors.py:305
 msgid "Heading 4"
 msgstr "Kop 4"
 
-#: editors.py:298
+#: editors.py:311
 msgid "Heading 5"
 msgstr "Kop 5"
 
-#: editors.py:304
+#: editors.py:317
 msgid "Heading 6"
 msgstr "Kop 6"
 
-#: editors.py:310
+#: editors.py:323
 msgid "Paragraph"
 msgstr "Alinea"
 
-#: editors.py:316
+#: editors.py:329
 msgid "Anchor"
 msgstr "Anker"
 
-#: editors.py:319
+#: editors.py:332
 msgid "Format"
 msgstr "Opmaak"
 
-#: editors.py:322 editors.py:325
+#: editors.py:335 editors.py:338
 msgid "Styles"
 msgstr "Stijlen"
 
-#: editors.py:328
+#: editors.py:341
 msgid "Blocks"
 msgstr "Blokken"
 
-#: editors.py:331
+#: editors.py:344
 msgid "Font"
 msgstr "Lettertype"
 
-#: editors.py:334
+#: editors.py:347
 msgid "Font size"
 msgstr "Lettergrootte"
 
-#: editors.py:337 editors.py:338 widgets.py:240 widgets.py:243
+#: editors.py:350 editors.py:351 widgets.py:247 widgets.py:250
 msgid "CMS Plugins"
 msgstr "CMS-plug-ins"
 
-#: editors.py:339 widgets.py:242
+#: editors.py:352 widgets.py:249
 msgid "Edit CMS Plugin"
 msgstr "CMS-plug-in bewerken"
 
-#: editors.py:340 widgets.py:241
+#: editors.py:353 widgets.py:248
 msgid "Add CMS Plugin"
 msgstr "CMS-plug-in toevoegen"
 
-#: models.py:54
+#: models.py:53
 msgid "body"
 msgstr "inhoud"
 
-#: models.py:55
+#: models.py:54
 msgid "json"
 msgstr "JSON"
 
-#: settings.py:40
+#: settings.py:41
 msgid "Text"
 msgstr "Tekst"
 
-#: settings.py:41
+#: settings.py:42
 msgid "Generic"
 msgstr "Algemeen"
+
+#~ msgid "You do not have permission to add a plugin."
+#~ msgstr "U heeft geen toestemming om een plugin toe te voegen."

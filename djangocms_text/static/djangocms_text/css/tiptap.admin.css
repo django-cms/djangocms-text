@@ -1,4 +1,4 @@
-.cms-admin {
+.cms-admin, .cms-editor-inline-wrapper {
     .text-secondary {
         color: gray;
     }

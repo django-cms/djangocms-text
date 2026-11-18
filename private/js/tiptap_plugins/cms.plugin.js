@@ -5,6 +5,7 @@
 import { Node } from '@tiptap/core';
 import CmsDialog from "../cms.dialog.js";
 import TiptapToolbar from "./cms.tiptap.toolbar";
+import {uniqueId} from '../cms.a11y';
 
 const blockTags = ((str) => str.toUpperCase().substring(1, str.length-1).split("><"))(
     "<address><article><aside><blockquote><canvas><dd><div><dl><dt><fieldset><figcaption><figure><footer><form>" +
@@ -136,9 +137,10 @@ function renderCmsPluginMenu(editor, item, filter) {
             module = plugin.module;
             dropdown += `<em class="header">${module}</em>`;
         }
-        dropdown += `<button data-cmsplugin="${plugin.value}" data-action="CMSPlugins">${plugin.icon || '<span class="icon"></span>'}${plugin.name}</button>`;
+        dropdown += `<button type="button" data-cmsplugin="${plugin.value}" data-action="CMSPlugins">${plugin.icon || '<span class="icon"></span>'}${plugin.name}</button>`;
     }
-    return `<span ${title}class="dropdown" role="button">${icon}<div class="dropdown-content vertical plugins">${dropdown}</div></span>`;
+    const id = uniqueId('cms-plugin-menu');
+    return `<div class="dropdown"><button type="button" class="dropdown-toggle" ${title}aria-expanded="false" aria-controls="${id}">${icon}</button><div id="${id}" class="dropdown-content vertical plugins">${dropdown}</div></div>`;
 
 }
 

@@ -56,6 +56,35 @@ the ``TEXT_EDITOR`` setting:
   text-enabled CMS plugins and dynamic links.
 
 
+Keyboard access
+---------------
+
+The keyboard conventions use the `WAI-ARIA toolbar pattern
+<https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/>`_ as their reference.
+It recommends one Tab stop for the toolbar and arrow navigation between
+controls. ``Alt+F10`` is an additional editor convention, not a requirement
+of that pattern. CKEditor frontends provide their own UI and keyboard handling.
+
+In the Tiptap editor, press ``Alt+F10`` to focus the formatting toolbar.
+Use Left/Right arrows to move between its controls, and Home/End to move
+to the first/last control. Enter or Space activates a button. Down Arrow
+opens a dropdown; Up/Down arrows navigate its options. Escape closes the
+dropdown and returns to its button; another Escape returns to the editor.
+Tab and Shift+Tab move into and out of the toolbar.
+Opening a dropdown focuses its first enabled choice. Disabled choices are
+skipped. Left/Right arrows leave an open dropdown and move to the adjacent
+main toolbar control; Up/Down arrows move through choices inside the dropdown.
+The horizontal block toolbar uses Left/Right arrows to move through its
+choices, skipping disabled buttons and wrapping at either end.
+
+Link suggestions support Up/Down arrows to choose a result, Enter to
+select it, and Escape to dismiss suggestions while keeping focus in the
+input. Editor dialogs return focus to the invoking control when cancelled.
+
+In inline editing, Escape leaves the field and saves through the normal
+blur handler. An editor popup can consume Escape first to dismiss itself.
+
+
 Configuration
 -------------
 

@@ -57,6 +57,57 @@ class LazySettingsTestCase(SimpleTestCase):
         self.assertEqual(get_editor_config().name, "ckeditor4")
 
 
+class SanitizerFollowsSettingsTestCase(SimpleTestCase):
+    def test_default_sanitizer_follows_additional_attributes(self):
+        from djangocms_text.html import clean_html
+
+        markup = '<span custom-attr="1">text</span>'
+        self.assertEqual(clean_html(markup), "<span>text</span>")
+        with override_settings(TEXT_ADDITIONAL_ATTRIBUTES={"span": {"custom-attr"}}):
+            self.assertEqual(clean_html(markup), markup)
+        self.assertEqual(clean_html(markup), "<span>text</span>")
+
+    def test_default_sanitizer_follows_additional_tags(self):
+        from djangocms_text.html import clean_html
+
+        markup = '<iframe src="https://example.com/"></iframe>'
+        self.assertEqual(clean_html(markup), "")
+        with override_settings(TEXT_ADDITIONAL_ATTRIBUTES={"iframe": {"src"}}):
+            self.assertEqual(clean_html(markup), markup)
+        self.assertEqual(clean_html(markup), "")
+
+    def test_default_sanitizer_follows_additional_protocols(self):
+        from djangocms_text.html import clean_html
+
+        markup = '<a href="rtmp://example.com/">link</a>'
+        self.assertEqual(clean_html(markup), "<a>link</a>")
+        with override_settings(TEXT_ADDITIONAL_PROTOCOLS=["rtmp"]):
+            self.assertEqual(clean_html(markup), markup)
+        self.assertEqual(clean_html(markup), "<a>link</a>")
+
+    def test_parser_does_not_modify_shared_defaults(self):
+        from copy import deepcopy
+
+        from djangocms_text.html import NH3Parser, clean_html, cms_additional_attributes
+
+        defaults = deepcopy(cms_additional_attributes)
+        markup = '<span custom-attr="1">text</span>'
+        with override_settings(TEXT_ADDITIONAL_ATTRIBUTES={"span": {"custom-attr"}, "*": {"other-attr"}}):
+            self.assertEqual(clean_html(markup, cleaner=NH3Parser()), markup)
+
+        self.assertEqual(cms_additional_attributes, defaults)
+        self.assertEqual(clean_html(markup, cleaner=NH3Parser()), "<span>text</span>")
+
+    def test_parser_does_not_modify_given_attributes(self):
+        from djangocms_text.html import NH3Parser
+
+        additional_attributes = {"span": {"local-attr"}}
+        with override_settings(TEXT_ADDITIONAL_ATTRIBUTES={"span": {"global-attr"}}):
+            NH3Parser(additional_attributes=additional_attributes)()
+
+        self.assertEqual(additional_attributes, {"span": {"local-attr"}})
+
+
 class DeprecationTestCase(SimpleTestCase):
     def test_warning_is_a_deprecation_warning(self):
         self.assertTrue(issubclass(RemovedInDjangoCMSText20Warning, DeprecationWarning))

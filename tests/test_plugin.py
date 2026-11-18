@@ -11,7 +11,7 @@ from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.template import RequestContext
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.utils.encoding import force_str
 from django.utils.html import escape
@@ -1396,6 +1396,24 @@ class TestGetChildPluginCandidates(BaseTestCase):
         ):
             candidates = TextPlugin.get_child_plugin_candidates(slot, page)
             self.assertEqual(list(candidates), [plugin_a, plugin_b])
+
+    @patch("cms.plugin_pool.plugin_pool.get_text_enabled_plugins")
+    def test_get_child_plugin_candidates_follows_settings_for_same_arguments(self, get_text_enabled_plugins_mock):
+        slot = MagicMock()
+        page = MagicMock()
+
+        plugin_a = MagicMock(__name__="PluginA")
+        plugin_b = MagicMock(__name__="PluginB")
+        get_text_enabled_plugins_mock.return_value = [plugin_a, plugin_b]
+
+        self.assertEqual(list(TextPlugin.get_child_plugin_candidates(slot, page)), [plugin_a, plugin_b])
+        with override_settings(TEXT_CHILDREN_WHITELIST=["PluginA"]):
+            self.assertEqual(list(TextPlugin.get_child_plugin_candidates(slot, page)), [plugin_a])
+        with override_settings(TEXT_CHILDREN_BLACKLIST=["PluginA"]):
+            self.assertEqual(list(TextPlugin.get_child_plugin_candidates(slot, page)), [plugin_b])
+        self.assertEqual(list(TextPlugin.get_child_plugin_candidates(slot, page)), [plugin_a, plugin_b])
+        # The plugin pool lookup itself stays cached
+        get_text_enabled_plugins_mock.assert_called_once()
 
 
 @skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")

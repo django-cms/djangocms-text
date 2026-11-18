@@ -112,12 +112,18 @@ class LinkField {
             if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
                 event.preventDefault();
                 event.stopPropagation();
-                if (!this.dropdownIsOpen) this.search();
+                const opening = !this.dropdownIsOpen;
+                if (opening) this.search();
                 const options = Array.from(this.dropdown.querySelectorAll('[role="option"]'));
                 const current = options.findIndex(option => option.id === this.inputElement.getAttribute('aria-activedescendant'));
                 const index = current < 0 ? (event.key === 'ArrowDown' ? 0 : options.length - 1) :
                     (current + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
-                this.activateOption(options[index]);
+                if (opening || !options.length) {
+                    // Results are still loading: select once they arrive
+                    this._pendingArrow = event.key;
+                } else {
+                    this.activateOption(options[index]);
+                }
             }
             if (event.key === 'Enter' && this.dropdownIsOpen) {
                 const active = this.dropdown.querySelector('[aria-selected="true"]');
@@ -247,6 +253,7 @@ class LinkField {
     closeDropdown(event) {
         if (!event || !this.wrapper.contains(event.target) || this.dropdown.contains(event.target)) {
             this.dropdownIsOpen = false;
+            this._pendingArrow = null;
             this.inputElement.setAttribute('aria-expanded', 'false');
             this.activateOption(null);
             this.dropdown.classList.remove('open');
@@ -285,9 +292,18 @@ class LinkField {
     search(page = 1) {
         this.openDropdown();
         const searchText = this.inputElement.value.toLowerCase();
+        // Responses can arrive out of order: only the latest request may update the list
+        const generation = this._searchGeneration = (this._searchGeneration || 0) + 1;
         this.fetchData(searchText, page).then(response => {
+            if (generation !== this._searchGeneration) return;
             this.showResults(response, page);
+            if (this._pendingArrow && this.dropdownIsOpen) {
+                const options = this.dropdown.querySelectorAll('[role="option"]');
+                this.activateOption(options[this._pendingArrow === 'ArrowDown' ? 0 : options.length - 1]);
+            }
+            this._pendingArrow = null;
         }).catch (error => {
+           if (generation !== this._searchGeneration) return;
            this.dropdown.innerHTML = `<div class="cms-linkfield-error">${error.message}</div>`;
            this.status.textContent = error.message;
         });

@@ -298,6 +298,30 @@ describe('accessible link suggestions', () => {
         expect(field.inputElement).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('ignores results of a superseded search', async () => {
+        const pending = [];
+        field.fetchData = jest.fn(() => new Promise(resolve => pending.push(resolve)));
+        field.search();
+        field.search();
+        pending[1]({results: [{id: '3', text: 'Current', url: '/current/'}]});
+        pending[0]({results: [{id: '4', text: 'Stale', url: '/stale/'}]});
+        await tick();
+        expect(field.dropdown.textContent).toBe('Current');
+    });
+
+    it('selects a suggestion once results requested by an arrow key arrive', async () => {
+        field.closeDropdown();
+        let deliver;
+        field.fetchData = jest.fn(() => new Promise(resolve => { deliver = resolve; }));
+        key(field.inputElement, 'ArrowUp');
+        expect(field.dropdown.querySelector('[aria-selected="true"]')).toBeNull();
+        deliver({results: [{id: '5', text: 'One', url: '/one/'}, {id: '6', text: 'Two', url: '/two/'}]});
+        await tick();
+        const active = field.dropdown.querySelector('[aria-selected="true"]');
+        expect(active.textContent).toBe('Two');
+        expect(field.inputElement).toHaveAttribute('aria-activedescendant', active.id);
+    });
+
     it('dismisses suggestions with Escape without closing the surrounding form', () => {
         const parentKey = jest.fn();
         field.form.addEventListener('keydown', parentKey);

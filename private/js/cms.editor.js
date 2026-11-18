@@ -563,7 +563,8 @@ class CMSEditor {
                         }
 
                     }
-                    el.dataset.changed = 'false';
+                    // The change was claimed when the save started. Do not reset the flag
+                    // here: the field may have been edited again during the round trip.
                     this.processDataBridge(dom);
                     if (!this.CMS.API.Helpers.dataBridge) {
                         // No databridge found

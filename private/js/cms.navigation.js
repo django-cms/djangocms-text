@@ -11,6 +11,12 @@ function leavesPage(button) {
     return !!href && !href.startsWith('#') && !/^javascript:/i.test(href);
 }
 
+// Modified clicks on plain links open a new tab or window: this page stays.
+function opensElsewhere(event, button) {
+    return (event.ctrlKey || event.metaKey || event.shiftKey) && button.tagName === 'A' &&
+        !button.dataset.rel && !button.classList.contains('cms-form-post-method');
+}
+
 export default class NavigationSaveGuard {
     constructor(doc, hasUnsavedChanges, flushPendingSaves) {
         this.document = doc;
@@ -18,6 +24,7 @@ export default class NavigationSaveGuard {
         this.flushPendingSaves = flushPendingSaves;
         this._installed = false;
         this._replaying = false;
+        this._flushing = false;
     }
 
     install() {
@@ -26,11 +33,30 @@ export default class NavigationSaveGuard {
         this.document.addEventListener('click', event => {
             if (this._replaying || event.defaultPrevented || event.button) return;
             const button = event.target.closest?.(BUTTON_SELECTOR);
-            if (!button || !leavesPage(button) || !this.hasUnsavedChanges()) return;
+            if (!button || !leavesPage(button) || opensElsewhere(event, button)) return;
+            if (!this._flushing && !this.hasUnsavedChanges()) return;
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.flushPendingSaves().then(() => this.replay(button));
+            // Clicks repeated while a flush is running must not replay the action twice.
+            if (this._flushing) return;
+            this._flushing = true;
+            this.flushUntilClean()
+                .then(clean => {
+                    this._flushing = false;
+                    // A failed save has reported its error; stay on the page.
+                    if (clean) this.replay(button);
+                })
+                .catch(() => { this._flushing = false; });
         }, true);
+    }
+
+    // Fields edited (or saves failing) while a flush is running leave changes
+    // behind, so flush once more before deciding whether leaving is safe.
+    async flushUntilClean() {
+        for (let attempt = 0; attempt < 2 && this.hasUnsavedChanges(); attempt++) {
+            await this.flushPendingSaves();
+        }
+        return !this.hasUnsavedChanges();
     }
 
     replay(button) {

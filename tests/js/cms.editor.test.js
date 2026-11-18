@@ -597,6 +597,8 @@ describe('CMSEditor', () => {
         let fetchMock;
         let publishBtn;
         let cmsHandler;
+        let previousCMS;
+        const settle = () => new Promise(resolve => setTimeout(resolve));
 
         function makeEditable(changed) {
             const el = document.createElement('div');
@@ -638,9 +640,23 @@ describe('CMSEditor', () => {
 
             // Idempotent — the document-level listener is installed at most once.
             editor._installToolbarSaveGuard();
+
+            // A save only counts as successful once the CMS has processed its response.
+            previousCMS = editor.CMS;
+            editor.CMS = {
+                config: {csrf: 'test-token'},
+                settings: {version: '5.0.0'},
+                API: {
+                    Toolbar: {showLoader: jest.fn(), hideLoader: jest.fn()},
+                    Messages: {open: jest.fn(), close: jest.fn()},
+                    Helpers: {updateUrlWithPath: url => url, reloadBrowser: jest.fn()},
+                    StructureBoard: {handleEditPlugin: jest.fn()},
+                },
+            };
         });
 
         afterEach(() => {
+            editor.CMS = previousCMS;
             document.getElementById('cms-top')?.remove();
             document.getElementById('toolbar-guard-editable')?.remove();
         });
@@ -655,7 +671,7 @@ describe('CMSEditor', () => {
             expect(cmsHandler).not.toHaveBeenCalled();
 
             await editor.flushPendingSaves();
-            await Promise.resolve();
+            await new Promise(resolve => setTimeout(resolve));
 
             expect(cmsHandler).toHaveBeenCalledTimes(1);
         });
@@ -665,10 +681,71 @@ describe('CMSEditor', () => {
 
             publishBtn.click();
             await editor.flushPendingSaves();
-            await Promise.resolve();
+            await new Promise(resolve => setTimeout(resolve));
 
             expect(cmsHandler).toHaveBeenCalledTimes(1);
             expect(fetchMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('replays a repeatedly clicked action only once', async () => {
+            makeEditable(true);
+
+            publishBtn.click();
+            publishBtn.click();
+            await settle();
+
+            expect(cmsHandler).toHaveBeenCalledTimes(1);
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('stays on the page when the save fails', async () => {
+            const el = makeEditable(true);
+            window.fetch = mockFetch('<html><body><ul class="errorlist"><li>Error</li></ul></body></html>');
+
+            publishBtn.click();
+            await settle();
+
+            expect(window.fetch).toHaveBeenCalled();
+            expect(cmsHandler).not.toHaveBeenCalled();
+            expect(el.dataset.changed).toBe('true');
+        });
+
+        it('saves a field edited while the flush is running before leaving', async () => {
+            makeEditable(true);
+            const other = makeEditable(false);
+            other.id = 'toolbar-guard-other';
+
+            publishBtn.click();
+            other.dataset.changed = 'true';
+            await settle();
+            other.remove();
+
+            expect(fetchMock).toHaveBeenCalledTimes(2);
+            expect(cmsHandler).toHaveBeenCalledTimes(1);
+        });
+
+        it('keeps a field dirty that was edited again during its save', async () => {
+            const el = makeEditable(true);
+
+            const save = editor.saveData(el);
+            el.dataset.changed = 'true';
+            await save;
+
+            expect(el.dataset.changed).toBe('true');
+        });
+
+        it('does not intercept a modified click on a plain link', () => {
+            makeEditable(true);
+            const toolbar = document.querySelector('#cms-top .cms-toolbar');
+            toolbar.insertAdjacentHTML('beforeend', '<a href="/other-page/">Other page</a>');
+            const link = toolbar.lastElementChild;
+            const handler = jest.fn((e) => e.preventDefault());
+            link.addEventListener('click', handler);
+
+            link.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, ctrlKey: true}));
+
+            expect(fetchMock).not.toHaveBeenCalled();
+            expect(handler).toHaveBeenCalledTimes(1);
         });
 
         it('does not interfere when there is nothing to save', () => {
@@ -726,7 +803,7 @@ describe('CMSEditor', () => {
             expect(handler).not.toHaveBeenCalled();
 
             await editor.flushPendingSaves();
-            await Promise.resolve();
+            await new Promise(resolve => setTimeout(resolve));
 
             expect(handler).toHaveBeenCalledTimes(1);
         });

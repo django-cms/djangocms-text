@@ -8,6 +8,7 @@ def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
 
     class CKEditorText(models.Model):
         class Meta:
+            app_label = "djangocms_text_migration"  # keep temp models out of the djangocms_text registry
             managed = False
             db_table = "djangocms_text_ckeditor_text"
 
@@ -16,6 +17,7 @@ def migrate_text_ckeditor_fields(apps, schema_editor):  # pragma: no cover
 
     class Text_Text(models.Model):  # Name must not be used elsewhere as model
         class Meta:
+            app_label = "djangocms_text_migration"
             managed = False
             db_table = "djangocms_text_text"
 

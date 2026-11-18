@@ -392,9 +392,13 @@ function _initTopToolbar(editor, filter) {
         editor.options._toolbarHost = toolbarHost;
         toolbarHost.addEventListener('focusin', () => toolbarHost.classList.add('has-focused-editor'));
         toolbarHost.addEventListener('focusout', event => {
-            if (!toolbarHost.contains(event.relatedTarget) && !editor.isFocused) {
+            if (toolbarHost.contains(event.relatedTarget)) return;
+            if (!editor.isFocused) {
                 toolbarHost.classList.remove('has-focused-editor');
             }
+            // The editor's own blur skipped saving while the toolbar held focus.
+            // Rerun the debounced blur handling now that focus leaves the toolbar.
+            editor.options.blur_callback?.(event);
         });
     } else {
         // Fixed editors: prepend to the editor container so the toolbar

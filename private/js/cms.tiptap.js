@@ -302,6 +302,8 @@ class CMSTipTapPlugin {
             editor.on('blur', ({editor, event}) => {
                 this._blurEditor(editor, event);
             });
+            // Called by the inline toolbar when focus leaves it (see cms.toolbar.js)
+            editor.options.blur_callback = event => this._blurEditor(editor, event);
             editor.on('update', ({editor}) => {
                 el.dataset.changed = 'true';
                 // Clear textarea on first change to trigger Django's change detection

@@ -302,6 +302,37 @@ def test_frontend_inline_toolbar_navigation(live_server, page, cms_page, text_pl
 
 @pytest.mark.django_db
 @pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
+def test_frontend_inline_edit_saved_when_leaving_toolbar(live_server, page, cms_page, text_plugin, superuser, settings):
+    from copy import deepcopy
+
+    from cms.toolbar.utils import get_object_edit_url
+
+    templates = deepcopy(settings.TEMPLATES)
+    templates[0]["OPTIONS"]["context_processors"].append("sekizai.context_processors.sekizai")
+    settings.TEMPLATES = templates
+    login(live_server, page, superuser)
+    page.goto(f"{live_server.url}{get_object_edit_url(get_pagecontent(cms_page))}")
+    wrapper = page.locator(".cms-editor-inline-wrapper").first
+    editable = wrapper.locator(".tiptap")
+    expect(editable).to_be_visible(timeout=10000)
+    editable.focus()
+    page.keyboard.type("Unsaved edit ")
+    expect(wrapper).to_have_attribute("data-changed", "true")
+    page.keyboard.press("Alt+F10")
+    toolbar = page.locator('.has-focused-editor [role="toolbar"]')
+    expect(toolbar.locator("button:visible:not([disabled])").first).to_be_focused()
+    # Cross the editor's debounced blur handling: it must not save while the
+    # toolbar holds focus ...
+    page.wait_for_timeout(300)
+    expect(wrapper).to_have_attribute("data-changed", "true")
+    # ... but leaving the toolbar for somewhere else has to.
+    with page.expect_request(lambda request: request.method == "POST"):
+        page.evaluate("document.activeElement.blur()")
+    expect(wrapper).to_have_attribute("data-changed", "false")
+
+
+@pytest.mark.django_db
+@pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
 def test_plain_text_space_does_not_toggle_accordion(live_server, page, text_plugin, superuser):
     login(live_server, page, superuser)
     page.goto(f"{live_server.url}{admin_reverse('cms_placeholder_edit_plugin', args=(text_plugin.pk,))}")

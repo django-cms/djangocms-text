@@ -37,7 +37,7 @@ DEFAULTS: dict[str, Any] = {
     "TEXT_INLINE_EDITING": True,
     "TEXT_CHILDREN_ENABLED": True,
     "TEXT_CHILDREN_WHITELIST": None,
-    "TEXT_CHILDREN_BLACKLIST": [],
+    "TEXT_CHILDREN_BLACKLIST": (),
     # contrib.filer_image
     "TEXT_FILER_IMAGE_CLASSES": (),
     # contrib.text_ckeditor4: None means the bundled CKEditor 4 static files

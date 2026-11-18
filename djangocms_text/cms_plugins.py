@@ -177,7 +177,8 @@ class TextPlugin(CMSPluginBase):
     form = TextForm
     render_template = "cms/plugins/text.html"
     inline_editing_template = "cms/plugins/inline.html"
-    editor_configuration = settings.TEXT_CONFIGURATION
+    #: Name of the setting holding the editor configuration. Falls back to the ``TEXT_CONFIGURATION`` setting.
+    editor_configuration = None
     disable_child_plugins = True
     fieldsets = ((None, {"fields": ("body", "json")}),)
 
@@ -238,7 +239,7 @@ class TextPlugin(CMSPluginBase):
                 placeholder=plugin.placeholder,
                 plugin_language=plugin.language,
                 plugin_position=plugin.position,
-                configuration=self.editor_configuration,
+                configuration=self.editor_configuration or settings.TEXT_CONFIGURATION,
                 render_plugin_url=render_plugin_url,
                 cancel_url=cancel_url,
                 action_token=action_token,
@@ -257,7 +258,7 @@ class TextPlugin(CMSPluginBase):
                 placeholder=request.GET["placeholder_id"],
                 plugin_language=request.GET["plugin_language"],
                 plugin_position=request.GET["plugin_position"],
-                configuration=self.editor_configuration,
+                configuration=self.editor_configuration or settings.TEXT_CONFIGURATION,
                 render_plugin_url=render_plugin_url,
                 cancel_url=cancel_url,
                 action_token=action_token,
@@ -580,8 +581,9 @@ class TextPlugin(CMSPluginBase):
         Returns:
         - A list of text-enabled plugins that can be used as child plugins for the given slot and page.
         """
-        # Only the plugin pool lookup is cached: the whitelist and blacklist settings are applied on each call
-        text_enabled_plugins = cls._get_text_enabled_plugins(*args, **kwargs)
+        # Only the plugin pool lookup is cached: the whitelist and blacklist settings are applied on each call.
+        # Always return a new list to keep callers from modifying the cached one.
+        text_enabled_plugins = list(cls._get_text_enabled_plugins(*args, **kwargs))
         # Filter out plugins that are not in the whitelist if given
         if settings.TEXT_CHILDREN_WHITELIST is not None:
             text_enabled_plugins = [

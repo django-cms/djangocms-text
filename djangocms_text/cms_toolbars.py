@@ -90,9 +90,9 @@ class InlineEditingToolbar(CMSToolbar):
         return urlunparse(url)
 
 
-if (
-    settings.TEXT_INLINE_EDITING and get_editor_config().inline_editing
-):  # Only register if explicitly required from settings
+# Inline editing is decided once at import, by design: changing TEXT_INLINE_EDITING or the editor
+# requires a restart. Only register the inline editing toolbar if explicitly required from settings.
+if settings.TEXT_INLINE_EDITING and get_editor_config().inline_editing:
     toolbar_pool.register(InlineEditingToolbar)
 else:
 

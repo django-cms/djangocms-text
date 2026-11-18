@@ -19,12 +19,22 @@ class LazySettingsTestCase(SimpleTestCase):
             self.assertIs(settings.TEXT_INLINE_EDITING, False)
             self.assertEqual(settings.TEXT_CHILDREN_BLACKLIST, ["PluginA"])
         self.assertIs(settings.TEXT_INLINE_EDITING, True)
-        self.assertEqual(settings.TEXT_CHILDREN_BLACKLIST, [])
+        self.assertEqual(settings.TEXT_CHILDREN_BLACKLIST, ())
 
     def test_module_attributes_can_be_patched(self):
-        with patch.object(settings, "TEXT_SAVE_IMAGE_MAX_BYTES", 4):
-            self.assertEqual(settings.TEXT_SAVE_IMAGE_MAX_BYTES, 4)
-        self.assertEqual(settings.TEXT_SAVE_IMAGE_MAX_BYTES, 5 * 1024 * 1024)
+        from djangocms_text.html import clean_html
+
+        markup = '<span onclick="alert();">text</span>'
+        with patch.object(settings, "TEXT_HTML_SANITIZE", False):
+            self.assertIs(settings.TEXT_HTML_SANITIZE, False)
+            self.assertEqual(clean_html(markup), markup)  # consumers see the patched value
+        self.assertIs(settings.TEXT_HTML_SANITIZE, True)
+        self.assertEqual(clean_html(markup), "<span>text</span>")
+
+    def test_defaults_are_immutable(self):
+        for name, default in settings.DEFAULTS.items():
+            with self.subTest(setting=name):
+                self.assertNotIsInstance(default, (list, dict, set))
 
     def test_unknown_setting_raises_attribute_error(self):
         with self.assertRaises(AttributeError):
@@ -132,3 +142,13 @@ class DeprecationTestCase(SimpleTestCase):
         for cls in (HTMLField, HTMLFormField, TextEditorWidget):
             with self.subTest(cls=cls.__name__), self.assertWarns(RemovedInDjangoCMSText20Warning):
                 cls()
+
+
+class PluginFollowsSettingsTestCase(SimpleTestCase):
+    def test_editor_configuration_falls_back_to_current_setting(self):
+        try:
+            from djangocms_text.cms_plugins import TextPlugin
+        except ModuleNotFoundError:
+            self.skipTest("django CMS is not installed")
+
+        self.assertIsNone(TextPlugin.editor_configuration)

@@ -1396,3 +1396,25 @@ class TestGetChildPluginCandidates(BaseTestCase):
         ):
             candidates = TextPlugin.get_child_plugin_candidates(slot, page)
             self.assertEqual(list(candidates), [plugin_a, plugin_b])
+
+
+@skipIf(SKIP_CMS_TEST, "Skipping tests because djangocms is not installed")
+class TranslationExportWithoutTranslationsPackageTestCase(BaseTestCase):
+    """The export hook must be callable without djangocms-translations installed
+    as long as the text contains no child plugins."""
+
+    def test_export_content_without_child_plugins(self):
+        body = '<p>Please <a href="http://www.google.com">CLICK ON LINK1</a> to go to link1.</p>'
+
+        content, children = TextPlugin.get_translation_export_content("body", {"body": body})
+
+        self.assertEqual(content, body)
+        self.assertEqual(children, [])
+
+    def test_export_content_drops_tags_of_deleted_child_plugins(self):
+        body = '<p>Before <cms-plugin alt="Link" title="Link" id="99999"></cms-plugin> after</p>'
+
+        content, children = TextPlugin.get_translation_export_content("body", {"body": body})
+
+        self.assertEqual(content, "<p>Before  after</p>")
+        self.assertEqual(children, [])

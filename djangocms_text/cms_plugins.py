@@ -28,8 +28,6 @@ from django.utils.translation import gettext, override
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
-from .settings import TEXT_CHILDREN_ENABLED
-
 try:
     from cms.models import PageContent
 
@@ -59,8 +57,6 @@ from .utils import (
     replace_plugin_tags,
 )
 from .widgets import TextEditorWidget
-
-rte_config = get_editor_config()
 
 
 def post_add_plugin(operation, **kwargs):
@@ -181,7 +177,8 @@ class TextPlugin(CMSPluginBase):
     form = TextForm
     render_template = "cms/plugins/text.html"
     inline_editing_template = "cms/plugins/inline.html"
-    editor_configuration = settings.TEXT_CONFIGURATION
+    #: Name of the setting holding the editor configuration. Falls back to the ``TEXT_CONFIGURATION`` setting.
+    editor_configuration = None
     disable_child_plugins = True
     fieldsets = ((None, {"fields": ("body", "json")}),)
 
@@ -242,11 +239,11 @@ class TextPlugin(CMSPluginBase):
                 placeholder=plugin.placeholder,
                 plugin_language=plugin.language,
                 plugin_position=plugin.position,
-                configuration=self.editor_configuration,
+                configuration=self.editor_configuration or settings.TEXT_CONFIGURATION,
                 render_plugin_url=render_plugin_url,
                 cancel_url=cancel_url,
                 action_token=action_token,
-                revert_on_cancel=settings.TEXT_CHILDREN_ENABLED and rte_config.child_plugin_support,
+                revert_on_cancel=settings.TEXT_CHILDREN_ENABLED and get_editor_config().child_plugin_support,
                 body_css_classes=self._get_body_css_classes_from_parent_plugins(plugin),
                 add_admin_css=True,
             )
@@ -261,7 +258,7 @@ class TextPlugin(CMSPluginBase):
                 placeholder=request.GET["placeholder_id"],
                 plugin_language=request.GET["plugin_language"],
                 plugin_position=request.GET["plugin_position"],
-                configuration=self.editor_configuration,
+                configuration=self.editor_configuration or settings.TEXT_CONFIGURATION,
                 render_plugin_url=render_plugin_url,
                 cancel_url=cancel_url,
                 action_token=action_token,
@@ -569,6 +566,10 @@ class TextPlugin(CMSPluginBase):
 
     @classmethod
     @lru_cache
+    def _get_text_enabled_plugins(cls, *args, **kwargs):
+        return plugin_pool.get_text_enabled_plugins(*args, **kwargs)  # Just pass on arguments
+
+    @classmethod
     def get_child_plugin_candidates(cls, *args, **kwargs):
         """
         This method is a class method that returns a list of child plugin candidates for a given slot and page.
@@ -580,7 +581,9 @@ class TextPlugin(CMSPluginBase):
         Returns:
         - A list of text-enabled plugins that can be used as child plugins for the given slot and page.
         """
-        text_enabled_plugins = plugin_pool.get_text_enabled_plugins(*args, **kwargs)  # Just pass on arguments
+        # Only the plugin pool lookup is cached: the whitelist and blacklist settings are applied on each call.
+        # Always return a new list to keep callers from modifying the cached one.
+        text_enabled_plugins = list(cls._get_text_enabled_plugins(*args, **kwargs))
         # Filter out plugins that are not in the whitelist if given
         if settings.TEXT_CHILDREN_WHITELIST is not None:
             text_enabled_plugins = [
@@ -613,7 +616,7 @@ class TextPlugin(CMSPluginBase):
 
     def get_plugins(self, obj=None):
         plugin = getattr(self, "cms_plugin_instance", None) or obj
-        if not plugin or not TEXT_CHILDREN_ENABLED or not rte_config.child_plugin_support:
+        if not plugin or not settings.TEXT_CHILDREN_ENABLED or not get_editor_config().child_plugin_support:
             return []
         get_plugin = plugin_pool.get_plugin
         page = self._get_plugin_restriction_context(plugin.placeholder)
@@ -662,7 +665,7 @@ class TextPlugin(CMSPluginBase):
     def inline_editing_active(request):
         return (
             settings.TEXT_INLINE_EDITING
-            and rte_config.inline_editing
+            and get_editor_config().inline_editing
             and hasattr(request, "toolbar")
             and request.toolbar.edit_mode_active
             and request.session.get("inline_editing", True)
@@ -728,7 +731,7 @@ class TextPlugin(CMSPluginBase):
                 # subclassing cms_plugin_instance (one to one relation)
                 value = getattr(self.cms_plugin_instance, field.name)
                 setattr(obj, field.name, value)
-        obj.rte = rte_config.name[:_MAX_RTE_LENGTH]
+        obj.rte = get_editor_config().name[:_MAX_RTE_LENGTH]
         super().save_model(request, obj, form, change)
         # This must come after calling save
         # If `clean_plugins()` deletes child plugins, django-treebeard will call

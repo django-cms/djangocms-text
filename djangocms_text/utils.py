@@ -106,7 +106,9 @@ def plugin_tags_to_id_list(text, regex=OBJ_ADMIN_RE):
     return [int(_id) for _id in _find_plugins()]
 
 
-def _plugin_tags_to_html(text: str, output_func: callable, child_plugin_instances: list[CMSPlugin] | None) -> str:
+def _plugin_tags_to_html(
+    text: str, output_func: callable, child_plugin_instances: list[CMSPlugin] | None = None
+) -> str:
     """
     Convert plugin object 'tags' into the form for public site.
 

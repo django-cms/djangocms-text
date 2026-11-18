@@ -54,6 +54,7 @@ packages.find.include = [ "djangocms_text*", "djangocms_text_ckeditor*" ]
 package-data.djangocms_text = [
   "contrib/**/static/**",
   "locale/**/*.mo",
+  "locale/**/*.po",
   "static/**",
   "templates/**",
 ]
@@ -61,63 +62,12 @@ package-data.djangocms_text_ckeditor = [
   "static/**",
 ]
 dynamic.version = { attr = "djangocms_text.__version__" }
+license-files = [ "LICENSE", "THIRD_PARTY_LICENSES.txt" ]
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
 lint.ignore = [ "RUF012" ]
-
-[tool.isort]
-line_length = 119
-multi_line_output = 5
-include_trailing_comma = true
-lines_after_imports = 2
-sections = [
-  "FUTURE",
-  "STDLIB",
-  "DJANGO",
-  "CMS",
-  "THIRDPARTY",
-  "FIRSTPARTY",
-  "LOCALFOLDER",
-]
-default_section = "THIRDPARTY"
-known_first_party = "djangocms_text"
-skip = [
-  "*migrations*",
-  ".eggs",
-  ".env",
-  ".tox",
-  ".venv",
-  "data",
-  "manage.py",
-  "node_modules",
-  "private",
-]
-known_cms = [ "cms", "menus" ]
-known_django = "django"
-
-[tool.flake8]
-ignore = "C101,E251,E128,E501,E800,W503"
-max-line-length = 119
-exclude = [
-  "*.egg-info",
-  ".eggs",
-  ".git",
-  ".settings",
-  ".tox",
-  ".env",
-  ".venv",
-  "build",
-  "data",
-  "dist",
-  "docs",
-  "*migrations*",
-  "node_modules",
-  "requirements",
-  "tmp",
-  "*node_modules*",
-]
 
 [tool.pytest]
 ini_options.testpaths = [ "tests" ]

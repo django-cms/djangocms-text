@@ -14,8 +14,6 @@ from .editors import get_editor_config
 from .utils import get_cancel_url, get_messages_url, get_render_plugin_url
 from .widgets import TextEditorWidget, get_url_endpoint
 
-rte_config = get_editor_config()
-
 
 class IconButton(Button):
     template = "cms/toolbar/icon-button.html"
@@ -25,6 +23,7 @@ class InlineEditingToolbar(CMSToolbar):
     @property
     def media(self):
         if self.toolbar.edit_mode_active:
+            rte_config = get_editor_config()
             return forms.Media(
                 css={
                     **rte_config.css,
@@ -91,7 +90,9 @@ class InlineEditingToolbar(CMSToolbar):
         return urlunparse(url)
 
 
-if settings.TEXT_INLINE_EDITING and rte_config.inline_editing:  # Only register if explicitly required from settings
+# Inline editing is decided once at import, by design: changing TEXT_INLINE_EDITING or the editor
+# requires a restart. Only register the inline editing toolbar if explicitly required from settings.
+if settings.TEXT_INLINE_EDITING and get_editor_config().inline_editing:
     toolbar_pool.register(InlineEditingToolbar)
 else:
 

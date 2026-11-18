@@ -186,7 +186,8 @@ CKEDITOR.DIALOG_STATE_BUSY = 2;
 			editorId: editor.id,
 			langDir: editor.lang.dir,
 			langCode: editor.langCode,
-			editorDialogClass: 'cke_editor_' + editor.name.replace( /\./g, '\\.' ) + '_dialog',
+			// The value ends up in an HTML class attribute: reduce the editor name to a safe class token.
+			editorDialogClass: 'cke_editor_' + String( editor.name ).replace( /[^\w-]/g, '_' ) + '_dialog',
 			closeTitle: editor.lang.common.close,
 			hidpi: CKEDITOR.env.hidpi ? 'cke_hidpi' : ''
 		} ) );
@@ -3177,7 +3178,7 @@ CKEDITOR.DIALOG_STATE_BUSY = 2;
 			numberRegex = /^\d*(?:\.\d+)?$/,
 			htmlLengthRegex = /^(((\d*(\.\d+))|(\d*))(px|\%)?)?$/,
 			cssLengthRegex = /^(((\d*(\.\d+))|(\d*))(px|em|ex|in|cm|mm|pt|pc|\%)?)?$/i,
-			inlineStyleRegex = /^(\s*[\w-]+\s*:\s*[^:;]+(?:;|$))*$/;
+			inlineStyleRegex = /^(\s*[\w-]+\s*:[^:;]+(?:;|$))*$/;
 
 		/**
 		 * {@link CKEDITOR.dialog Dialog} `OR` logical value indicates the

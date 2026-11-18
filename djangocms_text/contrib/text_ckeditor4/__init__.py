@@ -1,22 +1,20 @@
-from django.conf import settings
 from django.templatetags.static import static
-from django.utils.functional import lazy
 from django.utils.html import format_html, html_safe
 
+from djangocms_text import settings
 from djangocms_text.editors import RTEConfig
 
 
 @html_safe
 class BasePath:
     def __str__(self):
+        basepath = settings.TEXT_CKEDITOR_BASE_PATH
+        if basepath is None:
+            basepath = static("djangocms_text/vendor/ckeditor4/")
         return format_html(
             '<script src="{scriptsrc}" data-ckeditor-basepath="{basepath}"></script>',
             scriptsrc=static("djangocms_text/js/basepath.js"),
-            basepath=getattr(
-                settings,
-                "TEXT_CKEDITOR_BASE_PATH",
-                lazy(static, str)("djangocms_text/vendor/ckeditor4/"),
-            ),
+            basepath=basepath,
         )
 
 

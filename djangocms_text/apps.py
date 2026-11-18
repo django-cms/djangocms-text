@@ -71,7 +71,7 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
     if getattr(settings, "TEXT_ADDITIONAL_TAGS", None):
         warnings.append(
             Warning(
-                f"The TEXT_ADDITIONAL_TAGS setting is deprecated and will be removed in a future release.\n"
+                f"The TEXT_ADDITIONAL_TAGS setting is deprecated and will be removed in djangocms-text 2.0.\n"
                 f"{change_msg}",
                 f"TEXT_ADDITIONAL_ATTRIBUTES = "
                 f"""{{{", ".join([f'"{tag}": set()' for tag in settings.TEXT_ADDITIONAL_TAGS])}\"}}\n""",
@@ -82,7 +82,8 @@ def check_ckeditor_settings(app_configs, **kwargs) -> list:  # pragma: no cover
     if not isinstance(getattr(settings, "TEXT_ADDITIONAL_ATTRIBUTES", {}), dict):
         warnings.append(
             Warning(
-                f"The TEXT_ADDITIONAL_ATTRIBUTES setting has changed.\n{change_msg}",
+                "The TEXT_ADDITIONAL_ATTRIBUTES setting has changed. Support for non-dictionary values will be "
+                f"removed in djangocms-text 2.0.\n{change_msg}",
                 f'TEXT_ADDITIONAL_ATTRIBUTES = {{"*": {set(settings.TEXT_ADDITIONAL_ATTRIBUTES)}}}\n',
                 id="text.W002",
                 obj="settings.TEXT_ADDITIONAL_ATTRIBUTES",

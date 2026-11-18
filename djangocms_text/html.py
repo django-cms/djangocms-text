@@ -16,6 +16,7 @@ from lxml import etree
 from lxml.etree import Element
 
 from djangocms_text import settings
+from djangocms_text.deprecation import RemovedInDjangoCMSText20Warning
 
 dyn_attr_pattern = re.compile(r"<[^>]*data-cms-[^>]*>")
 image_data_pattern = re.compile(
@@ -40,7 +41,11 @@ class NH3Parser:
     Attributes:
     - ALLOWED_TAGS: A set of allowed HTML tags.
     - ALLOWED_ATTRIBUTES: A dictionary mapping HTML tags to sets of allowed attributes for each tag.
+    - ALLOWED_URL_SCHEMES: A set of allowed URL schemes.
     - generic_attribute_prefixes: A set of prefixes that can be used in attribute names to indicate generic attributes.
+
+    The ``TEXT_ADDITIONAL_ATTRIBUTES`` and ``TEXT_ADDITIONAL_PROTOCOLS`` settings are not part of these attributes.
+    They are resolved and added each time the parser is used, so the parser always reflects the current settings.
 
     Methods:
     - __init__: Initializes the NH3Parser object.
@@ -58,19 +63,13 @@ class NH3Parser:
 
         self.ALLOWED_TAGS: set[str] = deepcopy(nh3.ALLOWED_TAGS)
         self.ALLOWED_ATTRIBUTES: dict[str, set[str]] = deepcopy(nh3.ALLOWED_ATTRIBUTES)
-        self.ALLOWED_URL_SCHEMES: set[str] = deepcopy(nh3.ALLOWED_URL_SCHEMES) | set(settings.TEXT_ADDITIONAL_PROTOCOLS)
+        self.ALLOWED_URL_SCHEMES: set[str] = deepcopy(nh3.ALLOWED_URL_SCHEMES)
         self.generic_attribute_prefixes: set[str] = generic_attribute_prefixes
 
-        for tag, attributes in settings.TEXT_ADDITIONAL_ATTRIBUTES.items():
-            if tag in additional_attributes:
-                additional_attributes[tag] = additional_attributes[tag] | attributes
-            else:
-                additional_attributes[tag] = attributes
-
-        if additional_attributes:
-            self.ALLOWED_TAGS |= {key for key in additional_attributes if key != "*"}
-            for tag, attributes in additional_attributes.items():
-                self.ALLOWED_ATTRIBUTES[tag] = self.ALLOWED_ATTRIBUTES.get(tag, set()) | attributes
+        # Never modify additional_attributes: it may be the shared module-level default
+        self.ALLOWED_TAGS |= {key for key in additional_attributes if key != "*"}
+        for tag, attributes in additional_attributes.items():
+            self.ALLOWED_ATTRIBUTES[tag] = self.ALLOWED_ATTRIBUTES.get(tag, set()) | set(attributes)
 
     def __call__(self) -> dict[str, dict[str, set[str]] | set[str] | None]:
         """
@@ -87,11 +86,25 @@ class NH3Parser:
 
         :rtype: dict[str, Union[dict[str, set[str]], set[str], None]]
         """
+        attributes, tags, url_schemes = self.ALLOWED_ATTRIBUTES, self.ALLOWED_TAGS, self.ALLOWED_URL_SCHEMES
+
+        # Settings are resolved on each use (and never stored) to keep the parser in sync with them
+        additional_attributes = settings.TEXT_ADDITIONAL_ATTRIBUTES
+        if additional_attributes:
+            attributes = {
+                **attributes,
+                **{tag: attributes.get(tag, set()) | set(attrs) for tag, attrs in additional_attributes.items()},
+            }
+            tags = tags | {tag for tag in additional_attributes if tag != "*"}
+        additional_protocols = settings.TEXT_ADDITIONAL_PROTOCOLS
+        if additional_protocols:
+            url_schemes = url_schemes | set(additional_protocols)
+
         return {
-            "attributes": self.ALLOWED_ATTRIBUTES,
-            "tags": self.ALLOWED_TAGS,
+            "attributes": attributes,
+            "tags": tags,
             "generic_attribute_prefixes": self.generic_attribute_prefixes,
-            "url_schemes": self.ALLOWED_URL_SCHEMES,
+            "url_schemes": url_schemes,
             "link_rel": None,
         }
 
@@ -131,8 +144,8 @@ def clean_html(data: str, full: bool | None = None, cleaner: NH3Parser = None) -
 
     if full is not None:
         warnings.warn(
-            "full argument is deprecated and will be removed",
-            category=DeprecationWarning,
+            "The full argument of clean_html is deprecated and will be removed in djangocms-text 2.0.",
+            category=RemovedInDjangoCMSText20Warning,
             stacklevel=2,
         )
     cleaner = cleaner or cms_parser

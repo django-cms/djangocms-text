@@ -1,13 +1,9 @@
-# requirements from setup.py
+# test requirements
 django-filer>=1.4.0
 django-polymorphic>=2.0.3
 Pillow
 html5lib>=0.999999999
-setuptools
 ruff
-isort
-flake8
-flake8-pyproject
 pytest
 pytest-django
 playwright>=1.42.0
@@ -15,7 +11,6 @@ pytest-playwright>=0.4.0
 
 # other requirements
 coverage
-tox
 
 easy-thumbnails
 

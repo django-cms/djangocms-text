@@ -30,11 +30,11 @@ It also wires three things server-side:
    selected image as a broken reference.
 """
 
-from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import lazy
 from django.utils.translation import gettext_lazy as _
 
+from djangocms_text import settings
 from djangocms_text.editors import (
     DEFAULT_EDITOR,
     DEFAULT_TOOLBAR_CMS,
@@ -71,7 +71,7 @@ for _toolbar in (DEFAULT_TOOLBAR_CMS, DEFAULT_TOOLBAR_HTMLField):
 # (e.g. Bootstrap's `img-fluid`, `rounded`, ...). Each entry is a
 # 2-tuple of `(class_name, verbose_name)`. The verbose name is what
 # the user sees in the dropdown; if omitted the class name is shown.
-_image_classes = getattr(settings, "TEXT_FILER_IMAGE_CLASSES", ())
+_image_classes = settings.TEXT_FILER_IMAGE_CLASSES
 
 
 # Server-side i18n label and form schema — merged into `this.lang` on

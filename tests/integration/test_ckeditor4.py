@@ -35,7 +35,9 @@ def test_editor_loads(live_server, page, text_plugin, superuser, use_ckeditor4):
     console_errors = []
 
     def handle_console_message(msg):
-        if msg.type == "error":
+        # Django < 6.1 admin JS registers an unload handler, which recent
+        # Chromium versions report as a permissions policy violation.
+        if msg.type == "error" and "unload is not allowed" not in msg.text:
             console_errors.append(f"{msg.text}: {msg.location} - {msg.args}")
 
     page.on("console", handle_console_message)

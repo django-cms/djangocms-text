@@ -326,9 +326,14 @@ def test_frontend_inline_edit_saved_when_leaving_toolbar(live_server, page, cms_
     page.wait_for_timeout(300)
     expect(wrapper).to_have_attribute("data-changed", "true")
     # ... but leaving the toolbar for somewhere else has to.
-    with page.expect_request(lambda request: request.method == "POST"):
+    with page.expect_response(lambda response: response.request.method == "POST") as response_info:
         page.evaluate("document.activeElement.blur()")
+    assert response_info.value.ok
     expect(wrapper).to_have_attribute("data-changed", "false")
+    # Let the save round trip finish completely: a request still running on the
+    # live server at teardown locks the test database.
+    page.wait_for_function("() => !window.CMS_Editor.hasUnsavedChanges()")
+    page.wait_for_load_state("networkidle")
 
 
 @pytest.mark.django_db

@@ -747,6 +747,13 @@ function _handleToolbarClick(event, editor) {
                 button.classList.remove('show');
                 button.querySelector(':scope > .dropdown-toggle')?.setAttribute('aria-expanded', 'false');
                 button.closest('[role="toolbar"]')?.classList.remove('has-dropdown-open');
+                // Opening focused a menu entry. Once hidden it drops the focus to
+                // <body>, which hides the inline toolbar: hand it back to the editor.
+                if (content.contains(document.activeElement)) {
+                    // Not editor.commands.focus(): it focuses again a frame later
+                    // and would steal the focus from a menu reopened meanwhile.
+                    editor.view.focus();
+                }
             }
         } else if (TiptapToolbar[action]) {
             TiptapToolbar[action].action(editor, button);

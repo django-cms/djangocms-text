@@ -302,6 +302,36 @@ def test_frontend_inline_toolbar_navigation(live_server, page, cms_page, text_pl
 
 @pytest.mark.django_db
 @pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
+def test_frontend_inline_toolbar_stays_after_closing_dropdown(
+    live_server, page, cms_page, text_plugin, superuser, settings
+):
+    from copy import deepcopy
+
+    from cms.toolbar.utils import get_object_edit_url
+
+    templates = deepcopy(settings.TEMPLATES)
+    templates[0]["OPTIONS"]["context_processors"].append("sekizai.context_processors.sekizai")
+    settings.TEMPLATES = templates
+    login(live_server, page, superuser)
+    page.goto(f"{live_server.url}{get_object_edit_url(get_pagecontent(cms_page))}")
+    editable = page.locator(".cms-editor-inline-wrapper .tiptap").first
+    expect(editable).to_be_visible(timeout=10000)
+    editable.click()
+    host = page.locator("body > .cms-editor-inline-wrapper.has-focused-editor")
+    toggle = host.locator('[role="toolbar"] .dropdown > .dropdown-toggle').first
+    toggle.click()
+    expect(toggle).to_have_attribute("aria-expanded", "true")
+    toggle.click()
+    expect(toggle).to_have_attribute("aria-expanded", "false")
+    # Cross the menu's fade-out and the editor's delayed blur handling
+    page.wait_for_timeout(500)
+    expect(editable).to_be_focused()
+    expect(host).to_have_count(1)
+    expect(host.locator('[role="toolbar"]')).to_be_visible()
+
+
+@pytest.mark.django_db
+@pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
 def test_frontend_inline_edit_saved_when_leaving_toolbar(live_server, page, cms_page, text_plugin, superuser, settings):
     from copy import deepcopy
 

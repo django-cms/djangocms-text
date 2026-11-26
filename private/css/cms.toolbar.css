@@ -18,6 +18,7 @@ html.cms-toolbar-expanded {
         display: inline-flex;
         align-items: center;
         position: relative;
+        vertical-align: middle;  /* match buttons; baseline would lift icon-only toggles */
         &::after {
             content: none !important;
         }

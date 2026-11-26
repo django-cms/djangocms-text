@@ -195,6 +195,7 @@ html.cms-toolbar-expanded {
         }
         display: inline-flex;
         justify-content: center;
+        align-items: center;  /* flex toolbar stretches buttons: keep icons level with dropdown toggles */
         cursor: pointer;
         border: none  !important;
         color: var(--dca-black, var(--body-fg));

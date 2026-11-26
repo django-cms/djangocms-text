@@ -17,8 +17,10 @@
             overflow-y: scroll;
             padding: 0 0.5rem;
 
-            &:focus-visible {
-                outline: none;  /* the modal's editing area is the only field: no focus ring */
+            /* The modal's editing area is the only field: no focus ring,
+               neither for keyboard (:focus-visible) nor mouse focus. */
+            &:focus-visible, &.ProseMirror-focused {
+                outline: none;
             }
         }
     }

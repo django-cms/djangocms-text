@@ -294,6 +294,9 @@ class CMSTipTapPlugin {
                     if (first) {
                         event.preventDefault();
                         event.stopPropagation();
+                        // The inline toolbar is hidden until the editor's focus handling
+                        // has run, and a hidden button cannot take focus: reveal it first.
+                        editor.options._toolbarHost?.classList.add('has-focused-editor');
                         focusToolbarControl(editor, first);
                     }
                 }

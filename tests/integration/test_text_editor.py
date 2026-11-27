@@ -302,6 +302,37 @@ def test_frontend_inline_toolbar_navigation(live_server, page, cms_page, text_pl
 
 @pytest.mark.django_db
 @pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
+def test_frontend_inline_toolbar_shortcut_reveals_hidden_toolbar(
+    live_server, page, cms_page, text_plugin, superuser, settings
+):
+    from copy import deepcopy
+
+    from cms.toolbar.utils import get_object_edit_url
+
+    templates = deepcopy(settings.TEMPLATES)
+    templates[0]["OPTIONS"]["context_processors"].append("sekizai.context_processors.sekizai")
+    settings.TEMPLATES = templates
+    login(live_server, page, superuser)
+    page.goto(f"{live_server.url}{get_object_edit_url(get_pagecontent(cms_page))}")
+    editable = page.locator(".cms-editor-inline-wrapper .tiptap").first
+    expect(editable).to_be_visible(timeout=10000)
+    editable.focus()
+    # The shortcut can arrive before the editor's focus handling has revealed the
+    # toolbar. A hidden button cannot take focus, so the shortcut has to show it.
+    hidden = page.evaluate("""() => {
+        const hosts = document.querySelectorAll('body > .cms-editor-inline-wrapper.has-focused-editor');
+        hosts.forEach(host => host.classList.remove('has-focused-editor'));
+        return hosts.length;
+    }""")
+    assert hidden == 1
+    page.wait_for_timeout(300)  # let the toolbar's fade-out end: it is hidden only then
+    page.keyboard.press("Alt+F10")
+    toolbar = page.locator('.has-focused-editor [role="toolbar"]')
+    expect(toolbar.locator("button:visible:not([disabled])").first).to_be_focused()
+
+
+@pytest.mark.django_db
+@pytest.mark.skipif(not DJANGO_CMS4, reason="Integration tests only work on Django CMS 4")
 def test_frontend_inline_edit_saved_when_leaving_toolbar(live_server, page, cms_page, text_plugin, superuser, settings):
     from copy import deepcopy
 
